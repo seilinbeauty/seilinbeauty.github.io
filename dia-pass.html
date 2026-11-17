@@ -1793,7 +1793,52 @@
       .dia-hero-in { flex-direction: column; align-items: flex-start; padding: 18px 16px 16px; }
       .dia-hero .quick-links { justify-content: flex-start; }
     }
-    .reg-filter { margin: 0 0 12px; }
+    .reg-filter { margin: 0 0 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .biz-cal-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px;
+      border: 1px solid #f2cbd8; background: #fff6f9; color: #b35172; font-size: 12.5px; font-weight: 800;
+      cursor: pointer; font-family: inherit; transition: background .15s, border-color .15s; }
+    .biz-cal-btn:hover { background: #fde9f0; border-color: #e49cb5; }
+    .biz-cal-back { position: fixed; inset: 0; z-index: 9999; background: rgba(34,20,26,.48);
+      display: none; align-items: center; justify-content: center; padding: 14px; backdrop-filter: blur(2px); }
+    .biz-cal-back.is-open { display: flex; }
+    .biz-cal-box { width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; background: #fff;
+      border-radius: 16px; border: 1px solid #f0dfe6; box-shadow: 0 18px 42px rgba(45,20,30,.22); padding: 16px; }
+    .biz-cal-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+    .biz-cal-title { font-size: 15px; font-weight: 800; color: #2d2226; }
+    .biz-cal-close { border: none; background: #f8eff3; color: #7a5c67; width: 28px; height: 28px; border-radius: 999px;
+      font-size: 15px; font-weight: 700; cursor: pointer; line-height: 1; }
+    .biz-cal-tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+    .biz-cal-tab { padding: 4px 10px; border-radius: 999px; border: 1px solid #eee0e6; background: #fff;
+      color: #6b5860; font-size: 11.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .biz-cal-tab.is-on { background: #b35172; border-color: #b35172; color: #fff; }
+    .biz-cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .biz-cal-ym { font-size: 14px; font-weight: 800; color: #2d2226; }
+    .biz-cal-mbtn { border: 1px solid #eee0e6; background: #fff; color: #5b4850; border-radius: 7px;
+      padding: 3px 10px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .biz-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-bottom: 12px; }
+    .biz-cal-dow { font-size: 11px; font-weight: 700; color: #9a868e; padding: 3px 0; }
+    .biz-cal-dow.sun { color: #d55576; }
+    .biz-cal-dow.sat { color: #4f79b8; }
+    .biz-cal-day { min-height: 40px; border-radius: 9px; border: 1px solid transparent; background: #fcf9fa;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+      font-size: 12px; font-weight: 700; color: #3d3136; cursor: pointer; padding: 3px 2px; }
+    .biz-cal-day.empty { background: transparent; cursor: default; }
+    .biz-cal-day.has-ev { background: #fff3f7; border-color: #f4cddb; color: #9f3558; }
+    .biz-cal-day.is-today { border-color: #b35172; box-shadow: inset 0 0 0 1px #b35172; }
+    .biz-cal-day.is-sel { background: #b35172; border-color: #b35172; color: #fff; }
+    .biz-cal-dot { font-size: 9.5px; font-weight: 800; padding: 0 5px; border-radius: 999px;
+      background: #e98aa9; color: #fff; line-height: 1.35; }
+    .biz-cal-day.is-sel .biz-cal-dot { background: rgba(255,255,255,.28); }
+    .biz-cal-list-hd { font-size: 12px; font-weight: 800; color: #5a464e; margin: 8px 0 6px; }
+    .biz-cal-list { display: flex; flex-direction: column; gap: 6px; }
+    .biz-cal-ev { display: block; text-decoration: none; padding: 9px 11px; border-radius: 10px;
+      border: 1px solid #f0e2e8; background: #fffdfd; color: #2d2226; }
+    .biz-cal-ev:hover { border-color: #e6a8be; background: #fff8fb; }
+    .biz-cal-ev-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 3px; }
+    .biz-cal-ev-reg { font-size: 10.5px; font-weight: 800; color: #b35172; background: #fdecf2; padding: 2px 6px; border-radius: 5px; }
+    .biz-cal-ev-dday { font-size: 10.5px; font-weight: 800; color: #fff; background: #d55576; padding: 2px 6px; border-radius: 5px; }
+    .biz-cal-ev-title { font-size: 12.5px; font-weight: 700; color: #2d2226; line-height: 1.35; }
+    .biz-cal-ev-desc { font-size: 11px; color: #7e6d74; margin-top: 2px; line-height: 1.35; }
     .reg-select { appearance: none; -webkit-appearance: none; width: auto; min-width: 132px;
       padding: 6px 30px 6px 12px; border-radius: 8px; border: 1px solid #eee3e8; background: #fff;
       background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23b35172' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");

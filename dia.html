@@ -1793,7 +1793,52 @@
       .dia-hero-in { flex-direction: column; align-items: flex-start; padding: 18px 16px 16px; }
       .dia-hero .quick-links { justify-content: flex-start; }
     }
-    .reg-filter { margin: 0 0 12px; }
+    .reg-filter { margin: 0 0 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .biz-cal-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px;
+      border: 1px solid #f2cbd8; background: #fff6f9; color: #b35172; font-size: 12.5px; font-weight: 800;
+      cursor: pointer; font-family: inherit; transition: background .15s, border-color .15s; }
+    .biz-cal-btn:hover { background: #fde9f0; border-color: #e49cb5; }
+    .biz-cal-back { position: fixed; inset: 0; z-index: 9999; background: rgba(34,20,26,.48);
+      display: none; align-items: center; justify-content: center; padding: 14px; backdrop-filter: blur(2px); }
+    .biz-cal-back.is-open { display: flex; }
+    .biz-cal-box { width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; background: #fff;
+      border-radius: 16px; border: 1px solid #f0dfe6; box-shadow: 0 18px 42px rgba(45,20,30,.22); padding: 16px; }
+    .biz-cal-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+    .biz-cal-title { font-size: 15px; font-weight: 800; color: #2d2226; }
+    .biz-cal-close { border: none; background: #f8eff3; color: #7a5c67; width: 28px; height: 28px; border-radius: 999px;
+      font-size: 15px; font-weight: 700; cursor: pointer; line-height: 1; }
+    .biz-cal-tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+    .biz-cal-tab { padding: 4px 10px; border-radius: 999px; border: 1px solid #eee0e6; background: #fff;
+      color: #6b5860; font-size: 11.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .biz-cal-tab.is-on { background: #b35172; border-color: #b35172; color: #fff; }
+    .biz-cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .biz-cal-ym { font-size: 14px; font-weight: 800; color: #2d2226; }
+    .biz-cal-mbtn { border: 1px solid #eee0e6; background: #fff; color: #5b4850; border-radius: 7px;
+      padding: 3px 10px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .biz-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-bottom: 12px; }
+    .biz-cal-dow { font-size: 11px; font-weight: 700; color: #9a868e; padding: 3px 0; }
+    .biz-cal-dow.sun { color: #d55576; }
+    .biz-cal-dow.sat { color: #4f79b8; }
+    .biz-cal-day { min-height: 40px; border-radius: 9px; border: 1px solid transparent; background: #fcf9fa;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+      font-size: 12px; font-weight: 700; color: #3d3136; cursor: pointer; padding: 3px 2px; }
+    .biz-cal-day.empty { background: transparent; cursor: default; }
+    .biz-cal-day.has-ev { background: #fff3f7; border-color: #f4cddb; color: #9f3558; }
+    .biz-cal-day.is-today { border-color: #b35172; box-shadow: inset 0 0 0 1px #b35172; }
+    .biz-cal-day.is-sel { background: #b35172; border-color: #b35172; color: #fff; }
+    .biz-cal-dot { font-size: 9.5px; font-weight: 800; padding: 0 5px; border-radius: 999px;
+      background: #e98aa9; color: #fff; line-height: 1.35; }
+    .biz-cal-day.is-sel .biz-cal-dot { background: rgba(255,255,255,.28); }
+    .biz-cal-list-hd { font-size: 12px; font-weight: 800; color: #5a464e; margin: 8px 0 6px; }
+    .biz-cal-list { display: flex; flex-direction: column; gap: 6px; }
+    .biz-cal-ev { display: block; text-decoration: none; padding: 9px 11px; border-radius: 10px;
+      border: 1px solid #f0e2e8; background: #fffdfd; color: #2d2226; }
+    .biz-cal-ev:hover { border-color: #e6a8be; background: #fff8fb; }
+    .biz-cal-ev-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 3px; }
+    .biz-cal-ev-reg { font-size: 10.5px; font-weight: 800; color: #b35172; background: #fdecf2; padding: 2px 6px; border-radius: 5px; }
+    .biz-cal-ev-dday { font-size: 10.5px; font-weight: 800; color: #fff; background: #d55576; padding: 2px 6px; border-radius: 5px; }
+    .biz-cal-ev-title { font-size: 12.5px; font-weight: 700; color: #2d2226; line-height: 1.35; }
+    .biz-cal-ev-desc { font-size: 11px; color: #7e6d74; margin-top: 2px; line-height: 1.35; }
     .reg-select { appearance: none; -webkit-appearance: none; width: auto; min-width: 132px;
       padding: 6px 30px 6px 12px; border-radius: 8px; border: 1px solid #eee3e8; background: #fff;
       background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23b35172' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
@@ -3525,6 +3570,7 @@
                 <option value="경남">경남 (2)</option>
                 <option value="제주">제주 (2)</option>
                 </select>
+                <button type="button" class="biz-cal-btn" id="bizCalOpen">📅 경영지원 캘린더</button>
               </div>
               <div class="reg-pane is-on" data-reg="전국">
               <div class="reg-scroll">
@@ -3837,15 +3883,155 @@
                 <div class="panel-item-date">2026-08-28</div>
               </a>
               </div>
-              </div><script>
+              </div><div class="biz-cal-back" id="bizCalModal" aria-hidden="true">
+        <div class="biz-cal-box" role="dialog" aria-label="경영지원 캘린더">
+          <div class="biz-cal-top">
+            <div class="biz-cal-title">📅 경영지원 캘린더</div>
+            <button type="button" class="biz-cal-close" id="bizCalClose" aria-label="닫기">×</button>
+          </div>
+          <div class="biz-cal-tabs" id="bizCalTabs">
+            <button type="button" class="biz-cal-tab is-on" data-scope="all">전체 일정</button>
+            <button type="button" class="biz-cal-tab" data-scope="cur" id="bizCalCurTab">선택 지역</button>
+          </div>
+          <div class="biz-cal-nav">
+            <button type="button" class="biz-cal-mbtn" id="bizCalPrev">◀ 이전 달</button>
+            <div class="biz-cal-ym" id="bizCalYm">2026년 11월</div>
+            <button type="button" class="biz-cal-mbtn" id="bizCalNext">다음 달 ▶</button>
+          </div>
+          <div class="biz-cal-grid" id="bizCalGrid"></div>
+          <div class="biz-cal-list-hd" id="bizCalListHd">다가오는 마감 일정</div>
+          <div class="biz-cal-list" id="bizCalList"></div>
+        </div>
+      </div>
+      <script>
       (function(){
         var 셀렉트 = document.getElementById('regSelect');
         var 판들 = document.querySelectorAll('.reg-pane');
-        if(!셀렉트) return;
-        셀렉트.addEventListener('change', function(){
-          판들.forEach(function(p){ p.classList.remove('is-on'); });
-          var 대상 = document.querySelector('.reg-pane[data-reg="' + 셀렉트.value + '"]');
-          if(대상) 대상.classList.add('is-on');
+        if(셀렉트){
+          셀렉트.addEventListener('change', function(){
+            판들.forEach(function(p){ p.classList.remove('is-on'); });
+            var 대상 = document.querySelector('.reg-pane[data-reg="' + 셀렉트.value + '"]');
+            if(대상) 대상.classList.add('is-on');
+          });
+        }
+        var 전체일정 = [{"date": "2026-11-19", "region": "경기", "title": "하남시 소상공인 경영환경개선 추가모집 (최대 180만원)", "desc": "하남시·경기테크노파크가 6개월 이상 사업자등록하고 영업 중인 관내 소상공인에게 점포환경·시스템 개선과 제품 제작비를 최대 180만원 지원합니다. 2026년 11월 19일까지 경기테크노파크로 온라인·방문·이메일 접수합니다.", "url": "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000127885"}, {"date": "2026-11-30", "region": "강원", "title": "소담스퀘어 강원 온라인 판로 지원 (라이브커머스)", "desc": "강원특별자치도경제진흥원이 도내 소상공인에게 1:1 디지털 컨설팅, 라이브커머스 운영, 온라인 콘텐츠 제작, 프로필 촬영 등을 지원합니다. 2026년 11월 30일까지 판판대로에서 접수하는 상시 모집 사업입니다.", "url": "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000120821"}, {"date": "2026-11-30", "region": "경북", "title": "경북 상주시 소상공인 카드수수료 지원 (최대 40만원)", "desc": "경상북도경제진흥원이 2025년 연매출 2억원 이하 상주시 소상공인에게 카드매출액의 0.4%(최저 5만원~최대 40만원)를 지원합니다. 2026년 11월 30일까지 행복카드.kr 온라인 또는 행정복지센터·경제진흥원 방문으로 접수합니다.", "url": "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000121338"}, {"date": "2026-11-30", "region": "광주", "title": "광주 영세 소상공인 중소금융권 이자 지원 (최대 100만원)", "desc": "광주광역시가 2025년 제2금융권에서 5% 이상 금리로 사업자대출을 받은 관내 개인사업자에게 납부 이자 일부를 최대 12개월분, 1인당 100만원 한도로 지원합니다. 2026년 11월 30일까지 광주기업지원시스템에서 접수합니다.", "url": "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000122952"}, {"date": "2026-11-30", "region": "대전", "title": "대전 소상공인 인건비 지원 (근로자 1인당 150만원)", "desc": "대전시·대전일자리경제진흥원이 2026년 1월 1일~9월 10일 사이 18세 이상 근로자를 신규 채용하고 3개월 이상 고용을 유지한 관내 소상공인에게 1인당 150만원을 지원합니다. 2026년 11월 30일까지 대전비즈에서 접수합니다.", "url": "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000117737"}, {"date": "2026-11-30", "region": "전국", "title": "2026년 찾아가는 1:1 디지털 교육 (무료 방문 멘토링)", "desc": "소상공인시장진흥공단 사업으로, 온라인 진출 의사는 있으나 집체교육이 어려운 1인·중장년 소상공인에게 현장방문 1:1 교육(2시간×2회)을 무료로 지원합니다. 2026년 11월 30일 18시까지 소상공인24에서 접수하며 예산 소진 시 조기 마감됩니다.", "url": "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000122273"}, {"date": "2026-12-10", "region": "울산", "title": "울산 소상공인 고용보험료 지원 (납부액 15~30%)", "desc": "울산시·울산경제일자리진흥원이 자영업자 고용보험에 가입한 관내 소상공인에게 납부 보험료의 15~30%를 최대 3년간 지원하고 2026년 1월 납부분도 소급 지원합니다. 2026년 12월 10일까지 이메일(gobo@ubpi.or.kr) 또는 방문 접수합니다.", "url": "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000120387"}, {"date": "2026-12-15", "region": "대전", "title": "대전 소상공인 아이돌봄 지원 (최대 150만원)", "desc": "대전시가 상시근로자 5인 미만 관내 소상공인 사업주와 종사자에게 2026년 아이돌봄 서비스 본인부담금을 최대 150만원까지 지원합니다. 2026년 12월 15일까지 대전일자리경제진흥원 공고로 접수 중입니다.", "url": "https://www.djbea.or.kr/mps/bizTskPbnc/view?menuId=MENU002040101000000&menuKey=TOfnnvp207&pageNum=1&schEndDate=&schGubun=&schStartDate=&schTab=&schText=&tsk_pbnc_id=2026-0169"}, {"date": "2026-12-15", "region": "부산", "title": "부산 소상공인 에너지바우처 (동백전 20만원)", "desc": "부산시가 연매출 3억원 이하 부산 소상공인에게 부산지역화폐 동백전 정책지원금 20만원을 지급합니다. 2026년 12월 15일까지 동백전 앱으로 접수하며 2026년 8월 31일 이전 개업 업체가 대상입니다.", "url": "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000127770"}, {"date": "2026-12-18", "region": "부산", "title": "부산 라이브커머스 운영 지원 (뷰티 포함, 최대 120만원)", "desc": "부산시·부산경제진흥원이 관내 소상공인 50개 업체에 사전컨설팅, 쇼호스트 섭외, 라이브커머스 촬영·송출을 업체당 최대 120만원 이내로 지원하며 품목에 뷰티가 포함됩니다. 2026년 12월 18일까지 판판대로와 소담스퀘어 in 부산 두 곳에 모두 접수해야 합니다.", "url": "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000121288"}, {"date": "2026-12-18", "region": "인천", "title": "인천 1인 자영업자 고용보험료 지원 (12월 18일까지)", "desc": "인천시가 관내 1인 자영업자에게 자영업자 고용보험료 일부를 지원해 사회안전망 가입을 돕습니다. 2026년 4월 1일부터 12월 18일까지 인천소상공인종합지원포털(성장대로)에서 온라인 접수합니다.", "url": "https://www.icsp.or.kr/main/bsns/ancm/view.do?bsns_ancm_sn=112"}, {"date": "2026-12-18", "region": "전국", "title": "경영안정 바우처 25만원 신청 마감", "desc": "2025년 연매출 1억 400만원 미만 소상공인 · 예산 소진 시 조기 마감", "url": "https://voucher.sbiz24.kr/"}, {"date": "2026-12-31", "region": "경기", "title": "경기도 1인 소상공인 고용보험료 지원 (자부담 0원)", "desc": "경기도시장상권진흥원이 자영업자 고용보험에 가입한 도내 1인 소상공인에게 월 보험료의 20~30%를 분기별로 최대 5년간 지원하며 정부 지원과 중복 수령이 가능합니다. 2026년 12월 31일 18시까지 경기바로에서 접수합니다.", "url": "https://ggbaro.kr/apply/biz-announce.do?bizId=2026-022-01&bizType=01"}, {"date": "2026-12-31", "region": "서울", "title": "종로구 소상공인 라이브커머스 지원 (쇼호스트·촬영)", "desc": "종로구가 관내 소상공인 10개소에 쇼호스트 섭외, 방송장비·촬영팀, 송출까지 라이브커머스 1회(60분 이내)를 지원합니다. 2026년 12월 31일까지 선착순 접수로, 통신판매업 신고 업체가 대상입니다.", "url": "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000125511"}, {"date": "2026-12-31", "region": "세종", "title": "세종시 소상공인자금 (최대 7천만원, 이자 1.75~2.0%)", "desc": "세종시·세종신용보증재단이 관내 사업자등록 소상공인에게 업체당 최대 7천만원을 융자하고 2년 만기 연 2.0%, 3년 만기 연 1.75% 이자를 시가 부담합니다. 2026년 12월 31일까지 분기별로 보증드림 앱에서 선착순 접수합니다.", "url": "https://sjsinbo.or.kr/sub0501/view/page/2/id/971"}, {"date": "2026-12-31", "region": "전국", "title": "경영안정 바우처 25만원 사용 기한", "desc": "지급된 바우처는 12월 31일까지 미사용 시 잔액 소멸", "url": "https://voucher.sbiz24.kr/"}, {"date": "2026-12-31", "region": "제주", "title": "제주 소상공인 민생회복 대출안심보험 (보험료 전액)", "desc": "제주특별자치도가 만 20~65세 도내 소상공인 중 금융기관 대출 잔액 1,000만원 이상인 사업자의 대출안심보험 가입 보험료를 전액 지원합니다. 2026년 9월 1일부터 12월 31일까지 온라인(QR) 접수합니다.", "url": "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000125893"}];
+        var 열기버튼 = document.getElementById('bizCalOpen');
+        var 모달 = document.getElementById('bizCalModal');
+        var 닫기버튼 = document.getElementById('bizCalClose');
+        var 그리드 = document.getElementById('bizCalGrid');
+        var 연월표시 = document.getElementById('bizCalYm');
+        var 목록제목 = document.getElementById('bizCalListHd');
+        var 목록 = document.getElementById('bizCalList');
+        var 현재지역탭 = document.getElementById('bizCalCurTab');
+        if(!열기버튼 || !모달) return;
+
+        var 기준오늘 = new Date();
+        var 오늘문자 = 기준오늘.getFullYear() + '-' + String(기준오늘.getMonth()+1).padStart(2,'0') + '-' + String(기준오늘.getDate()).padStart(2,'0');
+        var 보기연 = 2026, 보기월 = 11;
+        var 선택날짜 = '';
+        var 범위 = 'all';
+
+        function 필터일정(){
+          if(범위 === 'all' || !셀렉트) return 전체일정;
+          var r = 셀렉트.value;
+          return 전체일정.filter(function(ev){ return ev.region === r || ev.region === '전국'; });
+        }
+
+        function dday계산(dtStr){
+          var a = new Date(오늘문자 + 'T00:00:00');
+          var b = new Date(dtStr + 'T00:00:00');
+          var diff = Math.round((b - a) / 86400000);
+          if(diff === 0) return 'D-DAY';
+          if(diff > 0) return 'D-' + diff;
+          return '종료';
+        }
+
+        function 일정카드HTML(ev){
+          return '<a class="biz-cal-ev" href="' + ev.url + '" target="_blank" rel="noopener">'
+            + '<div class="biz-cal-ev-top"><span class="biz-cal-ev-reg">' + ev.region + ' · ' + ev.date.slice(5) + '</span>'
+            + '<span class="biz-cal-ev-dday">' + dday계산(ev.date) + '</span></div>'
+            + '<div class="biz-cal-ev-title">' + ev.title + '</div>'
+            + (ev.desc ? '<div class="biz-cal-ev-desc">' + ev.desc + '</div>' : '')
+            + '</a>';
+        }
+
+        function 그리기(){
+          if(현재지역탭 && 셀렉트) 현재지역탭.textContent = 셀렉트.value + ' + 전국';
+          var evs = 필터일정();
+          var 맵 = {};
+          evs.forEach(function(ev){
+            if(!맵[ev.date]) 맵[ev.date] = [];
+            맵[ev.date].push(ev);
+          });
+          연월표시.textContent = 보기연 + '년 ' + 보기월 + '월';
+          var 요일 = ['일','월','화','수','목','금','토'];
+          var html = 요일.map(function(w, i){
+            var c = i===0 ? ' sun' : (i===6 ? ' sat' : '');
+            return '<div class="biz-cal-dow' + c + '">' + w + '</div>';
+          }).join('');
+          var 첫요일 = new Date(보기연, 보기월 - 1, 1).getDay();
+          var 말일 = new Date(보기연, 보기월, 0).getDate();
+          for(var i=0; i<첫요일; i++) html += '<div class="biz-cal-day empty"></div>';
+          for(var d=1; d<=말일; d++){
+            var ds = 보기연 + '-' + String(보기월).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+            var cnt = 맵[ds] ? 맵[ds].length : 0;
+            var cls = 'biz-cal-day' + (cnt ? ' has-ev' : '') + (ds === 오늘문자 ? ' is-today' : '') + (ds === 선택날짜 ? ' is-sel' : '');
+            html += '<button type="button" class="' + cls + '" data-dt="' + ds + '">'
+              + '<span>' + d + '</span>'
+              + (cnt ? '<span class="biz-cal-dot">' + cnt + '건</span>' : '')
+              + '</button>';
+          }
+          그리드.innerHTML = html;
+          그리드.querySelectorAll('button[data-dt]').forEach(function(b){
+            b.addEventListener('click', function(){
+              var dt = b.getAttribute('data-dt');
+              선택날짜 = (선택날짜 === dt) ? '' : dt;
+              그리기();
+            });
+          });
+          if(선택날짜){
+            var 해당 = 맵[선택날짜] || [];
+            목록제목.textContent = 선택날짜 + ' 일정 (' + 해당.length + '건)';
+            목록.innerHTML = 해당.length ? 해당.map(일정카드HTML).join('') : '<div class="reg-empty">이 날짜에 등록된 마감 일정이 없습니다.</div>';
+          } else {
+            var 다가옴 = evs.filter(function(ev){ return ev.date >= 오늘문자; });
+            목록제목.textContent = '다가오는 마감 일정 (' + 다가옴.length + '건)';
+            목록.innerHTML = 다가옴.length ? 다가옴.map(일정카드HTML).join('') : '<div class="reg-empty">예정된 마감 일정이 없습니다.</div>';
+          }
+        }
+
+        열기버튼.addEventListener('click', function(){
+          선택날짜 = '';
+          모달.classList.add('is-open');
+          모달.setAttribute('aria-hidden', 'false');
+          그리기();
+        });
+        닫기버튼.addEventListener('click', function(){
+          모달.classList.remove('is-open');
+          모달.setAttribute('aria-hidden', 'true');
+        });
+        모달.addEventListener('click', function(e){
+          if(e.target === 모달){
+            모달.classList.remove('is-open');
+            모달.setAttribute('aria-hidden', 'true');
+          }
+        });
+        document.getElementById('bizCalPrev').addEventListener('click', function(){
+          보기월--; if(보기월 < 1){ 보기월 = 12; 보기연--; }
+          선택날짜 = ''; 그리기();
+        });
+        document.getElementById('bizCalNext').addEventListener('click', function(){
+          보기월++; if(보기월 > 12){ 보기월 = 1; 보기연++; }
+          선택날짜 = ''; 그리기();
+        });
+        document.getElementById('bizCalTabs').querySelectorAll('.biz-cal-tab').forEach(function(t){
+          t.addEventListener('click', function(){
+            document.getElementById('bizCalTabs').querySelectorAll('.biz-cal-tab').forEach(function(x){ x.classList.remove('is-on'); });
+            t.classList.add('is-on');
+            범위 = t.getAttribute('data-scope');
+            선택날짜 = '';
+            그리기();
+          });
         });
       })();
       </script>
@@ -3894,9 +4080,9 @@
                 <div class="panel-item-desc">직접 찍은 원본 위주 업로드가 유리하며, 캡션 해시태그는 최대 5개까지 정확히 고르는 기준이 유지됩니다.</div>
                 <div class="panel-item-date">2026-11-04</div>
               </a>
-              <a target="_blank" rel="noopener" href="https://socialbee.com/blog/instagram-updates-news-features/" class="panel-item">
+              <a target="_blank" rel="noopener" href="https://marcus.marketing/blog/instagram-monthly-updates-october-2026/" class="panel-item">
                 <div class="panel-item-title">인스타 Edits 캐러셀·시리즈·90분 영상 테스트</div>
-                <div class="panel-item-desc">Edits에서 사진·영상 혼합 캐러셀 편집을 지원하며, 주제별 릴스 시리즈 묶음과 장편 영상 기능을 시험 중입니다.</div>
+                <div class="panel-item-desc">Edits에서 사진·영상 혼합 캐러셀 편집을 지원하며, 릴스 연결 기능 종료(10/28) 이후 시리즈 표기와 장편 영상 기능을 시험 중입니다.</div>
                 <div class="panel-item-date">2026-11-16</div>
               </a>
               <a target="_blank" rel="noopener" href="https://www.pepperagency.com/blog/every-instagram-update-adam-mosseri-has-shared-in-2026---updated-october-2026" class="panel-item">
