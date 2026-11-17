@@ -1855,6 +1855,11 @@
     .reg-scroll::-webkit-scrollbar { width: 6px; }
     .reg-scroll::-webkit-scrollbar-thumb { background: #eddae1; border-radius: 999px; }
     .reg-scroll::-webkit-scrollbar-track { background: transparent; }
+    .sum-scroll { max-height: 196px; overflow-y: auto; overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch; padding-right: 4px; }
+    .sum-scroll::-webkit-scrollbar { width: 6px; }
+    .sum-scroll::-webkit-scrollbar-thumb { background: #eddae1; border-radius: 999px; }
+    .sum-scroll::-webkit-scrollbar-track { background: transparent; }
     .reg-more { display: block; width: 100%; margin-top: 10px; padding: 8px 0; border-radius: 8px;
       border: 1px solid #eee3e8; background: #fffdfd; color: #8d7a80; font-size: 12px; font-weight: 700;
       cursor: pointer; font-family: inherit; }
@@ -2319,9 +2324,9 @@
               .mc-news-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10.5px;color:#9e8890;}
               .mc-news-link{color:#c2456a;font-weight:800;text-decoration:none;}
               .mc-empty{margin-top:8px;font-size:12px;color:#b9a9af;}
-              .mc-hero-clock{flex:1 0 100%;display:flex;justify-content:flex-end;align-items:center;gap:6px;margin:-2px 0 0;}
+              .mc-hero-clock{position:absolute;top:38px;right:16px;z-index:4;display:flex;justify-content:flex-end;align-items:center;margin:0;}
               .mc-hero-clock[hidden]{display:none !important;}
-              .mc-hero-clock .book-cd{font-size:11px;padding:5px 10px;border-radius:999px;}
+              .mc-hero-clock .book-cd{font-size:10px;padding:3px 8px;border-radius:999px;font-weight:800;}
               #mcHeroStatus{flex:1 0 100%;width:100%;box-sizing:border-box;margin-top:0 !important;}
               #mcHeroStatus .mc-row{width:100%;box-sizing:border-box;padding:9px 11px;}
               .dia-hero-in:has(#mcHeroStatus:not([hidden])){padding-top:11px !important;padding-bottom:8px !important;gap:7px !important;}
@@ -2402,7 +2407,7 @@
               });
               var 요일명 = ['월','화','수','목','금','토','일'];
               var 라벨 = "이번 주";
-              var 기준 = "2026-11-17 14:09";
+              var 기준 = "2026-11-17 14:14";
               function 요일줄(w, m){
                 if(!w) return '';
                 var 참여 = 0, h = '<div class="mc-days">';
@@ -4060,7 +4065,7 @@
             </div>
             <div class="home-panel">
               <div class="panel-head"><span class="panel-name">네이버</span><span class="panel-sub">플레이스 공식 공지</span></div>
-<div class="reg-scroll">
+<div class="sum-scroll">
               <a target="_blank" rel="noopener" href="https://sjstudio.kr/naver-search-changes-2026/" class="panel-item">
                 <div class="panel-item-title">네이버 검색·플레이스 광고 노출 확대 테스트</div>
                 <div class="panel-item-desc">11월 5일부터 모바일·지도 플레이스 광고 노출 구성을 확대 시험 중입니다. 대표사진·예약·리뷰 관리가 더 중요해졌습니다.</div>
@@ -4090,7 +4095,7 @@
             </div>
             <div class="home-panel">
               <div class="panel-head"><span class="panel-name">인스타</span><span class="panel-sub">공식 업데이트</span></div>
-<div class="reg-scroll">
+<div class="sum-scroll">
               <a target="_blank" rel="noopener" href="https://snseyes.net/instagram-trend" class="panel-item">
                 <div class="panel-item-title">추천 릴스 45%가 하루 안 된 새 영상 (11월 발표)</div>
                 <div class="panel-item-desc">메타 실적 발표 기준, 업로드 직후 1시간 첫 반응과 다음 편으로 이어 보게 만드는 시리즈 구성이 핵심입니다.</div>
