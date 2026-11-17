@@ -2299,7 +2299,10 @@
               .mc-saju-form button{flex:0 0 auto;height:34px;padding:0 13px;border:0;border-radius:9px;background:#e1789a;color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;}
               .mc-meta{margin-top:5px;font-size:11.5px;color:#8a7b81;}
               .mc-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:7px;}
-              .mc-k{padding:7px 9px;border-radius:8px;background:#fdf7f9;text-align:center;}
+              .mc-k{padding:7px 9px;border-radius:8px;background:#fdf7f9;text-align:center;text-decoration:none;display:block;}
+              a.mc-k{cursor:pointer;}
+              a.mc-k:hover,a.mc-k:active{background:#fbeaf1;}
+              a.mc-k b:after{content:'A';font-size:11px;margin-left:2px;color:#c2456a;opacity:.75;}
               .mc-k b{display:block;font-size:15px;font-weight:800;color:#c2456a;line-height:1.2;}
               .mc-k span{font-size:10.5px;color:#a98d97;}
               .mc-days{display:flex;gap:4px;margin-top:8px;}
@@ -2465,7 +2468,7 @@
                      + '<div class="mc-k"><b>' + (m.tot || 0) + '회</b><span>전체 누적</span></div>'
                      + '<div class="mc-k"><b>' + (m.rk ? m.rk + '위' : '-') + '</b><span>이번 달 순위</span></div>'
                      + '<div class="mc-k"><b>' + (m.lw || 0) + '회</b><span>지난주 참여</span></div>'
-                     + '<div class="mc-k"><b>' + m.b + '</b><span>완료패스</span></div>'
+                     + '<a class="mc-k" href="dia-pass.html"><b>' + m.b + '</b><span>완료패스</span></a>'
                      + '</div>'
                      + 요일줄(m.w, m)
                      + '</div>';
