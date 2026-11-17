@@ -2123,7 +2123,7 @@
         <a href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" class="solid">오픈채팅 바로 가기</a>
         <a href="https://www.instagram.com/seilin_beauty.pr/" target="_blank" rel="noopener">문의하기</a>
         <button type="button" id="mcLoginBtn" class="mc-hero-login">🔑 내 정보 보기</button>
-        <button type="button" id="mcCourseBtn">T수강</button>
+        <a href="dia-course.html" id="mcCourseBtn">T수강</a>
       </div>
       <a id="mcHeroClock" class="mc-hero-clock" hidden href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" title="오픈채팅방 바로 가기"><span class="book-cd" id="diaCd">--</span></a>
       <div class="mc-login-box" id="mcLoginBox" hidden style="margin-top:8px;max-width:440px;">
@@ -2425,7 +2425,7 @@
               });
               var 요일명 = ['월','화','수','목','금','토','일'];
               var 라벨 = "이번 주";
-              var 기준 = "2026-11-17 14:37";
+              var 기준 = "2026-11-17 14:38";
               function 요일줄(w, m){
                 if(!w) return '';
                 var 참여 = 0, h = '<div class="mc-days">';
@@ -5087,25 +5087,6 @@
       alert('비밀번호가 맞지 않습니다.');
     }
   });
-})();
-</script>
-<div id="cm-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(40,25,32,.42);padding:20px;box-sizing:border-box;">
-  <div style="max-width:420px;margin:40px auto 0;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 12px 30px rgba(60,30,45,.22);">
-    <div style="display:flex;align-items:center;gap:8px;padding:13px 16px;border-bottom:1px solid #f2e2e8;">
-      <div style="font-size:14.5px;font-weight:800;color:#3c2b31;">T수강 원장님</div>
-      <button id="cm-x" type="button" style="margin-left:auto;border:0;background:#f8eef1;color:#a9808d;width:26px;height:26px;border-radius:999px;font-size:14px;font-weight:800;cursor:pointer;">×</button>
-    </div>
-    <div style="padding:8px 16px 16px;max-height:60vh;overflow:auto;"><div style="padding:18px 2px;text-align:center;font-size:12.5px;color:#a9808d;">등록된 수강 원장님이 없습니다.</div></div>
-  </div>
-</div>
-<script>
-(function(){
-  var ov = document.getElementById('cm-overlay');
-  var bt = document.getElementById('mcCourseBtn');
-  if(!ov || !bt) return;
-  bt.addEventListener('click', function(){ ov.style.display = 'block'; });
-  document.getElementById('cm-x').addEventListener('click', function(){ ov.style.display = 'none'; });
-  ov.addEventListener('click', function(e){ if(e.target === ov) ov.style.display = 'none'; });
 })();
 </script>
 </body>
