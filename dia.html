@@ -2339,7 +2339,10 @@
               .dia-hero-in:has(#mcHeroStatus:not([hidden])) .quick-links{gap:6px;}
               .dia-hero-in:has(#mcHeroStatus:not([hidden])) .pr-card{margin-bottom:0;}
               #mcHeroStatus .mycard{margin-bottom:0;}
-              body.dia-page .plx-main{padding-top:7px;}
+              body.dia-page .plx-main{padding-top:0;}
+              body.dia-page .plx-section{padding-top:0 !important;}
+              body.dia-page .dia-hero{padding-bottom:0;border-bottom:0;}
+              body.dia-page .dia-hero-in{padding-bottom:0 !important;} 
               body.dia-page .plx-clock,body.dia-page .plx-clock-open{margin-bottom:10px;}
               .plx-who{display:flex;align-items:center;gap:14px;min-width:0;}
               .plx-who .pr-av{width:74px;height:74px;font-size:26px;}
@@ -2409,7 +2412,7 @@
               });
               var 요일명 = ['월','화','수','목','금','토','일'];
               var 라벨 = "이번 주";
-              var 기준 = "2026-11-17 13:59";
+              var 기준 = "2026-11-17 14:00";
               function 요일줄(w, m){
                 if(!w) return '';
                 var 참여 = 0, h = '<div class="mc-days">';
