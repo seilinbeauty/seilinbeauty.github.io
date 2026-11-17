@@ -2122,7 +2122,7 @@
         </form>
         <div class="mc-login-msg" id="mcLoginMsg">회원목록에서 본인 이름을 검색해 선택하세요.</div>
       </div>
-      <div id="mcHeroStatus" hidden style="margin-top:10px;"></div>
+      <div id="mcHeroStatus" hidden style="margin-top:0;"></div>
     </div>
   </section>
 
@@ -2333,8 +2333,9 @@
               .mc-news-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10.5px;color:#9e8890;}
               .mc-news-link{color:#c2456a;font-weight:800;text-decoration:none;}
               .mc-empty{margin-top:8px;font-size:12px;color:#b9a9af;}
-              #mcHeroStatus{flex:1 0 100%;width:100%;box-sizing:border-box;}
-              #mcHeroStatus .mc-row{width:100%;box-sizing:border-box;}
+              #mcHeroStatus{flex:1 0 100%;width:100%;box-sizing:border-box;margin-top:0 !important;}
+              #mcHeroStatus .mc-row{width:100%;box-sizing:border-box;padding:9px 11px;}
+              .dia-hero-in:has(.mc-hero-login.on){padding-top:11px !important;padding-bottom:12px !important;gap:6px !important;}
               .plx-who{display:flex;align-items:center;gap:14px;min-width:0;}
               .plx-who .pr-av{width:74px;height:74px;font-size:26px;}
               .mc-chk-wrap{margin-top:10px;padding-top:9px;border-top:1px dashed #f0dce3;}
@@ -2403,7 +2404,7 @@
               });
               var 요일명 = ['월','화','수','목','금','토','일'];
               var 라벨 = "이번 주";
-              var 기준 = "2026-11-17 13:50";
+              var 기준 = "2026-11-17 13:58";
               function 요일줄(w, m){
                 if(!w) return '';
                 var 참여 = 0, h = '<div class="mc-days">';
