@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>카운트다운 테스트 | 다이아 커뮤니티</title>
+<style>
+  body { margin:0; background:#fdf7f9; font-family:'Pretendard',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif; color:#33262a; padding:24px 16px 60px; }
+  .wrap { max-width:640px; margin:0 auto; }
+  h1 { font-size:16px; margin:0 0 4px; }
+  .sub { font-size:12.5px; color:#9a8a90; margin-bottom:20px; }
+  .book-intro { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 14px;
+    background:#fffafb; border:1px dashed #f3cdd8; border-radius:14px; padding:18px 20px; font-size:13.5px; color:#8d7b82; line-height:1.8; word-break:keep-all; }
+  .book-now { font-variant-numeric:tabular-nums; font-weight:800; color:#c2637f; background:#fff; border:1px solid #f6dfe6; border-radius:999px; padding:6px 14px; font-size:12.5px; white-space:nowrap; }
+  .book-cd { font-variant-numeric:tabular-nums; font-weight:800; color:#fff; background:linear-gradient(135deg,#f0a3b8,#e1789a); border-radius:999px; padding:6px 14px; font-size:12.5px; white-space:nowrap; }
+  .book-cd[hidden] { display:none; }
+  .book-cd-urgent { background:linear-gradient(135deg,#e8567f,#cf3f6b); box-shadow:0 0 0 3px rgba(232,86,127,0.16); }
+  .btns { display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
+  button { font-family:inherit; font-size:12.5px; font-weight:700; color:#b35172; background:#fff; border:1px solid #f3d3dd; border-radius:999px; padding:9px 15px; cursor:pointer; }
+  button.on { background:#e1789a; border-color:#e1789a; color:#fff; }
+  .state { margin-top:16px; font-size:12px; color:#a08a91; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>카운트다운 테스트</h1>
+  <div class="sub">실제 홈에 들어간 것과 같은 위젯입니다. 아래 버튼으로 시각을 옮겨 보세요.</div>
+
+  <div class="book-intro">
+    <span>참여 시간 <b>09:00 ~ 21:00</b> · 완료 인증 <b>21:01 ~ 24:00</b></span>
+    <span class="book-now"><span id="diaNow">--:--:--</span></span>
+    <span class="book-cd" id="diaCd" hidden></span>
+  </div>
+
+  <div class="btns">
+    <button data-t="08:29:50">오전 8시 29분 50초</button>
+    <button data-t="08:45:00">오전 8시 45분</button>
+    <button data-t="08:59:40">오전 8시 59분 40초</button>
+    <button data-t="12:00:00">낮 12시 (카운트 없음)</button>
+    <button data-t="20:45:00">밤 8시 45분</button>
+    <button data-t="23:45:00">밤 11시 45분</button>
+    <button data-t="23:59:50">밤 11시 59분 50초</button>
+    <button id="real" class="on">실제 시간</button>
+  </div>
+  <div class="state" id="state">실제 시간으로 보는 중</div>
+</div>
+
+<script>
+(function(){
+  var 시계 = document.getElementById('diaNow');
+  var 카운터 = document.getElementById('diaCd');
+  var 상태 = document.getElementById('state');
+  var 요일 = ['일','월','화','수','목','금','토'];
+  function 칸(n){ return (n<10?'0':'')+n; }
+
+  var 가상시각 = null;
+
+  function now(){
+    if(가상시각) return new Date(가상시각.getTime());
+    return new Date();
+  }
+
+  function 시간글(ms){
+    var 초 = Math.floor(ms/1000);
+    return 칸(Math.floor(초/3600)) + ':' + 칸(Math.floor((초%3600)/60)) + ':' + 칸(초%60);
+  }
+
+  function 그리기(){
+    var d = now();
+    시계.textContent = d.getFullYear() + '-' + 칸(d.getMonth()+1) + '-' + 칸(d.getDate())
+      + ' (' + 요일[d.getDay()] + ') ' + 칸(d.getHours()) + ':' + 칸(d.getMinutes()) + ':' + 칸(d.getSeconds());
+
+    var 시작 = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 9, 0, 0, 0);
+    var 마감 = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 21, 0, 0, 0);
+    var 인증끝 = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 24, 0, 0, 0);
+
+    var 글, 남은;
+    if(d < 시작){
+      남은 = 시작 - d;
+      글 = '참여 시작까지 ' + 시간글(남은);
+    } else if(d < 마감){
+      남은 = 마감 - d;
+      글 = '참여 시간 ' + 시간글(남은);
+    } else if(d < 인증끝){
+      남은 = 인증끝 - d;
+      글 = '인증 시간 ' + 시간글(남은);
+    } else {
+      남은 = new Date(d.getFullYear(), d.getMonth(), d.getDate()+1, 9, 0, 0, 0) - d;
+      글 = '참여 시작까지 ' + 시간글(남은);
+    }
+    카운터.textContent = 글;
+    카운터.className = 'book-cd' + (남은 <= 30*60*1000 ? ' book-cd-urgent' : '');
+
+    if(가상시각) 가상시각 = new Date(가상시각.getTime() + 1000);
+  }
+
+  document.querySelectorAll('button[data-t]').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('button').forEach(function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+      var p = b.getAttribute('data-t').split(':');
+      var d = new Date();
+      가상시각 = new Date(d.getFullYear(), d.getMonth(), d.getDate(), +p[0], +p[1], +p[2], 0);
+      상태.textContent = '가상 시각으로 보는 중 (' + b.textContent + '에서 1초씩 흐름)';
+      그리기();
+    });
+  });
+
+  document.getElementById('real').addEventListener('click', function(){
+    document.querySelectorAll('button').forEach(function(x){ x.classList.remove('on'); });
+    this.classList.add('on');
+    가상시각 = null;
+    상태.textContent = '실제 시간으로 보는 중';
+    그리기();
+  });
+
+  그리기();
+  setInterval(그리기, 1000);
+})();
+</script>
+</body>
+</html>
