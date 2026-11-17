@@ -2111,6 +2111,7 @@
         <a href="https://www.instagram.com/seilin_beauty.pr/" target="_blank" rel="noopener">문의하기</a>
         <button type="button" id="mcLoginBtn" class="mc-hero-login">🔑 내 정보 보기</button>
       </div>
+      <div id="mcHeroClock" class="mc-hero-clock" hidden><span class="book-cd" id="diaCd">--</span></div>
       <div class="mc-login-box" id="mcLoginBox" hidden style="margin-top:8px;max-width:440px;">
         <div style="display:flex;gap:6px;">
           <input id="mcLoginIn" type="search" placeholder="회원 검색 (닉네임·인스타·초성)" autocomplete="off" style="flex:1;min-width:0;height:34px;border:1px solid #ecdce2;border-radius:9px;padding:0 10px;font-size:12.5px;background:#fff;">
@@ -2163,21 +2164,6 @@
         </aside>
 
         <div class="plx-main">
-          <button type="button" class="plx-clock-open" id="diaClockOpen">🕒 시계 보기</button>
-          <div class="plx-clock" id="diaClock">
-            <div class="plx-clock-l">
-              <span class="book-now"><span id="diaNow">현재 시각 --</span></span>
-              <span class="book-cd" id="diaCd">--</span>
-              <button type="button" class="plx-clock-t" id="diaClockT" aria-expanded="true" aria-controls="diaClock">접기</button>
-            </div>
-            <div class="plx-clock-b">
-              <div class="plx-rule">
-                <span>참여 시간 <b>09:00 ~ 21:00</b></span>
-                <span>완료 인증 <b>21:01 ~ 24:00</b></span>
-                <span>필수 참여 <b>주 1회</b></span>
-              </div>
-            </div>
-          </div>
           <div class="mycard" id="myCard">
             <style>
               .mycard{margin:0 0 14px;padding:14px 16px 15px;border:1px solid #f2e2e8;border-radius:10px;background:linear-gradient(180deg,#fffdfd,#fdf7f9);}
@@ -2333,6 +2319,8 @@
               .mc-news-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10.5px;color:#9e8890;}
               .mc-news-link{color:#c2456a;font-weight:800;text-decoration:none;}
               .mc-empty{margin-top:8px;font-size:12px;color:#b9a9af;}
+              .mc-hero-clock{flex:1 0 100%;display:flex;justify-content:flex-end;align-items:center;gap:6px;margin:0;}
+              .mc-hero-clock .book-cd{font-size:11.5px;padding:4px 11px;}
               #mcHeroStatus{flex:1 0 100%;width:100%;box-sizing:border-box;margin-top:0 !important;}
               #mcHeroStatus .mc-row{width:100%;box-sizing:border-box;padding:9px 11px;}
               .dia-hero-in:has(#mcHeroStatus:not([hidden])){padding-top:11px !important;padding-bottom:8px !important;gap:7px !important;}
@@ -2413,7 +2401,7 @@
               });
               var 요일명 = ['월','화','수','목','금','토','일'];
               var 라벨 = "이번 주";
-              var 기준 = "2026-11-17 14:05";
+              var 기준 = "2026-11-17 14:06";
               function 요일줄(w, m){
                 if(!w) return '';
                 var 참여 = 0, h = '<div class="mc-days">';
@@ -3068,6 +3056,7 @@
               var lgPw = document.getElementById('mcLoginPw');
               var lgMsg = document.getElementById('mcLoginMsg');
               var heroStatus = document.getElementById('mcHeroStatus');
+              var heroClock = document.getElementById('mcHeroClock');
               var quickAs = document.querySelectorAll('.dia-hero .quick-links a, .board-side a[href*="open.kakao"], .board-side a[href*="instagram.com/seilin_beauty.pr"]');
               var mycardH = document.querySelector('.mycard .mycard-h');
               var fortuneWrap = document.querySelector('.mycard .mc-fortune-wrap');
@@ -3255,12 +3244,14 @@
                   lgBtn.classList.add('on');
                   lgBtn.textContent = 짧은이름(m) + ' · 로그아웃';
                   if(lgBox) lgBox.hidden = true;
+                  if(heroClock) heroClock.hidden = false;
                   배너반영(m);
                   접속핑(m.n, false);
                   pingTimer = setInterval(function(){ if(!document.hidden) 접속핑(m.n, false); }, 15000);
                 } else {
                   lgBtn.classList.remove('on');
                   lgBtn.textContent = '🔑 내 정보 보기';
+                  if(heroClock) heroClock.hidden = true;
                   배너반영(null);
                 }
               }
@@ -3532,7 +3523,7 @@
       (function(){
         var 시계 = document.getElementById('diaNow');
         var 카운터 = document.getElementById('diaCd');
-        if(!시계 || !카운터) return;
+        if(!카운터) return;
         var 요일 = ['일','월','화','수','목','금','토'];
         function 칸(n){ return (n<10?'0':'')+n; }
         function 남은글(ms){
@@ -3547,7 +3538,7 @@
           var 시24 = d.getHours();
           var 시 = (시24 < 10 ? '0' : '') + 시24;
           var 분 = (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
-          시계.textContent = '현재 시각 ' + 시 + ':' + 분;
+          if(시계) 시계.textContent = '현재 시각 ' + 시 + ':' + 분;
 
           var 시작 = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 9, 0, 0, 0);
           var 마감 = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 21, 0, 0, 0);
@@ -3571,19 +3562,6 @@
           카운터.className = 'book-cd' + (남은 <= 30*60*1000 ? ' book-cd-urgent' : '');
         }
         갱신(); setInterval(갱신, 1000);
-
-        var 판 = document.getElementById('diaClock');
-        var 접기 = document.getElementById('diaClockT');
-        var 열기 = document.getElementById('diaClockOpen');
-        function 접힘적용(접힘){
-          if(!판) return;
-          판.classList.toggle('is-folded', 접힘);
-          if(열기) 열기.classList.toggle('is-shown', 접힘);
-          if(접기) 접기.setAttribute('aria-expanded', 접힘 ? 'false' : 'true');
-        }
-        try { if(localStorage.getItem('diaClockFold') === '1') 접힘적용(true); } catch(e){}
-        if(접기) 접기.addEventListener('click', function(){ 접힘적용(true); try { localStorage.setItem('diaClockFold','1'); } catch(e){} });
-        if(열기) 열기.addEventListener('click', function(){ 접힘적용(false); try { localStorage.setItem('diaClockFold','0'); } catch(e){} });
       })();
       </script>
 
