@@ -2131,11 +2131,7 @@
           <input id="mcLoginIn" type="search" placeholder="회원 검색 (닉네임·인스타·초성)" autocomplete="off" style="flex:1;min-width:0;height:34px;border:1px solid #ecdce2;border-radius:9px;padding:0 10px;font-size:12.5px;background:#fff;">
         </div>
         <div id="mcLoginPick" style="margin-top:6px;display:grid;gap:4px;"></div>
-        <form class="mycard-f" id="mcLoginForm" hidden autocomplete="off" style="display:flex;gap:6px;margin-top:7px;">
-          <input id="mcLoginPw" type="tel" placeholder="암호 입력 (최초 입력 시 바로 설정)" style="flex:1;min-width:0;height:34px;border:1px solid #ecdce2;border-radius:9px;padding:0 10px;font-size:12.5px;background:#fff;-webkit-text-security:disc;">
-          <button type="submit" style="flex:0 0 auto;height:34px;padding:0 13px;border:0;border-radius:9px;background:#e1789a;color:#fff;font-size:12px;font-weight:800;cursor:pointer;">로그인</button>
-        </form>
-        <div class="mc-login-msg" id="mcLoginMsg">회원목록에서 본인 이름을 검색해 선택하세요.</div>
+        <div class="mc-login-msg" id="mcLoginMsg">회원목록에서 본인 이름을 검색해 누르면 바로 열립니다.</div>
       </div>
       <div id="mcHeroStatus" hidden style="margin-top:0;"></div>
     </div>
@@ -2426,7 +2422,7 @@
               });
               var 요일명 = ['월','화','수','목','금','토','일'];
               var 라벨 = "이번 주";
-              var 기준 = "2026-11-17 19:48";
+              var 기준 = "2026-11-17 20:11";
               function 요일줄(w, m){
                 if(!w) return '';
                 var 참여 = 0, h = '<div class="mc-days">';
@@ -3320,10 +3316,8 @@
                   b.textContent = m.n + (m.i ? ' (@' + m.i + ')' : '');
                   b.addEventListener('click', function(){
                     picked = m;
-                    lgPick.innerHTML = '<div style="font-size:11.5px;font-weight:800;color:#c2456a;padding:3px 2px;">선택됨: ' + m.n + '</div>';
-                    if(lgForm) lgForm.hidden = false;
-                    if(lgMsg){ lgMsg.textContent = '사용하실 암호를 입력하면 최초 설정·로그인됩니다.'; lgMsg.style.color = '#8a7b81'; }
-                    if(lgPw){ lgPw.value = ''; lgPw.focus(); }
+                    로그인저장(m);
+                    로그인반영(m);
                   });
                   lgPick.appendChild(b);
                 });
@@ -3351,7 +3345,7 @@
                 try{ localStorage.removeItem(LG_KEY); }catch(_e){}
                 try{ localStorage.removeItem(LG_KEY + '_bak'); }catch(_e){}
               }
-              if(lgBtn && lgBox && lgForm){
+              if(lgBtn && lgBox){
                 var 미복원 = null;
                 var saved = 로그인값();
                 if(saved){
@@ -3380,7 +3374,6 @@
                 if(lgIn){
                   lgIn.addEventListener('input', function(){
                     picked = null;
-                    lgForm.hidden = true;
                     후보그리기(lgIn.value);
                   });
                 }
@@ -3394,41 +3387,11 @@
                   }
                   lgBox.hidden = !lgBox.hidden;
                   if(!lgBox.hidden && lgIn){
-                    picked = null; lgIn.value = ''; lgPick.innerHTML = ''; lgForm.hidden = true;
-                    lgMsg.textContent = '회원목록에서 본인 이름을 검색해 선택하세요.';
+                    picked = null; lgIn.value = ''; lgPick.innerHTML = '';
+                    lgMsg.textContent = '회원목록에서 본인 이름을 검색해 누르면 바로 열립니다.';
                     lgMsg.style.color = '#8a7b81';
                     lgIn.focus();
                   }
-                });
-                lgForm.addEventListener('submit', function(e){
-                  e.preventDefault();
-                  if(!picked){
-                    lgMsg.textContent = '먼저 위 검색 목록에서 본인 닉네임을 선택해 주세요.';
-                    lgMsg.style.color = '#d55576';
-                    return;
-                  }
-                  var pw = (lgPw && lgPw.value || '').trim();
-                  if(!pw){
-                    lgMsg.textContent = '암호를 입력해 주세요.';
-                    lgMsg.style.color = '#d55576';
-                    return;
-                  }
-                  lgMsg.textContent = '확인 중...'; lgMsg.style.color = '#8a7b81';
-                  fetch(EXEC_URL + '?mode=auth&user=' + encodeURIComponent(picked.n) + '&pw=' + encodeURIComponent(pw))
-                    .then(function(r){ return r.json(); })
-                    .then(function(d){
-                      if(!d || !d.ok){
-                        lgMsg.textContent = '암호가 일치하지 않습니다.';
-                        lgMsg.style.color = '#d55576';
-                        return;
-                      }
-                      로그인저장(picked);
-                      로그인반영(picked);
-                    })
-                    .catch(function(){
-                      lgMsg.textContent = '연결에 실패했습니다. 잠시 후 다시 시도해 주세요.';
-                      lgMsg.style.color = '#d55576';
-                    });
                 });
               }
               window.__DIA_ROWS__ = 명부;
