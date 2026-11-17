@@ -6,6 +6,8 @@
   <title>다이아 커뮤니티</title>
   <meta name="apple-mobile-web-app-title" content="다이아 커뮤니티">
   <meta name="application-name" content="다이아 커뮤니티">
+  <meta name="apple-mobile-web-app-title" content="다이아 커뮤니티">
+  <meta name="application-name" content="다이아 커뮤니티">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="다이아 커뮤니티">
   <meta property="og:title" content="다이아 커뮤니티">
@@ -2450,7 +2452,1412 @@
                 var dd = String(m.pd || '').split('-');
                 var 기준일 = dd.length === 3 ? (dd[1] + '-' + dd[2] + ' 기준') : '';
                 var url = 'https://m.search.naver.com/search.naver?where=m_place&query=' + encodeURIComponent(m.pk || '');
-                return '<a class="mc-place" href="' + url + '" target="_blank" rel="noopener">📍 네이버 플레이스 '
+                return '<a class="mc-place" href="' + url + '" target="_blank" rel="noopener">📈 네이버 플레이스 '
+                  + (m.pk || '') + ' <b>' + m.pl + '위</b>'
+                  + (기준일 ? '<span class="mc-place-d">' + 기준일 + '</span>' : '') + '</a>';
+              }
+              function 그리기(list, dst){
+                var target = dst || 결과;
+                if(!target) return;
+                target.hidden = false;
+                if(!list.length){ target.innerHTML = '<div class="mc-empty">일치하는 회원이 없습니다. 오픈채팅 닉네임 전체를 넣어 보세요.</div>'; return; }
+                var h = '';
+                var fbEl = document.getElementById('firstBadgeCard');
+                var fjQ = fbEl ? 정규(fbEl.getAttribute('data-first') || '') : '';
+                var faQ = fbEl ? 정규(fbEl.getAttribute('data-fast') || '') : '';
+                list.slice(0,5).forEach(function(m){
+                  var 직책 = m.o.indexOf('방장') >= 0 || m.o.indexOf('부방장') >= 0 ? 'mc-b1' : 'mc-b2';
+                  var mn = 정규(m.n);
+                  var mk = '';
+                  if(fjQ && mn === fjQ) mk += '🥇';
+                  if(faQ && mn === faQ) mk += '⚡';
+                  if(mk) mk += ' ';
+                  var 칭호 = '';
+                  if(m.rk && m.rk >= 1 && m.rk <= 5 && String(m.o||'').indexOf('방장') < 0){
+                    칭호 += '<span class="mc-badge mc-b-top">💎 TOP ' + m.rk + '</span>';
+                  }
+                  if(m.sk && m.sk >= 2){
+                    칭호 += '<span class="mc-badge mc-b-fire">🔥 ' + m.sk + '일 연속</span>';
+                  }
+                  if(m.b && m.b >= 3){
+                    칭호 += '<span class="mc-badge mc-b-pass">🎟️ 패스 부자</span>';
+                  }
+                  if(m.nw){
+                    칭호 += '<span class="mc-badge mc-b-seed">🌱 새싹</span>';
+                  }
+                  var isHero = (dst && dst === heroStatus);
+                  var topHtml = isHero
+                    ? ((칭호 || m.l) ? '<div class="mc-top">' + (m.l ? '<span class="mc-badge mc-b4">휴식 중</span>' : '') + 칭호 + '</div>' : '')
+                    : '<div class="mc-top"><span class="mc-nick">' + mk + m.n + '</span><span class="mc-badge ' + 직책 + '">' + (m.o || '회원') + '</span>' + (m.l ? '<span class="mc-badge mc-b4">휴식 중</span>' : '') + 칭호 + '</div><div class="mc-meta">' + (m.r || '지역 미상') + ' · ' + (m.c || '업종 미상') + '</div>';
+                  h += '<div class="mc-row">' + topHtml
+                     + (isHero ? 플레이스줄(m) : '')
+                     + '<div class="mc-kpis">'
+                     + '<div class="mc-k"><b>' + (m.tot || 0) + '회</b><span>전체 누적</span></div>'
+                     + '<div class="mc-k"><b>' + (m.rk ? m.rk + '위' : '-') + '</b><span>이번 달 순위</span></div>'
+                     + '<div class="mc-k"><b>' + (m.lw || 0) + '회</b><span>지난주 참여</span></div>'
+                     + '<a class="mc-k" href="dia-pass.html"><b>' + m.b + '</b><span>완료패스</span></a>'
+                     + '</div>'
+                     + 요일줄(m.w, m)
+                     + '</div>';
+                });
+                target.innerHTML = h;
+              }
+              if(폼 && 입력 && 결과){
+                폼.addEventListener('submit', function(e){
+                  e.preventDefault();
+                  var q = 정규(입력.value);
+                  if(!q){ 결과.hidden = true; return; }
+                  var 초성검색 = 자모만(q);
+                  var qc = 초성검색 ? q : null;
+                  var 맞음 = [];
+                  색인.forEach(function(o){
+                    var 점 = 0;
+                    if(초성검색){
+                      o.k.forEach(function(k){
+                        var ch = 초성화(k);
+                        if(ch.indexOf(qc) >= 0) 점 = Math.max(점, ch.length);
+                      });
+                    } else {
+                      o.k.forEach(function(k){ if(k.indexOf(q) >= 0) 점 = Math.max(점, k.length); });
+                    }
+                    if(점) 맞음.push({m:o.m, s:점});
+                  });
+                  맞음.sort(function(a, b){ return b.s - a.s; });
+                  그리기(맞음.map(function(o){ return o.m; }));
+                });
+                입력.addEventListener('input', function(){ if(!입력.value.trim()){ 결과.hidden = true; } });
+              }
+              var 운세목록 = [
+                '말 한마디가 의도와 다르게 전달되기 쉬운 날입니다. 답장은 바로 보내기 전에 한 번 더 읽어 보세요.',
+                '예상치 못한 지출이나 충동구매 유혹이 강해지는 날입니다. 결제 버튼을 누르기 전 하루만 보류하면 후회를 막습니다.',
+                '귀인의 기운이 곁에 머무는 날입니다. 먼저 건넨 따뜻한 인사 한 마디가 좋은 인연과 소개로 돌아옵니다.',
+                '일정 변경이나 갑작스러운 취소 변수가 생길 수 있습니다. 오전 중에 예약과 시간표를 미리 한 번 더 확인하세요.',
+                '꾸준함이 빛을 발하는 날입니다. 큰 변화보다 지금 해오던 방식을 묵묵히 이어가는 편이 유리합니다.',
+                '체력과 집중력이 생각보다 빨리 바닥날 수 있는 날입니다. 무리하게 일정을 꽉 채우면 막판에 실수가 따릅니다.',
+                '대인운이 맑아 대화가 부드럽게 이어집니다. 솔직하고 담백한 태도가 좋은 결과를 부릅니다.',
+                '겉으로는 좋아 보이는 제안에 숨은 조건이 있을 수 있습니다. 달콤한 말만 믿지 말고 세부 조건을 꼼꼼히 따지세요.',
+                '손끝에 정성이 모이는 날입니다. 한 사람에게 쏟은 집중력이 오래가는 인연과 좋은 평판으로 남습니다.',
+                '사소한 자존심 싸움이나 감정적인 대응이 큰 손해로 이어지기 쉽습니다. 예민할수록 한 템포 쉬고 넘어가세요.',
+                '몸과 마음의 균형을 챙기면 운이 배로 따르는 날입니다. 잠깐의 휴식이 다음 흐름을 더 단단하게 만듭니다.',
+                '주변의 작은 도움을 감사히 받으면 더 크게 보답할 일이 생깁니다. 함께 가는 걸음이 혼자보다 멀리 갑니다.',
+                '미뤄둔 자잘한 실수가 오늘 불거질 수 있습니다. 새 일을 벌이기보다 기존 예약·장부·재고부터 먼저 점검하세요.',
+                '말보다 행동이 힘을 얻는 날입니다. 묵묵히 보여준 성실함이 주변의 인정을 이끌어 내며 기회를 엽니다.',
+                '남과 비교할수록 판단이 흐려지고 조급해지는 날입니다. 외부 소식을 잠시 끄고 내 페이스만 지키는 편이 안전합니다.',
+                '오늘 심은 작은 정성이 며칠 뒤 알찬 열매로 돌아옵니다. 차분한 마음으로 시작하면 하루 끝이 넉넉해집니다.',
+                '아침 첫 시작을 가볍게 열면 하루 전체의 운이 순탄해집니다. 긍정적인 한 마디가 좋은 기운을 끌어옵니다.',
+                '약속 시간이나 마감 기한을 놓치기 쉬운 날입니다. 알람을 10분 앞당겨 두지 않으면 아슬아슬해질 수 있습니다.',
+                '오래 공들여 온 일에서 작은 보람을 느끼는 날입니다. 스스로를 믿고 지금의 속도를 유지하면 좋습니다.',
+                '구두로만 주고받은 약속은 뒤탈이 생기기 쉽습니다. 중요한 변경이나 거래 내용은 반드시 문자나 기록으로 남기세요.',
+                '자신의 감각과 판단을 믿어도 좋은 날입니다. 망설이던 일에 가볍게 첫 발을 내디뎌 보세요.',
+                '가까운 사람과의 대화 속에서 실마리가 풀립니다. 혼자 고민하기보다 가볍게 의견을 나누면 도움이 됩니다.',
+                '컨디션 저하가 그대로 표정과 응대에 드러나기 쉬운 날입니다. 불필요한 만남은 줄이고 일찍 마무리해 쉬세요.',
+                '작은 약속 하나를 지키는 태도가 큰 신뢰를 쌓습니다. 사소해 보이는 일일수록 꼼꼼히 챙기면 유리합니다.',
+                '기운이 안으로 모이는 날입니다. 겉으로 드러내기보다 내실을 다지고 다음 주를 준비하기에 알맞습니다.',
+                '서두르다 가장 쉬운 부분에서 실수하기 딱 좋은 날입니다. 평소보다 속도를 절반만 늦추고 두 번 확인하세요.',
+                '좋은 소식이 멀지 않은 곳에 있습니다. 오후 시간대에 들어오는 연락이나 문의를 가볍게 넘기지 마세요.',
+                '베푼 친절이 생각보다 빠르게 돌아오는 날입니다. 대가 없이 건넨 호의가 든든한 울타리가 됩니다.',
+                '감정 기복이 올라오면서 평소 안 하던 거친 말이 나오기 쉽습니다. 화가 올라올 땐 자리를 잠시 비우는 게 상책입니다.',
+                '선택의 기로에서는 단순한 쪽이 유리합니다. 복잡하게 재지 말고 처음 떠올린 기준을 따르면 편합니다.',
+                '노력에 비해 수확이 넉넉한 날입니다. 한 걸음 더 내디딘 정성이 눈에 띄는 차이로 이어집니다.',
+                '주변 분위기에 휘둘리지 않고 중심을 잡으면 좋은 운이 따릅니다. 내 페이스대로 가는 편이 가장 빠릅니다.',
+                '금전 거래나 선결제·할인 조건 등에서 착오가 생기기 쉽습니다. 돈이 오가는 일은 계산기를 두 번 두드리세요.',
+                '인연의 폭이 넓어지는 날입니다. 스쳐 지나가는 만남 속에서도 오래 이어질 좋은 인연이 섞여 있습니다.',
+                '지나간 일에 미련을 두지 않을수록 새 운이 잘 들어옵니다. 오늘 할 일에만 마음을 두면 개운합니다.',
+                '손에 익은 일에서 뜻밖의 칭찬을 듣는 날입니다. 평소의 성실함이 자연스럽게 빛을 발합니다.',
+                '지나친 완벽주의 때문에 시작도 못 하고 에너지를 다 쓸 수 있습니다. 80점만 넘겨도 괜찮다는 마음으로 움직이세요.',
+                '작은 행운이 연달아 스치는 날입니다. 기분 좋은 일 하나를 크게 느끼면 더 많은 행운이 따라옵니다.',
+                '신뢰와 정직이 가장 큰 무기가 되는 날입니다. 담백한 설명과 진심이 상대의 마음을 움직입니다.',
+                '바라던 결과가 한 걸음 가까이 다가오는 날입니다. 끝까지 긴장을 풀지 말고 정성껏 마무리하세요.',
+                '오늘은 새로운 투자나 계약 확장보다 지금 가진 것을 지키는 날입니다. 큰 결정은 내일 이후로 미루세요.',
+                '무리하지 않고 순리를 따르면 손해 볼 일이 없는 날입니다. 넉넉한 마음이 곧 좋은 운을 부릅니다.',
+                '반가운 연락이나 그리웠던 소식이 닿을 수 있는 날입니다. 먼저 안부를 전해도 따뜻한 답이 돌아옵니다.',
+                '혼자 다 떠안고 버티다 번아웃이 오기 쉬운 날입니다. 안 되는 일은 거절하고 짐을 나눠야 무너지지 않습니다.',
+                '오늘의 작은 절제와 배려가 내일의 큰 여유로 돌아옵니다. 서두르지 않는 태도가 복을 부릅니다.',
+                '흐름이 맑고 가벼워 움직이기 좋은 날입니다. 망설였던 연락이나 정리를 오늘 해치우면 속이 시원합니다.',
+                '기운이 고르게 퍼져 어떤 일을 맡아도 무난히 해내는 날입니다. 편안한 표정이 좋은 기운을 더합니다.',
+                '땀 흘린 만큼 정직하게 보상받는 날입니다. 오늘 쌓은 한 걸음이 다음 달의 든든한 밑거름이 됩니다.',
+                '생각지 못한 곳에서 도움의 손길이 닿는 날입니다. 감사한 마음을 표현하면 인연이 더욱 깊어집니다.',
+                '밤늦게까지 이어지는 걱정이나 스마트폰 확인이 내일 컨디션을 깎아먹습니다. 오늘은 일찍 끄고 푹 주무세요.'
+              ];
+              var 컬러목록 = [
+                ['로즈핑크','#e88ca5'],['크림베이지','#e6d5b8'],['라벤더','#b69fd8'],['세이지그린','#8fb399'],
+                ['피치코랄','#f29e85'],['아이보리','#f5f1e6'],['버건디','#8a2e46'],['스카이블루','#8ab8d9'],
+                ['모카브라운','#9c7863'],['샴페인골드','#d4b46a'],['소프트민트','#9fd3c7'],['네이비','#3d5278']
+              ];
+              var 태그목록 = [
+                '#오늘의기록 #뷰티스타그램 #꼼꼼시술 #데일리뷰티 #예약문의환영',
+                '#자연스러운아름다움 #뷰티맛집 #1인샵추천 #시술후기 #일상소통',
+                '#분위기전환 #기분전환성공 #섬세한케어 #뷰티그램 #오늘도화이팅',
+                '#단골맛집 #재방문율높은샵 #디테일장인 #소통해요 #뷰티트렌드',
+                '#깔끔한마무리 #만족도최고 #프라이빗샵 #뷰티케어 #좋아요반사',
+                '#감성뷰티 #예쁨주의 #오늘의뷰티 #정성가득 #예약가능',
+                '#내돈내산느낌 #자연스러움 #꾸안꾸뷰티 #뷰티추천 #데일리그램',
+                '#세심한손길 #힐링타임 #기분좋은변화 #뷰티일기 #소통환영'
+              ];
+              var fBtn = document.getElementById('mcFortuneBtn');
+              var sBtn = document.getElementById('mcSajuBtn');
+              var sForm = document.getElementById('mcSajuForm');
+              var bInput = document.getElementById('mcBirth');
+              var fBox = document.getElementById('mcFortuneBox');
+              var lastF = -1;
+              function 복사HTML(tags){
+                return '<div class="mc-tags-box">' + tags
+                  + '<div><button type="button" class="mc-copy-btn" data-copy="' + tags + '">해시태그 복사</button></div></div>';
+              }
+              function 행운HTML(cIdx, tIdx){
+                var col = 컬러목록[cIdx % 컬러목록.length];
+                var tags = 태그목록[tIdx % 태그목록.length];
+                return '<div class="mc-lucky-row"><span>행운 컬러: <i class="mc-color-dot" style="background:' + col[1] + '"></i><b>' + col[0] + '</b></span></div>'
+                  + 복사HTML(tags);
+              }
+              var tBtn = document.getElementById('mcTarotBtn');
+              var tRow = document.getElementById('mcTarotRow');
+              var tShuf = document.getElementById('mcTarotShuffle');
+              var tDeck = document.getElementById('mcTarotDeck');
+              var shufTimer = null;
+              var shufMode = 0;
+              var 타로목록 = [
+                ['THE SUN · 태양','성공 · 활력 · 밝은 기운','모든 일이 환하게 드러나며 좋은 평가를 받는 카드입니다. 자신감을 가지고 움직이면 기대 이상의 반응이 돌아옵니다.','tarot/sun.jpg'],
+                ['THE STAR · 별','희망 · 영감 · 매력','은은하게 빛나는 매력이 돋보이는 날입니다. 꾸준히 쌓아온 감각과 진심이 좋은 인연을 끌어당깁니다.','tarot/star.jpg'],
+                ['THE EMPRESS · 여황제','풍요 · 아름다움 · 결실','정성껏 가꾼 일에서 넉넉한 보상이 따르는 카드입니다. 여유 있고 따뜻한 태도가 행운과 매출을 함께 부릅니다.','tarot/empress.jpg'],
+                ['THE MAGICIAN · 마법사','실행력 · 재능 · 시작','원하는 흐름을 스스로 만들어 내는 카드입니다. 머릿속으로만 그리던 계획이 있다면 오늘 작게라도 시작해 보세요.','tarot/magician.jpg'],
+                ['WHEEL OF FORTUNE · 운명의 수레바퀴','전환점 · 기회 · 행운','기분 좋은 흐름의 변화가 찾아오는 날입니다. 뜻밖의 연락이나 새로운 제안이 들어온다면 긍정적으로 살펴보세요.','tarot/fortune.jpg'],
+                ['THE CHARIOT · 전차','추진력 · 돌파 · 승리','흔들림 없이 목표를 향해 나아가는 날입니다. 망설임보다 단단한 집중력이 원하는 결과를 빠르게 당겨옵니다.','tarot/chariot.jpg'],
+                ['STRENGTH · 힘','인내 · 부드러운 카리스마','부드러움이 강함을 이기는 날입니다. 차분하고 안정된 응대가 상대의 마음을 열고 깊은 신뢰를 남깁니다.','tarot/strength.jpg'],
+                ['THE LOVERS · 연인','조화 · 선택 · 인연','사람과의 호흡이 유독 잘 맞는 카드입니다. 마음이 통하는 대화 속에서 반가운 협업이나 소개가 이어집니다.','tarot/lovers.jpg'],
+                ['TEMPERANCE · 절제','균형 · 회복 · 순리','무리하지 않고 균형을 잡을 때 가장 큰 복이 들어옵니다. 한 템포 고르며 내실을 다지면 흐름이 매끄럽게 풀립니다.','tarot/temperance.jpg'],
+                ['THE WORLD · 세계','완성 · 만족 · 성취','그동안 공들여 온 과정이 하나의 완성으로 이어지는 카드입니다. 작은 마무리까지 깔끔하게 챙기면 큰 보람이 따릅니다.','tarot/world.jpg'],
+                ['THE HIGH PRIESTESS · 여사제','직관 · 통찰 · 차분함','보이지 않는 흐름을 읽는 눈이 맑아지는 날입니다. 조급히 결정하기보다 직감과 기준을 믿고 차분히 살피면 유리합니다.','tarot/priestess.jpg'],
+                ['ACE OF PENTACLES · 펜타클 에이스','재물 · 새 기회 · 기반','실질적인 금전운과 새로운 기회의 씨앗을 뜻하는 카드입니다. 오늘 들어오는 일이나 인연을 소중히 다루면 크게 자랍니다.','tarot/pentacle.jpg'],
+                ['THE FOOL · 바보','새 출발 · 자유 · 설렘','가벼운 마음으로 새로운 시도를 해보기 좋은 날입니다. 걱정보다 호기심을 따라 한 발 내디디면 좋은 길이 열립니다.','tarot/fool.jpg'],
+                ['THE EMPEROR · 황제','안정 · 기준 · 리더십','흔들리지 않는 기준과 추진력이 빛나는 카드입니다. 샵 운영이나 예약 관리에서 주도권을 쥐고 차분히 이끌어 보세요.','tarot/emperor.jpg'],
+                ['THE HIEROPHANT · 교황','신뢰 · 조언 · 전통','오랜 경험과 정석이 힘을 발휘하는 날입니다. 기본기에 충실한 시술과 진심 어린 안내가 깊은 신뢰로 돌아옵니다.','tarot/hierophant.jpg'],
+                ['THE HERMIT · 은둔자','성찰 · 집중 · 내실','잠시 소음을 내려놓고 내 페이스에 집중하기 좋은 날입니다. 혼자 차분히 정리한 계획이 앞으로의 큰 밑거름이 됩니다.','tarot/hermit.jpg'],
+                ['JUSTICE · 정의','균형 · 공정 · 명확함','주고받은 정성만큼 정직하게 돌아오는 날입니다. 가격·규칙·약속을 분명히 하면 불필요한 오해 없이 깔끔하게 풀립니다.','tarot/justice.jpg'],
+                ['THE MOON · 달','감성 · 직감 · 여운','섬세한 감성과 분위기가 돋보이는 카드입니다. 사진 한 장이나 짧은 글에 담긴 진심이 누군가의 마음을 깊게 움직입니다.','tarot/moon.jpg'],
+                ['JUDGEMENT · 심판','부활 · 좋은 소식 · 보상','기다리던 답이나 미뤄졌던 흐름이 다시 살아나는 날입니다. 지난 노력이 인정을 받으며 반가운 소식이 찾아올 수 있습니다.','tarot/judgement.jpg'],
+                ['ACE OF CUPS · 컵 에이스','호감 · 기쁨 · 따뜻한 인연','마음이 따뜻해지는 만남과 호의가 넘치는 카드입니다. 고객이나 주변 원장님과의 대화 속에서 기분 좋은 웃음이 피어납니다.','tarot/acecups.jpg'],
+                ['ACE OF WANDS · 완드 에이스','열정 · 영감 · 활기','새로운 아이디어와 에너지가 솟아오르는 날입니다. 하고 싶었던 이벤트나 콘텐츠가 있다면 망설이지 말고 시작해 보세요.','tarot/acewands.jpg'],
+                ['ACE OF SWORDS · 소드 에이스','명쾌함 · 결단 · 돌파','복잡하던 고민이 단번에 정리되는 카드입니다. 핵심만 또렷하게 짚어 내면 일의 속도와 완성도가 눈에 띄게 올라갑니다.','tarot/aceswords.jpg'],
+                ['TEN OF PENTACLES · 펜타클 10','풍요 · 단골 · 든든함','오래 이어지는 단골과 안정적인 결실을 뜻하는 카드입니다. 오늘 쌓은 신뢰가 샵을 든든하게 지켜 주는 자산이 됩니다.','tarot/tenpentacles.jpg'],
+                ['SIX OF WANDS · 완드 6','성취 · 칭찬 · 주목','노력한 만큼 주변의 칭찬과 인정을 한 몸에 받는 날입니다. 자신 있는 결과물을 당당히 보여주면 좋은 반응이 따릅니다.','tarot/sixwands.jpg'],
+                ['THE TOWER · 탑','갑작스러운 변수 · 계획 점검 · 주의','예상치 못한 일정 변경이나 돌발 변수가 생길 수 있는 날입니다. 무리한 진행은 멈추고 예약·장비·메시지를 한 번 더 확인하세요.','tarot/tower.jpg'],
+                ['THREE OF WANDS · 완드 3','확장 · 기대 · 순항','준비해 온 일들이 순조롭게 뻗어 나가는 흐름입니다. 멀리서 반가운 문의나 새로운 기회가 다가오고 있습니다.','tarot/threewands.jpg'],
+                ['FOUR OF WANDS · 완드 4','축하 · 안정 · 기쁨','노력 끝에 안정과 기쁨을 누리는 카드입니다. 함께 일하는 사람이나 주변 원장님들과 작은 성과를 나누기 좋습니다.','tarot/fourwands.jpg'],
+                ['NINE OF WANDS · 완드 9','끈기 · 수호 · 마무리','거의 다 왔습니다. 그동안 지켜온 꾸준함 덕분에 마지막 고비도 무난히 넘기고 원하는 자리를 굳히게 됩니다.','tarot/ninewands.jpg'],
+                ['THE DEVIL · 악마','유혹 · 과욕 · 충동 주의','달콤해 보이는 제안이나 충동적인 지출에 흔들리기 쉽습니다. 오늘만큼은 즉흥 결정을 미루고 조건을 냉정하게 따져 보세요.','tarot/devil.jpg'],
+                ['DEATH · 죽음','낡은 흐름 종결 · 과감한 전환 · 리셋','더 이상 맞지 않는 방식이나 미련은 오늘 과감히 끊어내야 할 때입니다. 비워내야만 새로운 예약과 흐름이 들어옵니다.','tarot/death.jpg'],
+                ['QUEEN OF WANDS · 완드 여왕','매력 · 자신감 · 인기','당당한 매력과 따뜻한 에너지가 빛나는 날입니다. 내 샵만의 개성과 자신감이 고객과 주변의 시선을 사로잡습니다.','tarot/queenwands.jpg'],
+                ['THE HANGED MAN · 매달린 남자','정체기 · 강행 금지 · 관점 전환','억지로 밀어붙일수록 시간만 더 걸리는 날입니다. 오늘은 잠시 멈춰서 다른 각도로 문제를 바라보는 편이 유리합니다.','tarot/hanged.jpg'],
+                ['THREE OF CUPS · 컵 3','모임 · 기쁨 · 축하','주변과 기쁨을 나누며 활력을 얻는 날입니다. 반가운 수다와 응원이 하루의 피로를 사르르 녹여 줍니다.','tarot/threecups.jpg'],
+                ['FIVE OF CUPS · 컵 5','아쉬움 · 미련 · 시선 돌리기','지나간 실수나 놓친 예약에 마음이 머물기 쉽습니다. 이미 지나간 일보다 아직 남아 있는 좋은 기회에 눈을 돌려 보세요.','tarot/fivecups.jpg'],
+                ['TEN OF SWORDS · 소드 10','번아웃 경고 · 완전 휴식 · 바닥 치고 상승','체력과 멘탈이 바닥나기 직전이라는 신호입니다. 오늘만큼은 무리한 야근이나 추가 일정을 잡지 말고 무조건 쉬세요.','tarot/tenswords.jpg'],
+                ['SEVEN OF SWORDS · 소드 7','눈속임 주의 · 조건 재확인 · 경계','겉보기엔 좋아 보여도 숨겨진 조건이나 빈틈이 있을 수 있습니다. 거래·예약·구두 약속은 문자나 기록으로 꼭 확인하세요.','tarot/sevenswords.jpg'],
+                ['FOUR OF SWORDS · 소드 4','잠시 멈춤 · 회복 · 침묵','지금은 움직일 때가 아니라 에너지를 충전해야 할 때입니다. 조용히 숨을 고르고 내일을 위해 체력을 아껴 두세요.','tarot/fourswords.jpg'],
+                ['QUEEN OF CUPS · 컵 여왕','공감 · 섬세함 · 치유','세심한 배려와 공감 능력이 돋보이는 날입니다. 고객의 마음을 잘 헤아려 주는 태도가 깊은 감동으로 남습니다.','tarot/queencups.jpg'],
+                ['FIVE OF PENTACLES · 펜타클 5','지출 주의 · 체력 저하 · 보수','돈이나 체력이 생각보다 빠르게 새어 나갈 수 있는 날입니다. 불필요한 소비를 닫고 컨디션 회복을 최우선으로 두세요.','tarot/fivepentacles.jpg'],
+                ['THREE OF PENTACLES · 펜타클 3','장인정신 · 협업 · 인정','꼼꼼한 실력과 정성이 주변의 인정을 받는 날입니다. 디테일에 쏟은 시간만큼 퀄리티와 신뢰가 높아집니다.','tarot/threepentacles.jpg'],
+                ['FIVE OF SWORDS · 소드 5','갈등 주의 · 말조심 · 물러남','이겨도 남는 게 없는 신경전이 생길 수 있습니다. 예민한 상황에서는 정면 대응보다 한 템포 쉬고 넘어가는 편이 이깁니다.','tarot/fiveswords.jpg'],
+                ['TEN OF WANDS · 완드 10','과부하 경고 · 짐 나누기 · 무리 금지','혼자서 너무 많은 일을 짊어지고 있습니다. 당장 급하지 않은 일은 과감히 미루거나 도움을 요청해야 탈이 안 납니다.','tarot/tenwands2.jpg'],
+                ['THREE OF SWORDS · 소드 3','마음 상함 · 오해 · 거리 두기','작은 말 한마디가 서운함이나 오해로 번지기 쉽습니다. 감정적으로 바로 답하기보다 마음을 가라앉힌 뒤 차분히 정리하세요.','tarot/threeswords.jpg'],
+                ['SEVEN OF WANDS · 완드 7','경쟁 압박 · 중심 지키기 · 방어','주변 비교나 외부 압박에 흔들리기 쉬운 날입니다. 남의 페이스에 말리지 말고 내 샵만의 기준을 단단히 지키세요.','tarot/sevenwands.jpg'],
+                ['FIVE OF WANDS · 완드 5','의견 충돌 · 소모전 주의 · 정리','사소한 의견 차이나 기싸움으로 에너지가 소모될 수 있습니다. 쟁점을 간단히 정리하고 불필요한 논쟁은 피하세요.','tarot/fivewands.jpg'],
+                ['SEVEN OF CUPS · 컵 7','현실 점검 · 선택 과다 · 착각 주의','이것저것 욕심만 커지고 실속을 놓치기 쉬운 날입니다. 화려한 말보다 실제로 손에 잡히는 것 하나에 집중하세요.','tarot/sevencups.jpg'],
+                ['KING OF PENTACLES · 펜타클 왕','사업 성공 · 든든함 · 성취','탄탄한 기반 위에서 큰 결실을 거두는 카드입니다. 안정적인 운영과 신뢰가 오래가는 성공을 만들어 줍니다.','tarot/kingpentacles.jpg'],
+                ['EIGHT OF SWORDS · 소드 8','망설임 · 답답함 · 시선 전환','스스로 만든 걱정에 묶여 움직이기 어렵게 느껴지는 날입니다. 혼자 끙끙대지 말고 믿을 만한 동료에게 가볍게 물어보세요.','tarot/eightswords.jpg'],
+                ['NINE OF SWORDS · 소드 9','걱정 과다 · 피로 · 내려놓기','아직 일어나지 않은 일까지 미리 걱정하느라 피로가 쌓이기 쉽습니다. 오늘 할 일만 마치고 밤에는 생각을 끄고 푹 쉬세요.','tarot/nineswords.jpg'],
+                ['TWO OF SWORDS · 소드 2','결정 보류 · 회피 금지 · 결단','결정을 미루며 눈을 감고 있으면 상황이 더 꼬일 수 있습니다. 완벽하지 않아도 오늘 안에 방향 하나는 정해야 풀립니다.','tarot/twoswords.jpg'],
+                ['TWO OF WANDS · 완드 2','계획 · 전망 · 도약','더 넓은 시야로 다음 단계를 그려 보기 좋은 날입니다. 오늘 세운 계획이 앞으로 몇 주간의 든든한 이정표가 됩니다.','tarot/twowands.jpg'],
+                ['EIGHT OF WANDS · 완드 8','빠른 전개 · 연락 · 속도감','막혀 있던 일이 순식간에 풀리며 반가운 소식이나 예약 문의가 빠르게 몰려오는 날입니다.','tarot/eightwands.jpg'],
+                ['PAGE OF WANDS · 완드 시종','호기심 · 새 소식 · 설렘','기분 좋은 새 소식이나 재미있는 아이디어가 찾아오는 날입니다. 가벼운 호기심을 따라가면 의외의 수확이 있습니다.','tarot/pagewands.jpg'],
+                ['KNIGHT OF WANDS · 완드 기사','열정 · 속도 · 추진','망설임 없이 시원하게 밀고 나가는 에너지가 넘칩니다. 빠른 실행력이 오늘의 좋은 기회를 확실히 잡아 줍니다.','tarot/knightwands.jpg'],
+                ['KING OF WANDS · 완드 왕','리더십 · 비전 · 카리스마','큰 그림을 보고 당당히 이끌어 갈 때 주변이 따르는 날입니다. 자신 있는 방향이라면 과감히 밀어붙여 보세요.','tarot/kingwands.jpg'],
+                ['TWO OF CUPS · 컵 2','교감 · 파트너십 · 호감','마음이 통하는 좋은 만남과 협력을 뜻합니다. 서로 믿고 응원하는 관계에서 기분 좋은 시너지가 만들어집니다.','tarot/twocups.jpg'],
+                ['FOUR OF CUPS · 컵 4','재발견 · 권태 주의 · 시선','익숙한 일상에 시들해지기 쉬운 날이지만, 바로 곁에 있는 좋은 기회를 놓치지 않도록 마음을 열어 두세요.','tarot/fourcups.jpg'],
+                ['SIX OF CUPS · 컵 6','추억 · 따뜻함 · 인연','오래된 인연이나 단골 고객에게서 반가운 연락이 오기 쉬운 날입니다. 진심이 담긴 다정한 태도가 큰 힘을 발휘합니다.','tarot/sixcups.jpg'],
+                ['EIGHT OF CUPS · 컵 8','미련 정리 · 새 길 · 전환','더 이상 마음이 가지 않는 일이나 습관을 조용히 내려놓고, 더 나은 방향을 향해 발걸음을 옮기는 날입니다.','tarot/eightcups.jpg'],
+                ['NINE OF CUPS · 컵 9','소원 성취 · 만족 · 복','바라던 일이 기분 좋게 이루어지는 행운의 카드입니다. 스스로 만족할 만큼 흐뭇한 하루가 기다리고 있습니다.','tarot/ninecups.jpg'],
+                ['TEN OF CUPS · 컵 10','행복 · 화목 · 충만','마음이 따뜻하게 채워지는 충만한 하루입니다. 일과 일상의 균형이 잘 맞아 편안한 미소가 이어집니다.','tarot/tencups.jpg'],
+                ['PAGE OF CUPS · 컵 시종','순수함 · 뜻밖의 호의 · 영감','기분 좋은 작은 칭찬이나 예상치 못한 다정한 연락이 마음을 환하게 밝혀 주는 날입니다.','tarot/pagecups.jpg'],
+                ['KNIGHT OF CUPS · 컵 기사','낭만 · 좋은 제안 · 다정함','기분 좋은 소식이나 따뜻한 제안이 다가오는 날입니다. 부드럽고 기분 좋은 분위기가 하루를 감싸 줍니다.','tarot/knightcups.jpg'],
+                ['KING OF CUPS · 컵 왕','여유 · 포용 · 감정 균형','어떤 상황에서도 감정에 휘둘리지 않고 온화하게 중심을 잡는 날입니다. 든든한 태도가 신뢰를 부릅니다.','tarot/kingcups.jpg'],
+                ['SIX OF SWORDS · 소드 6','회복 이동 · 고비 넘김 · 안정','힘들었던 흐름을 뒤로하고 조금씩 잔잔하고 안정된 국면으로 건너가는 날입니다. 한숨 돌려도 좋습니다.','tarot/sixswords.jpg'],
+                ['PAGE OF SWORDS · 소드 시종','눈치 · 정보 수집 · 경계','주변 흐름과 반응을 빠르게 살피며 기민하게 움직여야 유리한 날입니다. 작은 소문이나 변화도 놓치지 마세요.','tarot/pageswords.jpg'],
+                ['KNIGHT OF SWORDS · 소드 기사','돌진 주의 · 성급함 경계 · 직진','추진력은 최고조지만 너무 급하면 말이나 행동이 거칠어질 수 있습니다. 속도만 살짝 조절하면 크게 얻습니다.','tarot/knightswords.jpg'],
+                ['QUEEN OF SWORDS · 소드 여왕','명석함 · 분명함 · 깔끔함','정확한 판단과 깔끔한 소통이 빛나는 날입니다. 필요한 말만 단정히 전해도 모든 일이 시원하게 정리됩니다.','tarot/queenswords.jpg'],
+                ['KING OF SWORDS · 소드 왕','냉철함 · 원칙 · 판단력','감정보다 기준과 논리로 정리할 때 가장 깔끔한 날입니다. 계약·가격·일정 문제를 단호하게 매듭짓기 좋습니다.','tarot/kingswords.jpg'],
+                ['TWO OF PENTACLES · 펜타클 2','조율 · 유연함 · 균형','여러 일정을 능숙하게 조율해 내는 날입니다. 바쁜 가운데서도 유연하게 대처하면 모든 일이 매끄럽게 굴러갑니다.','tarot/twopentacles.jpg'],
+                ['FOUR OF PENTACLES · 펜타클 4','관리 · 알뜰함 · 지킴','불필요한 지출을 줄이고 가진 것을 단단히 지키는 날입니다. 다만 너무 인색하게 굴기보다 쓸 곳엔 쓰세요.','tarot/fourpentacles.jpg'],
+                ['SIX OF PENTACLES · 펜타클 6','나눔 · 베풂 · 순환','베푼 만큼 다시 돌아오는 기분 좋은 순환의 카드입니다. 작은 호의나 정보 나눔이 더 큰 복으로 돌아옵니다.','tarot/sixpentacles.jpg'],
+                ['SEVEN OF PENTACLES · 펜타클 7','기다림 · 성장 · 점검','그동안 정성 들여 키운 일들이 서서히 열매를 맺어 갑니다. 조급해하지 말고 방향이 맞는지 한 번 점검해 보세요.','tarot/sevenpentacles.jpg'],
+                ['EIGHT OF PENTACLES · 펜타클 8','숙련 · 정성 · 성실','한 땀 한 땀 정성을 다하는 모습이 빛나는 날입니다. 묵묵히 쌓은 실력이 흔들리지 않는 경쟁력이 됩니다.','tarot/eightpentacles.jpg'],
+                ['NINE OF PENTACLES · 펜타클 9','우아한 풍요 · 자립 · 여유','스스로의 힘으로 일궈낸 여유와 품격이 빛나는 카드입니다. 오늘만큼은 기분 좋은 보상을 스스로에게 선물해 보세요.','tarot/ninepentacles.jpg'],
+                ['PAGE OF PENTACLES · 펜타클 시종','배움 · 꼼꼼함 · 새 수익','새로운 기술이나 마케팅 공부가 곧바로 실질적인 수익으로 연결될 조짐이 보이는 날입니다.','tarot/pagepentacles.jpg'],
+                ['KNIGHT OF PENTACLES · 펜타클 기사','성실 · 꾸준함 · 흔들림 없음','화려하진 않아도 가장 믿음직한 한 걸음입니다. 오늘 묵묵히 챙긴 기본기가 오래가는 매출로 이어집니다.','tarot/knightpentacles.jpg'],
+                ['QUEEN OF PENTACLES · 펜타클 여왕','풍족 · 살림 · 따뜻함','실속과 따뜻함을 모두 챙기는 든든한 기운입니다. 샵의 분위기도 편안하고 매출 흐름도 안정적으로 이어집니다.','tarot/queenpentacles.jpg']
+              ];
+              var 타로셋 = [];
+              var taroDeck = [];
+              function 타로섞기(){
+                if(taroDeck.length < 5){
+                  taroDeck = 타로목록.slice();
+                  for(var i = taroDeck.length - 1; i > 0; i--){
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var tmp = taroDeck[i]; taroDeck[i] = taroDeck[j]; taroDeck[j] = tmp;
+                  }
+                }
+                타로셋 = taroDeck.splice(0, 5);
+                if(tRow){
+                  if(shufTimer){ clearTimeout(shufTimer); shufTimer = null; }
+                  tRow.classList.remove('has-pick');
+                  var cards = tRow.querySelectorAll('.mc-tarot-card');
+                  for(var j = 0; j < cards.length; j++){
+                    cards[j].classList.remove('picked');
+                    cards[j].classList.remove('dimmed');
+                    var fr = cards[j].querySelector('.mc-tarot-front');
+                    if(fr) fr.innerHTML = '';
+                  }
+                  if(tDeck && tDeck.animate){
+                    tRow.classList.add('is-shuffling');
+                    tDeck.hidden = false;
+                    var diaSvg = '<svg viewBox="0 0 100 100"><polygon points="30,27 70,27 83,44 50,79 17,44" fill="#fce9ef"/><line x1="17" y1="44" x2="83" y2="44" stroke="#8a3250" stroke-width="2.6"/><polyline points="30,27 38,44 50,79 62,44 70,27" fill="none" stroke="#8a3250" stroke-width="2.4" stroke-linejoin="round"/></svg>';
+                    var dh = '';
+                    for(var k = 0; k < 78; k++) dh += '<div class="mc-td-c">' + diaSvg + '</div>';
+                    tDeck.innerHTML = dh;
+                    var dc = tDeck.querySelectorAll('.mc-td-c');
+                    var mode = shufMode % 4;
+                    shufMode++;
+                    for(var k = 0; k < dc.length; k++){
+                      dc[k].style.zIndex = String(1 + Math.floor(Math.random() * 78));
+                      var ang = (k / dc.length) * Math.PI * 2 + (Math.random() - 0.5) * 0.7;
+                      var ring = 0.55 + Math.random() * 0.55;
+                      var frames;
+                      if(mode === 0){
+                        var rx = Math.round(Math.cos(ang) * 96 * ring);
+                        var ry = Math.round(Math.sin(ang) * 24 * ring);
+                        var rot = Math.round(Math.cos(ang) * 18);
+                        frames = [
+                          { opacity: 0.9, transform: 'translate(0px, 0px) scale(.92) rotate(' + ((k - 18) * 1.2) + 'deg)' },
+                          { opacity: 1, transform: 'translate(' + rx + 'px, ' + ry + 'px) scale(1) rotate(' + rot + 'deg)', offset: 0.45 },
+                          { opacity: 0.95, transform: 'translate(' + (-rx * 0.5) + 'px, ' + (-ry * 0.65) + 'px) scale(.97) rotate(' + (-rot * 0.5) + 'deg)', offset: 0.78 },
+                          { opacity: 0.9, transform: 'translate(0px, 0px) scale(1) rotate(0deg)' }
+                        ];
+                      }else if(mode === 1){
+                        var side = (k % 2 === 0) ? -1 : 1;
+                        frames = [
+                          { opacity: 0.9, transform: 'translate(0px, 0px) scale(.94) rotate(0deg)' },
+                          { opacity: 1, transform: 'translate(' + (side * 78) + 'px, 6px) scale(.98) rotate(' + (side * 12) + 'deg)', offset: 0.3 },
+                          { opacity: 1, transform: 'translate(' + (side * 24) + 'px, -32px) scale(1.06) rotate(' + (-side * 6) + 'deg)', offset: 0.65 },
+                          { opacity: 0.9, transform: 'translate(0px, 0px) scale(1) rotate(0deg)' }
+                        ];
+                      }else if(mode === 2){
+                        var spR = 35 + (k % 6) * 14;
+                        var sx = Math.round(Math.cos(ang * 2) * spR);
+                        var sy = Math.round(Math.sin(ang * 2) * (spR * 0.32));
+                        frames = [
+                          { opacity: 0.7, transform: 'translate(0px, 0px) scale(.6) rotate(0deg)' },
+                          { opacity: 1, transform: 'translate(' + sx + 'px, ' + sy + 'px) scale(1.04) rotate(' + Math.round(ang * 45) + 'deg)', offset: 0.5 },
+                          { opacity: 0.95, transform: 'translate(' + (-sx * 0.4) + 'px, ' + (-sy * 0.4) + 'px) scale(.96) rotate(' + Math.round(-ang * 20) + 'deg)', offset: 0.8 },
+                          { opacity: 0.9, transform: 'translate(0px, 0px) scale(1) rotate(0deg)' }
+                        ];
+                      }else{
+                        var lx = Math.round(Math.sin(ang) * 92);
+                        var ly = Math.round(Math.sin(ang * 2) * 26);
+                        frames = [
+                          { opacity: 0.9, transform: 'translate(0px, 0px) scale(.94) rotate(0deg)' },
+                          { opacity: 1, transform: 'translate(' + lx + 'px, ' + ly + 'px) scale(1.02) rotate(' + Math.round(Math.cos(ang) * 20) + 'deg)', offset: 0.45 },
+                          { opacity: 1, transform: 'translate(' + (-lx * 0.65) + 'px, ' + (-ly * 0.65) + 'px) scale(.98) rotate(' + Math.round(-Math.cos(ang) * 14) + 'deg)', offset: 0.78 },
+                          { opacity: 0.9, transform: 'translate(0px, 0px) scale(1) rotate(0deg)' }
+                        ];
+                      }
+                      dc[k].animate(frames, { duration: 1100, delay: Math.floor(Math.random() * 320), easing: 'cubic-bezier(0.37, 0, 0.63, 1)', fill: 'both' });
+                    }
+                    shufTimer = setTimeout(function(){
+                      tDeck.hidden = true;
+                      tRow.classList.remove('is-shuffling');
+                      for(var j = 0; j < cards.length; j++){
+                        if(cards[j].animate){
+                          var offX = (2 - j) * 46;
+                          cards[j].animate([
+                            { opacity: 0, transform: 'translate(' + offX + 'px, 0px) scale(.92) rotate(0deg)' },
+                            { opacity: 1 }
+                          ], { duration: 520, delay: j * 55, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'backwards' });
+                        }
+                      }
+                    }, 1550);
+                  }
+                }
+              }
+              if(fBtn && fBox){
+                fBtn.addEventListener('click', function(){
+                  if(sForm) sForm.hidden = true;
+                  if(tRow) tRow.hidden = true;
+                  if(mBox){ mBox.hidden = true; mBox.innerHTML = ''; }
+                  var idx = Math.floor(Math.random() * 운세목록.length);
+                  if(운세목록.length > 1 && idx === lastF) idx = (idx + 1) % 운세목록.length;
+                  lastF = idx;
+                  var cIdx = Math.floor(Math.random() * 컬러목록.length);
+                  var tIdx = Math.floor(Math.random() * 태그목록.length);
+                  fBox.hidden = false;
+                  fBox.innerHTML = '<div class="mc-fortune-tag">오늘의 샵 운세</div><div>' + 운세목록[idx] + '</div>' + 행운HTML(cIdx, tIdx);
+                  fBtn.textContent = '🍀 다시 뽑기';
+                });
+              }
+              var 천간 = ['갑','을','병','정','무','기','경','신','임','계'];
+              var 지지 = ['자','축','인','묘','진','사','오','미','신','유','술','해'];
+              var 간오행 = [0,0,1,1,2,2,3,3,4,4]; // 0목 1화 2토 3금 4수
+              var 오행명 = ['목(木)','화(火)','토(土)','금(金)','수(水)'];
+              var 오행컬러 = [
+                ['세이지그린','#8fb399'],['피치코랄','#f29e85'],['크림베이지','#e6d5b8'],['아이보리','#f5f1e6'],['스카이블루','#8ab8d9']
+              ];
+              var 궁합운 = {
+                same: '오늘의 기운과 결이 같아 주관이 또렷해지는 날입니다. 평소 방식대로 밀고 나가면 중심이 흔들리지 않습니다.',
+                gen_out: '내 기운이 바깥으로 자연스럽게 뻗어 나가는 날입니다. 표현력·감각이 살아나 작업물이나 홍보 글이 돋보입니다.',
+                wealth: '재물운이 들어오는 흐름입니다. 꼼꼼하게 챙긴 작은 정성이 실질적인 수익과 예약으로 이어지기 좋습니다.',
+                ctrl_in: '책임감과 집중력이 높아지는 날입니다. 기준을 단정히 세우고 차분히 응대하면 신뢰가 크게 올라갑니다.',
+                gen_in: '도움과 회복의 기운이 들어오는 날입니다. 주변의 조언이나 휴식이 다음 한 걸음을 든든하게 받쳐 줍니다.'
+              };
+              function 일주계산(y, m, d){
+                var base = Date.UTC(2000, 0, 1);
+                var tgt = Date.UTC(y, m - 1, d);
+                var diff = Math.round((tgt - base) / 86400000);
+                var stem = ((4 + diff) % 10 + 10) % 10;
+                var branch = ((6 + diff) % 12 + 12) % 12;
+                return { stem: stem, branch: branch, name: 천간[stem] + 지지[branch], el: 간오행[stem] };
+              }
+              if(sBtn && sForm){
+                sBtn.addEventListener('click', function(){
+                  if(tRow) tRow.hidden = true;
+                  if(mBox){ mBox.hidden = true; mBox.innerHTML = ''; }
+                  sForm.hidden = !sForm.hidden;
+                  if(!sForm.hidden && bInput) bInput.focus();
+                });
+                sForm.addEventListener('submit', function(e){
+                  e.preventDefault();
+                  var raw = String((bInput && bInput.value) || '').replace(/\D/g,'');
+                  if(raw.length !== 8){
+                    fBox.hidden = false;
+                    fBox.innerHTML = '<div class="mc-fortune-tag">생년월일 확인</div><div>숫자 8자리로 입력해 주세요. (예: 19960307)</div>';
+                    return;
+                  }
+                  var y = parseInt(raw.slice(0,4),10), m = parseInt(raw.slice(4,6),10), d = parseInt(raw.slice(6,8),10);
+                  if(y < 1930 || y > 2015 || m < 1 || m > 12 || d < 1 || d > 31){
+                    fBox.hidden = false;
+                    fBox.innerHTML = '<div class="mc-fortune-tag">생년월일 확인</div><div>올바른 양력 날짜를 입력해 주세요.</div>';
+                    return;
+                  }
+                  var me = 일주계산(y, m, d);
+                  var now = new Date();
+                  var todayP = 일주계산(now.getFullYear(), now.getMonth() + 1, now.getDate());
+                  var diffEl = (todayP.el - me.el + 5) % 5;
+                  var key = diffEl === 0 ? 'same' : (diffEl === 1 ? 'gen_out' : (diffEl === 2 ? 'wealth' : (diffEl === 3 ? 'ctrl_in' : 'gen_in')));
+                  var needEl = (me.el + 4) % 5; // 인성(나를 돕는 오행) 컬러
+                  var col = 오행컬러[needEl];
+                  var tags = 태그목록[(me.stem + todayP.branch) % 태그목록.length];
+                  fBox.hidden = false;
+                  fBox.innerHTML = '<div class="mc-fortune-tag">🔮 ' + me.name + '일주 · ' + 오행명[me.el] + ' (오늘 ' + todayP.name + '일)</div>'
+                    + '<div>' + 궁합운[key] + '</div>'
+                    + '<div class="mc-lucky-row"><span>보완 컬러: <i class="mc-color-dot" style="background:' + col[1] + '"></i><b>' + col[0] + '</b></span></div>'
+                    + 복사HTML(tags);
+                });
+              }
+              if(tBtn && tRow){
+                tBtn.addEventListener('click', function(){
+                  if(sForm) sForm.hidden = true;
+                  if(mBox){ mBox.hidden = true; mBox.innerHTML = ''; }
+                  if(!tRow.hidden){
+                    tRow.hidden = true;
+                    fBox.hidden = true;
+                    return;
+                  }
+                  tRow.hidden = false;
+                  fBox.hidden = true;
+                  타로섞기();
+                });
+                if(tShuf){
+                  tShuf.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    fBox.hidden = true;
+                    타로섞기();
+                  });
+                }
+                tRow.addEventListener('click', function(e){
+                  var btn = e.target.closest && e.target.closest('.mc-tarot-card');
+                  if(!btn) return;
+                  var idx = parseInt(btn.getAttribute('data-card') || '0', 10) || 0;
+                  var picked = 타로셋[idx] || 타로목록[0];
+                  var fr = btn.querySelector('.mc-tarot-front');
+                  if(fr){
+                    fr.innerHTML = '<img src="' + picked[3] + '" alt="' + picked[0] + '">';
+                  }
+                  var rowRect = tRow.getBoundingClientRect();
+                  var btnRect = btn.getBoundingClientRect();
+                  var startDx = (btnRect.left + btnRect.width / 2) - (rowRect.left + rowRect.width / 2);
+                  var cards = tRow.querySelectorAll('.mc-tarot-card');
+                  for(var j = 0; j < cards.length; j++){
+                    cards[j].classList.remove('picked');
+                    if(cards[j] !== btn) cards[j].classList.add('dimmed');
+                    else cards[j].classList.remove('dimmed');
+                  }
+                  tRow.classList.add('has-pick');
+                  btn.classList.add('picked');
+                  if(btn.animate){
+                    var tilt = startDx >= 0 ? -16 : 16;
+                    btn.animate([
+                      { transform: 'translate(' + startDx + 'px, 4px) scale(1) rotate(0deg)' },
+                      { transform: 'translate(' + (startDx * 0.55) + 'px, -38px) scale(1.3) rotate(' + tilt + 'deg)', offset: 0.38 },
+                      { transform: 'translate(' + (startDx * 0.1) + 'px, -18px) scale(1.25) rotate(' + (-tilt * 0.35) + 'deg)', offset: 0.75 },
+                      { transform: 'translate(0px, -4px) scale(1.2) rotate(0deg)' }
+                    ], { duration: 860, easing: 'cubic-bezier(0.2, 0.9, 0.25, 1)' });
+                  }
+                  fBox.hidden = false;
+                  fBox.innerHTML = '<div class="mc-fortune-tag">🃏 ' + picked[0] + '</div>'
+                    + '<div style="font-size:11px;color:#b3476a;margin-bottom:4px;">' + picked[1] + '</div>'
+                    + '<div>' + picked[2] + '</div>';
+                });
+              }
+              document.addEventListener('click', function(e){
+                var btn = e.target.closest && e.target.closest('[data-copy]');
+                if(!btn) return;
+                var txt = btn.getAttribute('data-copy') || '';
+                if(navigator.clipboard && navigator.clipboard.writeText){
+                  navigator.clipboard.writeText(txt).then(function(){
+                    btn.textContent = '복사 완료!';
+                    setTimeout(function(){ btn.textContent = '해시태그 복사'; }, 1500);
+                  }).catch(function(){});
+                }
+              });
+              var gTog = document.getElementById('mcGameToggle');
+              var gBody = document.getElementById('mcGameBody');
+              var gArr = document.getElementById('mcGameArrow');
+              var mBox = document.getElementById('mcMiniBox');
+              if(gTog && gBody){
+                gTog.addEventListener('click', function(){
+                  gBody.hidden = !gBody.hidden;
+                  if(gArr) gArr.textContent = gBody.hidden ? '▾' : '▴';
+                });
+              }
+              function 닫기모두(){
+                if(sForm) sForm.hidden = true;
+                if(tRow) tRow.hidden = true;
+                if(fBox) fBox.hidden = true;
+              }
+              function 열기미니(kind){
+                닫기모두();
+                if(!mBox) return;
+                mBox.hidden = false;
+                if(kind === 'memory'){
+                  var icons = ['💎','💄','💅','🌸','✨','🎀','👑','🕊️'];
+                  function startMem(){
+                    var pool = icons.concat(icons).sort(function(){ return Math.random() - 0.5; });
+                    var opened = [], matched = 0, tries = 0, lock = false, t0 = Date.now();
+                    mBox.innerHTML = '<div class="mc-mini-head"><span>💎 뷰티 짝맞추기 (4×4)</span><button type="button" class="mc-mini-subbtn" id="mcMemReset">새 판</button></div>'
+                      + '<div style="font-size:12px;color:#8a7b81;margin-bottom:8px;">시도 <b id="mcMemTries" style="color:#c2456a;">0</b>회</div>'
+                      + '<div class="mc-mem-grid" id="mcMemGrid"></div>'
+                      + '<div class="mc-mini-res" id="mcMemRes">같은 그림 8쌍을 찾아 보세요.</div>';
+                    document.getElementById('mcMemReset').addEventListener('click', startMem);
+                    var grid = document.getElementById('mcMemGrid'), tEl = document.getElementById('mcMemTries'), rEl = document.getElementById('mcMemRes');
+                    pool.forEach(function(ico){
+                      var cell = document.createElement('div'); cell.className = 'mc-mem-cell'; cell.textContent = '❓';
+                      cell.addEventListener('click', function(){
+                        if(lock || cell.classList.contains('open') || cell.classList.contains('done')) return;
+                        cell.classList.add('open'); cell.textContent = ico; opened.push({el:cell, ico:ico});
+                        if(opened.length === 2){
+                          tries++; tEl.textContent = tries;
+                          var a = opened[0], b = opened[1];
+                          if(a.ico === b.ico){
+                            a.el.classList.add('done'); b.el.classList.add('done'); opened = []; matched++;
+                            if(matched === 8){ rEl.textContent = '🎉 클리어! ' + tries + '회 시도 · ' + ((Date.now()-t0)/1000).toFixed(1) + '초'; }
+                          } else {
+                            lock = true;
+                            setTimeout(function(){ a.el.classList.remove('open'); a.el.textContent='❓'; b.el.classList.remove('open'); b.el.textContent='❓'; opened=[]; lock=false; }, 550);
+                          }
+                        }
+                      });
+                      grid.appendChild(cell);
+                    });
+                  }
+                  startMem();
+                } else if(kind === 'react'){
+                  var best = Number(localStorage.getItem('dia_rt_best') || 0);
+                  var state = 'idle', tid = null, tStart = 0;
+                  mBox.innerHTML = '<div class="mc-mini-head"><span>⚡ 0.01초 반응속도</span><span style="font-size:11.5px;color:#8a7b81;">최고 <b id="mcRtBest" style="color:#c2456a;">' + (best ? best + 'ms' : '-') + '</b></span></div>'
+                    + '<div id="mcRtPad" class="mc-react-pad" style="background:#fdf1f5;color:#9e3856;"><div>여기를 눌러 시작</div><div style="font-size:11.5px;font-weight:600;opacity:.8;">초록색으로 바뀌면 바로 터치!</div></div>'
+                    + '<div class="mc-mini-res" id="mcRtRes">순발력을 테스트해 보세요.</div>';
+                  var pad = document.getElementById('mcRtPad'), bEl = document.getElementById('mcRtBest'), rEl = document.getElementById('mcRtRes');
+                  pad.addEventListener('click', function(){
+                    if(state === 'idle' || state === 'done'){
+                      state = 'wait'; pad.style.background = '#f8d7e2'; pad.style.color = '#9e3856';
+                      pad.innerHTML = '<div>잠깐... 기다리세요</div><div style="font-size:11.5px;font-weight:600;">초록색이 될 때까지 대기</div>';
+                      tid = setTimeout(function(){
+                        state = 'go'; tStart = performance.now();
+                        pad.style.background = '#3db56c'; pad.style.color = '#fff';
+                        pad.innerHTML = '<div style="font-size:19px;">지금 터치!</div>';
+                      }, 1200 + Math.random() * 2400);
+                    } else if(state === 'wait'){
+                      clearTimeout(tid); state = 'done';
+                      pad.style.background = '#fdf1f5'; pad.style.color = '#d55576';
+                      pad.innerHTML = '<div>너무 빨랐어요! 😅</div><div style="font-size:11.5px;font-weight:600;">눌러서 다시 도전</div>';
+                      rEl.textContent = '초록색이 되기 전에 눌렀습니다.';
+                    } else if(state === 'go'){
+                      var ms = Math.round(performance.now() - tStart); state = 'done';
+                      if(!best || ms < best){ best = ms; localStorage.setItem('dia_rt_best', String(best)); bEl.textContent = best + 'ms'; }
+                      var grade = ms < 220 ? '🔥 신의 손!' : (ms < 300 ? '⚡ 엄청 빠름!' : (ms < 400 ? '👍 평균 이상' : '🐢 조금만 더 빠르게'));
+                      pad.style.background = '#fdf1f5'; pad.style.color = '#9e3856';
+                      pad.innerHTML = '<div style="font-size:22px;color:#c2456a;">' + ms + 'ms</div><div style="font-size:11.5px;font-weight:600;">눌러서 다시 도전</div>';
+                      rEl.textContent = grade + ' (' + ms + 'ms)';
+                    }
+                  });
+                } else if(kind === 'lotto'){
+                  mBox.innerHTML = '<div class="mc-mini-head"><span>🎱 로또 번호 추첨기</span><span style="font-size:11.5px;font-weight:700;color:#c2456a;">원장님들 부자 되세용</span></div>'
+                    + '<div class="mc-ldome"><canvas id="mcLCv" width="146" height="146" style="width:146px;height:146px;"></canvas></div>'
+                    + '<div style="display:flex;justify-content:center;gap:6px;margin-bottom:8px;">'
+                    + '<input id="mcLFix" class="mc-mini-inp" placeholder="고정 (예: 7, 21)">'
+                    + '<input id="mcLExc" class="mc-mini-inp" placeholder="제외 (예: 4, 13)">'
+                    + '</div>'
+                    + '<div style="display:flex;justify-content:center;gap:6px;margin-bottom:10px;">'
+                    + '<button type="button" class="mc-mini-btn" id="mcL1">1게임 추첨</button>'
+                    + '<button type="button" class="mc-mini-btn sec" id="mcL5">5게임 한 번에</button>'
+                    + '</div>'
+                    + '<div id="mcLBox" style="background:#fdf8fa;border:1px solid #f2e2e8;border-radius:10px;padding:10px 6px;min-height:46px;font-size:12px;color:#9a8a90;">버튼을 눌러 행운의 번호를 뽑아 보세요.</div>';
+                  var fixInp = document.getElementById('mcLFix'), excInp = document.getElementById('mcLExc'), lbox = document.getElementById('mcLBox');
+                  var b1 = document.getElementById('mcL1'), b5 = document.getElementById('mcL5'), cv = document.getElementById('mcLCv'), ctx = cv.getContext('2d');
+                  var running = false, timers = [], turbo = 0;
+                  function ballColor(n){ return n<=10?'#e4a71c':(n<=20?'#3b82d6':(n<=30?'#e05353':(n<=40?'#7c8490':'#43a047'))); }
+                  var balls = [];
+                  for(var bi=1; bi<=22; bi++){
+                    var a = Math.random()*Math.PI*2, r = Math.random()*45;
+                    balls.push({x:73+Math.cos(a)*r, y:95+Math.random()*22, vx:(Math.random()-.5)*2, vy:(Math.random()-.5)*2, c:ballColor(bi*2)});
+                  }
+                  function animDome(){
+                    if(!document.getElementById('mcLCv')) return;
+                    ctx.clearRect(0,0,146,146);
+                    var spd = turbo ? 3.2 : 0.35;
+                    balls.forEach(function(b){
+                      if(turbo){ b.vx += (Math.random()-.5)*2.6; b.vy += (Math.random()-.5)*2.6 - 0.35; } else { b.vy += 0.14; }
+                      b.vx *= 0.96; b.vy *= 0.96; b.x += b.vx*spd; b.y += b.vy*spd;
+                      var dx = b.x-73, dy = b.y-73, dist = Math.sqrt(dx*dx+dy*dy);
+                      if(dist > 60){ var nx=dx/dist, ny=dy/dist; b.x=73+nx*60; b.y=73+ny*60; var dot=b.vx*nx+b.vy*ny; b.vx-=1.8*dot*nx; b.vy-=1.8*dot*ny; }
+                      ctx.beginPath(); ctx.arc(b.x,b.y,8.5,0,Math.PI*2); ctx.fillStyle=b.c; ctx.fill();
+                      ctx.fillStyle='rgba(255,255,255,.45)'; ctx.beginPath(); ctx.arc(b.x-2.5,b.y-2.5,2.5,0,Math.PI*2); ctx.fill();
+                    });
+                    requestAnimationFrame(animDome);
+                  }
+                  animDome();
+                  function parseN(s){ return String(s||'').split(/[^0-9]+/).map(Number).filter(function(n){return n>=1&&n<=45;}); }
+                  function oneG(){
+                    var exc={}; parseN(excInp.value).forEach(function(n){exc[n]=1;});
+                    var fix=[]; parseN(fixInp.value).forEach(function(n){if(!exc[n]&&fix.indexOf(n)<0&&fix.length<6)fix.push(n);});
+                    var pool=[]; for(var n=1;n<=45;n++){if(!exc[n]&&fix.indexOf(n)<0)pool.push(n);}
+                    for(var i=pool.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t;}
+                    var main=fix.concat(pool.slice(0,Math.max(0,6-fix.length))).sort(function(a,b){return a-b;});
+                    return {main:main, bonus:pool.slice(Math.max(0,6-fix.length))[0]||45};
+                  }
+                  function drawG(cnt){
+                    if(running) return;
+                    running=true; b1.disabled=true; b5.disabled=true; turbo=1;
+                    timers.forEach(clearTimeout); timers=[]; lbox.innerHTML='';
+                    var labels=['A','B','C','D','E'], rows=[];
+                    for(var g=0;g<cnt;g++){
+                      var row=document.createElement('div'); row.className='mc-lotto-row';
+                      if(cnt>1){ var lb=document.createElement('span'); lb.style.cssText='font-size:11px;font-weight:800;color:#b09aa3;width:14px;'; lb.textContent=labels[g]; row.appendChild(lb); }
+                      lbox.appendChild(row); rows.push({el:row, gm:oneG()});
+                    }
+                    var dly=550;
+                    if(cnt===1){
+                      var gm=rows[0].gm, rEl=rows[0].el;
+                      gm.main.forEach(function(n,idx){ timers.push(setTimeout(function(){ var sp=document.createElement('span'); sp.className='mc-lball'; sp.style.background=ballColor(n); sp.textContent=n; rEl.appendChild(sp); }, dly+idx*420)); });
+                      timers.push(setTimeout(function(){ var pl=document.createElement('span'); pl.className='mc-lplus'; pl.textContent='+'; var sp=document.createElement('span'); sp.className='mc-lball'; sp.style.background=ballColor(gm.bonus); sp.textContent=gm.bonus; rEl.appendChild(pl); rEl.appendChild(sp); turbo=0; running=false; b1.disabled=false; b5.disabled=false; }, dly+6*420+350));
+                    } else {
+                      rows.forEach(function(r,rIdx){
+                        timers.push(setTimeout(function(){
+                          r.gm.main.forEach(function(n,idx){ timers.push(setTimeout(function(){ var sp=document.createElement('span'); sp.className='mc-lball'; sp.style.background=ballColor(n); sp.textContent=n; r.el.appendChild(sp); }, idx*140)); });
+                          timers.push(setTimeout(function(){ var pl=document.createElement('span'); pl.className='mc-lplus'; pl.textContent='+'; var sp=document.createElement('span'); sp.className='mc-lball'; sp.style.background=ballColor(r.gm.bonus); sp.textContent=r.gm.bonus; r.el.appendChild(pl); r.el.appendChild(sp); if(rIdx===rows.length-1){ turbo=0; running=false; b1.disabled=false; b5.disabled=false; } }, 6*140+180));
+                        }, dly+rIdx*480));
+                      });
+                    }
+                  }
+                  b1.addEventListener('click', function(){ drawG(1); });
+                  b5.addEventListener('click', function(){ drawG(5); });
+                }
+              }
+              var memBtn = document.getElementById('mcMemBtn');
+              var reactBtn = document.getElementById('mcReactBtn');
+              var lottoBtn = document.getElementById('mcLottoBtn');
+              if(memBtn) memBtn.addEventListener('click', function(){ 열기미니('memory'); });
+              if(reactBtn) reactBtn.addEventListener('click', function(){ 열기미니('react'); });
+              if(lottoBtn) lottoBtn.addEventListener('click', function(){ 열기미니('lotto'); });
+              var lgBtn = document.getElementById('mcLoginBtn');
+              var lgBox = document.getElementById('mcLoginBox');
+              var lgForm = document.getElementById('mcLoginForm');
+              var lgIn = document.getElementById('mcLoginIn');
+              var lgPick = document.getElementById('mcLoginPick');
+              var lgPw = document.getElementById('mcLoginPw');
+              var lgMsg = document.getElementById('mcLoginMsg');
+              var heroStatus = document.getElementById('mcHeroStatus');
+              var heroClock = document.getElementById('mcHeroClock');
+              function 시계정렬(){
+                if(!heroClock) return;
+                heroClock.style.width = '';
+                heroClock.style.top = '';
+                heroClock.style.right = '';
+              }
+              window.addEventListener('resize', function(){ 시계정렬(); });
+              window.addEventListener('load', function(){ 시계정렬(); setTimeout(시계정렬, 400); });
+              var quickAs = document.querySelectorAll('.board-side a[href*="open.kakao"], .board-side a[href*="instagram.com/seilin_beauty.pr"]');
+              var mycardH = document.querySelector('.mycard .mycard-h');
+              var fortuneWrap = document.querySelector('.mycard .mc-fortune-wrap');
+              var picked = null;
+              var LG_KEY = 'dia_login_member';
+              var EXEC_URL = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
+              var pingTimer = null;
+              function 접속핑(nick, off){
+                if(!nick) return;
+                var u = EXEC_URL + '?mode=ping&user=' + encodeURIComponent(nick) + (off ? '&off=1' : '');
+                if(off && navigator.sendBeacon){
+                  try{ if(navigator.sendBeacon(u)) return; }catch(_e){}
+                }
+                if(window.fetch){
+                  fetch(u, {keepalive: !!off}).catch(function(){});
+                }
+              }
+              var prCard = document.querySelector('.dia-hero .pr-card');
+              var pcHero = document.querySelector('.dia-hero .only-pc');
+              var origPrHTML = prCard ? prCard.innerHTML : '';
+              var origPcHTML = pcHero ? pcHero.innerHTML : '';
+              function 회원찾기(raw){
+                var s = String(raw || '').trim().replace(/^@+/, '');
+                var q = 정규(s);
+                if(!q || q.length < 2) return null;
+                for(var i = 0; i < 명부.length; i++){
+                  var m = 명부[i];
+                  if((m.i && 정규(m.i) === q) || 정규(m.n) === q) return m;
+                  var parts = String(m.n || '').split('/');
+                  for(var p = 0; p < parts.length; p++){
+                    if(정규(parts[p]) === q) return m;
+                  }
+                }
+                return null;
+              }
+              function 짧은이름(m){
+                var parts = String(m.n || '').split('/').map(function(x){ return x.trim(); }).filter(Boolean);
+                return parts.length > 1 ? parts[1] : m.n;
+              }
+              var AVATARS = ["153_beautynail", "5wol_lash", "_.b_x_b._", "_brown.brow", "_clover_lash", "_eye.bari_", "_soybrow", "a.__muse", "andbeauty__", "beau_onne", "beauty_days2", "beautyellido_nail", "beu_ty_j", "binsbrow_", "bonnie_extension", "brow.uu", "brow_luin", "brow_n.me", "dareuming.beauty", "ddumi_nail", "deepin_row", "dene.studio", "domely_lash", "dyeon.seoul", "eveof_studio", "eye_lavin", "haute_ob", "hbbeauty_official", "idreamiin", "j.myu_", "joy_de_nail", "jvelynail", "lash_n_plan", "lash_yeogi", "le.belle_lash", "leeji_nail", "lehee.studio", "line__novar", "llenar._.waxing", "long_bou_tique", "lumi_point_", "lusom_beauty", "monde6eauty", "moon_lash.beauty", "myua.brow", "n.b._.lash", "n.de_nuel", "nail_jiand", "nail_leego", "nailming_", "nailndd", "nailneedu", "nue.atelier_", "once_lash", "onii.day_", "pium.au", "reby_beauty_", "seilin_beauty", "seilin_beauty.chu", "sina.br__", "sio_lashhh", "soie.studios", "star___beauty_", "studio_2um", "studio__yale", "uni.salon", "year.seoul", "yoonbrow__", "yoony_salon", "youux153"];
+              var BEAUTY_NEWS = {"속눈썹펌": [{"title": "커뮤니티 화제 '블랙틴팅펌 vs 케라틴펌 vs 노글루펌' 고객 고민", "summary": "온라인 커뮤니티에서 '숱 적을 땐 블랙틴팅이 또렷해 좋지만 생얼엔 티 날까 고민된다', '속펌 후엔 마스카라 비추라 틴팅 선호' 등 실제 고객 반응이 화제입니다.", "source": "인스티즈 커뮤니티", "date": "2026-08-28", "url": "https://www.instiz.net/name/67365743"}, {"title": "C컬·U컬·L컬 이름보다 '뿌리 각도·눈꺼풀 닿음' 상담이 핵심", "summary": "같은 C컬이라도 롯드 크기와 모 길이에 따라 결과가 달라, 시술 전 정면·측면 사진으로 뿌리 세움과 눈두덩 닿음 여부를 맞추는 상담이 만족도를 높입니다.", "source": "제이한나 칼럼", "date": "2026-10-20", "url": "https://jhannahnail.com/29327"}, {"title": "네일·속눈썹 펌·왁싱 숍 예약금·환불 규정 분쟁 주의보", "summary": "노쇼 방지를 위해 시술비 전액 수준으로 예약금을 받는 숍이 늘며 소비자 민원이 증가해, 합리적인 취소·환불 기준 사전 안내가 중요해지고 있습니다.", "source": "경기일보", "date": "2026-05-09", "url": "https://news.naver.com/article/666/0000106346"}, {"title": "숱 많고 직모·눈 약한 고객의 '펌이냐 연장이냐' 고민", "summary": "숱은 많은데 짧고 직모라 뷰러가 금방 처지고, 속눈썹이 얇고 눈이 약한 편이라 펌과 연장 사이에서 망설인다는 글. 모 상태를 보고 무리한 연장은 피하라는 조언이 이어졌습니다.", "source": "더쿠 뷰티", "date": "2026-08-17", "url": "https://theqoo.net/beauty/4316460733"}, {"title": "단골이 셀프펌으로 옮겨가는 이유 '금방 풀림 + 예약 어려움'", "summary": "매달 샵에서 받았지만 유지력이 아쉽고 원하는 시간에 예약이 안 잡혀 셀프펌 제품을 알아본다는 글. 롯드 밀착과 유지력에 대한 실사용 비교가 댓글로 붙었습니다.", "source": "더쿠 뷰티", "date": "2026-09-27", "url": "https://theqoo.net/beauty/4357782769"}, {"title": "'컬이 과해 쌍꺼풀 라인에 닿는다'…일주일 뒤 AS 요청, 진상일까", "summary": "다섯 번 다닌 단골 샵에서 받은 펌이 6일이 지나도 그대로라 AS를 요청하면 진상인지 묻는 글. 재시술 기준과 사전 컬 상담의 중요성이 드러납니다.", "source": "더쿠 뷰티", "date": "2026-10-11", "url": "https://theqoo.net/beauty/4372313923"}, {"title": "여행 전날 펌 vs 일주일 전 펌…'24시간 리무버 제한' 계산법", "summary": "연휴 일정 때문에 여행 직전과 일주일 전 중 고민하는 글. 시술 후 24시간 클렌징·리무버 제한을 고객이 직접 계산한다는 점이 예약 상담에 참고됩니다.", "source": "더쿠 뷰티", "date": "2026-09-06", "url": "https://theqoo.net/beauty/4336947751"}, {"title": "'속눈썹펌 눈에 안 좋아?' 따가움 두고 갑론을박", "summary": "셀프 재료로 받은 뒤 눈이 따갑다는 질문에 '약제가 눈에 들어간 것', '잘하는 곳은 아프지 않다', '블랙틴팅이 더 아프다' 등 경험담이 갈렸습니다.", "source": "인스티즈 커뮤니티", "date": "2026-10-16", "url": "https://www.instiz.net/name/67753093"}, {"title": "'머리 파마약 냄새'…제품 민감 고객이 예약 전에 묻는 것", "summary": "펌을 다섯 번 받아봤지만 처음으로 눈이 시리고 파마약 냄새가 났다며, 예약 전에 제품을 확인하고 싶다는 글. 눈이 안 시린 샵을 찾는 이웃 추천이 이어졌습니다.", "source": "당근 동네생활", "date": "2026-05-05", "url": "https://www.daangn.com/kr/community/%EC%86%8D%EB%88%88%EC%8D%B9%ED%8E%8C-%EB%83%84%EC%83%88-v49exohad8du/"}, {"title": "시술 중 가위질 '미리 설명 없었다'…환불·복구비 청구 가능할까", "summary": "4주 만에 받은 펌에서 뿌리 쪽이 잘린 흔적을 발견해 환불까지 간 사례. 시술 전 동의와 사진·메시지 기록의 필요성이 확인됩니다.", "source": "아하 커뮤니티", "date": "2026-08-28", "url": "https://www.a-ha.io/questions/4bc200b8f6a23387b7f0f9e932b89229"}], "속눈썹연장": [{"title": "2026 캣아이 연장 트렌드, 과한 윙 대신 '소프트·키튼아이' 대세", "summary": "무거운 메가 볼륨 대신 눈꼬리 처짐을 막고 바깥쪽 1/3을 부드럽게 빼는 소프트 캣아이·키튼아이 매핑이 데일리 연장으로 가장 많이 요청되고 있습니다.", "source": "Gollee 트렌드", "date": "2026-09-04", "url": "https://gollee.com/ko/2026%EB%85%84-%EC%97%85%EB%8D%B0%EC%9D%B4%ED%8A%B8%EB%90%9C-%EC%BA%A3%EC%95%84%EC%9D%B4-%EB%A9%94%EC%9D%B4%ED%81%AC%EC%97%85-%ED%8A%B8%EB%A0%8C%EB%93%9C%EC%99%80-%EC%86%8D%EB%88%88%EC%8D%B9-%EB%94%94%EC%9E%90%EC%9D%B8/"}, {"title": "SNS 달구는 2026 연장 키워드 '위스피·엔젤래쉬·다크브라운'", "summary": "틱톡·SNS를 중심으로 0.03~0.05 가벼운 스파이크로 공기감을 살리는 엔젤래쉬와 자연스러운 매트 다크브라운 컬러 연장 수요가 빠르게 늘고 있습니다.", "source": "Lashvee 트렌드", "date": "2026-03-31", "url": "https://lashvee.com/2026-tiktok-eyelash-extension-trends/"}, {"title": "LED 속눈썹 연장, 일반 글루와 유지력·시술 직후 관리 차이", "summary": "전용 글루를 LED로 즉시 경화해 시술 직후 물 조심 부담을 줄여주며, 유분이 많거나 리터치 주기를 늘리고 싶은 고객층에서 관심이 높습니다.", "source": "뷰티 트렌드 노트", "date": "2026-08-09", "url": "https://you-lash.com/blog/led-lash-extension/"}, {"title": "연장 정기시술 여성 25명 중 24명 '모낭충'…마이봄샘 85% 이상 징후", "summary": "유럽백내장굴절수술학회 발표 연구로, 연장 경험자의 47.6%가 불편·충혈·가려움을 호소했습니다. 10회 이상 받은 여성 85%에서 마이봄샘 기능장애 징후가 관찰됐습니다.", "source": "동아일보", "date": "2026-09-11", "url": "https://www.donga.com/news/It/article/all/20260911/134649065/2"}, {"title": "'자고 일어났더니 3분의 1 탈락'…AS 유료라는 샵, 다른 곳도?", "summary": "예약해준 연장이 하루 만에 절반 가까이 떨어졌는데 '관리 부족'이라며 리터치비를 요구했다는 글. 전직 원장 댓글은 '다음날 1/3 탈락은 접착 문제'라고 짚었습니다.", "source": "당근 동네생활", "date": "2026-07-30", "url": "https://www.daangn.com/kr/community/%EC%86%8D%EB%88%88%EC%8D%B9-%EC%97%B0%EC%9E%A5-%EC%9B%90%EB%9E%98-%EC%9D%B4%EB%9F%B0%EA%B1%B4%EA%B0%80%EC%9A%94-9qyxau2yk8uj/"}, {"title": "'속눈썹 연장 많이 불편해?' 눈 예민 고객의 짧은 질문", "summary": "연장을 고민하는 이들이 가장 먼저 묻는 것은 불편감. '전혀 불편 없다'와 '눈이 예민해 불편했다'가 갈려, 시술 전 민감도 확인이 필요함을 보여줍니다.", "source": "인스티즈 커뮤니티", "date": "2026-09-21", "url": "https://www.instiz.net/name/67549454"}, {"title": "'펌포인트'가 펌이 아니라고? 시술 명칭 논란과 현금영수증", "summary": "펌과 연장으로 이해하고 예약했는데 '펌은 들어가지 않는다'는 답을 들었다는 글. 업체마다 다른 시술 명칭과 이벤트가·현금영수증 처리 문제가 함께 지적됐습니다.", "source": "당근 동네생활", "date": "2026-04-20", "url": "https://www.daangn.com/kr/community/%EC%86%8D%EB%88%88%EC%8D%B9-%EC%97%85%EC%B2%B4-%EB%A7%90%EC%9E%A5%EB%82%9C%EC%97%90-%EC%86%8D%EC%95%97%EC%96%B4%EC%9A%94-iri3tqngdprw/"}, {"title": "리뷰 사진이 전부 도용…'다크브라운 된다 없다' 답변만 회피", "summary": "블로그 사진을 보고 문의했더니 색상 답변이 오락가락해 직접 사진 검색으로 도용을 확인했다는 글. 포트폴리오 신뢰가 예약 전환을 가른다는 사례입니다.", "source": "속닥 커뮤니티", "date": "2026-04-28", "url": "https://socdoc.co.kr/twenty/ODU4MzkwOjIwMjYtMDQtMjhUMDU6MTQ6NDUuNjExMzAy"}, {"title": "연장 4만원인데 한 달 7만원? 리터치·제거·관리제품 누적 비용", "summary": "평균 3만9천원이지만 볼륨·리터치·타샵 제거·관리제품까지 더하면 월 6만~12만원. 고객이 1회 가격이 아니라 '한 달 총비용'으로 비교한다는 분석입니다.", "source": "유리지갑", "date": "2026-07-24", "url": "https://glasswallet.com/blog/eyelash-extension-price-guide/"}, {"title": "안경 쓰는 고객은 펌·연장이 티 날까 걱정", "summary": "매일 안경을 쓰고 마스카라·렌즈는 피하는 고객이 '티 안 나게' 가능한지 묻는 글. 안경 착용 고객에게는 컬과 길이 상담이 특히 중요하다는 점을 보여줍니다.", "source": "더쿠 커뮤니티", "date": "2026-07-22", "url": "https://theqoo.net/foreign/4287851406"}], "반영구": [{"title": "문신사법 2027년 10월 시행 앞두고 복지부 하위법령·임시등록 정비", "summary": "보건복지부가 내년 1월 하위법령 개정 착수를 목표로 위생·감염관리 기준과 2년 특례 임시등록, 국가시험 세부안을 마련하고 있습니다.", "source": "약사공론", "date": "2026-06-10", "url": "https://www.kpanews.co.kr/news/articleView.html?idxno=536430"}, {"title": "문신사법 시행 대비 '무시험 취득' 등 허위 교육 홍보 주의", "summary": "국가자격시험 과목과 임시등록 기준이 아직 확정되지 않은 만큼, '무시험 면허 취득' 같은 확인되지 않은 교육 홍보에 유의해야 합니다.", "source": "메디컬투데이", "date": "2026-06-18", "url": "https://www.mdtoday.co.kr/news/articleView.html?idxno=601152"}, {"title": "K-뷰티 학술대회, 미용문신 청결·오염 구역 분리 위생 표준 제시", "summary": "제도권 편입을 앞두고 시술 공간의 청결·오염 구역 분리, 교차오염 방지, 시술 이력 기록·보관 등 실무 위생 표준이 핵심 과제로 떠올랐습니다.", "source": "경북일보", "date": "2026-11-09", "url": "https://www.kyongbuk.co.kr/news/articleView.html?idxno=4090177"}, {"title": "'리뷰 보고 갔는데 짝짝이' 눈썹문신 환불 후 타샵 리터칭 조언", "summary": "리뷰가 좋아 예약했지만 좌우 눈썹산과 모양이 다르게 나와 환불받았다는 글. '리터칭은 다른 곳에서', '흔적이 많으면 거절하는 샵도 있다'는 조언이 붙었습니다.", "source": "인스티즈 커뮤니티", "date": "2026-10-06", "url": "https://www.instiz.net/name/67679623"}, {"title": "입술 반영구 한 달 만에 색 빠져 '비추'…업주는 '눈썹보다 만족도 높아'", "summary": "입술 반영구 후 한 달은 립밤으로 버텼지만 이후 색이 빠져 틴트를 다시 바른다는 후기. 입술 시술 업주는 '잘하는 곳은 2년 간다'며 유지력 차이를 설명했습니다.", "source": "속닥 커뮤니티", "date": "2026-10-14", "url": "https://socdoc.co.kr/plastic/ODkxNDE3OjIwMjYtMTAtMTRUMDY6MTU6NDAuMDc4MDAw"}, {"title": "구순염 앓은 입술, 반영구 해도 될까…'재발 위험' 신중론", "summary": "입술이 건조해지고 구순염을 앓은 뒤 색이 옅어져 시술을 고민하는 질문에, '구순염 이력은 자극으로 재발할 수 있어 신중해야 한다'는 답변이 달렸습니다.", "source": "캐시닥 커뮤니티", "date": "2026-04-15", "url": "https://cashdoc.me/community/plasticsurgery/128842116"}, {"title": "'시간 지나면 붉게 변한다'는 후기에 입술 반영구 망설임", "summary": "틴트 번거로움 때문에 관심을 갖다가 색 변색 후기를 보고 멈춘 사연. 처음부터 연한 색으로 들어가는 상담이 안전하다는 조언이 이어졌습니다.", "source": "캐시닥 커뮤니티", "date": "2026-05-07", "url": "https://cashdoc.me/community/plasticsurgery/129886986"}, {"title": "입술 반영구 '부작용이 무섭다'…직장인 커뮤니티 반응", "summary": "입술 색이 없어 자신감이 떨어진다는 고민에 '통증보다 오래 안 가는 게 단점', '제거 영상부터 찾아보라'는 댓글이 붙었습니다.", "source": "블라인드", "date": "2026-07-26", "url": "https://www.teamblind.com/kr/post/%EC%9E%85%EC%88%A0%EB%B0%98%EC%98%81%EA%B5%AC-%EC%8B%9C%EC%88%A0-%EA%B4%9C%EC%B0%AE%EB%82%98%EC%9A%94-fvgwuaux"}, {"title": "복지부가 정리한 문신사법 오해 OX…'제거는 문신사도 불가'", "summary": "민간 교육이나 미용사 면허로도 국가시험은 면제되지 않고, 임시면허 제도 없이 임시개설등록만 2년간 적용됩니다. 문신 제거는 의료행위로 금지됩니다.", "source": "보건복지부 정책브리핑", "date": "2026-07-31", "url": "https://www.korea.kr/multi/visualNewsView.do?newsId=148969130"}, {"title": "문신사 국가시험 2027년 말 첫 시행…예산 6억3,500만원 편성", "summary": "국시원이 전산시스템 구축과 문항 개발에 착수했습니다. 법 시행 후 최대 2년간 기존 종사자에게 임시등록·면허 취득 유예 특례가 주어집니다.", "source": "연합뉴스TV", "date": "2026-01-14", "url": "https://www.yonhapnewstv.co.kr/news/AKR20260114115001nTx"}], "SMP": [{"title": "정부, 문신 시술 표준 '시설·감염관리·사후관리 지침' 확정", "summary": "복지부가 대기·시술·세척구역 분리, 1회용 멸균 침·장갑 사용, 시술 전 서면 동의 및 염료 LOT 5년 기록 보관 등 표준 지침을 확정했습니다.", "source": "의약뉴스", "date": "2026-09-02", "url": "http://www.newsmp.com/news/articleView.html?idxno=257870"}, {"title": "복지부 '문신업소 시설기준안·국가시험 사례형 문항' 단계별 공개", "summary": "복지부가 미용업과 의료기관 중간 단계의 시설기준과 실무·위생 중심 단일 면허 국가시험 도입, 네이버 플레이스 등록 정상화를 추진 중입니다.", "source": "서울신문", "date": "2026-06-11", "url": "https://www.seoul.co.kr/news/economy/2026/06/11/20260611500154"}, {"title": "두피문신(SMP)은 '미용문신 실무영역'으로 분류해야 한다는 학계 제안", "summary": "국내 SMP 종사자 303명 조사 결과 반영구화장과 병행 운영이 많아, 하위법령에서 미용문신 영역으로 경과조치·위생교육을 마련해야 한다는 목소리가 높습니다.", "source": "고시위크", "date": "2026-06-02", "url": "https://www.gosiweek.com/article/1065589419114616"}, {"title": "'전체 3~4회 120만원이면 적당?' 지방 SMP 가격 편차", "summary": "50대 부모님 두피 전체 시술을 알아보며 업체마다 천차만별인 가격을 묻는 글. 상담 최소 금액이 60만원부터 시작한다는 답변이 이어졌습니다.", "source": "대다모 탈모 커뮤니티", "date": "2026-08-12", "url": "https://daedamo.com/story/2042796"}, {"title": "SMP 상담 전 세 가지…가격·흰머리·피부과 선행", "summary": "가르마·정수리 시술 금액, 나이 들어 흰머리가 나면 색이 어떻게 되는지, 시술 전 두피클리닉을 다녀야 하는지를 묻는 글. '두피클리닉 상술' 우려도 함께 나왔습니다.", "source": "대다모 탈모 커뮤니티", "date": "2026-06-07", "url": "https://daedamo.com/smp/47379"}, {"title": "탈모약 효과 못 느껴 SMP로…약 병행은 어떻게", "summary": "탈모약을 몇 년 먹어도 변화가 없어, 삭발 없이 가르마·앞머리 밀도만 SMP로 채우겠다는 고민. 약과 시술을 병행한 경험담을 구했습니다.", "source": "대다모 탈모 커뮤니티", "date": "2026-06-22", "url": "https://daedamo.com/smp/47442"}, {"title": "정수리 휑해 SMP 고민…'점 커져 후회' 경고와 업체 선정 조언", "summary": "흑채와 모발이식 부담에 SMP를 알아보는 글에 '잘못 받아 점이 커져 후회했다', '업체 선정이 90%', '한 번에 진하게 하지 말고 3~4회 나눠라'는 조언이 붙었습니다.", "source": "당근 동네생활", "date": "2026-04-14", "url": "https://www.daangn.com/kr/community/%EC%A0%95%EC%88%98%EB%A6%AC%EA%B0%80-%EC%9E%90%EA%BE%B8-%ED%9C%91%ED%95%B4-%EB%B3%B4%EC%97%AC%EC%84%9C-%EB%91%90%ED%94%BC%EB%AC%B8%EC%8B%A0-%EA%B3%A0%EB%AF%BC-%EC%A4%91%EC%9D%B8%EB%8D%B0-%ED%95%B4%EB%B3%B4%EC%8B%A0-%EB%B6%84-%EA%B3%84%EC%8B%A0%EA%B0%80%EC%9A%94-z83eigpdc8fg/"}, {"title": "두피문신 해볼까…헤어라인 매년 vs SMP '비싸지만 오래'", "summary": "SMP 경험자와 헤어라인 반영구를 매년 받는 이가 함께 답한 글. 'SMP는 덜 아프고 오래가지만 비싸다', '시술자 역량이 중요하다'는 비교가 담겼습니다.", "source": "언니의파우치", "date": "2026-08-04", "url": "https://unpa.me/community/question/133699468"}, {"title": "SMP 부작용 정리…파랗게 변색되는 진짜 이유", "summary": "일반 타투 잉크 사용과 진피보다 깊은 주입이 변색의 주원인입니다. 유지기간 2~5년, 과도한 리터치는 오히려 부자연스러워진다는 기준도 함께 정리했습니다.", "source": "대다모 탈모 커뮤니티", "date": "2026-07-23", "url": "https://daedamo.com/news/13518"}, {"title": "2030 탈모 환자 8만명…두피 관리 수요가 SMP로", "summary": "지난해 탈모로 병원을 찾은 23만7천명 중 2030세대가 36.5%. 두피 앰플·토닉·디바이스 소비가 커지며 빠른 시각 보완을 원하는 수요층이 젊어지고 있습니다.", "source": "시사저널e", "date": "2026-09-15", "url": "https://www.sisajournal-e.com/news/articleView.html?idxno=423718"}], "네일": [{"title": "손톱 본연의 건강함 살리는 '네이키드 네일·민낯 네일' 글로벌 강세", "summary": "화려한 파츠 대신 큐티클 케어와 시어 젤·밀키 누드 톤으로 건강한 손끝을 연출하는 트렌드가 확산되며 쉬어 젤 폴리쉬·영양 케어 수요가 급증했습니다.", "source": "Cosmetics Business", "date": "2026-11-16", "url": "https://cosmeticsbusiness.com/the-naked-nail-trend-how-skinification-is-reshaping"}, {"title": "2026 서울네일엑스포 성료…미니멀 시럽 vs 입체 파츠 양극화", "summary": "일상용 시럽·클린 네일과 촬영·여행용 입체 아트·프레스온 네일을 상황에 따라 번갈아 선택하는 소비가 늘며 살롱·케어 결합 운영이 주목받고 있습니다.", "source": "연합뉴스", "date": "2026-10-23", "url": "https://www.yna.co.kr/view/PYH20261023089000013"}, {"title": "고물가 속 '클린 네일·MNBB' 열풍…네일 케어 매출 400% 급증", "summary": "누드·연핑크·살구빛 등 피부 톤에 맞춘 단정한 시럽 네일과 손톱 강화제·큐티클 세럼을 찾는 2030 고객이 크게 늘었습니다.", "source": "한국경제", "date": "2026-06-19", "url": "https://www.hankyung.com/article/2026061965417"}, {"title": "예약 땐 6만3천원, 결제 땐 7만7천원…'할인율이 바뀌었다'", "summary": "7월에 30% 할인가로 예약했는데 8월 방문 때 할인율이 20%로 바뀌어 1만원 이상 더 냈다는 글. 공지에 없던 소급 적용 기준이 문제로 지적됐습니다.", "source": "더쿠 뷰티", "date": "2026-08-04", "url": "https://theqoo.net/beauty/4302390402"}, {"title": "글레이즈드 네일 7만5천원…'자샵 제거비' 논쟁", "summary": "기본 원컬러 4만5천원인 샵에서 아트 7만5천원, 자샵 제거까지 붙은 견적에 고민하는 글. '자샵 제거비 받는 곳은 안 간다'와 '다 받는다'가 갈렸습니다.", "source": "인스티즈 커뮤니티", "date": "2026-11-03", "url": "https://www.instiz.net/name/67881488"}, {"title": "후기 남겼더니 장문 메시지…'사실이어도 보복될까'", "summary": "거스러미와 응대 문제로 후기를 수정했더니 샵에서 긴 메시지가 왔다는 글. 첫방문 이벤트 조건과 후기 작성 요구, 사후 대응이 함께 논의됐습니다.", "source": "인스티즈 커뮤니티", "date": "2026-09-26", "url": "https://www.instiz.net/name/67599536"}, {"title": "일주일 만에 네일이 다 떴다…무료보수 vs 환불", "summary": "무료보수 기간 안이지만 두 번째 실수라 다시 받고 싶지 않고, 거리와 교통비까지 생각하면 환불이 맞는지 묻는 글. 보수 정책의 한계가 드러납니다.", "source": "인스티즈 커뮤니티", "date": "2026-11-15", "url": "https://www.instiz.net/name/67981282"}, {"title": "셀프네일 1년, 한포진·손가락 부종까지…'알러지 생기면 평생 불가?'", "summary": "잦은 큐티클 제거와 젤이 피부에 닿은 채 경화된 뒤 알러지·한포진이 올라온 사례. 네일을 계속하고 싶은 고객의 절박함과 시술 위생의 경계를 보여줍니다.", "source": "속닥 커뮤니티", "date": "2026-09-06", "url": "https://socdoc.co.kr/twenty/ODY5Mjg0OjIwMjYtMDktMDZUMTM6NTI6MjAuNjk4MDAw"}, {"title": "젤네일 제거 후 '찢어지는 손톱'…강화제·휴지기 조언", "summary": "수년간 젤네일을 하고 제거하니 손톱이 얇아져 잘 찢어진다는 글. '베이스 남기고 제거', '2~3주는 손 조심' 같은 실무 팁이 댓글로 공유됐습니다.", "source": "인스티즈 커뮤니티", "date": "2026-09-15", "url": "https://www.instiz.net/name/67506590"}, {"title": "뜯어낸 손톱 울퉁불퉁…이 상태에 젤 받아도 될까", "summary": "여행이 잡혀 원톤이라도 받고 싶지만 직접 뜯어낸 손톱이 손상된 상태라 고민하는 글. 시술 전 손톱 상태 확인과 보강 선택 기준이 필요함을 보여줍니다.", "source": "더쿠 뷰티", "date": "2026-09-22", "url": "https://theqoo.net/beauty/4353430181"}], "피부": [{"title": "피부미용사회중앙회 '의료기관 민원 예방·치료 목적 과대광고 주의' 당부", "summary": "피부미용 직무범위를 넘는 치료 목적 홍보나 의료용어 사용이 고발성 민원으로 이어지고 있어, NCS 기준에 맞춘 숍 운영과 표시광고 주의가 필요합니다.", "source": "주간코스메틱", "date": "2026-11-04", "url": "https://www.geniepark.co.kr/news/articleView.html?idxno=61575"}, {"title": "정부 'AI·융복합 K-뷰티 지원방안' 발표…AI 피부진단·맞춤 케어 육성", "summary": "방한 외국인 뷰티 소비가 2조 5천억 원을 넘어서면서 AI 피부진단, 개인 맞춤형 화장품, 에스테틱 체험 거점 지원이 대폭 확대됩니다.", "source": "대한민국 K-공감", "date": "2026-11-12", "url": "https://gonggam.korea.kr/newsContentView.es?code_cd=&content=&mid=a12503000000&news_id=89c46285-f4fe-481d-921a-547bba6056aa&section_id="}, {"title": "이·미용사 직무교육 의무화 공중위생관리법 개정안 국회 통과", "summary": "내년 하반기 시행을 목표로 기존 위생교육과 별도로 AI 피부진단·디바이스 활용 등 실무 역량을 높이는 연 1회 직무교육 제도가 도입됩니다.", "source": "아시아투데이", "date": "2026-08-08", "url": "https://www.asiatoday.co.kr/kn/view.php?key=20260807010002424"}, {"title": "50만원 회원권 끊었더니 '카드 빌려서 100만원 결제하라'", "summary": "만족해서 회원권을 결제했는데 상담자가 상위권을 권하며 가족·지인 카드까지 언급했다는 글. 관리사는 친절했지만 상담 응대 때문에 끊겠다는 반응입니다.", "source": "인스티즈 커뮤니티", "date": "2026-10-22", "url": "https://www.instiz.net/name/67799414"}, {"title": "무료 피부관리 받으러 갔다가 80만원 결제…'카드 뭐로 하실래요'", "summary": "무료 체험 후 '피부 장벽 붕괴' 진단과 단계별 할인로 80만원을 결제하고 다음 날 취소한 사연. 결제 전 동의와 상담 압박의 경계를 보여줍니다.", "source": "네이트판", "date": "2026-10-06", "url": "https://pann.nate.com/talk/375658322"}, {"title": "피부관리 중 레이저 기계가 얼굴에…입술 찢어짐·피멍", "summary": "체험 후 회원권을 결제하고 첫 관리에서 상해를 입었다는 글. 샵이 '돈 받고 싶으면 소송을 걸라'고 응대해 형사고소를 준비 중이라고 밝혔습니다.", "source": "당근 동네생활", "date": "2026-04-28", "url": "https://www.daangn.com/kr/community/%ED%94%BC%EB%B6%80%EA%B4%80%EB%A6%AC%EC%83%B5%EC%97%90%EC%84%9C-%EC%83%81%ED%95%B4%EB%A5%BC-%EC%9E%85%EC%97%88%EC%8A%B5%EB%8B%88%EB%8B%A4-4fd4e2o76vt2/"}, {"title": "120만원 패키지 결제 → 240만원 추가 결제…취소했더니 수수료 요구", "summary": "체험 후 패키지를 결제하고 다음 날 추가 결제를 취소했더니 10% 수수료를 요구받았다는 상담. 중도 해지와 위약금 기준에 대한 답변이 함께 붙었습니다.", "source": "아하 커뮤니티", "date": "2026-03-14", "url": "https://www.a-ha.io/questions/45f6e5a3d7b601a088f13e3caea3a9ab"}, {"title": "코·볼 압출 후 붉은 자국, 얼마나 갈까", "summary": "볼은 자국이 눈에 띄어 압출을 망설인다는 질문. '모든 피지를 빼야 하는 건 아니다', '진정 관리 병행 여부와 회복 기간을 먼저 확인하라'는 조언이 이어졌습니다.", "source": "메이퓨어 커뮤니티", "date": "2026-11-10", "url": "https://www.maypureclinic.com/community/acne-inquire/138050710"}, {"title": "압출 3주째, 그날은 밖에 못 나갈 정도…'효과는 있지만 임시방편'", "summary": "턱·볼 트러블로 압출을 받는 직장인의 솔직 후기. 집에서 짜는 것보다 자국이 덜하다는 반응과 '결국 식단·생활습관'이라는 댓글이 함께 붙었습니다.", "source": "메디닉스 커뮤니티", "date": "2026-06-09", "url": "https://medinics.kr/community/beauty/8781"}, {"title": "피부과 압출 직후 '이게 맞나' 싶을 만큼 난리…마스크 출근", "summary": "압출 직후 피딱지와 붉은기로 당황한 이들에게 '2~3일은 그렇다', '일주일은 화장을 안 했다'는 경험담이 이어졌습니다. 시술 전 기대치 안내가 필요한 대목입니다.", "source": "인스티즈 커뮤니티", "date": "2026-10-19", "url": "https://www.instiz.net/name/67776066"}], "왁싱": [{"title": "요즘 왁싱샵 대세는 '시술 후 스킨 부스터·미세전류 진정 케어'", "summary": "단순 진정 젤을 넘어 열린 모공에 히알루론산·엑소좀 앰풀과 초음파 진정 케어를 결합하고, 남성(20%)·5060·청소년까지 고객층이 넓어지고 있습니다.", "source": "코스모폴리탄 코리아", "date": "2026-05-03", "url": "https://www.cosmopolitan.co.kr/article/1901647"}, {"title": "슈가링·레이저 병행까지…자극 줄이는 '웰니스 제모' 트렌드", "summary": "피부 타입과 통증 민감도에 맞춰 100% 천연 슈가링과 사후 진정 프로그램을 결합하거나 레이저와 병행하는 맞춤 관리가 주목받고 있습니다.", "source": "코스모폴리탄 코리아", "date": "2026-06-19", "url": "https://www.cosmopolitan.co.kr/article/1904704"}, {"title": "네일·속눈썹 펌·왁싱 숍 예약금·환불 규정 분쟁 주의보", "summary": "노쇼 방지를 위해 과도한 예약금이나 불명확한 환불 규정을 적용할 경우 소비자 분쟁이 잦아져, 사전 안내 문구를 명확히 두는 것이 안전합니다.", "source": "경기일보", "date": "2026-05-09", "url": "https://news.naver.com/article/666/0000106346"}, {"title": "'브라질리언 아프다'는 후기뿐이라 겁난다…레이저와 비교", "summary": "왁싱과 제모를 고민하는 글에 '브라질리언 빼곤 레이저가 안 아프다', '털이 얇으면 왁싱도 괜찮다', '생리 때 편하다'는 경험담이 붙었습니다.", "source": "속닥 커뮤니티", "date": "2026-07-30", "url": "https://socdoc.co.kr/all/MzcyMjI0OjIwMjYtMDctMzBUMDY6MTM6NTcuNDM0MDAw"}, {"title": "'왁싱 어떻게 참아요'…하나씩 뽑다 포기한 고객", "summary": "길어서 정리하려다 하나씩 뽑았는데 너무 아팠다는 글. '슈가링이 덜 아프다'와 '개인차가 크다', '레이저로 가라'는 답변이 갈렸습니다.", "source": "당근 동네생활", "date": "2026-05-21", "url": "https://www.daangn.com/kr/community/%EC%99%81%EC%8B%B1%EC%96%B4%EB%96%BB%EA%B2%8C%EC%B0%B8%EC%95%84%EC%9A%94-urmqhaohf23d/"}, {"title": "'왁싱 많이 아픈가요'…만족도는 높다는 답변", "summary": "처음 왁싱을 앞두고 통증과 만족도를 묻는 질문에 '순간적으로 따끔할 뿐', '주기적으로 받으면 모근이 약해져 덜 아프다', '시술 후 붉어짐 관리는 필수'라는 답이 이어졌습니다.", "source": "아하 커뮤니티", "date": "2026-05-08", "url": "https://www.a-ha.io/questions/4b7ed84b91625501bfb70691d4e1c73a"}, {"title": "출산 앞두고 첫 왁싱…'모낭염으로 고생' 임산부 후기", "summary": "제왕절개를 앞두고 처음 왁싱을 받은 임산부들의 경험담. '손 빠른 곳에서 받아라', '두 번째부터 덜 아프다'와 함께 모낭염·부종으로 고생했다는 후기도 올라왔습니다.", "source": "베이비빌리 커뮤니티", "date": "2026-10-31", "url": "https://babybilly.app/ko/community/detail/bedong/577616"}, {"title": "'민망하지 않을까'…동성 시술자 선택이 답이라는 반응", "summary": "다리·브라질리언 왁싱을 앞두고 민망함을 묻는 질문에 '동성 쌤을 선택하면 덜 민망하다', '왁서는 익숙하다'는 답변이 붙었습니다.", "source": "아하 커뮤니티", "date": "2026-09-29", "url": "https://www.a-ha.io/questions/4b6b3329fd7d0326a38e35f23c929b75"}, {"title": "왁싱 후 붉은 구진, 모낭염일까 헤르페스일까", "summary": "왁싱 후 생긴 단일 홍반성 구진을 두고 불안해하는 상담. '물집이 군집으로 생기면 헤르페스 감별이 필요하다', '모낭염은 국소 연고로 수일 내 호전'이라는 답이 담겼습니다.", "source": "아하 커뮤니티", "date": "2026-03-11", "url": "https://www.a-ha.io/questions/43c618669380a8fb8f7cd0e2877cd5dd"}, {"title": "셀프 왁싱 후 인그로운헤어…'뜯었더니 색소침착'", "summary": "셀프 왁싱 뒤 인그로운헤어를 뜯어 붉은 갈색 자국이 남았다는 고민. 사후 각질·보습 관리와 리터치 주기의 중요성이 다시 확인됩니다.", "source": "아로오 커뮤니티", "date": "2026-09-09", "url": "https://www.arooo.co.kr/circle/post/%EC%9D%B8%EA%B7%B8%EB%A1%9C%EC%9A%B4%ED%97%A4%EC%96%B4-%EB%AA%A8%EB%82%AD%EC%97%BC-%EC%83%89%EC%86%8C%EC%B9%A8%EC%B0%A9-%EC%97%86%EC%95%A0%EB%8A%94-a64a5d4f"}], "붙임머리": [{"title": "K-가발·헤어피스 특허 경쟁력 세계 2위…2035년 23조 시장 전망", "summary": "초고령화와 젊은 층의 패션·볼륨 수요가 맞물리며 가발·헤어피스 시장이 2035년 23조 원 규모로 2배 이상 성장할 전망입니다.", "source": "연합뉴스", "date": "2026-08-17", "url": "https://www.yna.co.kr/view/AKR20260814063700063"}, {"title": "티 안 나게 밀도 채우는 '헤어 익스텐션 트위크먼트' 글로벌 트렌드", "summary": "전체 연장 대신 테이프·나노 팁으로 모발이 얇은 부위나 페이스 라인만 가볍게 채워 '내 머리처럼 자연스러운 볼륨'을 주는 시술이 각광받고 있습니다.", "source": "Country & Town House", "date": "2026-11-10", "url": "https://www.countryandtownhouse.com/style/health-and-beauty/hair-tweakments/"}, {"title": "방한 외국인 뷰티 소비 35% 증가…K-헤어 스타일링 체험 수요 확대", "summary": "K-콘텐츠 영향으로 한국식 헤어·스타일링을 경험하려는 외국인 고객이 늘며 살롱 시술과 홈케어·교육을 결합한 운영이 주목받고 있습니다.", "source": "매일경제", "date": "2026-10-13", "url": "https://www.mk.co.kr/news/business/12174232"}, {"title": "'숱추가 3번 했는데 해파리'…붙임머리가 티나는 이유", "summary": "단발에 붙였더니 안쪽에만 붙은 느낌이라 티가 난다는 글. '바깥쪽 머리 양과 두상 앞부분까지 배치해야 한다', '매일 고데기로 연결부를 펴야 한다'는 조언이 붙었습니다.", "source": "인스티즈 커뮤니티", "date": "2026-02-24", "url": "https://www.instiz.net/name/65745848"}, {"title": "'붙임머리 후회할까'…떼고 나면 더 적어 보이는 이유", "summary": "숱이 적고 중단발이라 고민한다는 글에 '자연 탈락분이 함께 묶여 있다가 한 번에 빠진다', '리터치 반복으로 두피 부담이 커진다'는 경고가 이어졌습니다.", "source": "인스티즈 커뮤니티", "date": "2026-05-12", "url": "https://www.instiz.net/name/66402162"}, {"title": "50만원 + 리터치 20만원…'금전 여유 있어야' 붙임머리", "summary": "얇은 모발·중단발 고객이 유팁과 노팁을 고민하는 글에 '만족은 큰데 리터치마다 숱이 한 줌씩 준다'는 실제 경험담이 붙었습니다.", "source": "글로우픽 Q&A", "date": "2026-03-29", "url": "https://web.glowpick.com/qna/5810"}, {"title": "'리터치 10만원 이하' 글에 업주들이 댓글로 모델 제안", "summary": "붙임머리 리터치를 싸게 하고 싶다는 글에 여러 업주가 '유팁이면 13만원', '장소만 있으면 해드린다'며 제안했습니다. 리터치 단가 경쟁이 그대로 드러납니다.", "source": "당근 동네생활", "date": "2026-04-08", "url": "https://www.daangn.com/kr/community/%EB%B6%99%EC%9E%84%EB%A8%B8%EB%A6%AC-%EB%A6%AC%ED%84%B0%EC%B9%98-10%EB%A7%8C%EC%9B%90%EC%95%88%EC%9C%BC%EB%A3%A8-%ED%95%98%EC%8B%9C%EB%8A%94%EB%B6%84-33ngmkpwg5dg/"}, {"title": "고객이 자기 모(유팁 피스)를 들고 리터치처를 찾는다", "summary": "보유한 헤어피스로 리터치만 해줄 곳과 모델 작업을 구한다는 글. '8만원 리터치' 제안과 '저가엔 이유가 있다', '실리콘 방식은 비추' 같은 조언이 함께 붙었습니다.", "source": "당근 동네생활", "date": "2026-05-07", "url": "https://www.daangn.com/kr/community/%EB%B6%99%EC%9E%84%EB%A8%B8%EB%A6%AC-%EB%A6%AC%ED%84%B0%EC%B9%98-6yryoq3ffgfv/"}, {"title": "'붙임머리 리터치 잘하는 곳' 동네 단위로 쌓이는 수요", "summary": "고읍동에서 리터치를 잘하는 곳을 묻는 글에 인근 지역 샵들이 추천됐습니다. 전체 시술보다 리터치 전문 수요가 동네 단위로 형성되어 있음을 보여줍니다.", "source": "당근 동네생활", "date": "2026-08-11", "url": "https://www.daangn.com/kr/community/%EB%B6%99%EC%9E%84%EB%A8%B8%EB%A6%AC-o5mdbwvwraub/"}, {"title": "1년 붙였다 뗐다 반복 후 '머리카락 절반'…견인성 탈모", "summary": "붙임머리를 반복한 뒤 1년 전보다 숱이 절반으로 줄었다는 질문. '안 붙이면 다시 자라지만 3~6개월 걸린다', '매듭 위치를 바꿔야 한다'는 답변이 달렸습니다.", "source": "붙임머리 Q&A 커뮤니티", "date": "2026-10-29", "url": "https://cboard.net/q/%EB%B6%99%EC%9E%84%EB%A8%B8%EB%A6%AC-%ED%83%88%EB%AA%A8-ODAzMDIwNF80OTU3NTE1Mjc"}], "전체": [{"title": "방한 외국인 뷰티 소비 2조 5천억 돌파…정부, AI·융복합 K-뷰티 육성", "summary": "외국인 뷰티 서비스 지출이 전년 대비 55.7% 급증하며 1인 숍과 살롱 전반에 AI 피부진단·맞춤 케어·다국어 안내 수요가 커지고 있습니다.", "source": "대한민국 K-공감", "date": "2026-11-12", "url": "https://gonggam.korea.kr/newsContentView.es?code_cd=&content=&mid=a12503000000&news_id=89c46285-f4fe-481d-921a-547bba6056aa&section_id="}, {"title": "문신사법·직무교육 의무화 등 뷰티 제도권 개편 본격화", "summary": "문신사법(2027년 10월 시행)과 이·미용사 직무교육 의무화가 잇따라 통과되며 전 업종에서 위생 표준과 시술 이력 관리가 중요해졌습니다.", "source": "경북일보", "date": "2026-11-09", "url": "https://www.kyongbuk.co.kr/news/articleView.html?idxno=4090177"}, {"title": "네일·속눈썹 펌·왁싱 숍 예약금·환불 규정 분쟁 주의보", "summary": "뷰티 숍 예약금과 취소·환불 규정에 대한 소비자 민원이 늘어 예약 단계에서 취소 기한과 환불 기준을 명확히 안내하는 것이 안전합니다.", "source": "경기일보", "date": "2026-05-09", "url": "https://news.naver.com/article/666/0000106346"}, {"title": "미용서비스 피해구제 상반기 898건…전년비 48.9%↑, 절반이 계약분쟁", "summary": "2023년부터 올해 6월까지 4,408건. 위약금 과다·환급 거부 등 계약 분쟁이 48.2%, 품질 41.1%, 안전 6.1%였고 피부·체형관리는 계약 관련이 76.2%였습니다.", "source": "연합뉴스", "date": "2026-11-11", "url": "https://www.yna.co.kr/view/AKR20261110139000030"}, {"title": "연말 노쇼 대비 '예약 보증금'…시술가의 10~20%가 기준선", "summary": "12~1월 예약 취소·무단 불참이 급증하는 시즌입니다. 보증금은 10~20%가 적정선, 환불 규정은 결제 전 화면 동의와 문자 고지로 남겨야 분쟁이 줄어든다는 현장 조언입니다.", "source": "헤드랩저널", "date": "2026-11-13", "url": "https://www.headlabjournal.com/news/articleView.html?idxno=290"}, {"title": "7분 늦었다고 '노쇼 처리'…1인 미용실 갑론을박", "summary": "예약 시간 7분 지각에 문을 잠그고 예약을 취소한 1인 미용실 사연. '시간 엄수는 기본'과 '10분 안팎은 조정 가능'이 맞서며 지각 기준 안내의 필요성이 드러났습니다.", "source": "인사이트", "date": "2026-09-19", "url": "https://web.insight.co.kr/news/574340"}, {"title": "외국인 네일 거래액 133%↑…'K뷰티 코스'가 살롱으로", "summary": "크리에이트립 외국인 네일 거래액이 전년 대비 133% 급증하고 메이크업 22%·두피관리 11% 늘었습니다. 클룩 살롱&뷰티 페이지 방문도 45.6% 증가했습니다.", "source": "한국경제", "date": "2026-10-05", "url": "https://www.hankyung.com/article/202610020277g"}, {"title": "방한 쇼핑 지출 비중 51%…역직구 수출도 역대 최대", "summary": "방한 외국인 관광지출 중 쇼핑이 51%, 1인당 소비는 83% 늘고 구매 건수는 124% 증가했습니다. K뷰티는 전자상거래 수출의 핵심 품목으로 자리 잡았습니다.", "source": "KMJ", "date": "2026-09-14", "url": "https://www.kmjournal.net/news/articleView.html?idxno=13477"}, {"title": "다이소 네일 3,000원…'살롱 4만원' 대신 셀프로", "summary": "다이소가 네일 관련 120여 개 품목을 500~5,000원에 판매하며 젤램프·팁까지 갖췄습니다. 고물가 속 '살롱 10분의 1 가격' 대안으로 2030 소비가 옮겨가고 있습니다.", "source": "헤럴드경제", "date": "2026-09-26", "url": "https://biz.heraldcorp.com/article/10884697"}, {"title": "서울 온 외국인 18.5%가 미용서비스 이용…영어 가능 미용사 채용 경쟁", "summary": "2019년 3.6%에서 18.5%로 급증했습니다. 명동 일부 매장은 예약 고객 90% 이상이 외국인이고, 영어 응대와 SNS 유치 역량이 채용 우대 조건이 됐습니다.", "source": "한국경제", "date": "2026-03-03", "url": "https://www.hankyung.com/article/202603036106i"}]};
+              function 종목뉴스풀(cat){
+                var c = String(cat || '');
+                var keys = [];
+                if(c.indexOf('SMP') >= 0) keys.push('SMP');
+                if(c.indexOf('연장') >= 0) keys.push('속눈썹연장');
+                if(c.indexOf('속눈썹펌') >= 0){
+                  keys.push('속눈썹펌');
+                } else if(c.indexOf('속눈썹') >= 0){
+                  if(c.indexOf('연장') < 0) keys.push('속눈썹펌');
+                  if(c === '속눈썹') keys.push('속눈썹연장');
+                }
+                if(c.indexOf('반영구') >= 0 || c.indexOf('브로우') >= 0) keys.push('반영구');
+                if(c.indexOf('네일') >= 0) keys.push('네일');
+                if(c.indexOf('피부') >= 0 || c.indexOf('바디') >= 0 || c.indexOf('에스테틱') >= 0) keys.push('피부');
+                if(c.indexOf('왁싱') >= 0) keys.push('왁싱');
+                if(c.indexOf('붙임머리') >= 0) keys.push('붙임머리');
+                if(!keys.length) keys.push('전체');
+                var pool = [], seen = {};
+                keys.forEach(function(k){
+                  (BEAUTY_NEWS[k] || []).forEach(function(item){
+                    if(item && item.url && !seen[item.url]){
+                      seen[item.url] = true;
+                      pool.push({k:k, item:item});
+                    }
+                  });
+                });
+                if(!pool.length){
+                  (BEAUTY_NEWS['전체'] || []).forEach(function(item){ pool.push({k:'뷰티', item:item}); });
+                }
+                return pool;
+              }
+              function 뉴스렌더(m){
+                if(!heroStatus || !m) return;
+                var pool = 종목뉴스풀(m.c);
+                if(!pool.length) return;
+                if(window.__DIA_NEWS_TIMER__){ clearInterval(window.__DIA_NEWS_TIMER__); window.__DIA_NEWS_TIMER__ = null; }
+                var idx = 0, paused = false;
+                var box = document.createElement('div');
+                box.className = 'mc-news';
+                function paint(){
+                  var cur = pool[idx];
+                  var it = cur.item;
+                  var label = (cur.k === '전체' ? '뷰티 업계' : cur.k) + ' 핫이슈';
+                  box.innerHTML = '<div class="mc-news-head">'
+                    + '<span class="mc-news-tag">📰 ' + label + '</span>'
+                    + (pool.length > 1 ? '<button type="button" class="mc-news-next">다음 이슈 (' + (idx + 1) + '/' + pool.length + ')</button>' : '')
+                    + '</div>'
+                    + '<div class="mc-news-body">'
+                    + '<div class="mc-news-title">' + it.title + '</div>'
+                    + '<div class="mc-news-sum">' + it.summary + '</div>'
+                    + '</div>'
+                    + '<div class="mc-news-foot">'
+                    + '<span>' + it.source + ' · ' + it.date + '</span>'
+                    + '<a class="mc-news-link" href="' + it.url + '" target="_blank" rel="noopener">원문 보기 ↗</a>'
+                    + '</div>';
+                  var nb = box.querySelector('.mc-news-next');
+                  if(nb){
+                    nb.addEventListener('click', function(){
+                      idx = (idx + 1) % pool.length;
+                      paint();
+                    });
+                  }
+                }
+                paint();
+                if(pool.length > 1){
+                  box.addEventListener('mouseenter', function(){ paused = true; });
+                  box.addEventListener('mouseleave', function(){ paused = false; });
+                  box.addEventListener('touchstart', function(){ paused = true; }, {passive:true});
+                  box.addEventListener('touchend', function(){ setTimeout(function(){ paused = false; }, 3000); }, {passive:true});
+                  window.__DIA_NEWS_TIMER__ = setInterval(function(){
+                    if(!document.body.contains(box)){ clearInterval(window.__DIA_NEWS_TIMER__); window.__DIA_NEWS_TIMER__ = null; return; }
+                    if(paused || document.hidden) return;
+                    idx = (idx + 1) % pool.length;
+                    paint();
+                  }, 5000);
+                }
+                heroStatus.appendChild(box);
+              }
+              var AV_FALLBACK = {'2':'seilin_beauty'};
+              function 아바타파일(m){
+                if(!m) return '';
+                var id = m.i || AV_FALLBACK[String(m.no)] || '';
+                if(!id) return '';
+                return AVATARS.indexOf(id) >= 0 ? id : '';
+              }
+              function 아바타HTML(m, extra){
+                var f = 아바타파일(m);
+                var inner = f
+                  ? '💎<img src="avatars/' + f + '.jpg" alt="' + (m.n || '') + ' 프로필 사진" onerror="this.remove()" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+                  : '💎';
+                return '<div class="pr-av ' + (extra || '') + '" style="position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fdeef3,#f8d6e2);color:#c2456a;font-size:22px;font-weight:900;">' + inner + '</div>';
+              }
+              function 직책줄(m){
+                return m.i ? ('@' + m.i + (m.o ? ' · ' + m.o : '')) : (m.o || '정회원');
+              }
+              function 배너반영(m){
+                if(m){
+                  var idLine = 직책줄(m);
+                  var rkTxt = m.rk ? (' · ' + m.rk + '위') : '';
+                  var skTxt = m.sk ? (' · 🔥 ' + m.sk + '일 연속') : '';
+                  var badgeList = [];
+                  if(m.rk && m.rk >= 1 && m.rk <= 5 && String(m.o||'').indexOf('방장') < 0) badgeList.push('💎 TOP ' + m.rk);
+                  if(m.sk && m.sk >= 2) badgeList.push('🔥 ' + m.sk + '일 연속');
+                  if(m.b && m.b >= 3) badgeList.push('🎟️ 패스 부자');
+                  if(m.nw) badgeList.push('🌱 새싹');
+                  var badgeTxt = badgeList.length ? ('<br>' + badgeList.join(' · ')) : '';
+                  if(prCard){
+                    prCard.innerHTML = 아바타HTML(m)
+                      + '<div class="pr-body">'
+                      + '<div class="pr-id">' + idLine + '</div>'
+                      + '<div class="pr-name">' + m.n + '</div>'
+                      + '<div class="pr-meta">' + (m.r || '지역 미상') + ' · ' + (m.c || '업종 미상') + ' · 이번 달 ' + (m.mc || 0) + '회</div>'
+                      + '</div>';
+                  }
+                  if(pcHero){
+                    pcHero.innerHTML = '<div class="plx-who">' + 아바타HTML(m, 'pr-av-pc')
+                      + '<div style="min-width:0;">'
+                      + '<span class="plx-tag">' + idLine + '</span>'
+                      + '<div class="plx-title">' + m.n + '</div>'
+                      + '<div class="plx-sub">' + (m.r || '지역 미상') + ' · ' + (m.c || '업종 미상') + ' · 이번 달 ' + (m.mc || 0) + '회</div>'
+                      + '</div></div>'
+                      + '<span class="plx-ask" style="margin-top:8px;">내 정보로 로그인 중' + (badgeList.length ? (' · ' + badgeList.join(' ')) : skTxt) + '</span>';
+                  }
+                  for(var q = 0; q < quickAs.length; q++){ quickAs[q].style.display = 'none'; }
+                  if(heroStatus){ 그리기([m], heroStatus); 뉴스렌더(m); heroStatus.style.background = '#fff'; heroStatus.style.borderRadius = '12px'; heroStatus.style.padding = '10px 12px'; heroStatus.style.border = '1px solid #f2e2e8'; }
+                  if(mycardH) mycardH.style.display = 'none';
+                  if(폼) 폼.style.display = 'none';
+                  if(결과) 결과.hidden = true;
+                  if(fortuneWrap){ fortuneWrap.style.marginTop = '0'; fortuneWrap.style.paddingTop = '0'; fortuneWrap.style.borderTop = '0'; }
+                } else {
+                  if(prCard && origPrHTML) prCard.innerHTML = origPrHTML;
+                  if(pcHero && origPcHTML) pcHero.innerHTML = origPcHTML;
+                  for(var q = 0; q < quickAs.length; q++){ quickAs[q].style.display = ''; }
+                  if(heroStatus){ heroStatus.hidden = true; heroStatus.innerHTML = ''; }
+                  if(mycardH) mycardH.style.display = '';
+                  if(폼) 폼.style.display = '';
+                  if(fortuneWrap){ fortuneWrap.style.marginTop = ''; fortuneWrap.style.paddingTop = ''; fortuneWrap.style.borderTop = ''; }
+                }
+              }
+              function 로그인반영(m){
+                if(!lgBtn) return;
+                if(pingTimer){ clearInterval(pingTimer); pingTimer = null; }
+                if(m){
+                  lgBtn.classList.add('on');
+                  lgBtn.textContent = '로그아웃';
+                  if(lgBox) lgBox.hidden = true;
+                  if(heroClock) heroClock.hidden = false;
+                  시계정렬();
+                  배너반영(m);
+                  접속핑(m.n, false);
+                  pingTimer = setInterval(function(){ if(!document.hidden) 접속핑(m.n, false); }, 15000);
+                } else {
+                  lgBtn.classList.remove('on');
+                  lgBtn.textContent = '내 정보 보기';
+                  if(heroClock) heroClock.hidden = true;
+                  배너반영(null);
+                }
+              }
+              function 후보그리기(txt){
+                if(!lgPick) return;
+                var q = 정규(String(txt || '').replace(/^@+/, ''));
+                if(!q){ lgPick.innerHTML = ''; return; }
+                var 초 = 자모만(q);
+                var hits = 색인.filter(function(x){
+                  if(초) return 초성화(x.m.n).indexOf(초) >= 0;
+                  return x.k.some(function(s){ return s.indexOf(q) >= 0; });
+                }).slice(0, 6).map(function(x){ return x.m; });
+                if(!hits.length){
+                  lgPick.innerHTML = '<div style="font-size:11.5px;color:#b9a9af;padding:4px 2px;">일치하는 회원이 없습니다.</div>';
+                  return;
+                }
+                lgPick.innerHTML = '';
+                hits.forEach(function(m){
+                  var b = document.createElement('button');
+                  b.type = 'button';
+                  b.style.cssText = 'text-align:left;padding:7px 10px;border-radius:8px;border:1px solid #f0dce3;background:#fff;font-size:12px;font-weight:700;color:#4a353c;cursor:pointer;font-family:inherit;';
+                  b.textContent = m.n + (m.i ? ' (@' + m.i + ')' : '');
+                  b.addEventListener('click', function(){
+                    picked = m;
+                    lgPick.innerHTML = '<div style="font-size:11.5px;font-weight:800;color:#c2456a;padding:3px 2px;">선택됨: ' + m.n + '</div>';
+                    if(lgForm) lgForm.hidden = false;
+                    if(lgMsg){ lgMsg.textContent = '사용하실 암호를 입력하면 최초 설정·로그인됩니다.'; lgMsg.style.color = '#8a7b81'; }
+                    if(lgPw){ lgPw.value = ''; lgPw.focus(); }
+                  });
+                  lgPick.appendChild(b);
+                });
+              }
+              function 로그인저장(m){
+                try{
+                  localStorage.setItem(LG_KEY, JSON.stringify({n:m.n, i:m.i||'', at:Date.now()}));
+                  localStorage.setItem(LG_KEY + '_bak', m.n || '');
+                }catch(_e){}
+              }
+              function 로그인값(){
+                var raw = '';
+                try{ raw = localStorage.getItem(LG_KEY) || ''; }catch(_e){ return null; }
+                if(!raw){
+                  try{ raw = localStorage.getItem(LG_KEY + '_bak') || ''; }catch(_e){}
+                  if(!raw) return null;
+                  return {n: raw};
+                }
+                if(raw.charAt(0) === '{'){
+                  try{ var o = JSON.parse(raw); if(o && o.n) return o; }catch(_e){}
+                }
+                return {n: raw};
+              }
+              function 로그인삭제(){
+                try{ localStorage.removeItem(LG_KEY); }catch(_e){}
+                try{ localStorage.removeItem(LG_KEY + '_bak'); }catch(_e){}
+              }
+              if(lgBtn && lgBox && lgForm){
+                var 미복원 = null;
+                var saved = 로그인값();
+                if(saved){
+                  var sm = 회원찾기(saved.n) || 회원찾기(saved.i || '');
+                  if(sm){
+                    로그인저장(sm);
+                    로그인반영(sm);
+                  } else {
+                    미복원 = saved;
+                    if(lgMsg){
+                      lgMsg.textContent = '저장된 로그인 정보는 있으나 회원명부에서 닉네임을 찾지 못했습니다. 검색해서 다시 선택해 주세요.';
+                      lgMsg.style.color = '#d55576';
+                    }
+                  }
+                }
+                window.addEventListener('pagehide', function(){
+                  var cur = 로그인값();
+                  if(cur && cur.n) 접속핑(cur.n, true);
+                });
+                document.addEventListener('visibilitychange', function(){
+                  var cur = 로그인값();
+                  if(!cur || !cur.n) return;
+                  if(document.hidden){ 접속핑(cur.n, true); }
+                  else { 접속핑(cur.n, false); }
+                });
+                if(lgIn){
+                  lgIn.addEventListener('input', function(){
+                    picked = null;
+                    lgForm.hidden = true;
+                    후보그리기(lgIn.value);
+                  });
+                }
+                lgBtn.addEventListener('click', function(){
+                  var cur = 로그인값();
+                  if(cur && cur.n){
+                    접속핑(cur.n, true);
+                    로그인삭제();
+                    로그인반영(null);
+                    return;
+                  }
+                  lgBox.hidden = !lgBox.hidden;
+                  if(!lgBox.hidden && lgIn){
+                    picked = null; lgIn.value = ''; lgPick.innerHTML = ''; lgForm.hidden = true;
+                    lgMsg.textContent = '회원목록에서 본인 이름을 검색해 선택하세요.';
+                    lgMsg.style.color = '#8a7b81';
+                    lgIn.focus();
+                  }
+                });
+                lgForm.addEventListener('submit', function(e){
+                  e.preventDefault();
+                  if(!picked){
+                    lgMsg.textContent = '먼저 위 검색 목록에서 본인 닉네임을 선택해 주세요.';
+                    lgMsg.style.color = '#d55576';
+                    return;
+                  }
+                  var pw = (lgPw && lgPw.value || '').trim();
+                  if(!pw){
+                    lgMsg.textContent = '암호를 입력해 주세요.';
+                    lgMsg.style.color = '#d55576';
+                    return;
+                  }
+                  lgMsg.textContent = '확인 중...'; lgMsg.style.color = '#8a7b81';
+                  fetch(EXEC_URL + '?mode=auth&user=' + encodeURIComponent(picked.n) + '&pw=' + encodeURIComponent(pw))
+                    .then(function(r){ return r.json(); })
+                    .then(function(d){
+                      if(!d || !d.ok){
+                        lgMsg.textContent = '암호가 일치하지 않습니다.';
+                        lgMsg.style.color = '#d55576';
+                        return;
+                      }
+                      로그인저장(picked);
+                      로그인반영(picked);
+                    })
+                    .catch(function(){
+                      lgMsg.textContent = '연결에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+                      lgMsg.style.color = '#d55576';
+                    });
+                });
+              }
+              window.__DIA_ROWS__ = 명부;
+            })();
+            </script>
+          </div>
+
+      <style>
+        .fb-card{margin:0 0 10px;padding:13px 14px;background:#fff;border:1px solid #f3e6ea;
+          border-radius:16px;box-shadow:0 4px 14px rgba(198,148,166,.08);}
+        .fb-top{display:flex;align-items:center;gap:6px;margin-bottom:9px;}
+        .fb-t{font-size:13.5px;font-weight:800;color:#3c2b31;letter-spacing:-.2px;}
+        .fb-d{margin-left:auto;font-size:10.5px;font-weight:700;color:#b35172;background:#fdf1f5;
+          padding:2px 8px;border-radius:999px;}
+        .fb-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;}
+        .fb-box{border:1px solid #f6e4ea;border-radius:12px;background:#fff9fb;padding:10px 10px 9px;
+          text-align:center;cursor:pointer;transition:.15s;}
+        .fb-box:active{background:#fdeef3;}
+        .fb-box[data-insta]{cursor:pointer;}
+        .fb-box.is-empty{background:#fcfafb;border-color:#f2ebee;cursor:default;}
+        .fb-k{font-size:11px;font-weight:800;color:#c2476a;}
+        .fb-box.is-empty .fb-k{color:#a8969c;}
+        .fb-nm{margin-top:5px;font-size:13.5px;font-weight:900;color:#33262a;overflow:hidden;
+          text-overflow:ellipsis;white-space:nowrap;}
+        .fb-cat{font-size:10.5px;font-weight:600;color:#a98d97;margin-left:4px;}
+        .fb-tm{margin-top:2px;font-size:11px;font-weight:700;color:#9a858d;}
+        .fb-wait{margin-top:6px;font-size:11.5px;font-weight:700;color:#b9a9af;}
+        @media(min-width:881px){
+          .fb-card{padding:16px 18px;}
+          .fb-t{font-size:15.5px;}
+          .fb-nm{font-size:15px;}
+        }
+      </style>
+      <div class="fb-card" id="firstBadgeCard" data-first="서울/year.seoul/반영구" data-fast="">
+        <div class="fb-top">
+          <div class="fb-t">오늘의 1등 · 스피드 인증</div>
+          <span class="fb-d">오늘 11-17</span>
+        </div>
+        <div class="fb-grid">
+          <div class="fb-box" data-q="서울/year.seoul/반영구" data-insta="year.seoul"><div class="fb-k">🥇 참여 1등</div><div class="fb-nm">year.seoul<span class="fb-cat">반영구</span></div><div class="fb-tm">10:53</div></div>
+          <div class="fb-box is-empty"><div class="fb-k">⚡ 스피드 인증</div><div class="fb-wait">21:01 대기 중</div></div>
+        </div>
+      </div>
+
+      <style>
+        .rank-card{margin:0 0 10px;padding:14px 16px 13px;background:#fff;border:1px solid #f3e6ea;
+          border-radius:16px;box-shadow:0 4px 14px rgba(198,148,166,.08);display:block;}
+        .rank-top{display:flex;align-items:center;gap:7px;}
+        .rank-t{font-size:13.5px;font-weight:800;color:#3c2b31;letter-spacing:-.2px;}
+        .rank-d{margin-left:auto;font-size:10px;color:#c0aeb5;}
+        .rank-list{margin-top:10px;}
+        .rank-row{display:flex;align-items:center;gap:9px;padding:5px 0;}
+        .rank-i{flex:0 0 22px;text-align:center;font-weight:900;color:#c9b3bb;line-height:1.05;}
+        .rank-i b{display:block;font-size:11px;font-weight:900;}
+        .rank-i.has-crown{position:relative;}
+        .rank-i .crown{position:absolute;left:50%;top:-9px;width:10.5px;height:7.5px;margin-left:-5.25px;}
+        .rank-i i{display:block;font-size:8px;font-style:normal;font-weight:900;opacity:.95;}
+        .rank-i.gold{color:#c9a227;}
+        .rank-i.silver{color:#9aa0a8;}
+        .rank-i.bronze{color:#b06b3c;}
+        .rank-nm{flex:0 0 48%;font-size:11.5px;font-weight:700;color:#4a3941;overflow:hidden;
+          text-overflow:ellipsis;white-space:nowrap;}
+        .rank-cat{font-size:10px;font-weight:600;color:#a98d97;margin-left:4px;}
+        .rank-nm.gold{color:#a8842a;}
+        .rank-nm.silver{color:#848a92;}
+        .rank-nm.bronze{color:#9d5b30;}
+        .rank-bar{flex:1 1 auto;height:7px;border-radius:999px;background:#f7f1f3;overflow:hidden;}
+        .rank-bar i{display:block;height:100%;border-radius:999px;
+          background:linear-gradient(90deg,#f6b6cb,#e1789a);}
+        .rank-day{flex:0 0 26px;text-align:right;font-size:10.5px;font-weight:800;color:#b35172;}
+        .rank-empty{padding:14px 0;text-align:center;font-size:12px;color:#b9a9af;}
+        .rank-foot{margin-top:8px;font-size:10.5px;color:#a98d97;}
+        .rank-nm[data-q]{cursor:pointer;}
+        .rank-nm[data-q]:active{color:#c2456a;}
+        .rank-nm[data-insta]{cursor:pointer;text-decoration:none;}
+        .rank-nm[data-insta]:active{color:#c2456a;}
+        @media(min-width:881px){ .rank-card{padding:18px 20px 16px;} .rank-nm{flex:0 0 32%;font-size:14.5px;} .rank-t{font-size:16px;} .rank-row{padding:8px 0;gap:12px;} .rank-i{flex:0 0 26px;} .rank-i b{font-size:14px;} .rank-bar{height:9px;} .rank-day{flex:0 0 32px;font-size:12.5px;} .rank-list{display:flex;flex-direction:column;justify-content:space-around;flex:1 1 auto;} .rank-i .crown{width:12px;height:9px;margin-left:-6px;top:-10px;} }
+      </style>
+      <div class="rank-card" id="rankCard" data-n="5"><div class="rank-top"><div class="rank-t">이번 달 참여왕</div></div><div class="rank-list"><div class="rank-row top"><span class="rank-i gold has-crown"><svg class="crown" viewBox="0 0 20 14" aria-hidden="true"><path d="M1 12.4h18l-1.8-9-4 3.4L10 1.6 6.8 6.8l-4-3.4z" fill="#d4af37"/></svg><b>1</b></span><span class="rank-nm" data-q="서울/nail_jiand/네일" data-insta="nail_jiand">nail_jiand<span class="rank-cat">네일</span></span><span class="rank-bar"><i style="width:100%"></i></span><span class="rank-day">8일</span></div><div class="rank-row top"><span class="rank-i silver"><b>2</b></span><span class="rank-nm" data-q="서울/year.seoul/반영구" data-insta="year.seoul">year.seoul<span class="rank-cat">반영구</span></span><span class="rank-bar"><i style="width:75%"></i></span><span class="rank-day">6일</span></div><div class="rank-row top"><span class="rank-i bronze"><b>3</b></span><span class="rank-nm" data-q="부산star___beauty_/속눈썹" data-insta="star___beauty_">star___beauty_<span class="rank-cat">속눈썹</span></span><span class="rank-bar"><i style="width:62%"></i></span><span class="rank-day">5일</span></div><div class="rank-row"><span class="rank-i "><b>4</b></span><span class="rank-nm" data-q="일산/_soybrow/반영구" data-insta="_soybrow">_soybrow<span class="rank-cat">반영구</span></span><span class="rank-bar"><i style="width:50%"></i></span><span class="rank-day">4일</span></div><div class="rank-row"><span class="rank-i "><b>5</b></span><span class="rank-nm" data-q="충남/beautyellido_nail" data-insta="beautyellido_nail">beautyellido_nail<span class="rank-cat">네일</span></span><span class="rank-bar"><i style="width:50%"></i></span><span class="rank-day">4일</span></div></div></div>
+      <script>
+      (function(){
+        document.addEventListener('click', function(e){
+          var el = e.target.closest && e.target.closest('[data-q]');
+          if(!el) return;
+          var 인스타 = el.getAttribute('data-insta');
+          if(인스타){
+            e.preventDefault();
+            var id = encodeURIComponent(String(인스타).replace(/^@+/, '').trim());
+            var webUrl = 'https://www.instagram.com/' + id + '/';
+            var ua = navigator.userAgent || '';
+            if(/android/i.test(ua)){
+              location.href = 'intent://instagram.com/_u/' + id + '/#Intent;package=com.instagram.android;scheme=https;S.browser_fallback_url=' + encodeURIComponent(webUrl) + ';end';
+            } else if(/iphone|ipad|ipod/i.test(ua)){
+              var t0 = Date.now();
+              location.href = 'instagram://user?username=' + id;
+              setTimeout(function(){ if(!document.hidden && Date.now() - t0 < 1800) location.href = webUrl; }, 1100);
+            } else {
+              window.open(webUrl, '_blank', 'noopener');
+            }
+            return;
+          }
+          var 상자 = document.getElementById('myCard');
+          var 입력 = document.getElementById('mcQ');
+          if(!상자 || !입력) return;
+          입력.value = el.getAttribute('data-q');
+          상자.scrollIntoView({behavior:'smooth', block:'center'});
+          if(입력.form && 입력.form.requestSubmit){ 입력.form.requestSubmit(); }
+          else if(입력.form){ 입력.form.dispatchEvent(new Event('submit', {bubbles:true, cancelable:true})); }
+        });
+        var 업종 = ['속눈썹','속눈썹펌','반영구','네일','네일아트','토탈','왁싱','바디','피부','피부관리','붙임머리'];
+        function 샵명(nick){
+          var p = String(nick||'').split('/').filter(Boolean);
+          if(!p.length) return String(nick||'');
+          if(p.length >= 2 && 업종.indexOf(p[1]) < 0) return p[1];
+          return p[0].replace(/^[가-힣]+/, '') || p[0];
+        }
+        function 종목명(r){
+          var c = String((r && r.c) || '').trim();
+          if(c && c !== '미분류') return c;
+          var p = String((r && r.n) || '').split('/').filter(Boolean);
+          var last = p.length >= 2 ? p[p.length - 1] : '';
+          return 업종.indexOf(last) >= 0 ? last : '';
+        }
+        window.__DIA_RENDER_RANK__ = function(rows){
+          var card = document.getElementById('rankCard');
+          if(!card || !rows) return;
+          var n = parseInt(card.getAttribute('data-n') || '5', 10) || 5;
+          var cand = [];
+          rows.forEach(function(r){
+            if(String(r.o||'').indexOf('방장') >= 0) return;
+            var cnt = parseInt(r.mc || 0, 10);
+            if(cnt >= 1) cand.push([cnt, 샵명(r.n), r.n, 종목명(r), String(r.i || '').replace(/^@+/, '').trim()]);
+          });
+          cand.sort(function(a, b){ return (b[0] - a[0]) || a[1].localeCompare(b[1]); });
+          cand = cand.slice(0, n);
+          if(!cand.length) return;
+          var top = cand[0][0];
+          var h = '<div class="rank-top"><div class="rank-t">이번 달 참여왕</div></div><div class="rank-list">';
+          cand.forEach(function(it, idx){
+            var i = idx + 1, cnt = it[0], nm = it[1], full = String(it[2]).replace(/"/g,''), cat = it[3], ig = it[4] || '';
+            var igAttr = ig ? ' data-insta="' + ig.replace(/"/g,'') + '"' : '';
+            var catHtml = cat ? '<span class="rank-cat">' + cat + '</span>' : '';
+            var w = Math.max(6, Math.round(cnt * 100 / top));
+            var cls = i === 1 ? 'gold' : (i === 2 ? 'silver' : (i === 3 ? 'bronze' : ''));
+            var crown = i === 1 ? '<svg class="crown" viewBox="0 0 20 14" aria-hidden="true"><path d="M1 12.4h18l-1.8-9-4 3.4L10 1.6 6.8 6.8l-4-3.4z" fill="#d4af37"/></svg>' : '';
+            h += '<div class="rank-row' + (i <= 3 ? ' top' : '') + '"><span class="rank-i ' + cls + (i === 1 ? ' has-crown' : '') + '">' + crown + '<b>' + i + '</b></span>'
+               + '<span class="rank-nm" data-q="' + full + '"' + igAttr + '>' + nm + catHtml + '</span>'
+               + '<span class="rank-bar"><i style="width:' + w + '%"></i></span>'
+               + '<span class="rank-day">' + cnt + '일</span></div>';
+          });
+          h += '</div>';
+          card.innerHTML = h;
+        };
+      })();
+      </script>
+          <div class="mycard" id="myCard">
+            <style>
+              .mycard{margin:0 0 14px;padding:14px 16px 15px;border:1px solid #f2e2e8;border-radius:10px;background:linear-gradient(180deg,#fffdfd,#fdf7f9);}
+              .mycard-h{display:flex;flex-wrap:nowrap;align-items:baseline;gap:7px;margin-bottom:9px;}
+              .mycard-t{font-size:14.5px;font-weight:800;color:#c2456a;}
+              .mycard-s{font-size:10px;color:#a98d97;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+              .mycard-f{display:flex;gap:6px;}
+              .mycard-f input{flex:1 1 auto;min-width:0;padding:9px 12px;border:1px solid #f0e2e7;border-radius:8px;font-size:13px;font-family:inherit;color:#4a4a4a;background:#fff;outline:none;}
+              .mycard-f input:focus{border-color:#e6a6bb;}
+              .mycard-f input::placeholder{font-size:9.5px;color:#c3adb6;letter-spacing:-0.01em;}
+              .mycard-f button{flex:0 0 auto;padding:9px 16px;border:0;border-radius:8px;background:#e1789a;color:#fff;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;}
+              .mycard-f button:hover{background:#d55576;}
+              .mycard-r{margin-top:10px;}
+              .mc-row{padding:10px 12px;border:1px solid #f4e7ec;border-radius:8px;background:#fff;margin-top:6px;}
+              .mc-row:first-child{margin-top:0;}
+              .mc-top{display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+              .mc-nick{font-size:13px;font-weight:800;color:#333;word-break:break-all;}
+              .mc-badge{font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 8px;}
+              .mc-b1{color:#7a4b8f;background:#f5eef8;}
+              .mc-b2{color:#8a7b81;background:#f7f5f6;}
+              .mc-b3{color:#b35172;background:#fdeef3;}
+              .mc-b4{color:#5b7c99;background:#eef4f9;}
+              .mc-b-top{color:#a86b18;background:#fef6e4;}
+              .mc-b-fire{color:#c2456a;background:#fdeef3;}
+              .mc-b-seed{color:#2f7d4c;background:#ebf7ef;}
+              .mc-b-pass{color:#5e4b8b;background:#f2eefc;}
+              .mc-fortune-wrap{margin-top:4px;padding-top:4px;border-top:0;text-align:center;}
+              .mc-game-toggle{width:100%;height:auto;padding:2px 0;border:0;border-radius:0;background:transparent;
+                color:#9e3856;font-size:11.5px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px;line-height:1.3;transition:.15s;}
+              .mc-game-toggle:active{background:transparent;opacity:.7;}
+              .mc-game-body{margin-top:8px;}
+              .mc-game-body[hidden],.mc-mini-box[hidden]{display:none;}
+              .mc-fortune-btns{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x proximity;padding-bottom:2px;}
+              .mc-fortune-btns::-webkit-scrollbar{display:none;}
+              .mc-fortune-btn{flex:0 0 calc((100% - 12px) / 3.18);height:36px;border:1px solid #f0c8d5;border-radius:10px;background:#fff8fa;
+                color:#b3476a;font-size:11.5px;font-weight:800;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap;
+                display:inline-flex;align-items:center;justify-content:center;gap:4px;scroll-snap-align:start;padding:0 6px;}
+              .mc-mini-box{margin-top:10px;padding:12px 10px;border-radius:12px;background:#fff;border:1px solid #f2e2e8;text-align:center;}
+              .mc-mini-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #f5eaee;font-size:13px;font-weight:800;color:#3d3538;}
+              .mc-mini-subbtn{padding:5px 10px;border-radius:8px;border:1px solid #ead8df;background:#fff;font-size:11.5px;font-weight:700;color:#7a6a70;cursor:pointer;font-family:inherit;}
+              .mc-mini-btn{padding:8px 14px;border-radius:9px;border:0;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;}
+              .mc-mini-btn:disabled{opacity:.5;cursor:not-allowed;}
+              .mc-mini-btn.sec{background:#fdf1f5;color:#c2456a;border:1px solid #f0d7e0;}
+              .mc-mini-inp{width:100%;box-sizing:border-box;padding:7px 10px;border:1px solid #ecdce2;border-radius:8px;font-size:12px;font-family:inherit;color:#4a4a4a;outline:none;text-align:center;}
+              .mc-mini-res{margin-top:10px;padding:10px;border-radius:9px;background:#fdf6f8;border:1px solid #f3dfe6;font-size:12.5px;font-weight:700;color:#9e3856;}
+              .mc-mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:280px;margin:0 auto;}
+              .mc-mem-cell{aspect-ratio:1/1;border-radius:9px;border:1px solid #ead6de;background:linear-gradient(135deg,#f8e4eb,#f2d1dc);display:flex;align-items:center;justify-content:center;font-size:21px;cursor:pointer;user-select:none;transition:transform .15s,background .15s;}
+              .mc-mem-cell.open,.mc-mem-cell.done{background:#fff;border-color:#d55576;transform:scale(1.02);}
+              .mc-mem-cell.done{background:#fdf4f7;opacity:.75;cursor:default;}
+              .mc-react-pad{height:145px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;user-select:none;font-weight:800;font-size:14.5px;}
+              .mc-ldome{width:146px;height:146px;margin:0 auto 10px;border-radius:50%;border:2.5px solid #f0c9d6;background:radial-gradient(circle at 35% 30%,#fff 0%,#fdf2f6 65%,#f7dce6 100%);box-shadow:inset 0 6px 14px rgba(255,255,255,.9),0 6px 16px rgba(194,69,106,.12);position:relative;overflow:hidden;}
+              .mc-lotto-row{display:flex;align-items:center;justify-content:center;gap:5px;padding:6px 0;flex-wrap:wrap;}
+              .mc-lball{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:900;color:#fff;box-shadow:inset -2px -2px 4px rgba(0,0,0,.22),0 2px 6px rgba(0,0,0,.15);animation:mcBallPop .36s cubic-bezier(.22,1.35,.36,1);}
+              @keyframes mcBallPop{0%{transform:translateY(-18px) scale(.3) rotate(-180deg);opacity:0;}70%{transform:translateY(2px) scale(1.1) rotate(10deg);opacity:1;}100%{transform:translateY(0) scale(1) rotate(0);opacity:1;}}
+              .mc-lplus{font-size:13px;font-weight:800;color:#b09aa3;margin:0 1px;}
+              .mc-tarot-ico{width:13px;height:18px;flex:0 0 auto;display:inline-block;}
+              .mc-tarot-row{position:relative;display:flex;justify-content:center;align-items:center;margin-top:10px;padding:24px 10px 42px;min-height:158px;
+                border-radius:14px;background:url('tarot/mat.jpg') center/cover no-repeat #24112e;
+                border:1.5px solid rgba(229,193,88,.55);box-shadow:inset 0 0 24px rgba(10,4,18,.55),0 8px 22px rgba(45,18,58,.28);
+                overflow:hidden;animation:mcMatOpen .45s cubic-bezier(.22,1,.36,1);}
+              @keyframes mcMatOpen{from{opacity:0;transform:scaleY(.88);}to{opacity:1;transform:scaleY(1);}}
+              .mc-tarot-shuffle{position:absolute;top:8px;right:8px;z-index:5;width:28px;height:28px;border-radius:50%;
+                border:1px solid rgba(229,193,88,.55);background:rgba(28,11,36,.68);color:#f7e2a8;
+                display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:.15s;}
+              .mc-tarot-shuffle:active{transform:scale(.9) rotate(-90deg);}
+              .mc-tarot-shuffle svg{width:14px;height:14px;}
+              .mc-tarot-note{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:9.5px;font-weight:600;
+                color:rgba(255,248,252,.72);letter-spacing:.2px;pointer-events:none;z-index:2;}
+              .mc-tarot-deck{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:4;}
+              .mc-tarot-deck[hidden]{display:none;}
+              .mc-td-c{position:absolute;width:54px;height:84px;border-radius:8px;border:1.5px solid #e4b6c6;
+                background:linear-gradient(155deg,#a93f64,#69213d);box-shadow:0 4px 12px rgba(20,6,26,.4);
+                display:flex;align-items:center;justify-content:center;}
+              .mc-td-c::after{content:"";position:absolute;inset:4px;border-radius:5px;border:1px solid rgba(252,233,239,.35);}
+              .mc-td-c svg{width:22px;height:22px;opacity:.85;}
+              @media(min-width:600px){.mc-td-c{width:66px;height:102px;}}
+              .mc-tarot-row.is-shuffling .mc-tarot-card{opacity:0;pointer-events:none;}
+              .mc-tarot-row.is-shuffling::before{opacity:.85;transform:scale(1.15);animation:mcHaloSpin 4s linear infinite;}
+              .mc-tarot-row::before{content:"";position:absolute;width:128px;height:128px;border-radius:50%;
+                background:radial-gradient(circle,rgba(245,212,118,.42) 0%,rgba(229,180,96,.16) 45%,transparent 72%);
+                border:1px dashed rgba(224,186,88,.4);opacity:0;transform:scale(.5);pointer-events:none;
+                transition:opacity .7s ease .4s,transform .8s ease .4s;}
+              @keyframes mcHaloSpin{from{transform:scale(1) rotate(0deg);}to{transform:scale(1) rotate(360deg);}}
+              .mc-tarot-row.has-pick::before{opacity:1;transform:scale(1);animation:mcHaloSpin 16s linear infinite .5s;}
+              .mc-tarot-card{position:relative;display:block;width:58px;height:90px;margin:0 -5px;border:0;padding:0;background:transparent;cursor:pointer;
+                font-family:inherit;perspective:900px;-webkit-perspective:900px;user-select:none;-webkit-tap-highlight-color:transparent;
+                transition:opacity .5s ease,filter .55s ease,width .45s cubic-bezier(.22,.8,.32,1) .12s,margin .45s cubic-bezier(.22,.8,.32,1) .12s,transform .65s cubic-bezier(.2,.9,.25,1);}
+              .mc-tarot-card[data-card="0"]{transform:translateY(10px) rotate(-13deg);}
+              .mc-tarot-card[data-card="1"]{transform:translateY(3px) rotate(-6.5deg);}
+              .mc-tarot-card[data-card="2"]{transform:translateY(0px) rotate(0deg);z-index:1;}
+              .mc-tarot-card[data-card="3"]{transform:translateY(3px) rotate(6.5deg);}
+              .mc-tarot-card[data-card="4"]{transform:translateY(10px) rotate(13deg);}
+              .mc-tarot-card:active{filter:brightness(1.08);}
+              .mc-tarot-card.dimmed{opacity:0;filter:blur(12px) brightness(1.6);transform:translateY(-22px) scale(1.06) !important;width:0 !important;margin:0 !important;pointer-events:none;overflow:hidden;}
+              .mc-tarot-card.picked{transform:translateY(-4px) scale(1.2) rotate(0deg) !important;z-index:3;margin:0 !important;}
+              .mc-tarot-inner{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;
+                transition:transform .9s cubic-bezier(.18,.88,.28,1) .1s;}
+              .mc-tarot-card.picked .mc-tarot-inner{transform:rotateY(540deg);}
+              .mc-tarot-back,.mc-tarot-front{position:absolute;inset:0;border-radius:8px;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+                display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(105,40,65,.24);}
+              @keyframes mcGoldGlow{0%,100%{border-color:#d4af37;box-shadow:0 6px 18px rgba(212,175,55,.55),0 0 14px rgba(255,228,130,.65);}50%{border-color:#fff3ad;box-shadow:0 8px 28px rgba(229,193,88,.95),0 0 24px rgba(255,238,160,1);}}
+              .mc-tarot-back{border:1.5px solid #e4b6c6;background:linear-gradient(155deg,#a93f64,#69213d);color:#fce9ef;gap:4px;}
+              .mc-tarot-back::after{content:"";position:absolute;inset:4px;border-radius:5px;border:1px solid rgba(252,233,239,.38);pointer-events:none;}
+              .mc-tarot-back b{font-size:16px;line-height:1;}
+              .mc-tarot-back svg{width:24px;height:24px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.18));}
+              .mc-tarot-back span{font-size:8.5px;font-weight:700;opacity:.92;letter-spacing:.1px;}
+              .mc-tarot-front{transform:rotateY(180deg);border:1.5px solid #e5c158;background:#fffdf9;padding:0;overflow:hidden;}
+              .mc-tarot-card.picked .mc-tarot-front{animation:mcGoldGlow 1.7s ease-in-out infinite .55s;}
+              .mc-tarot-front img{display:block;width:100%;height:100%;object-fit:cover;border-radius:6px;}
+              .mc-tarot-front::after{content:"";position:absolute;inset:0;border-radius:8px;box-shadow:inset 0 0 0 1px rgba(255,235,160,.5);pointer-events:none;}
+              @media(min-width:600px){
+                .mc-tarot-row{min-height:178px;padding:26px 14px 44px;}
+                .mc-tarot-row::before{width:152px;height:152px;}
+                .mc-tarot-card{width:70px;height:108px;margin:0 -4px;}
+                .mc-tarot-back svg{width:28px;height:28px;}
+              }
+              .mc-fortune-btn:active{background:#fdeef3;}
+              .mc-fortune-box{margin-top:8px;padding:11px 12px;border-radius:10px;background:linear-gradient(135deg,#fff5f8,#fdf9fb);
+                border:1px solid #f3dce4;font-size:12.5px;font-weight:700;color:#4a353c;line-height:1.55;word-break:keep-all;}
+              .mc-fortune-tag{display:inline-block;font-size:10.5px;font-weight:800;color:#c2456a;margin-bottom:4px;}
+              .mc-lucky-row{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px dashed #f2dde4;font-size:11.5px;}
+              .mc-color-dot{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px;margin-right:3px;border:1px solid rgba(0,0,0,.1);}
+              .mc-tags-box{margin-top:6px;padding:7px 9px;border-radius:8px;background:#fff;border:1px solid #f2e4e9;font-size:11px;color:#7a5f68;font-weight:600;line-height:1.45;}
+              .mc-copy-btn{margin-top:5px;padding:3px 9px;border:1px solid #ecc6d3;border-radius:999px;background:#fff8fa;color:#b3476a;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit;}
+              .mc-saju-form{display:flex;gap:6px;margin-top:8px;}
+              .mc-saju-form[hidden],.mc-tarot-row[hidden]{display:none;}
+              .mc-saju-form input{flex:1;min-width:0;height:34px;border:1px solid #ecdce2;border-radius:9px;padding:0 10px;font-size:12.5px;color:#33262a;background:#fff;outline:none;text-align:center;}
+              .mc-saju-form button{flex:0 0 auto;height:34px;padding:0 13px;border:0;border-radius:9px;background:#e1789a;color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;}
+              .mc-meta{margin-top:5px;font-size:11.5px;color:#8a7b81;}
+              .mc-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:7px;}
+              .mc-place{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:7px;padding:8px 11px;border-radius:9px;background:#fdf6f8;border:1px solid #f7e7ee;font-size:11.5px;font-weight:800;color:#a95d78;text-decoration:none;}
+              .mc-place b{color:#b35172;font-size:12px;}
+              .mc-place .mc-place-d{font-weight:600;color:#b99aa5;font-size:10.5px;}
+              .mc-k{padding:7px 9px;border-radius:8px;background:#fdf7f9;text-align:center;text-decoration:none;display:block;}
+              a.mc-k{cursor:pointer;}
+              a.mc-k:hover,a.mc-k:active{background:#fbeaf1;}
+              a.mc-k b:after{content:'A';font-size:11px;margin-left:2px;color:#c2456a;opacity:.75;}
+              .mc-k b{display:block;font-size:15px;font-weight:800;color:#c2456a;line-height:1.2;}
+              .mc-k span{font-size:10.5px;color:#a98d97;}
+              .mc-days{display:flex;gap:4px;margin-top:8px;}
+              .mc-day{flex:1 1 0;padding:5px 0;border-radius:7px;text-align:center;font-size:10px;font-weight:800;
+                background:#f7f5f6;color:#b9a9af;line-height:1.3;}
+              .mc-day.on{background:#fdeef3;color:#c2456a;}
+              .mc-day.on .dot{display:block;width:4px;height:4px;border-radius:50%;background:#e1789a;margin:2px auto 0;}
+              .mc-day.off{background:#f7f5f6;color:#b9a9af;}
+              .mc-day.wait{background:#fff;color:#d7ccd0;border:1px dashed #efe4e8;}
+              .mc-day .dot{display:block;width:4px;height:4px;border-radius:50%;background:transparent;margin:2px auto 0;}
+              .mc-streak{margin-top:7px;font-size:11px;font-weight:800;color:#c2456a;}
+              .mc-streak.off{font-weight:600;color:#b9a9af;}
+              .mc-week{margin-top:6px;font-size:10.5px;color:#a98d97;}
+              .mc-news{margin-top:10px;padding:11px 12px;border-radius:10px;background:#fdf7f9;border:1px solid #f2e2e8;text-align:left;}
+              .mc-news-body{animation:mcNewsFade .35s ease;}
+              @keyframes mcNewsFade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+              .mc-news-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
+              .mc-news-tag{font-size:11px;font-weight:800;color:#c2456a;}
+              .mc-news-next{border:1px solid #ead2db;background:#fff;color:#9e3856;border-radius:999px;padding:2px 8px;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit;}
+              .mc-news-title{font-size:13px;font-weight:800;color:#33262a;line-height:1.4;margin-bottom:4px;}
+              .mc-news-sum{font-size:11.5px;color:#6c5c62;line-height:1.45;margin-bottom:7px;}
+              .mc-news-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10.5px;color:#9e8890;}
+              .mc-news-link{color:#c2456a;font-weight:800;text-decoration:none;}
+              .mc-empty{margin-top:8px;font-size:12px;color:#b9a9af;}
+              .mc-hero-clock{position:static;display:inline-flex;margin:7px 0 0;text-align:left;cursor:pointer;text-decoration:none;}
+              .mc-hero-clock:hover .book-cd,.mc-hero-clock:active .book-cd{box-shadow:0 2px 10px rgba(198,69,106,.28);filter:brightness(1.04);}
+              .mc-hero-clock[hidden]{display:none !important;}
+              .mc-hero-clock .book-cd{display:inline-flex;flex-direction:row;align-items:center;justify-content:center;gap:5px;box-sizing:border-box;width:auto;max-width:100%;font-size:11.5px;line-height:1.3;padding:5px 12px;border-radius:999px;font-weight:800;white-space:nowrap;text-align:left;}
+              .mc-hero-clock .cd-l{font-size:11px;font-weight:700;opacity:.9;word-break:keep-all;}
+              .mc-hero-clock .cd-v{font-size:11.5px;font-weight:900;word-break:keep-all;}
+              #mcHeroStatus{flex:1 0 100%;width:100%;box-sizing:border-box;margin-top:0 !important;}
+              #mcHeroStatus .mc-row{width:100%;box-sizing:border-box;padding:9px 11px;}
+              .dia-hero-in:has(#mcHeroStatus:not([hidden])){padding-top:11px !important;padding-bottom:8px !important;gap:7px !important;}
+              .dia-hero-in:has(#mcHeroStatus:not([hidden])) .quick-links{gap:6px;}
+              .dia-hero-in:has(#mcHeroStatus:not([hidden])) .pr-card{margin-bottom:0;}
+              #mcHeroStatus .mycard{margin-bottom:0;}
+              body.dia-page .plx-main{padding-top:0;}
+              body.dia-page .plx-inner{border-top:0 !important;border-radius:0 0 10px 10px !important;}
+              body.dia-page .plx-section{padding-top:0 !important;}
+              body.dia-page .dia-hero{padding-bottom:0;border-bottom:0;}
+              body.dia-page .dia-hero-in{padding-bottom:0 !important;} 
+              body.dia-page:has(#mcHeroStatus:not([hidden])) .plx-clock{margin-top:-10px;}
+              .plx-who{display:flex;align-items:center;gap:14px;min-width:0;}
+              .plx-who .pr-av{width:74px;height:74px;font-size:26px;}
+              .mc-chk-wrap{margin-top:10px;padding-top:9px;border-top:1px dashed #f0dce3;}
+              .mc-chk-t{font-size:12px;font-weight:900;color:#c2456a;margin-bottom:5px;}
+              .mc-chk{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px;font-weight:700;color:#4a353c;flex-wrap:wrap;}
+              .mc-chk .ok{color:#2f7d4c;}
+              .mc-chk .warn{color:#b3476a;background:#fdeef3;border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:800;}
+              .mc-hero-login{display:inline-flex;align-items:center;justify-content:center;min-height:34px;box-sizing:border-box;padding:8px 16px;border-radius:999px;border:1px solid #f3d3de;background:#fdeef3;color:#b35172;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;box-shadow:0 1px 2px rgba(198,69,106,.06);}
+              .mc-hero-login.on{background:#fdeef3;border-color:#e49db3;color:#9e3856;}
+              .mc-login-box{padding:10px;border-radius:10px;background:#fff8fa;border:1px solid #f0d7e0;}
+              .mc-login-box[hidden]{display:none;}
+              .mc-login-msg{margin-top:6px;font-size:11.5px;font-weight:700;color:#d55576;min-height:15px;}
+              @media (max-width:600px){.mycard{padding:12px 13px 13px;}.mycard-s{font-size:9px;}.mc-k b{font-size:14px;}.mc-hero-login{padding:8px 14px;font-size:12px;}}
+            </style>
+            <div class="mc-fortune-wrap" style="margin-top:0;padding-top:0;border-top:0;">
+              <button type="button" class="mc-game-toggle" id="mcGameToggle">😘 원장님들 화이팅! <span id="mcGameArrow">▾</span></button>
+              <div class="mc-game-body" id="mcGameBody" hidden>
+              <div class="mc-fortune-btns">
+                <button type="button" class="mc-fortune-btn" id="mcFortuneBtn">🍀 오늘의 운세</button>
+                <button type="button" class="mc-fortune-btn" id="mcSajuBtn">🔮 사주 보기</button>
+                <button type="button" class="mc-fortune-btn" id="mcTarotBtn"><svg class="mc-tarot-ico" viewBox="0 0 18 24"><rect x="1" y="1" width="16" height="22" rx="3" fill="#8f2f51" stroke="#e4b6c6" stroke-width="1.2"/><polygon points="9,7 13,12 9,17 5,12" fill="#fce9ef"/></svg>오늘의 타로</button>
+                <button type="button" class="mc-fortune-btn" id="mcMemBtn">💎 짝맞추기</button>
+                <button type="button" class="mc-fortune-btn" id="mcReactBtn">⚡ 반응속도</button>
+                <button type="button" class="mc-fortune-btn" id="mcLottoBtn">🎱 로또 추첨</button>
+              </div>
+              <form class="mc-saju-form" id="mcSajuForm" hidden autocomplete="off">
+                <input id="mcBirth" type="tel" maxlength="10" placeholder="양력 생년월일 8자리 (예: 19960307)">
+                <button type="submit">보기</button>
+              </form>
+              <div class="mc-tarot-row" id="mcTarotRow" hidden>
+                <button type="button" class="mc-tarot-shuffle" id="mcTarotShuffle" title="카드 다시 섞기" aria-label="카드 다시 섞기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg></button>
+                <div class="mc-tarot-deck" id="mcTarotDeck" hidden></div>
+                <div role="button" tabindex="0" class="mc-tarot-card" data-card="0"><div class="mc-tarot-inner"><div class="mc-tarot-back"><svg viewBox="0 0 100 100"><polygon points="30,27 70,27 83,44 50,79 17,44" fill="#fce9ef"/><line x1="17" y1="44" x2="83" y2="44" stroke="#8a3250" stroke-width="2.6"/><polyline points="30,27 38,44 50,79 62,44 70,27" fill="none" stroke="#8a3250" stroke-width="2.4" stroke-linejoin="round"/><line x1="50" y1="27" x2="38" y2="44" stroke="#8a3250" stroke-width="2.2"/><line x1="50" y1="27" x2="62" y2="44" stroke="#8a3250" stroke-width="2.2"/></svg><span>1</span></div><div class="mc-tarot-front"></div></div></div>
+                <div role="button" tabindex="0" class="mc-tarot-card" data-card="1"><div class="mc-tarot-inner"><div class="mc-tarot-back"><svg viewBox="0 0 100 100"><polygon points="30,27 70,27 83,44 50,79 17,44" fill="#fce9ef"/><line x1="17" y1="44" x2="83" y2="44" stroke="#8a3250" stroke-width="2.6"/><polyline points="30,27 38,44 50,79 62,44 70,27" fill="none" stroke="#8a3250" stroke-width="2.4" stroke-linejoin="round"/><line x1="50" y1="27" x2="38" y2="44" stroke="#8a3250" stroke-width="2.2"/><line x1="50" y1="27" x2="62" y2="44" stroke="#8a3250" stroke-width="2.2"/></svg><span>2</span></div><div class="mc-tarot-front"></div></div></div>
+                <div role="button" tabindex="0" class="mc-tarot-card" data-card="2"><div class="mc-tarot-inner"><div class="mc-tarot-back"><svg viewBox="0 0 100 100"><polygon points="30,27 70,27 83,44 50,79 17,44" fill="#fce9ef"/><line x1="17" y1="44" x2="83" y2="44" stroke="#8a3250" stroke-width="2.6"/><polyline points="30,27 38,44 50,79 62,44 70,27" fill="none" stroke="#8a3250" stroke-width="2.4" stroke-linejoin="round"/><line x1="50" y1="27" x2="38" y2="44" stroke="#8a3250" stroke-width="2.2"/><line x1="50" y1="27" x2="62" y2="44" stroke="#8a3250" stroke-width="2.2"/></svg><span>3</span></div><div class="mc-tarot-front"></div></div></div>
+                <div role="button" tabindex="0" class="mc-tarot-card" data-card="3"><div class="mc-tarot-inner"><div class="mc-tarot-back"><svg viewBox="0 0 100 100"><polygon points="30,27 70,27 83,44 50,79 17,44" fill="#fce9ef"/><line x1="17" y1="44" x2="83" y2="44" stroke="#8a3250" stroke-width="2.6"/><polyline points="30,27 38,44 50,79 62,44 70,27" fill="none" stroke="#8a3250" stroke-width="2.4" stroke-linejoin="round"/><line x1="50" y1="27" x2="38" y2="44" stroke="#8a3250" stroke-width="2.2"/><line x1="50" y1="27" x2="62" y2="44" stroke="#8a3250" stroke-width="2.2"/></svg><span>4</span></div><div class="mc-tarot-front"></div></div></div>
+                <div role="button" tabindex="0" class="mc-tarot-card" data-card="4"><div class="mc-tarot-inner"><div class="mc-tarot-back"><svg viewBox="0 0 100 100"><polygon points="30,27 70,27 83,44 50,79 17,44" fill="#fce9ef"/><line x1="17" y1="44" x2="83" y2="44" stroke="#8a3250" stroke-width="2.6"/><polyline points="30,27 38,44 50,79 62,44 70,27" fill="none" stroke="#8a3250" stroke-width="2.4" stroke-linejoin="round"/><line x1="50" y1="27" x2="38" y2="44" stroke="#8a3250" stroke-width="2.2"/><line x1="50" y1="27" x2="62" y2="44" stroke="#8a3250" stroke-width="2.2"/></svg><span>5</span></div><div class="mc-tarot-front"></div></div></div>
+                <div class="mc-tarot-note">78장 정식 타로 덱 · 완전 무작위 셔플</div>
+              </div>
+              <div class="mc-fortune-box" id="mcFortuneBox" hidden></div>
+              <div class="mc-mini-box" id="mcMiniBox" hidden></div>
+              </div>
+            </div>
+            <script>
+            (function(){
+              var 명부 = [{"n": "STAFF", "no": 1, "r": "본부", "c": "총괄운영", "o": "방장", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 0, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "세이린 뷰티", "no": 2, "r": "서울/강서", "c": "속눈썹펌", "o": "방장", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 0, "lw": 1, "tot": 36, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 5, "pk": "화곡동 속눈썹펌", "pr": "서울 강서구 화곡동", "pd": "2026-11-17"}, {"n": "대전/_eye.bari_/속눈썹", "no": 3, "r": "대전", "c": "속눈썹", "o": "부방장", "i": "_eye.bari_", "b": 1, "l": 0, "p": 2, "d": 2, "w": [1, 0, -1, -1, -1, -1, -1], "mc": 6, "rk": 0, "lw": 2, "tot": 88, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "시흥/153_beautynail", "no": 4, "r": "시흥", "c": "네일/속눈썹", "o": "부방장", "i": "153_beautynail", "b": 34, "l": 0, "p": 1, "d": 1, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 3, "rk": 0, "lw": 1, "tot": 239, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "천안/lusom_beauty/속눈썹", "no": 5, "r": "천안", "c": "속눈썹", "o": "부방장 (루솜)", "i": "lusom_beauty", "b": 4, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 0, "lw": 0, "tot": 28, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "강원/n.b._.lash/속눈썹", "no": 6, "r": "강원", "c": "속눈썹", "o": "정회원", "i": "n.b._.lash", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 1, "tot": 12, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/binsbrow_/속눈썹", "no": 7, "r": "경기", "c": "속눈썹", "o": "정회원", "i": "binsbrow_", "b": 1, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 34, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/bonnie_extension/", "no": 8, "r": "경기", "c": "속눈썹/연장", "o": "정회원", "i": "bonnie_extension", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 1, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/brow_n.me/반영구", "no": 9, "r": "경기", "c": "반영구", "o": "정회원", "i": "brow_n.me", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 0, "tot": 27, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/eye_lavin/속눈썹", "no": 10, "r": "경기", "c": "속눈썹", "o": "정회원", "i": "eye_lavin", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 1, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/lash_n_plan/속눈썹", "no": 11, "r": "경기", "c": "속눈썹", "o": "정회원", "i": "lash_n_plan", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 0, "tot": 54, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/leeji_nail/네일", "no": 12, "r": "경기", "c": "네일", "o": "정회원", "i": "leeji_nail", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/line__novar/바디", "no": 13, "r": "경기", "c": "바디/피부", "o": "정회원 (노바르)", "i": "line__novar", "b": 1, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 3, "rk": 11, "lw": 1, "tot": 108, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/monde6eauty/반영구", "no": 14, "r": "경기", "c": "반영구", "o": "정회원", "i": "monde6eauty", "b": 1, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 3, "rk": 11, "lw": 1, "tot": 72, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/once_lash/속눈썹", "no": 15, "r": "경기", "c": "속눈썹", "o": "정회원 (원스래쉬)", "i": "once_lash", "b": 1, "l": 0, "p": 1, "d": 1, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 0, "tot": 119, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/onii.day_/속눈썹", "no": 16, "r": "경기", "c": "속눈썹", "o": "정회원 (오니데이)", "i": "onii.day_", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 33, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/sio_lashhh/속눈썹", "no": 17, "r": "경기", "c": "속눈썹", "o": "정회원", "i": "sio_lashhh", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 1, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/yoonbrow__/속눈썹", "no": 18, "r": "경기", "c": "속눈썹", "o": "정회원", "i": "yoonbrow__", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 1, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "광주/lash_yeogi/속눈썹", "no": 19, "r": "광주", "c": "속눈썹", "o": "정회원", "i": "lash_yeogi", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 3, "rk": 11, "lw": 1, "tot": 87, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "광주/nailneedu/토탈", "no": 20, "r": "광주", "c": "토탈뷰티", "o": "정회원", "i": "nailneedu", "b": 0, "l": 0, "p": 0, "d": 0, "w": [1, 0, -1, -1, -1, -1, -1], "mc": 4, "rk": 4, "lw": 1, "tot": 118, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "군포/youu_smp", "no": 21, "r": "군포", "c": "SMP/반영구", "o": "정회원", "i": "youu_smp", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 23, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "군포/youux153/속눈썹", "no": 22, "r": "군포", "c": "속눈썹", "o": "정회원", "i": "youux153", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 57, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "대구/_clover_lash/속눈썹", "no": 23, "r": "대구", "c": "속눈썹", "o": "정회원", "i": "_clover_lash", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 0, "tot": 5, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "대구/lumi_point_/속눈썹", "no": 24, "r": "대구", "c": "속눈썹", "o": "정회원", "i": "lumi_point_", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "대구/yoony_salon/속눈썹", "no": 25, "r": "대구", "c": "속눈썹", "o": "정회원", "i": "yoony_salon", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 0, "tot": 51, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "대전/_.b_x_b._/반영구", "no": 26, "r": "대전", "c": "반영구", "o": "정회원", "i": "_.b_x_b._", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 1, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "대전/beu_ty_j/토탈뷰티", "no": 27, "r": "대전", "c": "토탈뷰티", "o": "정회원", "i": "beu_ty_j", "b": 0, "l": 0, "p": 0, "d": 0, "w": [1, 0, -1, -1, -1, -1, -1], "mc": 2, "rk": 19, "lw": 0, "tot": 116, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "대전/llenar._.waxing/", "no": 28, "r": "대전", "c": "왁싱", "o": "정회원 (예나르)", "i": "llenar._.waxing", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 3, "rk": 11, "lw": 1, "tot": 17, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "대전/moon_lash.beauty", "no": 29, "r": "대전", "c": "속눈썹", "o": "정회원", "i": "moon_lash.beauty", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 26, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "대전/nailming_/네일", "no": 30, "r": "대전", "c": "네일", "o": "정회원 (네일밍)", "i": "nailming_", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 4, "rk": 4, "lw": 1, "tot": 43, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "대전/studio_2um/반영구", "no": 31, "r": "대전", "c": "반영구", "o": "정회원", "i": "studio_2um", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 1, "sk": 0, "nw": 0, "vl": 2, "vlt": "11-17, 11-18", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "부산/deepin_row/속눈썹", "no": 32, "r": "부산", "c": "속눈썹", "o": "정회원", "i": "deepin_row", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 2, "rk": 19, "lw": 0, "tot": 25, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "부산/j.myu_/네일", "no": 33, "r": "부산", "c": "네일", "o": "정회원", "i": "j.myu_", "b": 0, "l": 0, "p": 0, "d": 0, "w": [1, 0, -1, -1, -1, -1, -1], "mc": 2, "rk": 19, "lw": 1, "tot": 39, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "부산/jvelynail/네일", "no": 34, "r": "부산", "c": "네일", "o": "정회원", "i": "jvelynail", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 2, "rk": 19, "lw": 0, "tot": 49, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "부산/le.belle_lash/속눈썹", "no": 35, "r": "부산", "c": "속눈썹", "o": "정회원", "i": "le.belle_lash", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "부산/lloveenaill/네일", "no": 36, "r": "부산", "c": "네일", "o": "정회원", "i": "lloveenaill", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 1, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "부산/n.de_nuel/네일", "no": 37, "r": "부산", "c": "네일", "o": "정회원", "i": "n.de_nuel", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 1, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "부산/soie.studios/속눈썹", "no": 38, "r": "부산", "c": "속눈썹", "o": "정회원", "i": "soie.studios", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 3, "rk": 11, "lw": 1, "tot": 37, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "부산star___beauty_/속눈썹", "no": 39, "r": "부산", "c": "속눈썹", "o": "정회원", "i": "star___beauty_", "b": 0, "l": 0, "p": 0, "d": 0, "w": [1, 0, -1, -1, -1, -1, -1], "mc": 5, "rk": 3, "lw": 1, "tot": 53, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울 / myua.brow/반영구", "no": 40, "r": "서울", "c": "반영구", "o": "정회원", "i": "myua.brow", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/_brown.brow/반영구", "no": 41, "r": "서울", "c": "반영구", "o": "정회원", "i": "_brown.brow", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 2, "rk": 19, "lw": 0, "tot": 35, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/@eveof_studio", "no": 42, "r": "서울", "c": "속눈썹/반영구", "o": "정회원", "i": "eveof_studio", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/5wol_lash/토탈", "no": 43, "r": "서울", "c": "토탈뷰티", "o": "정회원", "i": "5wol_lash", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/beau_onne/속눈썹", "no": 44, "r": "서울", "c": "속눈썹", "o": "정회원", "i": "beau_onne", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/beauty_days2/속눈썹", "no": 45, "r": "서울", "c": "속눈썹", "o": "정회원", "i": "beauty_days2", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/bella_.brow/반영구", "no": 46, "r": "서울", "c": "반영구", "o": "정회원 (벨라브로우)", "i": "bella_.brow", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 2, "rk": 19, "lw": 0, "tot": 61, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/domely_lash/속눈썹", "no": 47, "r": "서울", "c": "속눈썹", "o": "정회원 (도멜리)", "i": "domely_lash", "b": 0, "l": 0, "p": 0, "d": 0, "w": [1, 0, -1, -1, -1, -1, -1], "mc": 4, "rk": 4, "lw": 0, "tot": 97, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/dyeon.seoul/반영구", "no": 48, "r": "서울", "c": "반영구", "o": "정회원", "i": "dyeon.seoul", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/haute_ob/속눈썹", "no": 49, "r": "서울", "c": "속눈썹", "o": "정회원", "i": "haute_ob", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 0, "tot": 13, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/hbbeauty_official", "no": 50, "r": "서울", "c": "속눈썹/토탈", "o": "정회원 (에이치비)", "i": "hbbeauty_official", "b": 0, "l": 0, "p": 0, "d": 0, "w": [1, 0, -1, -1, -1, -1, -1], "mc": 3, "rk": 11, "lw": 1, "tot": 29, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/j.__reve/반영구", "no": 51, "r": "서울", "c": "반영구", "o": "정회원 (제이레브)", "i": "j.__reve", "b": 1, "l": 0, "p": 1, "d": 1, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 0, "tot": 66, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/lehee.studio/속눈썹", "no": 52, "r": "서울", "c": "속눈썹", "o": "정회원 (르희)", "i": "lehee.studio", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/nail_jiand/네일", "no": 53, "r": "서울", "c": "네일", "o": "정회원 (네일지앤)", "i": "nail_jiand", "b": 0, "l": 0, "p": 0, "d": 0, "w": [1, 0, -1, -1, -1, -1, -1], "mc": 8, "rk": 1, "lw": 2, "tot": 146, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/nail_leego/네일", "no": 54, "r": "서울", "c": "네일", "o": "정회원", "i": "nail_leego", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 0, "tot": 49, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/nanabella_l/속눈썹", "no": 55, "r": "서울", "c": "속눈썹", "o": "정회원", "i": "nanabella_l", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 32, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/nue.atelier_/반영구", "no": 56, "r": "서울", "c": "반영구", "o": "정회원", "i": "nue.atelier_", "b": 0, "l": 0, "p": 0, "d": 0, "w": [1, 0, -1, -1, -1, -1, -1], "mc": 2, "rk": 19, "lw": 0, "tot": 33, "sk": 0, "nw": 0, "vl": 2, "vlt": "11-17, 11-18", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/seilin_beauty.chu", "no": 57, "r": "서울", "c": "속눈썹", "o": "정회원 (세이린 츄)", "i": "seilin_beauty.chu", "b": 0, "l": 0, "p": 0, "d": 0, "w": [1, 0, -1, -1, -1, -1, -1], "mc": 4, "rk": 4, "lw": 1, "tot": 40, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/studio__yale/반영구", "no": 58, "r": "서울", "c": "반영구", "o": "정회원", "i": "studio__yale", "b": 0, "l": 0, "p": 0, "d": 0, "w": [1, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 0, "tot": 43, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/year.seoul/반영구", "no": 59, "r": "서울", "c": "반영구", "o": "정회원 (이어서울)", "i": "year.seoul", "b": 0, "l": 0, "p": 0, "d": 0, "w": [1, 1, -1, -1, -1, -1, -1], "mc": 6, "rk": 2, "lw": 1, "tot": 30, "sk": 2, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "ㅇ", "no": 60, "r": "미상", "c": "미상", "o": "정회원 (양식 미준수)", "i": "미상", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "안산/brow.uu/반영구", "no": 61, "r": "안산", "c": "반영구", "o": "정회원 (브로우유)", "i": "brow.uu", "b": 1, "l": 0, "p": 2, "d": 2, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 0, "tot": 52, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "용산/jio_ink/smp", "no": 62, "r": "용산", "c": "SMP", "o": "정회원 (지오잉크)", "i": "jio_ink", "b": 1, "l": 0, "p": 0, "d": 0, "w": [1, 0, -1, -1, -1, -1, -1], "mc": 3, "rk": 11, "lw": 1, "tot": 69, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "용산/m_beauty_ink/반영구", "no": 63, "r": "용산", "c": "반영구", "o": "정회원", "i": "m_beauty_ink", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 2, "rk": 19, "lw": 0, "tot": 76, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "울산/dareuming.beauty", "no": 64, "r": "울산", "c": "속눈썹/토탈", "o": "정회원", "i": "dareuming.beauty", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 0, "tot": 27, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "울산/nailndd/네일", "no": 65, "r": "울산", "c": "네일", "o": "정회원", "i": "nailndd", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 1, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "인천/browchaeum_/반영구", "no": 66, "r": "인천", "c": "반영구", "o": "정회원", "i": "browchaeum_", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 1, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "인천/browe____/반영구", "no": 67, "r": "인천", "c": "반영구", "o": "정회원", "i": "browe____", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 1, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "인천/eye_min/반영구", "no": 68, "r": "인천", "c": "반영구", "o": "정회원", "i": "eye_min", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 1, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "인천/idreamiin/속눈썹", "no": 69, "r": "인천", "c": "속눈썹", "o": "정회원", "i": "idreamiin", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 0, "tot": 16, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "인천/uni.salon/네일", "no": 70, "r": "인천", "c": "네일", "o": "정회원", "i": "uni.salon", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "일산/_soybrow/반영구", "no": 71, "r": "일산", "c": "반영구", "o": "정회원 (소이브로우)", "i": "_soybrow", "b": 1, "l": 0, "p": 2, "d": 1, "w": [1, 0, -1, -1, -1, -1, -1], "mc": 4, "rk": 4, "lw": 1, "tot": 123, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "전남/andbeauty__/반영구", "no": 72, "r": "전남", "c": "반영구", "o": "정회원", "i": "andbeauty__", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 0, "tot": 38, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "전북/a.__muse/속눈썹피부", "no": 73, "r": "전북", "c": "속눈썹/피부", "o": "정회원 (어나더뮤즈)", "i": "a.__muse", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 0, "tot": 34, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "전북/long_bou_tique속눈썹", "no": 74, "r": "전북", "c": "속눈썹", "o": "정회원 (롱뷰띠끄)", "i": "long_bou_tique", "b": 0, "l": 0, "p": 0, "d": 0, "w": [1, 0, -1, -1, -1, -1, -1], "mc": 4, "rk": 4, "lw": 2, "tot": 19, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "전주/lodeur_aesthetic", "no": 75, "r": "전주", "c": "에스테틱/피부", "o": "정회원 (로더)", "i": "lodeur_aesthetic", "b": 1, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 40, "sk": 0, "nw": 0, "vl": 2, "vlt": "11-17, 11-18", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "춘천/brow_luin/반영구", "no": 76, "r": "춘천", "c": "반영구", "o": "정회원 (브로우루인)", "i": "brow_luin", "b": 1, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 0, "tot": 66, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "충남/beautyellido_nail", "no": 77, "r": "충남", "c": "네일", "o": "정회원 (엘리도)", "i": "beautyellido_nail", "b": 0, "l": 0, "p": 0, "d": 0, "w": [1, 0, -1, -1, -1, -1, -1], "mc": 4, "rk": 4, "lw": 1, "tot": 42, "sk": 0, "nw": 0, "vl": 1, "vlt": "11-17", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "충남/joy_de_nail/네일", "no": 78, "r": "충남", "c": "네일", "o": "정회원 (조이데)", "i": "joy_de_nail", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 1, "sk": 0, "nw": 0, "vl": 2, "vlt": "11-17, 11-18", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "호주/pium.au/속눈썹", "no": 79, "r": "호주", "c": "속눈썹", "o": "정회원 (글로벌)", "i": "pium.au", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 1, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "0820/yuha.lip/반영구", "no": 80, "r": "미상", "c": "반영구", "o": "휴식 의심 (💙 누락)", "i": "yuha.lip", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 17, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "💙0507/reby_beauty_", "no": 81, "r": "미상", "c": "뷰티", "o": "공식 휴식 (6개월 초과)", "i": "reby_beauty_", "b": 0, "l": 1, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 9, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "💙0601뷰티한나", "no": 82, "r": "미상", "c": "뷰티", "o": "공식 휴식 (5개월 경과)", "i": "뷰티한나", "b": 0, "l": 1, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 14, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "💙0813/ddumi_nail/네일", "no": 83, "r": "미상", "c": "네일", "o": "공식 휴식 (3개월 경과)", "i": "ddumi_nail", "b": 1, "l": 1, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "💙1105/dene.studio/", "no": 84, "r": "미상", "c": "스튜디오", "o": "공식 휴식 (정상 유지)", "i": "dene.studio", "b": 0, "l": 1, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 11, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "💙1109/sina.br__", "no": 85, "r": "미상", "c": "브로우", "o": "공식 휴식 (정상 유지)", "i": "sina.br__", "b": 0, "l": 1, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 0, "tot": 28, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "💙1215/mellow._.beau", "no": 86, "r": "미상", "c": "뷰티", "o": "공식 휴식 (확인 필요)", "i": "mellow._.beau", "b": 0, "l": 1, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 9, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/nail_n_plan/네일앤플랜", "no": 87, "r": "경기", "c": "네일앤플랜", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 25, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "💙0302/once_brow/토탈", "no": 88, "r": "💙0302", "c": "토탈", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 89, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/mini___brow/반영구", "no": 89, "r": "경기", "c": "반영구", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 2, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/eyelight_뷰티/반영구", "no": 90, "r": "서울", "c": "반영구", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 5, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "파주/ beauty.develo", "no": 91, "r": "파주", "c": "", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 8, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/ m__jbrow/ 반영구", "no": 92, "r": "경기", "c": "반영구", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 4, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/isooroom/속눈썹", "no": 93, "r": "서울", "c": "속눈썹", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 139, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "안양/kyma_pmu/반영구", "no": 94, "r": "안양", "c": "반영구", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 16, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/나다움/_na_dau엠_", "no": 95, "r": "경기", "c": "_na_dau엠_", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 4, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/jineebrow/반영구", "no": 96, "r": "서울", "c": "반영구", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 9, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "💙0826merry.row /속눈썹", "no": 97, "r": "💙0826merry.row", "c": "", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 2, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "부산/j.myu_lyn/네일", "no": 98, "r": "부산", "c": "네일", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 1, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/autumn_lash_\\속눈썹", "no": 99, "r": "경기", "c": "", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 1, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "부산/hiino_lash/속눈썹", "no": 100, "r": "부산", "c": "속눈썹", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 16, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/dearmin_brow/토탈", "no": 101, "r": "서울", "c": "토탈", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 46, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/hagennabeauty/속눈썹", "no": 102, "r": "경기", "c": "속눈썹", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 23, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "10.27/_from.dear/속눈썹", "no": 103, "r": "10.27", "c": "속눈썹", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 107, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "인천/ur__lash/속눈썹", "no": 104, "r": "인천", "c": "속눈썹", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 50, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "beautying/인천", "no": 105, "r": "beautying", "c": "", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/studio__heeov/반영구", "no": 106, "r": "서울", "c": "반영구", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 14, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "양산/narlash___/속눈썹", "no": 107, "r": "양산", "c": "속눈썹", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "진천/onoa.brow/반영구속펌", "no": 108, "r": "진천", "c": "반영구속펌", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "부산/jlee_beauty/토탈", "no": 109, "r": "부산", "c": "토탈", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 15, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "대구/newjelly.kr/입술", "no": 110, "r": "대구", "c": "입술", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 37, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "부산 / hevbeauty_brow/", "no": 111, "r": "부산", "c": "", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "부산/shubeㅣㅣㅁ/속눈썹", "no": 112, "r": "부산", "c": "속눈썹", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "부산/wuv_lash/속눈썹", "no": 113, "r": "부산", "c": "속눈썹", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 1, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "부산/an.u_scalp/두피", "no": 114, "r": "부산", "c": "두피", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "대전/ssolbling_waxing", "no": 115, "r": "대전", "c": "", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 7, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "강원/oaru_lash/속눈썹", "no": 116, "r": "강원", "c": "속눈썹", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 1, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "포항/wonz_day_/속눈썹", "no": 117, "r": "포항", "c": "속눈썹", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 4, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/rori__studio/반영구", "no": 118, "r": "경기", "c": "반영구", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "대전/dalibom_studio", "no": 119, "r": "대전", "c": "", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "대전/llenar._ waxing/", "no": 120, "r": "대전", "c": "", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 3, "rk": 11, "lw": 1, "tot": 17, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "대구/Iumi_point_/속눈썹", "no": 121, "r": "대구", "c": "속눈썹", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 1, "rk": 27, "lw": 1, "tot": 5, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "서울/D.cel_.nail/네일.속펌", "no": 122, "r": "서울", "c": "네일.속펌", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}, {"n": "경기/black.city_brow", "no": 123, "r": "경기", "c": "", "o": "회원", "i": "", "b": 0, "l": 0, "p": 0, "d": 0, "w": [0, 0, -1, -1, -1, -1, -1], "mc": 0, "rk": 45, "lw": 0, "tot": 0, "sk": 0, "nw": 0, "vl": 0, "vlt": "", "pl": 0, "pk": "", "pr": "", "pd": ""}];
+              var 폼 = document.getElementById('mcForm'), 입력 = document.getElementById('mcQ'), 결과 = document.getElementById('mcRes');
+              function 정규(t){ return String(t||'').toLowerCase().replace(/[^0-9a-z가-힣ㄱ-ㅎ]/g,''); }
+              var 초성표 = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+              function 초성화(t){
+                var out = '';
+                for(var i = 0; i < t.length; i++){
+                  var c = t.charCodeAt(i);
+                  if(c >= 0xAC00 && c <= 0xD7A3){ out += 초성표.charAt(Math.floor((c - 0xAC00) / 588)); }
+                  else { out += t.charAt(i); }
+                }
+                return out;
+              }
+              function 자모만(t){ return /^[ㄱ-ㅎ]+$/.test(t); }
+              var 색인 = 명부.map(function(m){
+                var k = [정규(m.n), 정규(m.i), 정규(m.o), 정규(m.r), 정규(m.c)]
+                  .concat(String(m.n||'').split('/').map(정규))
+                  .concat(String(m.o||'').replace(/[()]/g,' ').split(/\s+/).map(정규))
+                  .filter(function(x){ return x && x.length >= 2; });
+                return {m:m, k:k};
+              });
+              var 요일명 = ['월','화','수','목','금','토','일'];
+              var 라벨 = "이번 주";
+              var 기준 = "2026-11-17 14:43";
+              function 요일줄(w, m){
+                if(!w) return '';
+                var 참여 = 0, h = '<div class="mc-days">';
+                for(var i = 0; i < 7; i++){
+                  var st = w[i], cls = st === 1 ? 'on' : (st === 0 ? 'off' : 'wait');
+                  if(st === 1) 참여++;
+                  h += '<div class="mc-day ' + cls + '">' + 요일명[i] + '</div>';
+                }
+                if(m.sk > 1){
+                  h += '</div><div class="mc-streak">연속 ' + m.sk + '일 개근 중</div>';
+                } else {
+                  h += '</div>' + (m.sk === 1 ? '<div class="mc-streak off">오늘 참여 · 연속 1일</div>' : '');
+                }
+                h += (기준 ? '<div class="mc-week">데이터 기준 ' + 기준 + '</div>' : '');
+                return h;
+              }
+              function 플레이스줄(m){
+                if(!m || !m.pl) return '';
+                var dd = String(m.pd || '').split('-');
+                var 기준일 = dd.length === 3 ? (dd[1] + '-' + dd[2] + ' 기준') : '';
+                var url = 'https://m.search.naver.com/search.naver?where=m_place&query=' + encodeURIComponent(m.pk || '');
+                return '<a class="mc-place" href="' + url + '" target="_blank" rel="noopener">📈 네이버 플레이스 '
                   + (m.pk || '') + ' <b>' + m.pl + '위</b>'
                   + (기준일 ? '<span class="mc-place-d">' + 기준일 + '</span>' : '') + '</a>';
               }
