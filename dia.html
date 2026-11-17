@@ -2356,7 +2356,7 @@
               });
               var 요일명 = ['월','화','수','목','금','토','일'];
               var 라벨 = "이번 주";
-              var 기준 = "2026-11-17 12:39";
+              var 기준 = "2026-11-17 12:54";
               function 요일줄(w, m){
                 if(!w) return '';
                 var 참여 = 0, h = '<div class="mc-days">';
@@ -3065,23 +3065,6 @@
               function 직책줄(m){
                 return m.i ? ('@' + m.i + (m.o ? ' · ' + m.o : '')) : (m.o || '정회원');
               }
-              function 체크리스트(m){
-                var w = m.w || [];
-                var ti = (new Date().getDay() + 6) % 7;
-                var 참 = w[ti] === 1;
-                var 주합 = 0;
-                for(var i = 0; i < w.length; i++){ if(w[i] === 1) 주합++; }
-                var h = '<div class="mc-chk-wrap"><div class="mc-chk-t">오늘 내 품앗이 체크리스트</div>';
-                h += '<div class="mc-chk"><span class="' + (참 ? 'ok' : 'warn') + '">' + (참 ? '① 오늘 참여 완료 ✅' : '① 오늘 참여 전') + '</span></div>';
-                h += '<div class="mc-chk"><span class="' + (주합 > 0 ? 'ok' : 'warn') + '">' + (주합 > 0 ? ('② 이번 주 달성 ✅ (' + 주합 + '회)') : '② 이번 주 1회 미달성') + '</span></div>';
-                if(m.vl && m.vl > 0){
-                  h += '<div class="mc-chk"><span class="warn">③ 이번 주 봉사 대상 · ' + m.vl + '일' + (m.vlt ? ' (' + m.vlt + ')' : '') + '</span></div>';
-                } else {
-                  h += '<div class="mc-chk"><span class="ok">③ 봉사·주의 알림 없음</span></div>';
-                }
-                h += '</div>';
-                return h;
-              }
               function 배너반영(m){
                 if(m){
                   var idLine = 직책줄(m);
@@ -3105,7 +3088,7 @@
                       + '<span class="plx-ask" style="margin-top:8px;">내 정보로 로그인 중' + skTxt + '</span>';
                   }
                   for(var q = 0; q < quickAs.length; q++){ quickAs[q].style.display = 'none'; }
-                  if(heroStatus){ 그리기([m], heroStatus); heroStatus.style.background = '#fff'; heroStatus.style.borderRadius = '12px'; heroStatus.style.padding = '10px 12px'; heroStatus.style.border = '1px solid #f2e2e8'; heroStatus.insertAdjacentHTML('beforeend', 체크리스트(m)); }
+                  if(heroStatus){ 그리기([m], heroStatus); heroStatus.style.background = '#fff'; heroStatus.style.borderRadius = '12px'; heroStatus.style.padding = '10px 12px'; heroStatus.style.border = '1px solid #f2e2e8'; }
                   if(mycardH) mycardH.style.display = 'none';
                   if(폼) 폼.style.display = 'none';
                   if(결과) 결과.hidden = true;
