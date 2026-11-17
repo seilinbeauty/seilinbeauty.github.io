@@ -2335,7 +2335,9 @@
               .mc-empty{margin-top:8px;font-size:12px;color:#b9a9af;}
               #mcHeroStatus{flex:1 0 100%;width:100%;box-sizing:border-box;margin-top:0 !important;}
               #mcHeroStatus .mc-row{width:100%;box-sizing:border-box;padding:9px 11px;}
-              .dia-hero-in:has(.mc-hero-login.on){padding-top:11px !important;padding-bottom:12px !important;gap:6px !important;}
+              .dia-hero-in:has(#mcHeroStatus:not([hidden])){padding-top:11px !important;padding-bottom:8px !important;gap:7px !important;}
+              .dia-hero-in:has(#mcHeroStatus:not([hidden])) .quick-links{gap:6px;}
+              .dia-hero-in:has(#mcHeroStatus:not([hidden])) .pr-card{margin-bottom:0;}
               .plx-who{display:flex;align-items:center;gap:14px;min-width:0;}
               .plx-who .pr-av{width:74px;height:74px;font-size:26px;}
               .mc-chk-wrap{margin-top:10px;padding-top:9px;border-top:1px dashed #f0dce3;}
@@ -2404,7 +2406,7 @@
               });
               var 요일명 = ['월','화','수','목','금','토','일'];
               var 라벨 = "이번 주";
-              var 기준 = "2026-11-17 13:58";
+              var 기준 = "2026-11-17 13:59";
               function 요일줄(w, m){
                 if(!w) return '';
                 var 참여 = 0, h = '<div class="mc-days">';
