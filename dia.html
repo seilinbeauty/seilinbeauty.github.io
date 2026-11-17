@@ -2426,7 +2426,7 @@
               });
               var 요일명 = ['월','화','수','목','금','토','일'];
               var 라벨 = "이번 주";
-              var 기준 = "2026-11-17 19:18";
+              var 기준 = "2026-11-17 19:19";
               function 요일줄(w, m){
                 if(!w) return '';
                 var 참여 = 0, h = '<div class="mc-days">';
@@ -5846,7 +5846,6 @@
           </div>
           <div class="biz-cal-tabs" id="bizCalTabs">
             <button type="button" class="biz-cal-tab is-on" data-scope="all">전체 일정</button>
-            <button type="button" class="biz-cal-tab" data-scope="cur" id="bizCalCurTab">선택 지역</button>
           </div>
           <div class="biz-cal-nav">
             <button type="button" class="biz-cal-mbtn" id="bizCalPrev">◀ 이전 달</button>
@@ -5911,7 +5910,6 @@
         }
 
         function 그리기(){
-          if(현재지역탭 && 셀렉트) 현재지역탭.textContent = 셀렉트.value + ' + 전국';
           var evs = 필터일정();
           var 맵 = {};
           evs.forEach(function(ev){
