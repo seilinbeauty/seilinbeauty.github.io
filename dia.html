@@ -2343,15 +2343,16 @@
               .dia-hero-in:has(#mcHeroClock:not([hidden])) .pr-card{padding-right:104px;box-sizing:border-box;}
               #mcHeroStatus{flex:1 0 100%;width:100%;box-sizing:border-box;margin-top:0 !important;}
               #mcHeroStatus .mc-row{width:100%;box-sizing:border-box;padding:9px 11px;}
-              .dia-hero-in:has(#mcHeroStatus:not([hidden])){padding-top:11px !important;padding-bottom:8px !important;gap:7px !important;}
+              .dia-hero-in:has(#mcHeroStatus:not([hidden])){padding-top:11px !important;padding-bottom:0 !important;gap:6px !important;}
               .dia-hero-in:has(#mcHeroStatus:not([hidden])) .quick-links{gap:6px;}
               .dia-hero-in:has(#mcHeroStatus:not([hidden])) .pr-card{margin-bottom:0;}
               #mcHeroStatus .mycard{margin-bottom:0;}
-              body.dia-page .plx-main{padding-top:0;}
+              body.dia-page .plx-main{padding-top:6px !important;}
               body.dia-page .plx-inner{border-top:0 !important;border-radius:0 0 10px 10px !important;}
               body.dia-page .plx-section{padding-top:0 !important;}
               body.dia-page .dia-hero{padding-bottom:0;border-bottom:0;}
               body.dia-page .dia-hero-in{padding-bottom:0 !important;} 
+              body.dia-page #myCard{padding-top:9px;margin-bottom:10px;}
               body.dia-page:has(#mcHeroStatus:not([hidden])) .plx-clock{margin-top:-10px;}
               .plx-who{display:flex;align-items:center;gap:14px;min-width:0;}
               .plx-who .pr-av{width:74px;height:74px;font-size:26px;}
@@ -2421,7 +2422,7 @@
               });
               var 요일명 = ['월','화','수','목','금','토','일'];
               var 라벨 = "이번 주";
-              var 기준 = "2026-11-18 05:04";
+              var 기준 = "2026-11-18 05:05";
               function 요일줄(w, m){
                 if(!w) return '';
                 var 참여 = 0, h = '<div class="mc-days">';
@@ -3260,7 +3261,7 @@
                       + '<span class="plx-ask" style="margin-top:8px;">내 정보로 로그인 중' + (badgeList.length ? (' · ' + badgeList.join(' ')) : skTxt) + '</span>';
                   }
                   for(var q = 0; q < quickAs.length; q++){ quickAs[q].style.display = 'none'; }
-                  if(heroStatus){ 그리기([m], heroStatus); heroStatus.style.background = '#fff'; heroStatus.style.borderRadius = '12px'; heroStatus.style.padding = '10px 12px'; heroStatus.style.border = '1px solid #f2e2e8'; }
+                  if(heroStatus){ 그리기([m], heroStatus); heroStatus.style.background = '#fff'; heroStatus.style.borderRadius = '12px'; heroStatus.style.padding = '8px 12px 6px'; heroStatus.style.border = '1px solid #f2e2e8'; }
                   if(mycardH) mycardH.style.display = 'none';
                   if(폼) 폼.style.display = 'none';
                   if(결과) 결과.hidden = true;
