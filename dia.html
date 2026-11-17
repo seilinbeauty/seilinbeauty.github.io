@@ -2262,8 +2262,8 @@
               .mc-saju-form input{flex:1;min-width:0;height:34px;border:1px solid #ecdce2;border-radius:9px;padding:0 10px;font-size:12.5px;color:#33262a;background:#fff;outline:none;text-align:center;}
               .mc-saju-form button{flex:0 0 auto;height:34px;padding:0 13px;border:0;border-radius:9px;background:#e1789a;color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;}
               .mc-meta{margin-top:5px;font-size:11.5px;color:#8a7b81;}
-              .mc-kpis{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;}
-              .mc-k{flex:1 1 88px;padding:7px 9px;border-radius:8px;background:#fdf7f9;text-align:center;}
+              .mc-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:7px;}
+              .mc-k{padding:7px 9px;border-radius:8px;background:#fdf7f9;text-align:center;}
               .mc-k b{display:block;font-size:15px;font-weight:800;color:#c2456a;line-height:1.2;}
               .mc-k span{font-size:10.5px;color:#a98d97;}
               .mc-days{display:flex;gap:4px;margin-top:8px;}
@@ -2348,7 +2348,7 @@
               });
               var 요일명 = ['월','화','수','목','금','토','일'];
               var 라벨 = "이번 주";
-              var 기준 = "2026-11-17 13:27";
+              var 기준 = "2026-11-17 13:30";
               function 요일줄(w, m){
                 if(!w) return '';
                 var 참여 = 0, h = '<div class="mc-days">';
@@ -2394,13 +2394,11 @@
                   if(m.nw){
                     칭호 += '<span class="mc-badge mc-b-seed">🌱 새싹</span>';
                   }
-                  h += '<div class="mc-row"><div class="mc-top">'
-                     + '<span class="mc-nick">' + mk + m.n + '</span>'
-                     + '<span class="mc-badge ' + 직책 + '">' + (m.o || '회원') + '</span>'
-                     + (m.l ? '<span class="mc-badge mc-b4">휴식 중</span>' : '')
-                     + 칭호
-                     + '</div>'
-                     + '<div class="mc-meta">' + (m.r || '지역 미상') + ' · ' + (m.c || '업종 미상') + '</div>'
+                  var isHero = (dst && dst === heroStatus);
+                  var topHtml = isHero
+                    ? ((칭호 || m.l) ? '<div class="mc-top">' + (m.l ? '<span class="mc-badge mc-b4">휴식 중</span>' : '') + 칭호 + '</div>' : '')
+                    : '<div class="mc-top"><span class="mc-nick">' + mk + m.n + '</span><span class="mc-badge ' + 직책 + '">' + (m.o || '회원') + '</span>' + (m.l ? '<span class="mc-badge mc-b4">휴식 중</span>' : '') + 칭호 + '</div><div class="mc-meta">' + (m.r || '지역 미상') + ' · ' + (m.c || '업종 미상') + '</div>';
+                  h += '<div class="mc-row">' + topHtml
                      + '<div class="mc-kpis">'
                      + '<div class="mc-k"><b>' + m.b + '</b><span>완료패스</span></div>'
                      + '<div class="mc-k"><b>' + (m.rk ? m.rk + '위' : '-') + '</b><span>이번 달 순위</span></div>'
@@ -3078,7 +3076,7 @@
                       + '<div class="pr-body">'
                       + '<div class="pr-id">' + idLine + '</div>'
                       + '<div class="pr-name">' + m.n + '</div>'
-                      + '<div class="pr-meta">' + (m.r || '지역 미상') + ' · ' + (m.c || '업종 미상') + '<br>이번 달 ' + (m.mc || 0) + '회 · 누적 ' + (m.tot || 0) + '회 · 완료패스 ' + (m.b || 0) + '장' + rkTxt + badgeTxt + '</div>'
+                      + '<div class="pr-meta">' + (m.r || '지역 미상') + ' · ' + (m.c || '업종 미상') + ' · 이번 달 ' + (m.mc || 0) + '회</div>'
                       + '</div>';
                   }
                   if(pcHero){
@@ -3086,7 +3084,7 @@
                       + '<div style="min-width:0;">'
                       + '<span class="plx-tag">' + idLine + '</span>'
                       + '<div class="plx-title">' + m.n + '</div>'
-                      + '<div class="plx-sub">' + (m.r || '지역 미상') + ' · ' + (m.c || '업종 미상') + ' · 이번 달 ' + (m.mc || 0) + '회 · 누적 ' + (m.tot || 0) + '회 · 완료패스 ' + (m.b || 0) + '장' + rkTxt + '</div>'
+                      + '<div class="plx-sub">' + (m.r || '지역 미상') + ' · ' + (m.c || '업종 미상') + ' · 이번 달 ' + (m.mc || 0) + '회</div>'
                       + '</div></div>'
                       + '<span class="plx-ask" style="margin-top:8px;">내 정보로 로그인 중' + (badgeList.length ? (' · ' + badgeList.join(' ')) : skTxt) + '</span>';
                   }
