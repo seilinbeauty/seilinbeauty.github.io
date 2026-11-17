@@ -2416,7 +2416,7 @@
               });
               var 요일명 = ['월','화','수','목','금','토','일'];
               var 라벨 = "이번 주";
-              var 기준 = "2026-11-17 14:29";
+              var 기준 = "2026-11-17 14:30";
               function 요일줄(w, m){
                 if(!w) return '';
                 var 참여 = 0, h = '<div class="mc-days">';
@@ -3508,7 +3508,18 @@
           var 인스타 = el.getAttribute('data-insta');
           if(인스타){
             e.preventDefault();
-            window.open('https://www.instagram.com/' + encodeURIComponent(String(인스타).replace(/^@+/, '')), '_blank', 'noopener');
+            var id = encodeURIComponent(String(인스타).replace(/^@+/, '').trim());
+            var webUrl = 'https://www.instagram.com/' + id + '/';
+            var ua = navigator.userAgent || '';
+            if(/android/i.test(ua)){
+              location.href = 'intent://instagram.com/_u/' + id + '/#Intent;package=com.instagram.android;scheme=https;S.browser_fallback_url=' + encodeURIComponent(webUrl) + ';end';
+            } else if(/iphone|ipad|ipod/i.test(ua)){
+              var t0 = Date.now();
+              location.href = 'instagram://user?username=' + id;
+              setTimeout(function(){ if(!document.hidden && Date.now() - t0 < 1800) location.href = webUrl; }, 1100);
+            } else {
+              window.open(webUrl, '_blank', 'noopener');
+            }
             return;
           }
           var 상자 = document.getElementById('myCard');
