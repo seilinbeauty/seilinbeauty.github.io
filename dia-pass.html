@@ -2005,7 +2005,7 @@
     @media (max-width: 640px) { .pguide-grid { grid-template-columns: 1fr; } }
     .notice-split { display: grid; grid-template-columns: 1.05fr 1fr; gap: 18px; align-items: start; }
     .notice-split .notice-card { margin: 0; }
-    .board-content .pass-wrap { margin-top: 20px; }
+    .board-content .pass-wrap { margin-top: 20px; margin-bottom: 18px; }
     .notice-split .pass-wrap { margin-top: 0; }
     .notice-split .pass-cols { column-count: 2; }
     @media (max-width: 980px) { .notice-split { grid-template-columns: 1fr; } .notice-split .pass-cols { column-count: 2; } }
@@ -2142,124 +2142,6 @@
           <span class="section-tag">DIA GUIDE</span>
           <h2 class="section-title">완료패스 공지</h2>
           <p class="section-desc">완료패스 사용 전에 확인해 주세요.</p>
-            <div class="pguide"><style>
-  .pguide .gg { font-size: 19px; line-height: 1.75; color: #33262a; word-break: keep-all; letter-spacing: -.01em; text-align: center; }
-  .pguide .gg * { box-sizing: border-box; }
-  .pguide .gg { min-width: 0; }
-  body { overflow-x: hidden; }
-  .pguide .gg-lead { font-size: 20px; font-weight: 800; color: #33262a; line-height: 1.6; text-align: center; padding: 6px 4px 2px; }
-  .pguide .gg-times { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; margin-top: 14px; }
-  .pguide .gg-time { border-radius: 16px; padding: 16px 10px; text-align: center; background: #fff4f7; border: 2px solid #ffd9e3; }
-  .pguide .gg-time.s2 { background: #eef4ff; border-color: #d5e2ff; }
-  .pguide .gg-time-l { font-size: 17px; font-weight: 800; color: #c2476a; }
-  .pguide .gg-time.s2 .gg-time-l { color: #3f68b8; }
-  .pguide .gg-time-v { margin-top: 4px; font-size: 23px; font-weight: 900; color: #33262a; letter-spacing: -.01em; }
-  .pguide .gg-sec { margin-top: 30px; }
-  .pguide .gg-sec-h { font-size: 26px; font-weight: 900; color: #222; letter-spacing: -.02em; text-align: center; }
-  .pguide .gg-sec-d { margin-top: 4px; font-size: 17px; color: #8a7e83; text-align: center; }
-  .pguide .gg-step { margin-top: 22px; border: 2px solid #f2e5ea; border-radius: 18px; padding: 18px 16px 14px; background: #fff; text-align: center; }
-  .pguide .gg-num { display: inline-block; width: 38px; height: 38px; line-height: 38px; text-align: center; border-radius: 50%; background: #ff5d8f; color: #fff; font-size: 20px; font-weight: 900; }
-  .pguide .gg-t { display: inline-block; margin-left: 8px; font-size: 21px; font-weight: 900; color: #222; vertical-align: middle; line-height: 1.4; }
-  .pguide .gg-s { margin-top: 10px; font-size: 19px; color: #444; line-height: 1.8; max-width: 30em; margin-left: auto; margin-right: auto; text-align: center; }
-  .pguide .gg-s b { color: #d55576; }
-  .pguide .gg-band { margin-top: 12px; border-radius: 12px; background: #fff6f8; border: 1px dashed #f3cad6; padding: 12px 14px; font-size: 19px; font-weight: 800; color: #b04366; text-align: center; overflow-wrap: anywhere; word-break: break-all; }
-  .pguide .gg-band.gg-band-sm { font-size: clamp(10.5px, 2.95vw, 14px); line-height: 1.65; padding: 12px 10px; overflow-wrap: normal; word-break: normal; white-space: nowrap; overflow-x: auto; }
-  .pguide .gg-shot { margin-top: 14px; text-align: center; }
-  .pguide .gg-shot img { width: 100%; max-width: 380px; border-radius: 14px; border: 1px solid #ecdfe4; box-shadow: 0 6px 18px rgba(0,0,0,.07); }
-  .pguide .gg-cap { margin-top: 7px; font-size: 15px; color: #9a8a90; }
-  .pguide .gg-warn { margin-top: 16px; border-radius: 14px; background: #fff8e9; border: 2px solid #ffe2a8; padding: 14px 16px; font-size: 18px; color: #7a5410; line-height: 1.7; text-align: center; }
-  .pguide .gg-warn b { color: #b8690c; }
-  .pguide .gg-must { margin-top: 14px; border-radius: 18px; border: 2px solid #ffd0dc; padding: 6px 18px 16px; background: #fff; list-style: none; padding-left: 18px; text-align: center; }
-  .pguide .gg-must li { margin-top: 12px; font-size: 19px; line-height: 1.65; color: #333; list-style: none; text-align: center; }
-  .pguide .gg-must li::before { content: '✔ '; color: #ff5d8f; font-weight: 900; }
-  .pguide .gg-more { margin-top: 30px; border: 2px solid #eee2e6; border-radius: 18px; background: #fdfafb; padding: 4px 16px 8px; }
-  .pguide .gg-more summary { cursor: pointer; padding: 14px 0; font-size: 19px; font-weight: 900; color: #4a3c41; list-style: none; text-align: center; }
-  .pguide .gg-more summary::-webkit-details-marker { display: none; }
-  .pguide .gg-more summary::after { content: ' +'; color: #d55576; font-weight: 900; }
-  .pguide .gg-more[open] summary::after { content: ' −'; }
-  .pguide .gg-more-list { display: grid; gap: 10px; padding: 4px 0 12px; text-align: left; }
-  .pguide .gg-more-card { background: #fff; border: 1px solid #eee0e5; border-radius: 14px; padding: 14px 15px; }
-  .pguide .gg-more-hd { font-size: 17px; font-weight: 900; color: #b04366; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-  .pguide .gg-more-ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
-  .pguide .gg-more-ul li { position: relative; padding-left: 13px; font-size: 15.5px; line-height: 1.6; color: #444; word-break: keep-all; }
-  .pguide .gg-more-ul li::before { content: '·'; position: absolute; left: 2px; top: 0; color: #d55576; font-weight: 900; }
-  .pguide .gg-more-ul li b { color: #c2476a; }
-  .pguide .gg-more-ex { display: inline-block; margin-top: 2px; background: #fff6f8; border: 1px dashed #f3cad6; border-radius: 8px; padding: 3px 8px; font-size: 14px; font-weight: 700; color: #b04366; word-break: break-all; }
-  @media (max-width: 520px) {
-    .pguide .gg { font-size: 18px; }
-    .pguide .gg-sec-h { font-size: 23px; }
-    .pguide .gg-t { font-size: 19px; }
-    .pguide .gg-time-v { font-size: 17px; letter-spacing: -.02em; }
-    .pguide .gg-time { padding: 13px 6px; }
-    .pguide .gg-time-l { font-size: 15px; }
-  }
-</style>
-<div class="gg">
-
-  <div class="gg-lead">내 게시물은 올리고,<br>밤 인증은 하루 쉴 수 있는 쿠폰입니다.</div>
-
-  <div class="gg-sec">
-    <div class="gg-sec-h">1. 언제 받나요?</div>
-    <div class="gg-sec-d">아래 두 가지 중 하나만 채우면 됩니다.</div>
-
-    <div class="gg-step">
-      <span class="gg-num">1</span><span class="gg-t">한 주 풀참여</span>
-      <div class="gg-s"><b>월요일부터 일요일</b>까지<br>한 주를 다 참여하면 받습니다.</div>
-      <div class="gg-band">그 주에 패스를 쓴 날도 풀참으로 쳐 줍니다</div>
-    </div>
-
-    <div class="gg-step">
-      <span class="gg-num">2</span><span class="gg-t">지인 원장님 초대</span>
-      <div class="gg-s">초대한 원장님이 들어온 뒤<br><b>2주 연속</b> 정상 참여하면 받습니다.</div>
-      <div class="gg-warn">입장만으로는 받을 수 없고, <b>2주 참여가 끝난 뒤</b> 지급됩니다.<br>추천 후 <b>@seilin_beauty.pr</b> DM이나 스태프에게<br>본인 샵명 · 지인 샵명 · 인스타 아이디를 알려 주세요.</div>
-    </div>
-  </div>
-
-  <div class="gg-sec">
-    <div class="gg-sec-h">2. 어떻게 쓰나요?</div>
-    <div class="gg-sec-d">낮에 미리 말하고, 밤에 한 줄 남기면 끝입니다.</div>
-
-    <div class="gg-step">
-      <span class="gg-num">1</span><span class="gg-t">낮에 참여할 때 미리 말합니다</span>
-      <div class="gg-s">단톡방에 참여를 남길 때<br>끝에 <b>(완료패스)</b>를 꼭 붙입니다.</div>
-      <div class="gg-band">21 지오잉크 참여(완료패스)</div>
-      <div class="gg-shot"><a href="guide-img/pass-done.jpg" target="_blank"><img src="guide-img/pass-done.jpg" alt="낮 참여 시 완료패스를 미리 적은 화면"></a></div>
-      <div class="gg-cap">사진을 누르면 크게 보입니다</div>
-      <div class="gg-warn"><b>미리 말하지 않으면 쓸 수 없습니다.</b><br>말 없이 밤 인증을 안 하면 봉사가 됩니다.</div>
-      <div class="gg-warn"><b>1장에 게시물 1개</b>입니다.<br>2개를 올리면 2장, 부계정도 따로 셉니다.</div>
-    </div>
-
-    <div class="gg-step">
-      <span class="gg-num">2</span><span class="gg-t">밤에 인증할 때 한 줄 남깁니다</span>
-      <div class="gg-s">인증 시간(21:01 ~ 24:00)에<br>번호와 샵이름 뒤에 <b>완료패스</b>를 적습니다.</div>
-      <div class="gg-band">1. 지오잉크 완료패스<br>1,2 세이린 완료패스 (2장 사용 시)</div>
-      <div class="gg-shot"><a href="guide-img/pass-join.jpg" target="_blank"><img src="guide-img/pass-join.jpg" alt="밤 인증 시간에 완료패스를 남긴 화면"></a></div>
-      <div class="gg-cap">사진을 누르면 크게 보입니다</div>
-    </div>
-  </div>
-
-  <div class="gg-sec">
-    <div class="gg-sec-h">3. 다른 원장님께 양도할 수 있나요?</div>
-    <div class="gg-sec-d">네, 보유한 완료패스는 다른 원장님께 양도할 수 있습니다.</div>
-
-    <div class="gg-step">
-      <span class="gg-num">1</span><span class="gg-t">관리자에게 미리 말해 주세요</span>
-      <div class="gg-s">양도할 때는 관리자에게<br><b>누가 · 누구에게 · 몇 개를</b> 주고 싶은지 말씀해 주세요.</div>
-      <div class="gg-band">예) 에이샵 → 비샵, 완료패스 2장 양도합니다</div>
-    </div>
-  </div>
-
-  <div class="gg-sec">
-    <div class="gg-sec-h">4. 이것만 조심하세요</div>
-    <ul class="gg-must">
-      <li>참여할 때 <b>(완료패스)</b>를 안 적으면 사용할 수 없습니다.</li>
-      <li>방을 나가면 모아둔 패스는 <b>모두 사라집니다.</b> 다시 들어와도 0장부터입니다.</li>
-      <li><b>휴식(💙)</b> 중인 원장님은 남은 장수가 그대로 유지됩니다.</li>
-    </ul>
-  </div>
-
-</div>
-</div>
           <div class="pass-wrap">
             <div class="pass-head">
               <div>
@@ -2388,6 +2270,124 @@
             </div>
             <div class="pass-note">보유 장수는 참여·완료 인증 결과에 따라 매일 갱신됩니다.</div>
           </div>
+            <div class="pguide"><style>
+  .pguide .gg { font-size: 19px; line-height: 1.75; color: #33262a; word-break: keep-all; letter-spacing: -.01em; text-align: center; }
+  .pguide .gg * { box-sizing: border-box; }
+  .pguide .gg { min-width: 0; }
+  body { overflow-x: hidden; }
+  .pguide .gg-lead { font-size: 20px; font-weight: 800; color: #33262a; line-height: 1.6; text-align: center; padding: 6px 4px 2px; }
+  .pguide .gg-times { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; margin-top: 14px; }
+  .pguide .gg-time { border-radius: 16px; padding: 16px 10px; text-align: center; background: #fff4f7; border: 2px solid #ffd9e3; }
+  .pguide .gg-time.s2 { background: #eef4ff; border-color: #d5e2ff; }
+  .pguide .gg-time-l { font-size: 17px; font-weight: 800; color: #c2476a; }
+  .pguide .gg-time.s2 .gg-time-l { color: #3f68b8; }
+  .pguide .gg-time-v { margin-top: 4px; font-size: 23px; font-weight: 900; color: #33262a; letter-spacing: -.01em; }
+  .pguide .gg-sec { margin-top: 30px; }
+  .pguide .gg-sec-h { font-size: 26px; font-weight: 900; color: #222; letter-spacing: -.02em; text-align: center; }
+  .pguide .gg-sec-d { margin-top: 4px; font-size: 17px; color: #8a7e83; text-align: center; }
+  .pguide .gg-step { margin-top: 22px; border: 2px solid #f2e5ea; border-radius: 18px; padding: 18px 16px 14px; background: #fff; text-align: center; }
+  .pguide .gg-num { display: inline-block; width: 38px; height: 38px; line-height: 38px; text-align: center; border-radius: 50%; background: #ff5d8f; color: #fff; font-size: 20px; font-weight: 900; }
+  .pguide .gg-t { display: inline-block; margin-left: 8px; font-size: 21px; font-weight: 900; color: #222; vertical-align: middle; line-height: 1.4; }
+  .pguide .gg-s { margin-top: 10px; font-size: 19px; color: #444; line-height: 1.8; max-width: 30em; margin-left: auto; margin-right: auto; text-align: center; }
+  .pguide .gg-s b { color: #d55576; }
+  .pguide .gg-band { margin-top: 12px; border-radius: 12px; background: #fff6f8; border: 1px dashed #f3cad6; padding: 12px 14px; font-size: 19px; font-weight: 800; color: #b04366; text-align: center; overflow-wrap: anywhere; word-break: break-all; }
+  .pguide .gg-band.gg-band-sm { font-size: clamp(10.5px, 2.95vw, 14px); line-height: 1.65; padding: 12px 10px; overflow-wrap: normal; word-break: normal; white-space: nowrap; overflow-x: auto; }
+  .pguide .gg-shot { margin-top: 14px; text-align: center; }
+  .pguide .gg-shot img { width: 100%; max-width: 380px; border-radius: 14px; border: 1px solid #ecdfe4; box-shadow: 0 6px 18px rgba(0,0,0,.07); }
+  .pguide .gg-cap { margin-top: 7px; font-size: 15px; color: #9a8a90; }
+  .pguide .gg-warn { margin-top: 16px; border-radius: 14px; background: #fff8e9; border: 2px solid #ffe2a8; padding: 14px 16px; font-size: 18px; color: #7a5410; line-height: 1.7; text-align: center; }
+  .pguide .gg-warn b { color: #b8690c; }
+  .pguide .gg-must { margin-top: 14px; border-radius: 18px; border: 2px solid #ffd0dc; padding: 6px 18px 16px; background: #fff; list-style: none; padding-left: 18px; text-align: center; }
+  .pguide .gg-must li { margin-top: 12px; font-size: 19px; line-height: 1.65; color: #333; list-style: none; text-align: center; }
+  .pguide .gg-must li::before { content: '✔ '; color: #ff5d8f; font-weight: 900; }
+  .pguide .gg-more { margin-top: 30px; border: 2px solid #eee2e6; border-radius: 18px; background: #fdfafb; padding: 4px 16px 8px; }
+  .pguide .gg-more summary { cursor: pointer; padding: 14px 0; font-size: 19px; font-weight: 900; color: #4a3c41; list-style: none; text-align: center; }
+  .pguide .gg-more summary::-webkit-details-marker { display: none; }
+  .pguide .gg-more summary::after { content: ' +'; color: #d55576; font-weight: 900; }
+  .pguide .gg-more[open] summary::after { content: ' −'; }
+  .pguide .gg-more-list { display: grid; gap: 10px; padding: 4px 0 12px; text-align: left; }
+  .pguide .gg-more-card { background: #fff; border: 1px solid #eee0e5; border-radius: 14px; padding: 14px 15px; }
+  .pguide .gg-more-hd { font-size: 17px; font-weight: 900; color: #b04366; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .pguide .gg-more-ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .pguide .gg-more-ul li { position: relative; padding-left: 13px; font-size: 15.5px; line-height: 1.6; color: #444; word-break: keep-all; }
+  .pguide .gg-more-ul li::before { content: '·'; position: absolute; left: 2px; top: 0; color: #d55576; font-weight: 900; }
+  .pguide .gg-more-ul li b { color: #c2476a; }
+  .pguide .gg-more-ex { display: inline-block; margin-top: 2px; background: #fff6f8; border: 1px dashed #f3cad6; border-radius: 8px; padding: 3px 8px; font-size: 14px; font-weight: 700; color: #b04366; word-break: break-all; }
+  @media (max-width: 520px) {
+    .pguide .gg { font-size: 18px; }
+    .pguide .gg-sec-h { font-size: 23px; }
+    .pguide .gg-t { font-size: 19px; }
+    .pguide .gg-time-v { font-size: 17px; letter-spacing: -.02em; }
+    .pguide .gg-time { padding: 13px 6px; }
+    .pguide .gg-time-l { font-size: 15px; }
+  }
+</style>
+<div class="gg">
+
+  <div class="gg-lead">내 게시물은 올리고,<br>밤 인증은 하루 쉴 수 있는 쿠폰입니다.</div>
+
+  <div class="gg-sec">
+    <div class="gg-sec-h">1. 언제 받나요?</div>
+    <div class="gg-sec-d">아래 두 가지 중 하나만 채우면 됩니다.</div>
+
+    <div class="gg-step">
+      <span class="gg-num">1</span><span class="gg-t">한 주 풀참여</span>
+      <div class="gg-s"><b>월요일부터 일요일</b>까지<br>한 주를 다 참여하면 받습니다.</div>
+      <div class="gg-band">그 주에 패스를 쓴 날도 풀참으로 쳐 줍니다</div>
+    </div>
+
+    <div class="gg-step">
+      <span class="gg-num">2</span><span class="gg-t">지인 원장님 초대</span>
+      <div class="gg-s">초대한 원장님이 들어온 뒤<br><b>2주 연속</b> 정상 참여하면 받습니다.</div>
+      <div class="gg-warn">입장만으로는 받을 수 없고, <b>2주 참여가 끝난 뒤</b> 지급됩니다.<br>추천 후 <b>@seilin_beauty.pr</b> DM이나 스태프에게<br>본인 샵명 · 지인 샵명 · 인스타 아이디를 알려 주세요.</div>
+    </div>
+  </div>
+
+  <div class="gg-sec">
+    <div class="gg-sec-h">2. 어떻게 쓰나요?</div>
+    <div class="gg-sec-d">낮에 미리 말하고, 밤에 한 줄 남기면 끝입니다.</div>
+
+    <div class="gg-step">
+      <span class="gg-num">1</span><span class="gg-t">낮에 참여할 때 미리 말합니다</span>
+      <div class="gg-s">단톡방에 참여를 남길 때<br>끝에 <b>(완료패스)</b>를 꼭 붙입니다.</div>
+      <div class="gg-band">21 지오잉크 참여(완료패스)</div>
+      <div class="gg-shot"><a href="guide-img/pass-done.jpg" target="_blank"><img src="guide-img/pass-done.jpg" alt="낮 참여 시 완료패스를 미리 적은 화면"></a></div>
+      <div class="gg-cap">사진을 누르면 크게 보입니다</div>
+      <div class="gg-warn"><b>미리 말하지 않으면 쓸 수 없습니다.</b><br>말 없이 밤 인증을 안 하면 봉사가 됩니다.</div>
+      <div class="gg-warn"><b>1장에 게시물 1개</b>입니다.<br>2개를 올리면 2장, 부계정도 따로 셉니다.</div>
+    </div>
+
+    <div class="gg-step">
+      <span class="gg-num">2</span><span class="gg-t">밤에 인증할 때 한 줄 남깁니다</span>
+      <div class="gg-s">인증 시간(21:01 ~ 24:00)에<br>번호와 샵이름 뒤에 <b>완료패스</b>를 적습니다.</div>
+      <div class="gg-band">1. 지오잉크 완료패스<br>1,2 세이린 완료패스 (2장 사용 시)</div>
+      <div class="gg-shot"><a href="guide-img/pass-join.jpg" target="_blank"><img src="guide-img/pass-join.jpg" alt="밤 인증 시간에 완료패스를 남긴 화면"></a></div>
+      <div class="gg-cap">사진을 누르면 크게 보입니다</div>
+    </div>
+  </div>
+
+  <div class="gg-sec">
+    <div class="gg-sec-h">3. 다른 원장님께 양도할 수 있나요?</div>
+    <div class="gg-sec-d">네, 보유한 완료패스는 다른 원장님께 양도할 수 있습니다.</div>
+
+    <div class="gg-step">
+      <span class="gg-num">1</span><span class="gg-t">관리자에게 미리 말해 주세요</span>
+      <div class="gg-s">양도할 때는 관리자에게<br><b>누가 · 누구에게 · 몇 개를</b> 주고 싶은지 말씀해 주세요.</div>
+      <div class="gg-band">예) 에이샵 → 비샵, 완료패스 2장 양도합니다</div>
+    </div>
+  </div>
+
+  <div class="gg-sec">
+    <div class="gg-sec-h">4. 이것만 조심하세요</div>
+    <ul class="gg-must">
+      <li>참여할 때 <b>(완료패스)</b>를 안 적으면 사용할 수 없습니다.</li>
+      <li>방을 나가면 모아둔 패스는 <b>모두 사라집니다.</b> 다시 들어와도 0장부터입니다.</li>
+      <li><b>휴식(💙)</b> 중인 원장님은 남은 장수가 그대로 유지됩니다.</li>
+    </ul>
+  </div>
+
+</div>
+</div>
           <a href="dia.html" class="back-link">← 홈으로 돌아가기</a>
         </div>
       </div>
