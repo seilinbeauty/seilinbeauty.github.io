@@ -2173,12 +2173,18 @@
   .pguide .gg-must li { margin-top: 12px; font-size: 19px; line-height: 1.65; color: #333; list-style: none; text-align: center; }
   .pguide .gg-must li::before { content: '✔ '; color: #ff5d8f; font-weight: 900; }
   .pguide .gg-more { margin-top: 30px; border: 2px solid #eee2e6; border-radius: 18px; background: #fdfafb; padding: 4px 16px 8px; }
-  .pguide .gg-more summary { cursor: pointer; padding: 14px 0; font-size: 20px; font-weight: 900; color: #4a3c41; list-style: none; }
+  .pguide .gg-more summary { cursor: pointer; padding: 14px 0; font-size: 19px; font-weight: 900; color: #4a3c41; list-style: none; text-align: center; }
   .pguide .gg-more summary::-webkit-details-marker { display: none; }
   .pguide .gg-more summary::after { content: ' +'; color: #d55576; font-weight: 900; }
   .pguide .gg-more[open] summary::after { content: ' −'; }
-  .pguide .gg-more p { margin: 0 0 12px; font-size: 18px; line-height: 1.75; color: #4a4a4a; text-align: center; }
-  .pguide .gg-more p b { color: #c2476a; }
+  .pguide .gg-more-list { display: grid; gap: 10px; padding: 4px 0 12px; text-align: left; }
+  .pguide .gg-more-card { background: #fff; border: 1px solid #eee0e5; border-radius: 14px; padding: 14px 15px; }
+  .pguide .gg-more-hd { font-size: 17px; font-weight: 900; color: #b04366; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .pguide .gg-more-ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .pguide .gg-more-ul li { position: relative; padding-left: 13px; font-size: 15.5px; line-height: 1.6; color: #444; word-break: keep-all; }
+  .pguide .gg-more-ul li::before { content: '·'; position: absolute; left: 2px; top: 0; color: #d55576; font-weight: 900; }
+  .pguide .gg-more-ul li b { color: #c2476a; }
+  .pguide .gg-more-ex { display: inline-block; margin-top: 2px; background: #fff6f8; border: 1px dashed #f3cad6; border-radius: 8px; padding: 3px 8px; font-size: 14px; font-weight: 700; color: #b04366; word-break: break-all; }
   @media (max-width: 520px) {
     .pguide .gg { font-size: 18px; }
     .pguide .gg-sec-h { font-size: 23px; }
@@ -2286,11 +2292,33 @@
   </div>
 
   <details class="gg-more">
-    <summary>완료패스 · 봉사 · 휴식 (필요할 때만 펼쳐 보세요)</summary>
-    <p><b>완료패스</b>는 하루 쉬는 쿠폰입니다. 1장에 게시물 1개이고, <b>쓰기 전에 먼저 말해야</b> 합니다. 말 없이 쓰면 미인증이 되어 봉사가 됩니다. 방을 나가면 사라지고, 다시 들어와도 0장부터입니다. 휴식(💙) 중이면 남은 장수가 그대로 남습니다.</p>
-    <p><b>봉사</b>는 주 1회 참여나 자정 전 인증을 못 했을 때 받는 추가 숙제입니다. 내 게시물에는 해시태그를 쓸 수 없고, 그날 참여한 다른 원장님 게시물 <b>4종</b>을 작업해 자정 전에 올립니다. 공지는 <b>@ 샵프로필</b> 다음 줄에 <b>원장님 봉사 N일 부탁드립니다</b> 형식으로 올라옵니다.</p>
-    <p><b>전주 미참으로 월요일 봉사 대상</b>이신데 봉사를 하지 않거나 일반 참여·완료만 하시면 <b>화·수 2일</b>로 늘어납니다. 참여 전에 봉사 명단을 꼭 확인해 주세요.</p>
-    <p><b>휴식</b>은 최대 6개월까지 가능합니다. 스태프에게 말하고 닉네임을 <b>💙시작날짜/인스타아이디/종목</b>으로 바꿉니다. 예) 💙1105/dene.studio/속눈썹</p>
+    <summary>완료패스 · 봉사 · 휴식 안내</summary>
+    <div class="gg-more-list">
+      <div class="gg-more-card">
+        <div class="gg-more-hd">🎫 완료패스</div>
+        <ul class="gg-more-ul">
+          <li>하루 쉬는 쿠폰 (1장에 게시물 1개)</li>
+          <li><b>쓰기 전에 먼저 말해야</b> 인정 (말 없이 미인증 시 봉사 전환)</li>
+          <li>방 퇴장 시 소멸 (재입장 시 0장), 휴식(💙) 중에는 장수 유지</li>
+        </ul>
+      </div>
+      <div class="gg-more-card">
+        <div class="gg-more-hd">📝 봉사</div>
+        <ul class="gg-more-ul">
+          <li>주 1회 미참여 또는 자정 전 미인증 시 추가 숙제</li>
+          <li>내 게시물 해시태그 불가 · 당일 참여 원장님 게시물 <b>4종 작업</b> 후 자정 전 인증</li>
+          <li>전주 미참 월요일 봉사 미이행·일반 참여 시 <b>화·수 2일</b>로 가산</li>
+          <li>공지 형식: <b>@샵프로필</b> 다음 줄 <b>원장님 봉사 N일 부탁드립니다</b></li>
+        </ul>
+      </div>
+      <div class="gg-more-card">
+        <div class="gg-more-hd">💙 휴식</div>
+        <ul class="gg-more-ul">
+          <li>최대 6개월까지 가능 (스태프에게 사전 신청)</li>
+          <li>닉네임 변경: <b>💙시작날짜/인스타아이디/종목</b><br><span class="gg-more-ex">예) 💙1105/dene.studio/속눈썹</span></li>
+        </ul>
+      </div>
+    </div>
   </details>
 
 </div>

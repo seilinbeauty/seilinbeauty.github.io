@@ -2173,12 +2173,18 @@
   .pguide .gg-must li { margin-top: 12px; font-size: 19px; line-height: 1.65; color: #333; list-style: none; text-align: center; }
   .pguide .gg-must li::before { content: '✔ '; color: #ff5d8f; font-weight: 900; }
   .pguide .gg-more { margin-top: 30px; border: 2px solid #eee2e6; border-radius: 18px; background: #fdfafb; padding: 4px 16px 8px; }
-  .pguide .gg-more summary { cursor: pointer; padding: 14px 0; font-size: 20px; font-weight: 900; color: #4a3c41; list-style: none; }
+  .pguide .gg-more summary { cursor: pointer; padding: 14px 0; font-size: 19px; font-weight: 900; color: #4a3c41; list-style: none; text-align: center; }
   .pguide .gg-more summary::-webkit-details-marker { display: none; }
   .pguide .gg-more summary::after { content: ' +'; color: #d55576; font-weight: 900; }
   .pguide .gg-more[open] summary::after { content: ' −'; }
-  .pguide .gg-more p { margin: 0 0 12px; font-size: 18px; line-height: 1.75; color: #4a4a4a; text-align: center; }
-  .pguide .gg-more p b { color: #c2476a; }
+  .pguide .gg-more-list { display: grid; gap: 10px; padding: 4px 0 12px; text-align: left; }
+  .pguide .gg-more-card { background: #fff; border: 1px solid #eee0e5; border-radius: 14px; padding: 14px 15px; }
+  .pguide .gg-more-hd { font-size: 17px; font-weight: 900; color: #b04366; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .pguide .gg-more-ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .pguide .gg-more-ul li { position: relative; padding-left: 13px; font-size: 15.5px; line-height: 1.6; color: #444; word-break: keep-all; }
+  .pguide .gg-more-ul li::before { content: '·'; position: absolute; left: 2px; top: 0; color: #d55576; font-weight: 900; }
+  .pguide .gg-more-ul li b { color: #c2476a; }
+  .pguide .gg-more-ex { display: inline-block; margin-top: 2px; background: #fff6f8; border: 1px dashed #f3cad6; border-radius: 8px; padding: 3px 8px; font-size: 14px; font-weight: 700; color: #b04366; word-break: break-all; }
   @media (max-width: 520px) {
     .pguide .gg { font-size: 18px; }
     .pguide .gg-sec-h { font-size: 23px; }
