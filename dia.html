@@ -2122,7 +2122,7 @@
       </div>
       <div class="quick-links">
         <a href="dia-notice.html" class="solid">공지사항</a>
-        <button type="button" id="mcLoginBtn" class="mc-hero-login">내 정보 보기</button>
+        <button type="button" id="mcLoginBtn" class="mc-hero-login">마이페이지</button>
         <a href="dia-course.html" id="mcCourseBtn">뷰티수강</a>
       </div>
       <a id="mcHeroClock" class="mc-hero-clock" hidden href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" title="오픈채팅방 바로 가기"><span class="book-cd" id="diaCd">--</span></a>
@@ -2423,7 +2423,7 @@
               });
               var 요일명 = ['월','화','수','목','금','토','일'];
               var 라벨 = "이번 주";
-              var 기준 = "2026-11-18 14:12";
+              var 기준 = "2026-11-18 14:15";
               function 요일줄(w, m){
                 if(!w) return '';
                 var 참여 = 0, h = '<div class="mc-days">';
@@ -3292,7 +3292,7 @@
                   pingTimer = setInterval(function(){ if(!document.hidden) 접속핑(m.n, false); }, 15000);
                 } else {
                   lgBtn.classList.remove('on');
-                  lgBtn.textContent = '내 정보 보기';
+                  lgBtn.textContent = '마이페이지';
                   if(heroClock) heroClock.hidden = true;
                   배너반영(null);
                 }
