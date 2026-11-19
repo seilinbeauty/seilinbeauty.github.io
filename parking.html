@@ -6,7 +6,9 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#ffffff">
 <title>🚗 주차 캘린더</title>
-<link rel="icon" href="favicon.svg?v=1">
+<link rel="icon" type="image/svg+xml" href="favicon-parking.svg?v=1">
+<link rel="icon" type="image/png" sizes="180x180" href="parking-apple-touch-icon.png?v=1">
+<link rel="apple-touch-icon" href="parking-apple-touch-icon.png?v=1">
 <style>
   :root{
     --pink:#e88295; --pink-deep:#be465e; --pink-light:#fff4f6; --pink-line:#f2d9df;
@@ -52,42 +54,8 @@
     background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
     box-shadow:var(--shadow); padding:14px;
   }
-  .card-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
-  .card-head h2{margin:0; font-size:13px; font-weight:800; color:var(--text);}
-  .people-toggle{
-    display:inline-flex; align-items:baseline; font:inherit; color:inherit; letter-spacing:inherit;
-    text-align:left; padding:6px 8px; margin:-6px -8px; border-radius:10px;
-  }
-  .people-hint{margin:-2px 0 10px; font-size:11.5px; font-weight:700; color:var(--dim);}
-  .people-hint[hidden]{display:none;}
-
-  /* 사람 추가 인라인 폼 */
-  .add-form{
-    margin:0 0 10px; padding:12px; border-radius:12px;
-    background:#fdfbfc; border:1px solid var(--line);
-    animation:drop .18s ease-out;
-  }
-  .add-form[hidden]{display:none;}
-  @keyframes drop{from{opacity:0; transform:translateY(-4px)} to{opacity:1; transform:none}}
-  .add-form .field:last-of-type{margin-bottom:0;}
-  .add-form .sheet-actions{margin-top:12px;}
-  .add-form .btn{padding:10px; font-size:13px;}
-
-  /* 사람 칩 */
-  .chips{display:flex; flex-wrap:wrap; gap:7px; min-height:34px; align-items:center;}
-  .chip{
-    display:inline-flex; align-items:center; gap:6px;
-    padding:7px 11px 7px 9px; border-radius:999px;
-    background:#fff; border:1px solid var(--line);
-    font-size:13px; font-weight:700; max-width:100%;
-  }
-  .chip .dot{width:9px; height:9px; border-radius:50%; flex:0 0 auto;}
-  .chip .nm{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:110px;}
-  .chip .cnt{font-size:11px; font-weight:700; color:var(--dim);}
-  .chips .empty{font-size:12px; color:var(--dim);}
-
   /* 공지·메모 */
-  .notice{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);}
+  .notice{margin:0;}
   .notice-head{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px;}
   .notice-head b{font-size:11.5px; font-weight:800; color:var(--muted);}
   .notice-edit{
@@ -219,6 +187,19 @@
   }
   .t-row.on{border-color:var(--pink); background:var(--pink-light);}
   .t-row.on .mark{background:var(--pink); border-color:var(--pink); color:#fff;}
+  .t-item{display:flex; gap:6px; align-items:stretch;}
+  .t-item .t-row{flex:1 1 auto; min-width:0;}
+  .t-edit{
+    flex:0 0 42px; display:flex; align-items:center; justify-content:center;
+    border-radius:12px; border:1px solid var(--line); background:#fff;
+    font-size:15px; color:var(--muted);
+  }
+  .t-add{
+    width:100%; margin-top:9px; padding:11px; border-radius:12px;
+    border:1px dashed var(--pink-line); background:var(--pink-light);
+    color:var(--pink-deep); font-size:13px; font-weight:800; text-align:center;
+  }
+  .t-add[aria-disabled="true"]{color:var(--dim); background:#f7f5f6; border-color:#eee9ec;}
   .sheet-note{margin:12px 0 0; font-size:11.5px; color:var(--dim); text-align:center;}
   .sheet-empty{padding:18px 6px; text-align:center; font-size:12.5px; color:var(--muted);}
 
@@ -271,33 +252,6 @@
 
 <main>
   <section class="card">
-    <div class="card-head">
-      <h2><button class="people-toggle" id="peopleToggle" type="button" aria-expanded="false" aria-controls="addForm">사람</button></h2>
-    </div>
-    <p class="people-hint" id="peopleHint" hidden aria-live="polite"></p>
-    <div class="add-form" id="addForm" hidden>
-      <div class="field">
-        <label for="aName">이름</label>
-        <input id="aName" type="text" maxlength="12" placeholder="예: 도현" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>색상</label>
-        <div class="swatches" id="aColors"></div>
-      </div>
-      <div class="field">
-        <label for="aCar">차량번호 (선택)</label>
-        <input id="aCar" type="text" maxlength="20" placeholder="예: 12가 3456" autocomplete="off">
-      </div>
-      <div class="field">
-        <label for="aNote">메모 (선택)</label>
-        <input id="aNote" type="text" maxlength="40" placeholder="예: 오전만" autocomplete="off">
-      </div>
-      <div class="sheet-actions">
-        <button class="btn ghost" id="addCancel" type="button">취소</button>
-        <button class="btn primary" id="addSave" type="button">저장</button>
-      </div>
-    </div>
-    <div class="chips" id="peopleChips"></div>
     <div class="notice" id="noticeBox">
       <div class="notice-head">
         <b>📌 공지·메모</b>
@@ -350,6 +304,7 @@
       <button class="x" type="button" data-close="dateSheet">✕</button>
     </div>
     <div class="toggle-list" id="dateList"></div>
+    <button class="t-add" id="addPersonRow" type="button">＋ 사람 추가</button>
     <p class="sheet-note" id="dateNote"></p>
   </div>
 </div>
@@ -423,7 +378,6 @@
   var me = '';
   var editingId = '';
   var pickingColor = COLORS[0];
-  var addColor = COLORS[0];
   var pending = null;             // 이름 입력 후 실행할 동작
   var chain = Promise.resolve();  // 요청 순서 보장
 
@@ -516,10 +470,10 @@
 
   /* ---------- 렌더 ---------- */
   function render(){
-    renderPeople();
     renderCal();
     renderSummary();
     renderLog();
+    if (!$('dateSheet').hidden) { renderDateList(); }
     $('meName').textContent = me || '내 이름';
   }
 
@@ -536,26 +490,6 @@
       if (e.m === mid && e.d.indexOf(pre) === 0) { n++; }
     }
     return n;
-  }
-
-  function renderPeople(){
-    var box = $('peopleChips');
-    var html = '';
-    if (!state.members.length) {
-      html = '<span class="empty">아직 없습니다. 위 ‘사람’을 눌러 이름을 넣어 주세요.</span>';
-    } else {
-      for (var i = 0; i < state.members.length; i++) {
-        var m = state.members[i];
-        var c = countInMonth(m.id, view.y, view.m);
-        html += '<button class="chip" type="button" data-pid="' + m.id + '">'
-              + '<span class="dot" style="background:' + m.color + '"></span>'
-              + '<span class="nm">' + esc(m.name) + '</span>'
-              + '<span class="cnt">' + c + '</span>'
-              + '</button>';
-      }
-    }
-    box.innerHTML = html;
-    if (state.members.length >= MAX) { closeAdd(); }
   }
 
   function esc(s){
@@ -670,26 +604,33 @@
 
   function renderDateList(){
     var box = $('dateList');
-    if (!state.members.length) {
-      box.innerHTML = '<div class="sheet-empty">먼저 사람을 추가해 주세요.</div>';
-      $('dateNote').textContent = '';
-      return;
-    }
     var list = entriesOf(selDate);
     var html = '';
     for (var i = 0; i < state.members.length; i++) {
       var m = state.members[i];
       var on = list.some(function(e){ return e.m === m.id; });
-      html += '<button class="t-row' + (on ? ' on' : '') + '" type="button" data-mid="' + m.id + '">'
+      html += '<div class="t-item">'
+            + '<button class="t-row' + (on ? ' on' : '') + '" type="button" data-mid="' + m.id + '">'
             + '<span class="dot" style="background:' + m.color + '"></span>'
             + '<span class="nm">' + esc(m.name) + '</span>'
             + (m.car ? '<span class="car">' + esc(m.car) + '</span>' : '')
             + '<span class="mark">✓</span>'
-            + '</button>';
+            + '</button>'
+            + '<button class="t-edit" type="button" data-edit="' + m.id + '" aria-label="' + esc(m.name) + ' 정보 수정">✎</button>'
+            + '</div>';
+    }
+    if (!state.members.length) {
+      html = '<div class="sheet-empty">아직 등록된 사람이 없어요. 아래 <b>＋ 사람 추가</b>로 이름을 넣어 주세요.</div>';
     }
     box.innerHTML = html;
+    var add = $('addPersonRow');
+    var full = state.members.length >= MAX;
+    add.setAttribute('aria-disabled', full ? 'true' : 'false');
+    add.textContent = full ? '최대 ' + MAX + '명 등록됨' : '＋ 사람 추가';
     var n = list.length;
-    $('dateNote').textContent = n ? (n + '명 주차 · 다시 누르면 해제됩니다') : '이름을 누르면 그날 주차로 등록됩니다';
+    $('dateNote').textContent = n
+      ? (n + '명 주차 · 다시 누르면 해제됩니다')
+      : (state.members.length ? '이름을 누르면 그날 주차로 등록됩니다' : '');
   }
 
   function toggleMember(mid){
@@ -710,68 +651,6 @@
       state.entries = snapshot;
       state.logs = logsSnap;
       if (!$('dateSheet').hidden) { renderDateList(); }
-    });
-  }
-
-  /* ---------- 사람 추가 인라인 폼 ---------- */
-  function addOpen(){ return !$('addForm').hidden; }
-
-  function hint(){
-    var h = $('peopleHint');
-    h.textContent = MAX + '명까지 등록할 수 있어요.';
-    h.hidden = false;
-    clearTimeout(h._tm);
-    h._tm = setTimeout(function(){ h.hidden = true; }, 2600);
-  }
-
-  function renderAddColors(){
-    var html = '';
-    for (var i = 0; i < COLORS.length; i++) {
-      var c = COLORS[i];
-      html += '<button class="sw' + (c === addColor ? ' on' : '') + '" type="button" data-c="' + c + '" style="background:' + c + '" aria-label="색상 ' + (i + 1) + '"></button>';
-    }
-    $('aColors').innerHTML = html;
-  }
-
-  function openAdd(){
-    if (state.members.length >= MAX) { hint(); closeAdd(); return; }
-    $('aName').value = '';
-    $('aCar').value = '';
-    $('aNote').value = '';
-    addColor = COLORS[state.members.length % COLORS.length];
-    renderAddColors();
-    $('peopleHint').hidden = true;
-    $('addForm').hidden = false;
-    $('peopleToggle').setAttribute('aria-expanded', 'true');
-    setTimeout(function(){ try { $('aName').focus(); } catch(e){} }, 60);
-  }
-
-  function closeAdd(){
-    if ($('addForm').hidden) { return; }
-    $('addForm').hidden = true;
-    $('peopleToggle').setAttribute('aria-expanded', 'false');
-  }
-
-  function toggleAdd(){
-    if (addOpen()) { closeAdd(); } else { openAdd(); }
-  }
-
-  function saveAdd(){
-    var name = ($('aName').value || '').trim().slice(0, 12);
-    if (!name) { toast('이름을 입력해 주세요.'); return; }
-    if (state.members.length >= MAX) { hint(); closeAdd(); return; }
-    var car = ($('aCar').value || '').trim().slice(0, 20);
-    var note = ($('aNote').value || '').trim().slice(0, 40);
-    var color = addColor;
-    var snapshot = state.members.slice();
-    nameReady(function(){
-      closeAdd();
-      run({ mode: 'parking_member', id: '', name: name, color: color, car: car, note: note, by: me }, function(){
-        state.members = state.members.concat([{ id: 'tmp' + Date.now(), name: name, color: color, car: car, note: note }]);
-        render();
-      }, function(){
-        state.members = snapshot;
-      });
     });
   }
 
@@ -915,18 +794,6 @@
   $('nameSave').addEventListener('click', saveName);
   $('nameInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') { saveName(); } });
 
-  $('peopleToggle').addEventListener('click', toggleAdd);
-
-  $('aColors').addEventListener('click', function(e){
-    var b = e.target.closest ? e.target.closest('.sw') : null;
-    if (!b) { return; }
-    addColor = b.getAttribute('data-c');
-    renderAddColors();
-  });
-
-  $('addSave').addEventListener('click', saveAdd);
-  $('addCancel').addEventListener('click', closeAdd);
-
   $('noticeEditBtn').addEventListener('click', openNoticeEdit);
   $('noticeView').addEventListener('click', function(){
     if ($('noticeBox').classList.contains('editing')) { return; }
@@ -934,19 +801,6 @@
   });
   $('noticeSave').addEventListener('click', saveNotice);
   $('noticeCancel').addEventListener('click', closeNoticeEdit);
-
-  $('addForm').addEventListener('keydown', function(e){
-    if (e.key !== 'Enter') { return; }
-    if (!e.target || e.target.tagName !== 'INPUT') { return; }
-    e.preventDefault();
-    saveAdd();
-  });
-
-  $('peopleChips').addEventListener('click', function(e){
-    var b = e.target.closest ? e.target.closest('.chip') : null;
-    if (!b) { return; }
-    openPerson(b.getAttribute('data-pid'));
-  });
 
   $('calGrid').addEventListener('click', function(e){
     var b = e.target.closest ? e.target.closest('.cell') : null;
@@ -970,10 +824,17 @@
   });
 
   $('dateList').addEventListener('click', function(e){
+    var ed = e.target.closest ? e.target.closest('.t-edit') : null;
+    if (ed) { openPerson(ed.getAttribute('data-edit')); return; }
     var b = e.target.closest ? e.target.closest('.t-row') : null;
     if (!b) { return; }
     var mid = b.getAttribute('data-mid');
     nameReady(function(){ toggleMember(mid); });
+  });
+
+  $('addPersonRow').addEventListener('click', function(){
+    if (state.members.length >= MAX) { toast('6명까지 등록할 수 있어요.'); return; }
+    openPerson('');
   });
 
   $('pColors').addEventListener('click', function(e){
@@ -1003,7 +864,6 @@
 
   document.addEventListener('keydown', function(e){
     if (e.key !== 'Escape') { return; }
-    closeAdd();
     closeNoticeEdit();
     closeSheet('dateSheet'); closeSheet('personSheet'); closeSheet('nameSheet');
   });
@@ -1015,7 +875,6 @@
   /* 시작 */
   try { me = localStorage.getItem('pk_me') || ''; } catch(e){ me = ''; }
   renderColors();
-  renderAddColors();
   render();
   renderNotice();
   load();
