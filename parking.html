@@ -55,11 +55,24 @@
   .card-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
   .card-head h2{margin:0; font-size:13px; font-weight:800; color:var(--text);}
   .card-head h2 span{font-weight:700; color:var(--dim); font-size:11px; margin-left:4px;}
-  .add-person{
-    padding:6px 11px; border-radius:999px; font-size:12px; font-weight:700;
-    color:var(--pink-deep); background:var(--pink-light); border:1px solid var(--pink-line);
+  .people-toggle{
+    display:inline-flex; align-items:baseline; font:inherit; color:inherit; letter-spacing:inherit;
+    text-align:left; padding:6px 8px; margin:-6px -8px; border-radius:10px;
   }
-  .add-person[disabled]{color:var(--dim); background:#f7f5f6; border-color:#eee9ec;}
+  .people-hint{margin:-2px 0 10px; font-size:11.5px; font-weight:700; color:var(--dim);}
+  .people-hint[hidden]{display:none;}
+
+  /* 사람 추가 인라인 폼 */
+  .add-form{
+    margin:0 0 10px; padding:12px; border-radius:12px;
+    background:#fdfbfc; border:1px solid var(--line);
+    animation:drop .18s ease-out;
+  }
+  .add-form[hidden]{display:none;}
+  @keyframes drop{from{opacity:0; transform:translateY(-4px)} to{opacity:1; transform:none}}
+  .add-form .field:last-of-type{margin-bottom:0;}
+  .add-form .sheet-actions{margin-top:12px;}
+  .add-form .btn{padding:10px; font-size:13px;}
 
   /* 사람 칩 */
   .chips{display:flex; flex-wrap:wrap; gap:7px; min-height:34px; align-items:center;}
@@ -233,8 +246,30 @@
 <main>
   <section class="card">
     <div class="card-head">
-      <h2>사람 <span id="peopleCount">0 / 6</span></h2>
-      <button class="add-person" id="addPersonBtn" type="button">＋ 추가</button>
+      <h2><button class="people-toggle" id="peopleToggle" type="button" aria-expanded="false" aria-controls="addForm">사람 <span id="peopleCount">0 / 6</span></button></h2>
+    </div>
+    <p class="people-hint" id="peopleHint" hidden aria-live="polite"></p>
+    <div class="add-form" id="addForm" hidden>
+      <div class="field">
+        <label for="aName">이름</label>
+        <input id="aName" type="text" maxlength="12" placeholder="예: 도현" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>색상</label>
+        <div class="swatches" id="aColors"></div>
+      </div>
+      <div class="field">
+        <label for="aCar">차량번호 (선택)</label>
+        <input id="aCar" type="text" maxlength="20" placeholder="예: 12가 3456" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="aNote">메모 (선택)</label>
+        <input id="aNote" type="text" maxlength="40" placeholder="예: 오전만" autocomplete="off">
+      </div>
+      <div class="sheet-actions">
+        <button class="btn ghost" id="addCancel" type="button">취소</button>
+        <button class="btn primary" id="addSave" type="button">저장</button>
+      </div>
     </div>
     <div class="chips" id="peopleChips"></div>
   </section>
@@ -347,6 +382,7 @@
   var me = '';
   var editingId = '';
   var pickingColor = COLORS[0];
+  var addColor = COLORS[0];
   var pending = null;             // 이름 입력 후 실행할 동작
   var chain = Promise.resolve();  // 요청 순서 보장
 
@@ -465,7 +501,7 @@
     var box = $('peopleChips');
     var html = '';
     if (!state.members.length) {
-      html = '<span class="empty">아직 없습니다. 오른쪽 ＋ 추가로 이름을 넣어 주세요.</span>';
+      html = '<span class="empty">아직 없습니다. 위 ‘사람’을 눌러 이름을 넣어 주세요.</span>';
     } else {
       for (var i = 0; i < state.members.length; i++) {
         var m = state.members[i];
@@ -479,9 +515,7 @@
     }
     box.innerHTML = html;
     $('peopleCount').textContent = state.members.length + ' / ' + MAX;
-    var addBtn = $('addPersonBtn');
-    addBtn.disabled = state.members.length >= MAX;
-    addBtn.textContent = state.members.length >= MAX ? '최대 6명' : '＋ 추가';
+    if (state.members.length >= MAX) { closeAdd(); }
   }
 
   function esc(s){
@@ -639,6 +673,68 @@
     });
   }
 
+  /* ---------- 사람 추가 인라인 폼 ---------- */
+  function addOpen(){ return !$('addForm').hidden; }
+
+  function hint(){
+    var h = $('peopleHint');
+    h.textContent = MAX + '명까지 등록할 수 있어요.';
+    h.hidden = false;
+    clearTimeout(h._tm);
+    h._tm = setTimeout(function(){ h.hidden = true; }, 2600);
+  }
+
+  function renderAddColors(){
+    var html = '';
+    for (var i = 0; i < COLORS.length; i++) {
+      var c = COLORS[i];
+      html += '<button class="sw' + (c === addColor ? ' on' : '') + '" type="button" data-c="' + c + '" style="background:' + c + '" aria-label="색상 ' + (i + 1) + '"></button>';
+    }
+    $('aColors').innerHTML = html;
+  }
+
+  function openAdd(){
+    if (state.members.length >= MAX) { hint(); closeAdd(); return; }
+    $('aName').value = '';
+    $('aCar').value = '';
+    $('aNote').value = '';
+    addColor = COLORS[state.members.length % COLORS.length];
+    renderAddColors();
+    $('peopleHint').hidden = true;
+    $('addForm').hidden = false;
+    $('peopleToggle').setAttribute('aria-expanded', 'true');
+    setTimeout(function(){ try { $('aName').focus(); } catch(e){} }, 60);
+  }
+
+  function closeAdd(){
+    if ($('addForm').hidden) { return; }
+    $('addForm').hidden = true;
+    $('peopleToggle').setAttribute('aria-expanded', 'false');
+  }
+
+  function toggleAdd(){
+    if (addOpen()) { closeAdd(); } else { openAdd(); }
+  }
+
+  function saveAdd(){
+    var name = ($('aName').value || '').trim().slice(0, 12);
+    if (!name) { toast('이름을 입력해 주세요.'); return; }
+    if (state.members.length >= MAX) { hint(); closeAdd(); return; }
+    var car = ($('aCar').value || '').trim().slice(0, 20);
+    var note = ($('aNote').value || '').trim().slice(0, 40);
+    var color = addColor;
+    var snapshot = state.members.slice();
+    nameReady(function(){
+      closeAdd();
+      run({ mode: 'parking_member', id: '', name: name, color: color, car: car, note: note, by: me }, function(){
+        state.members = state.members.concat([{ id: 'tmp' + Date.now(), name: name, color: color, car: car, note: note }]);
+        render();
+      }, function(){
+        state.members = snapshot;
+      });
+    });
+  }
+
   /* ---------- 인원 시트 ---------- */
   function openPerson(id){
     editingId = id || '';
@@ -717,9 +813,23 @@
   $('nameSave').addEventListener('click', saveName);
   $('nameInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') { saveName(); } });
 
-  $('addPersonBtn').addEventListener('click', function(){
-    if (state.members.length >= MAX) { toast('최대 6명까지 등록할 수 있어요.'); return; }
-    openPerson('');
+  $('peopleToggle').addEventListener('click', toggleAdd);
+
+  $('aColors').addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('.sw') : null;
+    if (!b) { return; }
+    addColor = b.getAttribute('data-c');
+    renderAddColors();
+  });
+
+  $('addSave').addEventListener('click', saveAdd);
+  $('addCancel').addEventListener('click', closeAdd);
+
+  $('addForm').addEventListener('keydown', function(e){
+    if (e.key !== 'Enter') { return; }
+    if (!e.target || e.target.tagName !== 'INPUT') { return; }
+    e.preventDefault();
+    saveAdd();
   });
 
   $('peopleChips').addEventListener('click', function(e){
@@ -783,6 +893,7 @@
 
   document.addEventListener('keydown', function(e){
     if (e.key !== 'Escape') { return; }
+    closeAdd();
     closeSheet('dateSheet'); closeSheet('personSheet'); closeSheet('nameSheet');
   });
 
@@ -793,6 +904,7 @@
   /* 시작 */
   try { me = localStorage.getItem('pk_me') || ''; } catch(e){ me = ''; }
   renderColors();
+  renderAddColors();
   render();
   load();
 })();
