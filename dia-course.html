@@ -2169,6 +2169,7 @@
           <div class="crs-photos"><a class="crs-ph" href="https://www.instagram.com/haute_ob/" data-insta="haute_ob" target="_blank" rel="noopener"><img src="course-photos/haute_ob_1.jpg" alt="서울/haute_ob/속눈썹 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/haute_ob/" data-insta="haute_ob" target="_blank" rel="noopener"><img src="course-photos/haute_ob_2.jpg" alt="서울/haute_ob/속눈썹 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/haute_ob/" data-insta="haute_ob" target="_blank" rel="noopener"><img src="course-photos/haute_ob_3.jpg" alt="서울/haute_ob/속눈썹 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/haute_ob/" data-insta="haute_ob" target="_blank" rel="noopener"><img src="course-photos/haute_ob_4.jpg" alt="서울/haute_ob/속눈썹 작품 사진" loading="lazy"></a></div>
         </article>
         <article class="crs-card is-benefit" data-cats="속눈썹펌,속눈썹연장" data-benefit="1">
+          <div class="crs-ribbon">✨ 다이아 회원 혜택 제공 · 우선 추천</div>
           <div class="crs-head">
             <div class="crs-av"><img src="avatars/youux153.jpg" alt="군포/youux153/속눈썹" loading="lazy"></div>
             <div class="crs-me">
@@ -2346,13 +2347,18 @@
   var grid = document.getElementById('crsGrid');
   if(!grid) return;
   var cards = Array.prototype.slice.call(grid.querySelectorAll('.crs-card'));
-  // 다이아 혜택을 걸어준 원장님 카드는 항상 상단에 두고, 여러 명이면 그 안에서만 로드할 때마다 랜덤 셔플한다.
+  // 혜택 원장님 카드는 항상 상단 그룹에, 일반 원장님은 그 아래 그룹에 두고 두 그룹 모두 로드할 때마다 내부 랜덤 셔플한다.
   var benefitCards = cards.filter(function(c){ return c.getAttribute('data-benefit') === '1'; });
   var normalCards = cards.filter(function(c){ return c.getAttribute('data-benefit') !== '1'; });
-  for(var i = benefitCards.length - 1; i > 0; i--){
-    var j = Math.floor(Math.random() * (i + 1));
-    var tmp = benefitCards[i]; benefitCards[i] = benefitCards[j]; benefitCards[j] = tmp;
+  function shuffle(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
   }
+  shuffle(benefitCards);
+  shuffle(normalCards);
   benefitCards.concat(normalCards).forEach(function(c){ grid.appendChild(c); });
   var tabs = document.getElementById('crsTabs');
   if(tabs){
@@ -2390,12 +2396,13 @@
 .crs-course{margin:9px 0 0;padding:7px 10px;border-radius:9px;background:#fdf6f8;border:1px solid #f7e7ee;font-size:11.8px;font-weight:700;color:#a95d78;word-break:keep-all;}
 .crs-kind{display:inline-block;margin-right:6px;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:-0.2px;background:#eaf9f0;border:1px solid #bce8cb;color:#17803d;vertical-align:1px;word-break:keep-all;}
 .crs-kind-off{background:#f1f3f5;border-color:#dee2e6;color:#6c757d;}
-.crs-card.is-benefit{border-color:#f0bfd3;box-shadow:0 3px 12px rgba(212,91,130,.13);}
+.crs-card.is-benefit{border:2px solid #e0819a;box-shadow:0 4px 14px rgba(201,74,106,.14);}
+.crs-ribbon{margin:-12px -12px 10px;padding:6px 10px;border-radius:10px 10px 0 0;background:#c94a6a;color:#fff;font-size:11.5px;font-weight:800;letter-spacing:-0.2px;text-align:center;word-break:keep-all;}
 .crs-benefit{display:flex;align-items:center;gap:7px;margin-top:7px;padding:8px 10px;border-radius:10px;border:1px solid #f2cbd9;background:#fdf3f7;font-size:12px;font-weight:800;color:#a8446b;line-height:1.45;word-break:keep-all;}
 .crs-benefit-ico{flex:0 0 auto;font-size:14px;line-height:1;}
 .crs-benefit-tag{flex:0 0 auto;padding:3px 8px;border-radius:999px;background:#c94a6a;color:#fff;font-size:10.5px;font-weight:800;letter-spacing:-0.2px;white-space:nowrap;}
 .crs-benefit-txt{min-width:0;font-size:12px;font-weight:800;color:#b04a7b;}
-@media (max-width:700px){.crs-benefit{font-size:11.8px;padding:7px 9px;gap:6px;}.crs-benefit-ico{font-size:13px;}.crs-benefit-tag{font-size:10px;padding:2px 7px;}.crs-benefit-txt{font-size:11.8px;}}
+@media (max-width:700px){.crs-ribbon{font-size:11px;padding:6px 8px;margin:-12px -12px 9px;}.crs-benefit{font-size:11.8px;padding:7px 9px;gap:6px;}.crs-benefit-ico{font-size:13px;}.crs-benefit-tag{font-size:10px;padding:2px 7px;}.crs-benefit-txt{font-size:11.8px;}}
 .crs-photos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:9px;}
 .crs-ph{display:block;aspect-ratio:1/1;border-radius:8px;overflow:hidden;background:#f8eef1;text-decoration:none;}
 .crs-ph img{width:100%;height:100%;object-fit:cover;display:block;}
