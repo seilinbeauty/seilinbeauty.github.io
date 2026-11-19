@@ -1632,12 +1632,27 @@
   </style>
 
   <!-- Google tag (gtag.js) - GA4 세이린뷰티 아카데미 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-N7KQ4JLLS2"></script>
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-N7KQ4JLLS2');
+    (function(){
+      try{
+        var off = false;
+        try{
+          if(/[?&]notrack=1/.test(location.search)){ localStorage.setItem('dia_no_track', '1'); off = true; }
+          if(localStorage.getItem('dia_no_track') === '1'){ off = true; }
+        }catch(e){}
+        if(navigator.webdriver === true){ off = true; }
+        window.__diaNoTrack = off;
+        if(off) return;
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-N7KQ4JLLS2';
+        document.head.appendChild(s);
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function(){ dataLayer.push(arguments); };
+        gtag('js', new Date());
+        gtag('config', 'G-N7KQ4JLLS2');
+      }catch(e){}
+    })();
   </script>
 </head>
 <body>
@@ -2651,6 +2666,14 @@
 (function(){
   try{
     if(!window.fetch) return;
+    // 작업·내부 브라우저 제외: ?notrack=1 / dia_no_track=1 / 자동화 브라우저면 집계·하트비트를 보내지 않는다
+    var off = false;
+    try{
+      if(/[?&]notrack=1/.test(location.search)){ try{ localStorage.setItem('dia_no_track', '1'); }catch(e0){} off = true; }
+      if(localStorage.getItem('dia_no_track') === '1'){ off = true; }
+    }catch(e1){}
+    if(navigator.webdriver === true){ off = true; }
+    if(off) return;
     var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
     var SITE = 'academy';
     var COOL = 1800000;   // 서버가 기기ID·회원명 기준으로 30분 중복을 걸러낸다

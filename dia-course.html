@@ -2428,6 +2428,14 @@ document.addEventListener('click', function(e){
 (function(){
   try{
     if(!window.fetch) return;
+    // 작업·내부 브라우저 제외: ?notrack=1 / dia_no_track=1 / 자동화 브라우저면 집계·하트비트를 보내지 않는다
+    var off = false;
+    try{
+      if(/[?&]notrack=1/.test(location.search)){ try{ localStorage.setItem('dia_no_track', '1'); }catch(e0){} off = true; }
+      if(localStorage.getItem('dia_no_track') === '1'){ off = true; }
+    }catch(e1){}
+    if(navigator.webdriver === true){ off = true; }
+    if(off) return;
     var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
     var SITE = 'dia';
     var COOL = 1800000;   // 서버가 기기ID·회원명 기준으로 30분 중복을 걸러낸다
