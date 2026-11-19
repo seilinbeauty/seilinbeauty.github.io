@@ -54,7 +54,6 @@
   }
   .card-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
   .card-head h2{margin:0; font-size:13px; font-weight:800; color:var(--text);}
-  .card-head h2 span{font-weight:700; color:var(--dim); font-size:11px; margin-left:4px;}
   .people-toggle{
     display:inline-flex; align-items:baseline; font:inherit; color:inherit; letter-spacing:inherit;
     text-align:left; padding:6px 8px; margin:-6px -8px; border-radius:10px;
@@ -86,6 +85,33 @@
   .chip .nm{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:110px;}
   .chip .cnt{font-size:11px; font-weight:700; color:var(--dim);}
   .chips .empty{font-size:12px; color:var(--dim);}
+
+  /* 공지·메모 */
+  .notice{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);}
+  .notice-head{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px;}
+  .notice-head b{font-size:11.5px; font-weight:800; color:var(--muted);}
+  .notice-edit{
+    padding:5px 10px; border-radius:999px; font-size:11px; font-weight:800;
+    color:var(--pink-deep); background:var(--pink-light); border:1px solid var(--pink-line);
+  }
+  .notice-view{
+    font-size:12.5px; color:var(--text); white-space:pre-wrap; word-break:break-word;
+    line-height:1.5; cursor:pointer; border-radius:8px;
+  }
+  .notice-view.none{color:var(--dim);}
+  .notice-meta{margin-top:5px; font-size:10.5px; color:var(--dim); font-weight:700;}
+  .notice-form{margin-top:8px;}
+  .notice-form textarea{
+    display:block; width:100%; padding:10px 11px; border-radius:11px; border:1px solid var(--line);
+    background:#fdfbfc; color:var(--text); outline:none; resize:vertical; min-height:76px;
+    font-family:inherit; font-size:13px; line-height:1.5;
+  }
+  .notice-form textarea:focus{border-color:var(--pink); background:#fff;}
+  .notice-form .sheet-actions{margin-top:8px;}
+  .notice-form .btn{padding:10px; font-size:13px;}
+  .notice.editing .notice-view,
+  .notice.editing .notice-meta,
+  .notice.editing .notice-edit{display:none;}
 
   /* 달력 */
   .cal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;}
@@ -246,7 +272,7 @@
 <main>
   <section class="card">
     <div class="card-head">
-      <h2><button class="people-toggle" id="peopleToggle" type="button" aria-expanded="false" aria-controls="addForm">사람 <span id="peopleCount">0 / 6</span></button></h2>
+      <h2><button class="people-toggle" id="peopleToggle" type="button" aria-expanded="false" aria-controls="addForm">사람</button></h2>
     </div>
     <p class="people-hint" id="peopleHint" hidden aria-live="polite"></p>
     <div class="add-form" id="addForm" hidden>
@@ -272,6 +298,21 @@
       </div>
     </div>
     <div class="chips" id="peopleChips"></div>
+    <div class="notice" id="noticeBox">
+      <div class="notice-head">
+        <b>📌 공지·메모</b>
+        <button class="notice-edit" id="noticeEditBtn" type="button">수정</button>
+      </div>
+      <div class="notice-view none" id="noticeView">공지나 메모를 남겨 보세요</div>
+      <div class="notice-meta" id="noticeMeta"></div>
+      <div class="notice-form" id="noticeForm" hidden>
+        <textarea id="noticeText" rows="3" maxlength="500" placeholder="예: 이번 주는 3번 자리 비워 주세요"></textarea>
+        <div class="sheet-actions">
+          <button class="btn ghost" id="noticeCancel" type="button">취소</button>
+          <button class="btn primary" id="noticeSave" type="button">저장</button>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section class="card">
@@ -375,7 +416,7 @@
   var COLORS = ['#e88295','#ef9c5a','#6bbf8a','#5b9bd5','#9a7ad5','#8b95a3'];
   var DOW = ['일','월','화','수','목','금','토'];
 
-  var state = { members: [], entries: [], logs: [] };
+  var state = { members: [], entries: [], logs: [], notice: { text: '', by: '', at: '' } };
   var loaded = false;
   var view = todayMonth();        // {y, m}  m: 0-11
   var selDate = '';
@@ -514,7 +555,6 @@
       }
     }
     box.innerHTML = html;
-    $('peopleCount').textContent = state.members.length + ' / ' + MAX;
     if (state.members.length >= MAX) { closeAdd(); }
   }
 
@@ -735,6 +775,68 @@
     });
   }
 
+  /* ---------- 공지·메모 ---------- */
+  function fmtAt(at){
+    var s = String(at || '');
+    return s.length >= 16 ? s.slice(5, 10).replace('-', '/') + ' ' + s.slice(11, 16) : s;
+  }
+
+  function renderNotice(){
+    var n = state.notice || { text: '', by: '', at: '' };
+    var text = String(n.text || '');
+    var v = $('noticeView');
+    if (text) {
+      v.textContent = text;
+      v.className = 'notice-view';
+    } else {
+      v.textContent = '공지나 메모를 남겨 보세요';
+      v.className = 'notice-view none';
+    }
+    var meta = '';
+    if (text && (n.by || n.at)) {
+      meta = String(n.by || '') + (n.at ? ' · ' + fmtAt(n.at) + ' 수정' : '');
+    }
+    $('noticeMeta').textContent = meta;
+  }
+
+  function openNoticeEdit(){
+    $('noticeText').value = String((state.notice && state.notice.text) || '');
+    $('noticeBox').classList.add('editing');
+    $('noticeForm').hidden = false;
+    setTimeout(function(){ try { $('noticeText').focus(); } catch(e){} }, 60);
+  }
+
+  function closeNoticeEdit(){
+    $('noticeBox').classList.remove('editing');
+    $('noticeForm').hidden = true;
+  }
+
+  function saveNotice(){
+    var text = ($('noticeText').value || '').replace(/\r\n/g, '\n').trim().slice(0, 500);
+    if (!text) { toast('내용을 입력해 주세요.'); return; }
+    var snap = state.notice;
+    nameReady(function(){
+      closeNoticeEdit();
+      chain = chain.then(function(){
+        return api({ mode: 'parking_notice_set', text: text, by: me });
+      }).then(function(d){
+        state.notice = d.notice || { text: text, by: me, at: '' };
+        renderNotice();
+      }).catch(function(){
+        state.notice = snap;
+        renderNotice();
+        toast('저장하지 못했어요. 잠시 뒤 다시 시도해 주세요.');
+      });
+    });
+  }
+
+  function loadNotice(){
+    return api({ mode: 'parking_notice_get' }).then(function(d){
+      state.notice = d.notice || { text: '', by: '', at: '' };
+      renderNotice();
+    }).catch(function(){});
+  }
+
   /* ---------- 인원 시트 ---------- */
   function openPerson(id){
     editingId = id || '';
@@ -825,6 +927,14 @@
   $('addSave').addEventListener('click', saveAdd);
   $('addCancel').addEventListener('click', closeAdd);
 
+  $('noticeEditBtn').addEventListener('click', openNoticeEdit);
+  $('noticeView').addEventListener('click', function(){
+    if ($('noticeBox').classList.contains('editing')) { return; }
+    openNoticeEdit();
+  });
+  $('noticeSave').addEventListener('click', saveNotice);
+  $('noticeCancel').addEventListener('click', closeNoticeEdit);
+
   $('addForm').addEventListener('keydown', function(e){
     if (e.key !== 'Enter') { return; }
     if (!e.target || e.target.tagName !== 'INPUT') { return; }
@@ -894,11 +1004,12 @@
   document.addEventListener('keydown', function(e){
     if (e.key !== 'Escape') { return; }
     closeAdd();
+    closeNoticeEdit();
     closeSheet('dateSheet'); closeSheet('personSheet'); closeSheet('nameSheet');
   });
 
   document.addEventListener('visibilitychange', function(){
-    if (!document.hidden && loaded) { load(); }
+    if (!document.hidden && loaded) { load(); loadNotice(); }
   });
 
   /* 시작 */
@@ -906,7 +1017,9 @@
   renderColors();
   renderAddColors();
   render();
+  renderNotice();
   load();
+  loadNotice();
 })();
 </script>
   <!-- Google tag (gtag.js) - GA4 세이린뷰티 -->
