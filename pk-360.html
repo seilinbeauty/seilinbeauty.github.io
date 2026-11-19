@@ -13,6 +13,7 @@
 </div>
 <iframe id="fr" src="parking.html?notrack=1"></iframe>
 <script>
-  if (location.hash === '#test') { document.getElementById('fr').src = 'pk-dial-test.html?notrack=1'; }
+  var q = location.hash === '#test' ? 'pk-dial-test.html' : 'parking.html';
+document.getElementById('fr').src = q + '?notrack=1&v=' + Date.now();
 </script>
 </body></html>
