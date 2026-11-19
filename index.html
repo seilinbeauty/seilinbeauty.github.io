@@ -2707,7 +2707,7 @@
       var m = 회원().trim();
       if(관리자(m)) return;
       var ts = Number(get('dia_visit_ts')) || 0;
-      var url = EXEC + '?mode=visit&d=' + today + '&site=' + SITE + '&u=' + encodeURIComponent(기기()) + (m ? '&m=' + encodeURIComponent(m) : '');
+      var url = EXEC + '?mode=visit&d=' + today + '&site=' + SITE + '&u=' + encodeURIComponent(기기()) + (m ? '&m=' + encodeURIComponent(m) : '') + '&_=' + Date.now();
       fetch(url, {cache: 'no-store'})
         .then(function(r){ return r.json(); })
         .then(function(d){
@@ -2722,7 +2722,7 @@
     function 살아있음(){
       if(관리자(회원().trim())) return;
       if(document.visibilityState && document.visibilityState !== 'visible') return;
-      fetch(EXEC + '?mode=hb&site=' + SITE + '&u=' + encodeURIComponent(기기()), {cache: 'no-store'}).catch(function(){});
+      fetch(EXEC + '?mode=hb&site=' + SITE + '&u=' + encodeURIComponent(기기()) + '&_=' + Date.now(), {cache: 'no-store'}).catch(function(){});
     }
     window.diaVisitSync = 보내기;
     보내기();
