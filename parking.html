@@ -728,9 +728,13 @@
     return s.length >= 16 ? s.slice(5, 10).replace('-', '/') + ' ' + s.slice(11, 16) : s;
   }
 
+  function cleanNotice(v){
+    return String(v || '').replace(/[\u200B\uFEFF\u200C\u200D]/g, '').trim();
+  }
+
   function renderNotice(){
     var n = state.notice || { text: '', by: '', at: '' };
-    var text = String(n.text || '');
+    var text = cleanNotice(n.text);
     var v = $('noticeView');
     if (text) {
       v.textContent = text;
@@ -752,7 +756,7 @@
       loadNotice();
       return;
     }
-    $('noticeText').value = String((state.notice && state.notice.text) || '');
+    $('noticeText').value = cleanNotice(state.notice && state.notice.text);
     $('noticeBox').classList.add('editing');
     $('noticeForm').hidden = false;
     setTimeout(function(){ try { $('noticeText').focus(); } catch(e){} }, 60);
