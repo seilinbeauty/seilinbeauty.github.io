@@ -909,7 +909,7 @@
   function shiftRange(end){
     if (!/^\d{2}:\d{2}$/.test(end)) { return; }
     var h = +end.slice(0, 2) + 2;
-    if (h > 23) { return; }
+    if (h > 22) { return; }
     range.start = pad(h) + ':00';
     var e = h + 2;
     range.end = pad(e > 23 ? 23 : e) + ':00';
@@ -936,6 +936,7 @@
       });
     }).then(function(d){
       applyState(d);
+      pickAnchor = '';
       render();
       toast(start + '~' + end + ' 등록했어요.');
       shiftRange(end);
