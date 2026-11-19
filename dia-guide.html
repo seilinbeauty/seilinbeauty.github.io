@@ -2359,21 +2359,52 @@
   try{
     if(!window.fetch) return;
     var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
-    var vid = '';
-    try{ vid = localStorage.getItem('dia_vid') || ''; }catch(e){}
-    if(!vid){
-      vid = 'd' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
-      try{ localStorage.setItem('dia_vid', vid); }catch(e){}
+    var COOL = 1800000;
+    function get(k){ try{ return localStorage.getItem(k) || ''; }catch(e){ return ''; } }
+    function set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
+    function 기기(){
+      var v = get('dia_vid');
+      if(!v){
+        v = 'd' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+        set('dia_vid', v);
+      }
+      return v;
     }
-    var kst = new Date(Date.now() + 9 * 3600 * 1000);
-    var today = kst.toISOString().slice(0, 10);
-    var done = '';
-    try{ done = localStorage.getItem('dia_visit') || ''; }catch(e){}
-    if(done === today) return;
-    fetch(EXEC + '?mode=visit&d=' + today + '&u=' + encodeURIComponent(vid), {cache: 'no-store'})
-      .then(function(r){ return r.json(); })
-      .then(function(d){ if(d && d.ok){ try{ localStorage.setItem('dia_visit', today); }catch(e){} } })
-      .catch(function(){});
+    function 회원(){
+      var raw = get('dia_login_member');
+      if(!raw){ raw = get('dia_login_member_bak'); }
+      if(!raw) return '';
+      if(raw.charAt(0) === '{'){
+        try{ var o = JSON.parse(raw); return (o && o.n) ? String(o.n) : ''; }catch(e){ return ''; }
+      }
+      return String(raw);
+    }
+    function 관리자(m){
+      var s = String(m || '').replace(/\s+/g, ' ').trim();
+      return s === 'STAFF' || s === '세이린뷰티 본점' || s === '세이린 뷰티';
+    }
+    function 오늘(){ return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10); }
+    function 보내기(){
+      var today = 오늘();
+      var m = 회원().trim();
+      if(관리자(m)) return;
+      var ts = Number(get('dia_visit_ts')) || 0;
+      var 최근 = (get('dia_visit') === today && ts && (Date.now() - ts) < COOL);
+      var 새회원 = !!m && get('dia_visit_m') !== (today + ':' + m);
+      if(최근 && !새회원) return;
+      var url = EXEC + '?mode=visit&d=' + today + '&u=' + encodeURIComponent(기기()) + (m ? '&m=' + encodeURIComponent(m) : '');
+      fetch(url, {cache: 'no-store'})
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          if(!d || !d.ok) return;
+          set('dia_visit', today);
+          if(d.counted || !ts){ set('dia_visit_ts', String(Date.now())); }
+          if(m && (d.counted || d.updated)){ set('dia_visit_m', today + ':' + m); }
+        })
+        .catch(function(){});
+    }
+    window.diaVisitSync = 보내기;
+    보내기();
   }catch(e){}
 })();
 </script></body>
