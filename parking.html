@@ -653,7 +653,11 @@
       msg = '종료 시간이 시작 시간보다 빨라요.';
     } else {
       var c = conflictFor(start, end);
-      if (c) { msg = '이미 ' + c.start + '~' + c.end + '(' + c.name + ') 예약이 있어 겹칩니다.'; }
+      if (c) {
+        msg = (me.name && c.name === me.name)
+          ? '이미 내 주차(' + c.start + '~' + c.end + ')가 있어 겹칩니다.'
+          : '이미 ' + c.start + '~' + c.end + '(' + c.name + ') 예약이 있어 겹칩니다.';
+      }
     }
     if (msg) {
       warn.textContent = msg;
@@ -668,6 +672,19 @@
   function rememberRange(){
     range.start = $('startSel').value;
     range.end = $('endSel').value;
+  }
+
+  /* 등록 직후: 다음 시간대로 자동 이동(겹침 경고가 띄지 않도록) */
+  function shiftRange(end){
+    if (!/^\d{2}:\d{2}$/.test(end)) { return; }
+    var h = +end.slice(0, 2) + 2;
+    if (h > 23) { return; }
+    range.start = pad(h) + ':00';
+    var e = h + 2;
+    range.end = pad(e > 23 ? 23 : e) + ':00';
+    $('startSel').value = range.start;
+    $('endSel').value = range.end;
+    renderDateSheet();
   }
 
   function register(){
@@ -690,6 +707,7 @@
       applyState(d);
       render();
       toast(start + '~' + end + ' 등록했어요.');
+      shiftRange(end);
     }).catch(function(err){
       state.entries = snapE; state.logs = snapL;
       render();
