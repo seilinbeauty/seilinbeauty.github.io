@@ -188,14 +188,14 @@
 
   /* 시계형 시간 선택 */
   .clocks{display:flex; align-items:flex-start; justify-content:center; gap:6px;}
-  .clock{flex:1 1 0; min-width:0; max-width:152px;}
+  .clock{flex:1 1 0; min-width:0; max-width:168px;}
   .clock svg{display:block; width:100%; height:auto; touch-action:none; user-select:none; -webkit-user-select:none; cursor:pointer;}
   .clock .face{fill:#fff; stroke:var(--pink-line); stroke-width:1.4;}
-  .clock .track{fill:none; stroke:#f8f2f5; stroke-width:20;}
+  .clock .track{fill:none; stroke:#f7f0f3; stroke-width:26;}
   .clock .segs path{stroke-linejoin:round;}
   .clock .tk{stroke:#e7dce1; stroke-width:1.1; stroke-linecap:round;}
   .clock .tk.half{stroke:#f1e9ee; stroke-width:.9;}
-  .clock .num{fill:var(--muted); font-size:16px; font-weight:800; text-anchor:middle; dominant-baseline:central; font-family:inherit;}
+  .clock .num{fill:var(--muted); font-size:15px; font-weight:800; text-anchor:middle; dominant-baseline:central; font-family:inherit;}
   .clock .ctr{fill:var(--dim); font-size:10.5px; font-weight:800; text-anchor:middle; dominant-baseline:central; font-family:inherit; letter-spacing:-.3px;}
   .pick-line{display:flex; align-items:baseline; justify-content:center; gap:7px; margin:5px 0 7px; flex-wrap:wrap;}
   .pick-line b{font-size:15px; font-weight:800; color:var(--pink-deep); letter-spacing:-.2px; font-variant-numeric:tabular-nums;}
@@ -678,7 +678,7 @@
   }
 
   /* ---------- 시계형 시간 선택 ---------- */
-  var CX = 100, CY = 100, R_IN = 66, R_OUT = 86, NUM_R = 50;
+  var CX = 100, CY = 100, R_IN = 62, R_OUT = 88, NUM_R = 46;
   var pickAnchor = '';
 
   function f2(n){ return Math.round(n * 100) / 100; }
@@ -724,7 +724,7 @@
     var ticks = '';
     for (var i = 0; i < 24; i++) {
       var deg = i * 15;
-      var len = (i % 2 === 0) ? 20 : 10;
+      var len = (i % 2 === 0) ? 26 : 13;
       var a = polar(R_OUT, deg), b = polar(R_OUT - len, deg);
       ticks += '<line class="tk' + (i % 2 ? ' half' : '') + '" x1="' + f2(a[0]) + '" y1="' + f2(a[1])
              + '" x2="' + f2(b[0]) + '" y2="' + f2(b[1]) + '"/>';
@@ -767,7 +767,7 @@
         if (!(b > a)) { continue; }
         c = en.color || '#e88295';
         html += '<path d="' + arcPath(R_IN, R_OUT, (a - lo) / 2, (b - lo) / 2) + '" fill="'
-              + hexA(c, .55) + '" stroke="' + c + '" stroke-width="1"/>';
+              + hexA(c, .5) + '" stroke="' + c + '" stroke-width="1.2"/>';
       }
 
       /* 내가 고른 시간대 */
@@ -776,7 +776,7 @@
         b = Math.min(e, hi);
         if (b > a) {
           html += '<path d="' + arcPath(R_IN, R_OUT, (a - lo) / 2, (b - lo) / 2) + '" fill="'
-                + hexA(myColor, .5) + '" stroke="' + myColor + '" stroke-width="2.6"/>';
+                + hexA(myColor, .62) + '" stroke="' + myColor + '" stroke-width="3"/>';
         }
       }
 
@@ -826,8 +826,8 @@
       btn.disabled = false;
     }
     if (line) { line.classList.toggle('bad', !!msg); }
-    if (hint && !msg) {
-      hint.textContent = pickAnchor ? '끝 시간을 눌러 주세요' : '시계를 눌러 시작·끝을 고르세요';
+    if (hint) {
+      hint.textContent = msg ? '' : (pickAnchor ? '끝 시간을 눌러 주세요' : '시계를 눌러 시작·끝을 고르세요');
     }
   }
 
