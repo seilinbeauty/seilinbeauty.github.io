@@ -402,7 +402,7 @@
   var DOW = ['일','월','화','수','목','금','토'];
   var STORE = 'pk_me_v2';
   var PK_CACHE = 'pk_cache_v1';        /* 달력 즉시 표시용 로컬 캐시 */
-  var READ_TIMEOUT = 6000;             /* 읽기 요청 1회 타임아웃 6초 */
+  var READ_TIMEOUT = 5000;             /* 읽기 요청 1회 타임아웃 5초 */
   var RETRY_DELAYS = [800, 1500, 1500]; /* 실패 시 자동 재시도 간격(최대 3회) */
 
   var state = { entries: [], logs: [], notice: { text: '', by: '', at: '' } };
@@ -463,10 +463,20 @@
     if (timeoutMs && window.AbortController) {
       ctrl = new AbortController();
       opt.signal = ctrl.signal;
-      tm = setTimeout(function(){ try { ctrl.abort(); } catch(e){} }, timeoutMs);
     }
     var clear = function(){ if (tm) { clearTimeout(tm); tm = null; } };
-    return fetch(url, opt)
+    var req = fetch(url, opt);
+    if (timeoutMs) {
+      /* AbortController가 없는 브라우저에서도 반드시 끊기도록 경합시킨다 */
+      var limit = new Promise(function(_, reject){
+        tm = setTimeout(function(){
+          if (ctrl) { try { ctrl.abort(); } catch(e){} }
+          reject(new Error('timeout'));
+        }, timeoutMs);
+      });
+      req = Promise.race([req, limit]);
+    }
+    return req
       .then(function(r){ return r.json(); })
       .then(function(d){
         clear();
@@ -485,7 +495,7 @@
     return apiOnce(params, 0);
   }
 
-  /* 읽기 요청: 6초 타임아웃 + 0.8·1.5초 간격으로 최대 3회 자동 재시도 */
+  /* 읽기 요청: 5초 타임아웃 + 0.8·1.5초 간격으로 최대 3회 자동 재시도 */
   function apiRead(params){
     var i = 0;
     function go(){
@@ -1206,7 +1216,7 @@
       noticeLoaded = true;
       renderNotice();
     }).catch(function(){
-      if (loaded) { setTimeout(function(){ loadNotice(); }, 1500); }
+      /* apiRead가 3회까지 재시도했으므로 더 돌지 않는다 (화면에 다시 돌아오면 새로 부른다) */
     });
   }
 
