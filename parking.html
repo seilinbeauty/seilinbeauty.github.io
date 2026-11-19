@@ -854,7 +854,7 @@
       if (!(b > a)) { continue; }
       lh += bandLabel((degOf(a) + degOf(b)) / 2, degOf(b) - degOf(a), String(en.name || ''), en.color || '#e88295', placed, 8.2);
     }
-    if (ok) {
+    if (ok && !conf) {
       var ps = Math.max(0, s), pe = Math.min(1440, e);
       lh += bandLabel((degOf(ps) + degOf(pe)) / 2, degOf(pe) - degOf(ps), me.name || '내 시간', myColor, placed, 8.2);
     }
