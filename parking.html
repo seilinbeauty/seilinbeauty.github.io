@@ -120,20 +120,6 @@
   }
   .badges .more{font-size:8.5px; font-weight:800; color:var(--dim);}
 
-  /* 월 요약 */
-  .summary{
-    display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;
-    padding-top:10px; border-top:1px dashed var(--line);
-  }
-  .summary .s-item{
-    display:inline-flex; align-items:center; gap:5px;
-    padding:4px 9px; border-radius:999px; background:#fdfbfc; border:1px solid var(--line);
-    font-size:11.5px; font-weight:700; color:var(--muted);
-  }
-  .summary .s-item b{color:var(--text); font-size:11.5px;}
-  .summary .s-item i{width:7px; height:7px; border-radius:50%; display:block;}
-  .summary .s-none{font-size:11.5px; color:var(--dim);}
-
   /* 로그 */
   .log{padding:0; overflow:hidden;}
   .log-toggle{
@@ -280,7 +266,6 @@
     </div>
     <div class="dow"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
     <div class="grid" id="calGrid"></div>
-    <div class="summary" id="monthSummary"></div>
   </section>
 
   <section class="card log" id="logCard">
@@ -472,7 +457,6 @@
   /* ---------- 렌더 ---------- */
   function render(){
     renderCal();
-    renderSummary();
     renderLog();
     if (!$('dateSheet').hidden) { renderDateList(); }
     $('meName').textContent = me || '내 이름';
@@ -554,17 +538,6 @@
          + '<span class="num">' + num + '</span>'
          + '<span class="badges">' + badges + '</span>'
          + '</button>';
-  }
-
-  function renderSummary(){
-    var box = $('monthSummary');
-    if (!state.members.length) { box.innerHTML = '<span class="s-none">이번 달 주차 요약은 사람을 추가하면 보입니다.</span>'; return; }
-    var html = '<span class="s-none" style="align-self:center;">이번 달</span>';
-    for (var i = 0; i < state.members.length; i++) {
-      var m = state.members[i];
-      html += '<span class="s-item"><i style="background:' + m.color + '"></i>' + esc(m.name) + ' <b>' + countInMonth(m.id, view.y, view.m) + '</b>회</span>';
-    }
-    box.innerHTML = html;
   }
 
   function renderLog(){
