@@ -872,6 +872,8 @@
     }
 
     .footer-brand {
+      display: inline-block;
+      padding: 6px 14px;
       font-family: var(--font-sans);
       font-size: 16px;
       font-weight: 800;
@@ -2743,15 +2745,12 @@
 (function(){
   var brand = document.querySelector('.footer-brand');
   if (!brand) { return; }
-  var taps = 0, timer = null, lastHit = 0;
+  var taps = 0, timer = null, lastTouch = 0;
   function reset(){ taps = 0; if (timer) { clearTimeout(timer); timer = null; } }
   function hit(){
-    var now = Date.now();
-    if (now - lastHit < 350) { return; }   // 터치·클릭 중복 카운트 방지
-    lastHit = now;
     taps++;
     if (timer) { clearTimeout(timer); }
-    timer = setTimeout(reset, 2500);
+    timer = setTimeout(reset, 3000);   // 3초 안에 5번
     if (taps >= 5) {
       reset();
       location.href = 'parking.html';
@@ -2759,9 +2758,14 @@
   }
   brand.addEventListener('touchend', function(e){
     if (e.cancelable) { e.preventDefault(); }
+    lastTouch = Date.now();
     hit();
   }, { passive: false });
-  brand.addEventListener('click', hit);
+  brand.addEventListener('click', function(){
+    // 같은 탭의 touchend 뒤 따라오는 click만 무시 (연타는 그대로 카운트)
+    if (Date.now() - lastTouch < 500) { return; }
+    hit();
+  });
   brand.addEventListener('dblclick', function(e){ e.preventDefault(); });
 })();
 </script>
