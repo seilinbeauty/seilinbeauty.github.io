@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>360px 확인</title>
+<style>
+  html,body{margin:0;background:#cfcfcf;font-family:sans-serif;}
+  .bar{padding:6px 8px;font-size:11px;background:#333;color:#fff;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .bar a{color:#9fd3ff;font-size:11px;}
+  iframe{width:360px;height:900px;border:0;display:block;margin:0 auto;background:#fff;}
+</style></head><body>
+<div class="bar"><span>360px 확인용</span>
+  <a href="pk-360.html">주차 캘린더</a>
+  <a href="pk-360.html#test">모의 데이터</a>
+</div>
+<iframe id="fr" src="parking.html?notrack=1"></iframe>
+<script>
+  if (location.hash === '#test') { document.getElementById('fr').src = 'pk-dial-test.html?notrack=1'; }
+</script>
+</body></html>
