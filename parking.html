@@ -658,11 +658,35 @@
     $('endSel').innerHTML = b;
   }
 
+  /* 그날 예약과 겹치지 않는 빈 2시간대를 찾는다 (fromMin부터 30분 단위, 없으면 null) */
+  function freeSlot(list, fromMin){
+    var busy = [], i, a, b;
+    for (i = 0; i < list.length; i++) {
+      a = toMin(list[i].start); b = toMin(list[i].end);
+      if (b > a) { busy.push([a, b]); }
+    }
+    busy.sort(function(x, y){ return x[0] - y[0]; });
+    var from = (fromMin == null) ? 10 * 60 : fromMin;   /* 기본은 낮 10시부터 */
+    for (var s0 = from; s0 + 120 <= 1440; s0 += 30) {
+      var clear = true;
+      for (i = 0; i < busy.length; i++) {
+        if (s0 < busy[i][1] && busy[i][0] < s0 + 120) { clear = false; break; }
+      }
+      if (clear) { return [toHM(s0), toHM(s0 + 120)]; }
+    }
+    return null;
+  }
+
   function openDate(date){
     selDate = date;
     var parts = date.split('-');
     var dt = new Date(+parts[0], +parts[1] - 1, +parts[2]);
     $('dateTitle').textContent = (+parts[1]) + '월 ' + (+parts[2]) + '일 (' + DOW[dt.getDay()] + ')';
+    /* 기본 시작~종료가 그날 예약과 겹치면 빈 2시간대로 잡아 준다 */
+    if (conflictFor(range.start, range.end)) {
+      var fr = freeSlot(entriesOf(date));
+      if (fr) { range.start = fr[0]; range.end = fr[1]; }
+    }
     $('startSel').value = range.start;
     $('endSel').value = range.end;
     half = (toMin(range.start) >= 720) ? 'pm' : 'am';
@@ -886,24 +910,13 @@
             + '" stroke="' + c + '" stroke-width="1.3"/>';
     }
 
-    /* 내가 지금 맞추고 있는 구간 (내 색상) */
-    if (ok) {
+    /* 내가 지금 맞추고 있는 구간 (내 색상) — 등록된 예약과 겹치면 그리지 않는다 */
+    if (ok && !conf) {
       vr = inHalf(Math.max(0, s), Math.min(1440, e), half);
       if (vr) {
         d0 = degOf(vr[0], half); d1 = degOf(vr[1], half);
         arcs += '<path d="' + piePath(R_PIE, d0, d1)
               + '" fill="' + hexA(myColor, .3) + '" stroke="' + myColor + '" stroke-width="2.2"/>';
-      }
-    }
-
-    /* 겹치는 구간 경고 */
-    if (ok) {
-      for (i = 0; i < list.length; i++) {
-        en = list[i];
-        vr = inHalf(Math.max(s, toMin(en.start)), Math.min(e, toMin(en.end)), half);
-        if (!vr) { continue; }
-        arcs += '<path d="' + piePath(R_PIE, degOf(vr[0], half), degOf(vr[1], half))
-              + '" fill="#c24a60" fill-opacity=".82" stroke="#fff" stroke-width="1"/>';
       }
     }
     segs.innerHTML = arcs;
@@ -968,14 +981,13 @@
     range.end = $('endSel').value;
   }
 
-  /* 등록 직후: 다음 시간대로 자동 이동(겹침 경고가 띄지 않도록) */
+  /* 등록 직후: 그날 빈 2시간대로 자동 이동(겹침 경고가 띄지 않도록) */
   function shiftRange(end){
     if (!/^\d{2}:\d{2}$/.test(end)) { return; }
-    var h = +end.slice(0, 2) + 2;
-    if (h > 22) { return; }
-    range.start = pad(h) + ':00';
-    var e = h + 2;
-    range.end = pad(e > 23 ? 23 : e) + ':00';
+    var fr = freeSlot(entriesOf(selDate), toMin(end));
+    if (!fr) { return; }
+    range.start = fr[0];
+    range.end = fr[1];
     $('startSel').value = range.start;
     $('endSel').value = range.end;
     half = (toMin(range.start) >= 720) ? 'pm' : 'am';
