@@ -186,16 +186,19 @@
   .range-head b{font-size:11.5px; font-weight:800; color:var(--muted);}
   .range-head > span{font-size:11px; font-weight:700; color:var(--dim);}
 
-  /* 24시간 시계 (보기 전용 표시) */
-  .dial-wrap{display:flex; justify-content:center; margin:2px 0 4px;}
-  .dial{width:258px; max-width:100%; pointer-events:none; user-select:none; -webkit-user-select:none;}
+  /* 24시간 시계 (보기 전용 표시) — 진짜 아날로그 시계판 */
+  .dial-wrap{display:flex; justify-content:center; margin:3px 0 5px;}
+  .dial{width:264px; max-width:100%; pointer-events:none; user-select:none; -webkit-user-select:none;}
   .dial svg{display:block; width:100%; height:auto;}
-  .dial .face{fill:#fff; stroke:var(--pink-line); stroke-width:1.2;}
-  .dial .track{fill:none; stroke:#f5ebf0; stroke-width:30;}
+  .dial .face{fill:#fff; stroke:var(--pink-line); stroke-width:2;}
+  .dial .bez{fill:none; stroke:#f8eef2; stroke-width:1.6;}
+  .dial .chap{fill:none; stroke:#f2e7ee; stroke-width:.9;}
   .dial .segs path{stroke-linejoin:round;}
-  .dial .tk{stroke:#dccfd6; stroke-width:1.15; stroke-linecap:round;}
-  .dial .tk.half{stroke:#ece2e8; stroke-width:.9;}
-  .dial .num{fill:#5a5563; font-size:8.2px; font-weight:800; text-anchor:middle; dominant-baseline:central; font-family:inherit;}
+  .dial .tk{stroke:#bfaeb8; stroke-width:1.4; stroke-linecap:round;}
+  .dial .tk.half{stroke:#e7dbe2; stroke-width:.85;}
+  .dial .num{fill:#4e4956; font-size:9.6px; font-weight:800; text-anchor:middle; dominant-baseline:central; font-family:inherit; letter-spacing:-.3px;}
+  .dial .hub-o{fill:#fff; stroke:#d9c6d0; stroke-width:1.3;}
+  .dial .hub-i{fill:#b9a4b0;}
   .dial .nm-lb{font-size:9.2px; font-weight:800; font-family:inherit; text-anchor:middle; dominant-baseline:central; letter-spacing:-.2px;}
   .pick-line{display:flex; align-items:baseline; justify-content:center; gap:7px; margin:5px 0 7px; flex-wrap:wrap;}
   .pick-line b{font-size:15px; font-weight:800; color:var(--pink-deep); letter-spacing:-.2px; font-variant-numeric:tabular-nums;}
@@ -255,7 +258,7 @@
     .badges i em{font-size:8px;}
     .sheet-wrap{align-items:center;}
     .sheet{border-radius:18px; max-width:440px; padding-bottom:16px;}
-    .dial{width:286px;}
+    .dial{width:300px;}
     .grip{display:none;}
   }
 </style>
@@ -677,29 +680,30 @@
 
   /* ---------- 24시간 시계 (보기 전용) ---------- */
   var CX = 100, CY = 100;
-  var R_FACE = 99, R_TK_OUT = 99, R_TK_HOUR = 95.2, R_TK_HALF = 97.2;
-  var R_BAND_OUT = 94, R_BAND_IN = 64, R_NUM = 45, R_TEXT = (R_BAND_OUT + R_BAND_IN) / 2;
+  var R_FACE = 97.5;                 /* 시계판(베젤) */
+  var R_TK_OUT = 91, R_TK_HOUR = 84.2, R_TK_HALF = 87.6;
+  var R_NUM = 75.5;                  /* 숫자는 눈금 바로 안쪽 */
+  var R_CHAP = 68.5;                 /* 숫자 안쪽 둘레선 */
+  var R_PIE = 66.5;                  /* 부채꼴(피자 조각) 바깥 반지름 */
 
   function f2(n){ return Math.round(n * 100) / 100; }
   function polar(r, deg){
     var rad = (deg - 90) * Math.PI / 180;
     return [CX + r * Math.cos(rad), CY + r * Math.sin(rad)];
   }
-  function arcPath(r1, r2, a0, a1){
+  /* 중심점에서 뻗어 나가는 부채꼴(파이 조각) */
+  function piePath(r, a0, a1){
     var span = a1 - a0;
     if (span <= 0.01) { return ''; }
     if (span >= 359.9) {
-      return 'M' + (CX - r2) + ',' + CY + 'A' + r2 + ',' + r2 + ' 0 1 1 ' + (CX + r2) + ',' + CY
-           + 'A' + r2 + ',' + r2 + ' 0 1 1 ' + (CX - r2) + ',' + CY + 'Z'
-           + 'M' + (CX - r1) + ',' + CY + 'A' + r1 + ',' + r1 + ' 0 1 0 ' + (CX + r1) + ',' + CY
-           + 'A' + r1 + ',' + r1 + ' 0 1 0 ' + (CX - r1) + ',' + CY + 'Z';
+      return 'M' + (CX - r) + ',' + CY + 'A' + r + ',' + r + ' 0 1 1 ' + (CX + r) + ',' + CY
+           + 'A' + r + ',' + r + ' 0 1 1 ' + (CX - r) + ',' + CY + 'Z';
     }
     var large = span > 180 ? 1 : 0;
-    var p1 = polar(r2, a0), p2 = polar(r2, a1), p3 = polar(r1, a1), p4 = polar(r1, a0);
-    return 'M' + f2(p1[0]) + ',' + f2(p1[1])
-      + 'A' + r2 + ',' + r2 + ' 0 ' + large + ' 1 ' + f2(p2[0]) + ',' + f2(p2[1])
-      + 'L' + f2(p3[0]) + ',' + f2(p3[1])
-      + 'A' + r1 + ',' + r1 + ' 0 ' + large + ' 0 ' + f2(p4[0]) + ',' + f2(p4[1]) + 'Z';
+    var p1 = polar(r, a0), p2 = polar(r, a1);
+    return 'M' + CX + ',' + CY
+      + 'L' + f2(p1[0]) + ',' + f2(p1[1])
+      + 'A' + r + ',' + r + ' 0 ' + large + ' 1 ' + f2(p2[0]) + ',' + f2(p2[1]) + 'Z';
   }
 
   function toMin(v){
@@ -726,7 +730,7 @@
     return Math.abs(a.x - b.x) < (a.w + b.w) / 2 && Math.abs(a.y - b.y) < (a.h + b.h) / 2;
   }
 
-  /* 시계 판(눈금·숫자) 1회 생성 */
+  /* 시계 판(베젤·눈금·숫자·중심축) 1회 생성 */
   function buildDial(){
     var el = $('clockDay');
     if (!el) { return; }
@@ -739,67 +743,66 @@
              + '" x2="' + f2(b[0]) + '" y2="' + f2(b[1]) + '"/>';
     }
     var nums = '';
-    for (var h = 0; h < 24; h += 3) {
+    for (var h = 0; h < 24; h += 2) {
       var p = polar(R_NUM, h * 15);
       nums += '<text class="num" x="' + f2(p[0]) + '" y="' + f2(p[1]) + '">' + h + '</text>';
     }
-    el.innerHTML = '<svg viewBox="0 0 200 200" role="img" aria-label="24시간 주차 시간대 표시">'
-      + '<defs></defs>'
+    el.innerHTML = '<svg viewBox="0 0 200 200" role="img" aria-label="24시간 주차 시간대 시계판">'
       + '<circle class="face" cx="' + CX + '" cy="' + CY + '" r="' + R_FACE + '"/>'
-      + '<circle class="track" cx="' + CX + '" cy="' + CY + '" r="' + ((R_BAND_IN + R_BAND_OUT) / 2) + '"/>'
+      + '<circle class="bez" cx="' + CX + '" cy="' + CY + '" r="93.8"/>'
       + '<g class="segs"></g>'
+      + '<circle class="chap" cx="' + CX + '" cy="' + CY + '" r="' + R_CHAP + '"/>'
       + '<g class="ticks">' + ticks + '</g>'
       + nums
       + '<g class="labels"></g>'
+      + '<circle class="hub-o" cx="' + CX + '" cy="' + CY + '" r="4.2"/>'
+      + '<circle class="hub-i" cx="' + CX + '" cy="' + CY + '" r="1.9"/>'
       + '</svg>';
   }
 
-  /* 이름표: 색칠된 부채꼴 안, 그 각도 위치에 붙여 쓴다 */
-  function labelBox(degMid, w, h){
-    var p = polar(R_TEXT, degMid);
-    p[0] = Math.max(w / 2 + 4, Math.min(200 - w / 2 - 4, p[0]));
-    p[1] = Math.max(h / 2 + 6, Math.min(200 - h / 2 - 6, p[1]));
+  /* 이름표: 색칠된 부채꼴 안, 그 각도 위치에 가로로 붙여 쓴다 */
+  function labelBox(deg, R, w, h){
+    var p = polar(R, deg);
+    p[0] = Math.max(w / 2 + 6, Math.min(194 - w / 2, p[0]));
+    p[1] = Math.max(h / 2 + 6, Math.min(194 - h / 2, p[1]));
     return { x: p[0], y: p[1], w: w, h: h };
   }
 
-  function bandLabel(degMid, degSpan, name, color, placed, fs0){
+  function pieLabel(degMid, degSpan, name, color, placed, fs0){
     var base = String(name || '');
     if (!base) { return ''; }
-    var L = Math.abs(degSpan) * Math.PI / 180 * R_TEXT;
-    var room = Math.max(L * 0.94 + 8, 34);   // 짧은 구간은 이름표가 조금 넘쳐도 그 각도에 붙인다
-    var padX = 5.5, boxH = 14;
-    var fs = fs0 || 9.2, txt = base, q, hit, k, b;
-    if (textW(txt, fs) + padX * 2 > room) {
-      fs = Math.max(6.4, fs * (room - padX * 2) / textW(txt, fs));
-      while (textW(txt, fs) + padX * 2 > room + 4 && txt.length > 1) { txt = txt.slice(0, txt.length - 1); }
-    }
-    var w = textW(txt, fs) + padX * 2;
-    var offs = [0, 8, -8, 15, -15, 23, -23, 31, -31];
-    var box = null;
-    for (k = 0; k < offs.length && !box; k++) {
-      b = labelBox(degMid + offs[k], w, boxH);
-      hit = false;
-      for (q = 0; q < placed.length; q++) { if (overlaps(b, placed[q])) { hit = true; break; } }
-      if (!hit) { box = b; }
-    }
-    if (!box) {
-      fs = 6.4;
-      txt = base.length > 3 ? base.slice(0, 3) : base;
-      w = textW(txt, fs) + padX * 2;
-      for (k = 0; k < offs.length && !box; k++) {
-        b = labelBox(degMid + offs[k], w, boxH);
-        hit = false;
-        for (q = 0; q < placed.length; q++) { if (overlaps(b, placed[q])) { hit = true; break; } }
-        if (!hit) { box = b; }
+    var halfRad = Math.min(88, Math.abs(degSpan) / 2) * Math.PI / 180;
+    var boxH = 13.4, padX = 4.8;
+    var radii = [54, 48, 42, 36, 30];   /* 바깥쪽부터 골라 넣는다 */
+    for (var ri = 0; ri < radii.length; ri++) {
+      var R = radii[ri];
+      var chord = 2 * R * Math.sin(halfRad);
+      var room = Math.min(46, Math.max(chord * 1.4 + 6, 30));
+      var fs = fs0 || 9.4;
+      var per = textW(base, 1) || 1;
+      if (fs * per + padX * 2 > room) {
+        fs = Math.max(6.6, (room - padX * 2) / per);
+      }
+      var txt = base;
+      while (txt.length > 1 && textW(txt, fs) + padX * 2 > room + .5) { txt = txt.slice(0, txt.length - 1); }
+      var w = textW(txt, fs) + padX * 2;
+      /* 이름표 네 모서리가 시계판(둘레선) 안에 드는지 */
+      if (Math.sqrt(w * w / 4 + (R + boxH / 2) * (R + boxH / 2)) > R_CHAP - 1.2) { continue; }
+      var offs = [0, 9, -9, 17, -17, 25, -25, 33, -33];
+      for (var k = 0; k < offs.length; k++) {
+        var box = labelBox(degMid + offs[k], R, w, boxH);
+        var hit = false;
+        for (var q = 0; q < placed.length; q++) { if (overlaps(box, placed[q])) { hit = true; break; } }
+        if (hit) { continue; }
+        placed.push(box);
+        return '<rect x="' + f2(box.x - w / 2) + '" y="' + f2(box.y - boxH / 2) + '" width="' + f2(w)
+             + '" height="' + boxH + '" rx="' + f2(boxH / 2) + '" fill="' + color + '"/>'
+             + '<text class="nm-lb" x="' + f2(box.x) + '" y="' + f2(box.y) + '" fill="#fff"'
+             + (fs < 9.3 ? ' style="font-size:' + f2(fs) + 'px"' : '') + '>'
+             + esc(txt) + '</text>';
       }
     }
-    if (!box) { return ''; }
-    placed.push(box);
-    return '<rect x="' + f2(box.x - w / 2) + '" y="' + f2(box.y - boxH / 2) + '" width="' + f2(w)
-         + '" height="' + boxH + '" rx="' + f2(boxH / 2) + '" fill="' + color + '"/>'
-         + '<text class="nm-lb" x="' + f2(box.x) + '" y="' + f2(box.y) + '" fill="#fff"'
-         + (fs !== (fs0 || 9.2) ? ' style="font-size:' + f2(fs) + 'px"' : '') + '>'
-         + esc(txt) + '</text>';
+    return '';
   }
 
   function renderDial(){
@@ -823,14 +826,14 @@
       a = toMin(en.start); b = toMin(en.end);
       if (!(b > a)) { continue; }
       c = en.color || '#e88295';
-      arcs += '<path d="' + arcPath(R_BAND_IN, R_BAND_OUT, degOf(a), degOf(b)) + '" fill="' + hexA(c, .5)
-            + '" stroke="' + c + '" stroke-width="1.1"/>';
+      arcs += '<path d="' + piePath(R_PIE, degOf(a), degOf(b)) + '" fill="' + hexA(c, .34)
+            + '" stroke="' + c + '" stroke-width="1.3"/>';
     }
 
     /* 내가 지금 맞추고 있는 구간 (내 색상) */
     if (ok) {
-      arcs += '<path d="' + arcPath(R_BAND_IN, R_BAND_OUT, degOf(Math.max(0, s)), degOf(Math.min(1440, e)))
-            + '" fill="' + hexA(myColor, .42) + '" stroke="' + myColor + '" stroke-width="2.4"/>';
+      arcs += '<path d="' + piePath(R_PIE, degOf(Math.max(0, s)), degOf(Math.min(1440, e)))
+            + '" fill="' + hexA(myColor, .3) + '" stroke="' + myColor + '" stroke-width="2.2"/>';
     }
 
     /* 겹치는 구간 경고 */
@@ -840,8 +843,8 @@
         a = Math.max(s, toMin(en.start));
         b = Math.min(e, toMin(en.end));
         if (!(b > a)) { continue; }
-        arcs += '<path d="' + arcPath(R_BAND_IN, R_BAND_OUT, degOf(a), degOf(b))
-              + '" fill="#c24a60" fill-opacity=".85" stroke="#fff" stroke-width=".9"/>';
+        arcs += '<path d="' + piePath(R_PIE, degOf(a), degOf(b))
+              + '" fill="#c24a60" fill-opacity=".82" stroke="#fff" stroke-width="1"/>';
       }
     }
     segs.innerHTML = arcs;
@@ -852,11 +855,11 @@
       en = list[i];
       a = toMin(en.start); b = toMin(en.end);
       if (!(b > a)) { continue; }
-      lh += bandLabel((degOf(a) + degOf(b)) / 2, degOf(b) - degOf(a), String(en.name || ''), en.color || '#e88295', placed, 9.2);
+      lh += pieLabel((degOf(a) + degOf(b)) / 2, degOf(b) - degOf(a), String(en.name || ''), en.color || '#e88295', placed, 9.4);
     }
     if (ok && !conf) {
       var ps = Math.max(0, s), pe = Math.min(1440, e);
-      lh += bandLabel((degOf(ps) + degOf(pe)) / 2, degOf(pe) - degOf(ps), me.name || '내 시간', myColor, placed, 9.2);
+      lh += pieLabel((degOf(ps) + degOf(pe)) / 2, degOf(pe) - degOf(ps), me.name || '내 시간', myColor, placed, 9.4);
     }
     labels.innerHTML = lh;
 
