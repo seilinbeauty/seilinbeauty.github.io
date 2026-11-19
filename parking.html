@@ -186,20 +186,17 @@
   .range-head b{font-size:11.5px; font-weight:800; color:var(--muted);}
   .range-head > span{font-size:11px; font-weight:700; color:var(--dim);}
 
-  /* 24시간 시계형 시간 선택 */
+  /* 24시간 시계 (보기 전용 표시) */
   .dial-wrap{display:flex; justify-content:center; margin:2px 0 4px;}
-  .dial{width:258px; max-width:100%;}
-  .dial svg{display:block; width:100%; height:auto; touch-action:none; user-select:none; -webkit-user-select:none; cursor:pointer;}
+  .dial{width:258px; max-width:100%; pointer-events:none; user-select:none; -webkit-user-select:none;}
+  .dial svg{display:block; width:100%; height:auto;}
   .dial .face{fill:#fff; stroke:var(--pink-line); stroke-width:1.2;}
-  .dial .track{fill:none; stroke:#f5ebf0; stroke-width:17;}
+  .dial .track{fill:none; stroke:#f5ebf0; stroke-width:30;}
   .dial .segs path{stroke-linejoin:round;}
   .dial .tk{stroke:#dccfd6; stroke-width:1.15; stroke-linecap:round;}
   .dial .tk.half{stroke:#ece2e8; stroke-width:.9;}
   .dial .num{fill:#5a5563; font-size:8.2px; font-weight:800; text-anchor:middle; dominant-baseline:central; font-family:inherit;}
-  .dial .chip{font-size:7.8px; font-weight:800; font-family:inherit; dominant-baseline:central; letter-spacing:-.2px;}
-  .dial .ctr-nm{font-size:12px; font-weight:800; text-anchor:middle; font-family:inherit; letter-spacing:-.2px;}
-  .dial .ctr-tm{font-size:9.8px; font-weight:800; text-anchor:middle; font-family:inherit; font-variant-numeric:tabular-nums; letter-spacing:.2px;}
-  .dial .ctr-bad{font-size:8.4px; font-weight:800; text-anchor:middle; font-family:inherit; fill:#c24a60;}
+  .dial .nm-lb{font-size:7.8px; font-weight:800; font-family:inherit; text-anchor:middle; dominant-baseline:central; letter-spacing:-.2px;}
   .pick-line{display:flex; align-items:baseline; justify-content:center; gap:7px; margin:5px 0 7px; flex-wrap:wrap;}
   .pick-line b{font-size:15px; font-weight:800; color:var(--pink-deep); letter-spacing:-.2px; font-variant-numeric:tabular-nums;}
   .pick-line span{font-size:10.5px; font-weight:700; color:var(--dim);}
@@ -330,7 +327,6 @@
     </div>
     <div class="pick-line" id="pickLine">
       <b id="pickSum">-</b>
-      <span id="pickHint">시계를 눌러 시작·끝을 고르세요</span>
     </div>
     <div class="range-row">
       <label class="mini"><span>시작</span><select id="startSel" aria-label="시작 시간"></select></label>
@@ -640,7 +636,6 @@
 
   function openDate(date){
     selDate = date;
-    pickAnchor = '';
     var parts = date.split('-');
     var dt = new Date(+parts[0], +parts[1] - 1, +parts[2]);
     $('dateTitle').textContent = (+parts[1]) + '월 ' + (+parts[2]) + '일 (' + DOW[dt.getDay()] + ')';
@@ -680,11 +675,10 @@
     renderPick();
   }
 
-  /* ---------- 24시간 시계형 시간 선택 ---------- */
+  /* ---------- 24시간 시계 (보기 전용) ---------- */
   var CX = 100, CY = 100;
   var R_FACE = 99, R_TK_OUT = 99, R_TK_HOUR = 95.2, R_TK_HALF = 97.2;
-  var R_BAND_OUT = 95, R_BAND_IN = 78, R_NUM = 54, R_LABEL = 69;
-  var pickAnchor = '';
+  var R_BAND_OUT = 94, R_BAND_IN = 64, R_NUM = 45, R_TEXT = (R_BAND_OUT + R_BAND_IN) / 2;
 
   function f2(n){ return Math.round(n * 100) / 100; }
   function polar(r, deg){
@@ -731,14 +725,6 @@
   function overlaps(a, b){
     return Math.abs(a.x - b.x) < (a.w + b.w) / 2 && Math.abs(a.y - b.y) < (a.h + b.h) / 2;
   }
-  function insideDial(b){
-    var pts = [[b.x - b.w/2, b.y - b.h/2], [b.x + b.w/2, b.y - b.h/2], [b.x - b.w/2, b.y + b.h/2], [b.x + b.w/2, b.y + b.h/2]];
-    for (var i = 0; i < pts.length; i++) {
-      var dx = pts[i][0] - CX, dy = pts[i][1] - CY;
-      if (Math.sqrt(dx*dx + dy*dy) > R_FACE - 7) { return false; }
-    }
-    return true;
-  }
 
   /* 시계 판(눈금·숫자) 1회 생성 */
   function buildDial(){
@@ -757,7 +743,7 @@
       var p = polar(R_NUM, h * 15);
       nums += '<text class="num" x="' + f2(p[0]) + '" y="' + f2(p[1]) + '">' + h + '</text>';
     }
-    el.innerHTML = '<svg viewBox="0 0 200 200" role="img" aria-label="24시간 주차 시간 선택 시계">'
+    el.innerHTML = '<svg viewBox="0 0 200 200" role="img" aria-label="24시간 주차 시간대 표시">'
       + '<defs></defs>'
       + '<circle class="face" cx="' + CX + '" cy="' + CY + '" r="' + R_FACE + '"/>'
       + '<circle class="track" cx="' + CX + '" cy="' + CY + '" r="' + ((R_BAND_IN + R_BAND_OUT) / 2) + '"/>'
@@ -765,43 +751,47 @@
       + '<g class="ticks">' + ticks + '</g>'
       + nums
       + '<g class="labels"></g>'
-      + '<g class="ctr"></g>'
       + '</svg>';
   }
 
-  /* 숫자 자리를 피해 이름표를 가로로 놓는다 (겹치면 각도를 조금씩 비켜 배치) */
-  function placeLabel(degMid, txt, color, placed, fs){
-    var w = textW(txt, fs), boxW = w + 10, boxH = 12.4;
-    var offs = [0, -9, 9, -18, 18, -27, 27, -38, 38, -50, 50];
-    var rads = [86, 78.5, R_LABEL, R_LABEL - 9];
-    var p, box, hit, i, j, q, best = null;
+  /* 이름표: 색칠된 부채꼴 안, 그 각도 위치에 붙여 쓴다 */
+  function labelBox(degMid, w, h){
+    var p = polar(R_TEXT, degMid);
+    p[0] = Math.max(w / 2 + 4, Math.min(200 - w / 2 - 4, p[0]));
+    p[1] = Math.max(h / 2 + 6, Math.min(200 - h / 2 - 6, p[1]));
+    return { x: p[0], y: p[1], w: w, h: h };
+  }
 
-    for (j = 0; j < rads.length && !best; j++) {
-      for (i = 0; i < offs.length; i++) {
-        p = polar(rads[j], degMid + offs[i]);
-        box = { x: p[0], y: p[1], w: boxW, h: boxH };
-        if (!insideDial(box)) { continue; }
-        hit = false;
-        for (q = 0; q < placed.length; q++) {
-          if (overlaps(box, placed[q])) { hit = true; break; }
-        }
-        if (!hit) { best = box; break; }
-      }
+  function bandLabel(degMid, degSpan, name, color, placed, fs0){
+    var base = String(name || '');
+    if (!base) { return ''; }
+    var L = Math.abs(degSpan) * Math.PI / 180 * R_TEXT;
+    var room = Math.max(L * 0.94, 30);
+    var padX = 5, boxH = 12.6;
+    var fs = fs0 || 7.8, txt = base, q, hit;
+    if (textW(txt, fs) + padX * 2 > room) {
+      fs = Math.max(6.4, fs * (room - padX * 2) / textW(txt, fs));
+      while (textW(txt, fs) + padX * 2 > room + 6 && txt.length > 1) { txt = txt.slice(0, txt.length - 1); }
     }
-    if (!best) {
-      p = polar(R_LABEL, degMid);
-      best = { x: p[0], y: p[1], w: boxW, h: boxH };
+    var w = textW(txt, fs) + padX * 2;
+    var box = labelBox(degMid, w, boxH);
+    hit = false;
+    for (q = 0; q < placed.length; q++) { if (overlaps(box, placed[q])) { hit = true; break; } }
+    if (hit) {
+      fs = 6.4;
+      txt = base.length > 3 ? base.slice(0, 3) : base;
+      w = textW(txt, fs) + padX * 2;
+      box = labelBox(degMid, w, boxH);
+      hit = false;
+      for (q = 0; q < placed.length; q++) { if (overlaps(box, placed[q])) { hit = true; break; } }
+      if (hit) { return ''; }
     }
-    placed.push(best);
-
-    var anchor = polar(R_BAND_IN, degMid);
-    return '<line x1="' + f2(anchor[0]) + '" y1="' + f2(anchor[1]) + '" x2="' + f2(best.x) + '" y2="' + f2(best.y)
-         + '" stroke="' + hexA(color, .5) + '" stroke-width=".7"/>'
-         + '<rect x="' + f2(best.x - boxW / 2) + '" y="' + f2(best.y - boxH / 2) + '" width="' + f2(boxW)
-         + '" height="' + boxH + '" rx="' + f2(boxH / 2) + '" fill="#fff" fill-opacity=".94" stroke="'
-         + hexA(color, .45) + '" stroke-width=".9"/>'
-         + '<text class="chip" x="' + f2(best.x) + '" y="' + f2(best.y) + '" fill="' + color
-         + '" text-anchor="middle">' + esc(txt) + '</text>';
+    placed.push(box);
+    return '<rect x="' + f2(box.x - w / 2) + '" y="' + f2(box.y - boxH / 2) + '" width="' + f2(w)
+         + '" height="' + boxH + '" rx="' + f2(boxH / 2) + '" fill="' + color + '"/>'
+         + '<text class="nm-lb" x="' + f2(box.x) + '" y="' + f2(box.y) + '" fill="#fff"'
+         + (fs !== (fs0 || 7.8) ? ' style="font-size:' + f2(fs) + 'px"' : '') + '>'
+         + esc(txt) + '</text>';
   }
 
   function renderDial(){
@@ -809,8 +799,7 @@
     if (!el) { return; }
     var segs = el.querySelector('.segs');
     var labels = el.querySelector('.labels');
-    var ctr = el.querySelector('.ctr');
-    if (!segs || !labels || !ctr) { return; }
+    if (!segs || !labels) { return; }
 
     var list = entriesOf(selDate);
     var s = toMin($('startSel').value);
@@ -833,7 +822,7 @@
     /* 내가 지금 맞추고 있는 구간 (내 색상) */
     if (ok) {
       arcs += '<path d="' + arcPath(R_BAND_IN, R_BAND_OUT, degOf(Math.max(0, s)), degOf(Math.min(1440, e)))
-            + '" fill="' + hexA(myColor, .26) + '" stroke="' + myColor + '" stroke-width="2.6"/>';
+            + '" fill="' + hexA(myColor, .3) + '" stroke="' + myColor + '" stroke-width="2.4"/>';
     }
 
     /* 겹치는 구간 경고 */
@@ -849,34 +838,19 @@
     }
     segs.innerHTML = arcs;
 
-    /* 이름표 (숫자 자리는 피해서) */
-    var placed = [], hh, pp, nm, tw;
-    for (hh = 0; hh < 24; hh += 3) {
-      pp = polar(R_NUM, hh * 15);
-      nm = String(hh);
-      tw = textW(nm, 8.2) + 4;
-      placed.push({ x: pp[0], y: pp[1], w: tw, h: 10 });
-    }
-    var lh = '';
+    /* 이름표: 각자 색칠된 부채꼴 안에 각자 이름 */
+    var placed = [], lh = '';
     for (i = 0; i < list.length; i++) {
       en = list[i];
       a = toMin(en.start); b = toMin(en.end);
       if (!(b > a)) { continue; }
-      lh += placeLabel((degOf(a) + degOf(b)) / 2, String(en.name || '').slice(0, 6), en.color || '#e88295', placed, 7.8);
+      lh += bandLabel((degOf(a) + degOf(b)) / 2, degOf(b) - degOf(a), String(en.name || ''), en.color || '#e88295', placed, 7.8);
+    }
+    if (ok && !conf) {
+      var ps = Math.max(0, s), pe = Math.min(1440, e);
+      lh += bandLabel((degOf(ps) + degOf(pe)) / 2, degOf(pe) - degOf(ps), me.name || '내 시간', myColor, placed, 7.8);
     }
     labels.innerHTML = lh;
-
-    /* 시계 가운데: 내 이름 + 시간 */
-    var nm2 = me.name || '내 시간';
-    var col = conf ? '#c24a60' : myColor;
-    var tm = ok ? (toHM(s) + '~' + toHM(e)) : '시간을 골라 주세요';
-    var ctrHtml = '<text class="ctr-nm" x="' + CX + '" y="96" fill="' + col + '">' + esc(nm2) + '</text>'
-                + '<text class="ctr-tm" x="' + CX + '" y="110" fill="' + (conf ? '#c24a60' : '#6f6a78') + '">'
-                + esc(tm) + '</text>';
-    if (conf) {
-      ctrHtml += '<text class="ctr-bad" x="' + CX + '" y="121">겹침</text>';
-    }
-    ctr.innerHTML = ctrHtml;
 
     var sum = $('pickSum');
     if (sum) { sum.textContent = (s >= 0 && e >= 0) ? (toHM(s) + ' ~ ' + toHM(e)) : '-'; }
@@ -888,7 +862,6 @@
     var warn = $('rangeWarn');
     var btn = $('regBtn');
     var line = $('pickLine');
-    var hint = $('pickHint');
     btn.textContent = me.name ? (me.name + ' 님으로 등록') : '이름 정하고 등록';
     var msg = '';
     if (!start || !end || end <= start) {
@@ -910,79 +883,6 @@
       btn.disabled = false;
     }
     if (line) { line.classList.toggle('bad', !!msg); }
-    if (hint) {
-      hint.textContent = msg ? '' : (pickAnchor ? '끝 시간을 눌러 주세요' : '시계를 눌러 시작·끝을 고르세요');
-    }
-  }
-
-  /* 시계 좌표 → 30분 단위 시각(분) */
-  function timeFromPoint(ev){
-    var el = $('clockDay');
-    var svg = el ? el.querySelector('svg') : null;
-    if (!svg) { return -1; }
-    var r = svg.getBoundingClientRect();
-    if (!r.width) { return -1; }
-    var dx = ev.clientX - (r.left + r.width / 2);
-    var dy = ev.clientY - (r.top + r.height / 2);
-    if (!dx && !dy) { return -1; }
-    var deg = Math.atan2(dy, dx) * 180 / Math.PI + 90;
-    deg = ((deg % 360) + 360) % 360;
-    var step = Math.round(deg / 7.5) % 48;
-    return step * 30;
-  }
-
-  function applyRange(a, b){
-    var lo = Math.min(a, b), hi = Math.max(a, b);
-    if (hi - lo < 30) { hi = lo + 30; }
-    lo = Math.max(0, Math.min(1430, Math.round(lo / 30) * 30));
-    hi = Math.max(30, Math.min(1440, Math.round(hi / 30) * 30));
-    if (hi <= lo) { hi = Math.min(1440, lo + 30); }
-    $('startSel').value = toHM(lo);
-    $('endSel').value = toHM(hi);
-    range.start = toHM(lo);
-    range.end = toHM(hi);
-    renderPick();
-  }
-
-  function bindDial(){
-    var el = $('clockDay');
-    if (!el) { return; }
-    var down = -1, moved = false, fresh = false, dx0 = 0, dy0 = 0;
-
-    el.addEventListener('pointerdown', function(ev){
-      var t = timeFromPoint(ev);
-      if (t < 0) { return; }
-      if (ev.cancelable) { ev.preventDefault(); }
-      try { el.setPointerCapture(ev.pointerId); } catch(e){}
-      down = t; moved = false; dx0 = ev.clientX; dy0 = ev.clientY;
-      if (!pickAnchor) {
-        pickAnchor = t; fresh = true;
-        applyRange(t, t + 60);
-      } else {
-        fresh = false;
-        applyRange(pickAnchor, t);
-      }
-    });
-
-    el.addEventListener('pointermove', function(ev){
-      if (down < 0) { return; }
-      var d = Math.sqrt((ev.clientX - dx0) * (ev.clientX - dx0) + (ev.clientY - dy0) * (ev.clientY - dy0));
-      if (d < 12) { return; }
-      var t = timeFromPoint(ev);
-      if (t < 0) { return; }
-      if (t !== down) { moved = true; }
-      applyRange(pickAnchor !== '' ? pickAnchor : down, t);
-    });
-
-    function endDrag(){
-      if (down < 0) { return; }
-      down = -1;
-      if (moved) { pickAnchor = ''; }
-      else if (!fresh) { pickAnchor = ''; }
-      renderPick();
-    }
-    el.addEventListener('pointerup', endDrag);
-    el.addEventListener('pointercancel', endDrag);
   }
 
   function rememberRange(){
@@ -1021,8 +921,7 @@
       });
     }).then(function(d){
       applyState(d);
-      pickAnchor = '';
-      render();
+        render();
       toast(start + '~' + end + ' 등록했어요.');
       shiftRange(end);
     }).catch(function(err){
@@ -1176,8 +1075,8 @@
     render();
   });
 
-  $('startSel').addEventListener('change', function(){ pickAnchor = ''; rememberRange(); renderDateSheet(); });
-  $('endSel').addEventListener('change', function(){ pickAnchor = ''; rememberRange(); renderDateSheet(); });
+  $('startSel').addEventListener('change', function(){ rememberRange(); renderDateSheet(); });
+  $('endSel').addEventListener('change', function(){ rememberRange(); renderDateSheet(); });
   $('regBtn').addEventListener('click', register);
 
   $('dateList').addEventListener('click', function(e){
@@ -1212,7 +1111,6 @@
   /* 시작 */
   loadMe();
   buildDial();
-  bindDial();
   buildTimeOptions();
   renderColors();
   render();
