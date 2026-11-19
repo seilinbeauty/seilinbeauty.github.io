@@ -184,14 +184,35 @@
 
   .range-head{display:flex; align-items:center; justify-content:space-between; margin:16px 0 7px;}
   .range-head b{font-size:11.5px; font-weight:800; color:var(--muted);}
-  .range-row{display:flex; align-items:center; gap:8px;}
-  .range-row select{
-    flex:1 1 0; min-width:0; padding:11px 8px; border-radius:11px;
-    border:1px solid var(--line); background:#fdfbfc; color:var(--text);
-    font-size:14px; font-weight:700; text-align:center; outline:none;
-    -webkit-appearance:none; appearance:none;
+  .range-head > span{font-size:11px; font-weight:700; color:var(--dim);}
+
+  /* 시계형 시간 선택 */
+  .clocks{display:flex; align-items:flex-start; justify-content:center; gap:6px;}
+  .clock{flex:1 1 0; min-width:0; max-width:152px;}
+  .clock svg{display:block; width:100%; height:auto; touch-action:none; user-select:none; -webkit-user-select:none; cursor:pointer;}
+  .clock .face{fill:#fff; stroke:var(--pink-line); stroke-width:1.4;}
+  .clock .track{fill:none; stroke:#f8f2f5; stroke-width:20;}
+  .clock .segs path{stroke-linejoin:round;}
+  .clock .tk{stroke:#e7dce1; stroke-width:1.1; stroke-linecap:round;}
+  .clock .tk.half{stroke:#f1e9ee; stroke-width:.9;}
+  .clock .num{fill:var(--muted); font-size:16px; font-weight:800; text-anchor:middle; dominant-baseline:central; font-family:inherit;}
+  .clock .ctr{fill:var(--dim); font-size:10.5px; font-weight:800; text-anchor:middle; dominant-baseline:central; font-family:inherit; letter-spacing:-.3px;}
+  .pick-line{display:flex; align-items:baseline; justify-content:center; gap:7px; margin:5px 0 7px; flex-wrap:wrap;}
+  .pick-line b{font-size:15px; font-weight:800; color:var(--pink-deep); letter-spacing:-.2px; font-variant-numeric:tabular-nums;}
+  .pick-line span{font-size:10.5px; font-weight:700; color:var(--dim);}
+  .pick-line.bad b{color:#c24a60;}
+  .range-row{display:flex; align-items:center; gap:6px;}
+  .range-row .mini{
+    flex:1 1 0; min-width:0; display:flex; align-items:center; gap:5px;
+    padding:8px 10px; border-radius:11px; border:1px solid var(--line); background:#fdfbfc;
   }
-  .range-row select:focus{border-color:var(--pink); background:#fff;}
+  .range-row .mini:focus-within{border-color:var(--pink); background:#fff;}
+  .range-row .mini span{flex:0 0 auto; font-size:10.5px; font-weight:800; color:var(--dim);}
+  .range-row .mini select{
+    flex:1 1 auto; min-width:0; padding:0; border:0; background:transparent;
+    color:var(--text); font-size:13px; font-weight:800; text-align:center; outline:none;
+    font-variant-numeric:tabular-nums; -webkit-appearance:none; appearance:none;
+  }
   .range-row .tilde{flex:0 0 auto; color:var(--dim); font-weight:800;}
   .warn{
     margin:9px 0 0; padding:8px 10px; border-radius:10px;
@@ -299,11 +320,19 @@
     </div>
     <div class="list-head"><b>등록 현황</b><span id="listCount"></span></div>
     <div class="toggle-list" id="dateList"></div>
-    <div class="range-head"><b>시간대 등록</b><span class="tilde">주차 1대</span></div>
+    <div class="range-head"><b>시간대 등록</b><span>주차 1대</span></div>
+    <div class="clocks">
+      <div class="clock" id="clockAm"></div>
+      <div class="clock" id="clockPm"></div>
+    </div>
+    <div class="pick-line" id="pickLine">
+      <b id="pickSum">-</b>
+      <span id="pickHint">시계를 눌러 시작·끝을 고르세요</span>
+    </div>
     <div class="range-row">
-      <select id="startSel" aria-label="시작 시간"></select>
+      <label class="mini"><span>시작</span><select id="startSel" aria-label="시작 시간"></select></label>
       <span class="tilde">~</span>
-      <select id="endSel" aria-label="종료 시간"></select>
+      <label class="mini"><span>종료</span><select id="endSel" aria-label="종료 시간"></select></label>
     </div>
     <p class="warn" id="rangeWarn" hidden></p>
     <div class="sheet-actions">
@@ -608,6 +637,7 @@
 
   function openDate(date){
     selDate = date;
+    pickAnchor = '';
     var parts = date.split('-');
     var dt = new Date(+parts[0], +parts[1] - 1, +parts[2]);
     $('dateTitle').textContent = (+parts[1]) + '월 ' + (+parts[2]) + '일 (' + DOW[dt.getDay()] + ')';
@@ -644,12 +674,140 @@
     $('dateList').innerHTML = html || '<div class="empty">아직 등록된 주차가 없어요.</div>';
     $('listCount').textContent = list.length ? list.length + '건' : '';
 
+    renderPick();
+  }
+
+  /* ---------- 시계형 시간 선택 ---------- */
+  var CX = 100, CY = 100, R_IN = 66, R_OUT = 86, NUM_R = 50;
+  var pickAnchor = '';
+
+  function f2(n){ return Math.round(n * 100) / 100; }
+  function polar(r, deg){
+    var rad = (deg - 90) * Math.PI / 180;
+    return [CX + r * Math.cos(rad), CY + r * Math.sin(rad)];
+  }
+  function arcPath(r1, r2, a0, a1){
+    var span = a1 - a0;
+    if (span <= 0.01) { return ''; }
+    if (span >= 359.9) {
+      return 'M' + (CX - r2) + ',' + CY + 'A' + r2 + ',' + r2 + ' 0 1 1 ' + (CX + r2) + ',' + CY
+           + 'A' + r2 + ',' + r2 + ' 0 1 1 ' + (CX - r2) + ',' + CY + 'Z'
+           + 'M' + (CX - r1) + ',' + CY + 'A' + r1 + ',' + r1 + ' 0 1 0 ' + (CX + r1) + ',' + CY
+           + 'A' + r1 + ',' + r1 + ' 0 1 0 ' + (CX - r1) + ',' + CY + 'Z';
+    }
+    var large = span > 180 ? 1 : 0;
+    var p1 = polar(r2, a0), p2 = polar(r2, a1), p3 = polar(r1, a1), p4 = polar(r1, a0);
+    return 'M' + f2(p1[0]) + ',' + f2(p1[1])
+      + 'A' + r2 + ',' + r2 + ' 0 ' + large + ' 1 ' + f2(p2[0]) + ',' + f2(p2[1])
+      + 'L' + f2(p3[0]) + ',' + f2(p3[1])
+      + 'A' + r1 + ',' + r1 + ' 0 ' + large + ' 0 ' + f2(p4[0]) + ',' + f2(p4[1]) + 'Z';
+  }
+
+  function toMin(v){
+    var s = String(v || '');
+    if (!/^\d{1,2}:\d{2}$/.test(s)) { return -1; }
+    var p = s.split(':');
+    return (+p[0]) * 60 + (+p[1]);
+  }
+  function toHM(min){
+    if (min >= 1440) { return '24:00'; }
+    if (min < 0) { min = 0; }
+    return pad(Math.floor(min / 60)) + ':' + pad(min % 60);
+  }
+  function clockBase(kind){ return kind === 'am' ? 0 : 720; }
+  function clockEl(kind){ return kind === 'am' ? $('clockAm') : $('clockPm'); }
+
+  function buildDial(kind){
+    var el = clockEl(kind);
+    if (!el) { return; }
+    var label = kind === 'am' ? '오전' : '오후';
+    var ticks = '';
+    for (var i = 0; i < 24; i++) {
+      var deg = i * 15;
+      var len = (i % 2 === 0) ? 20 : 10;
+      var a = polar(R_OUT, deg), b = polar(R_OUT - len, deg);
+      ticks += '<line class="tk' + (i % 2 ? ' half' : '') + '" x1="' + f2(a[0]) + '" y1="' + f2(a[1])
+             + '" x2="' + f2(b[0]) + '" y2="' + f2(b[1]) + '"/>';
+    }
+    var nums = '';
+    var defs = [[12, 0], [3, 90], [6, 180], [9, 270]];
+    for (var k = 0; k < defs.length; k++) {
+      var p = polar(NUM_R, defs[k][1]);
+      nums += '<text class="num" x="' + f2(p[0]) + '" y="' + f2(p[1]) + '">' + defs[k][0] + '</text>';
+    }
+    el.innerHTML = '<svg viewBox="0 0 200 200" role="img" aria-label="' + label + ' 시간 선택 시계">'
+      + '<circle class="face" cx="' + CX + '" cy="' + CY + '" r="95"/>'
+      + '<circle class="track" cx="' + CX + '" cy="' + CY + '" r="' + ((R_IN + R_OUT) / 2) + '"/>'
+      + '<g class="segs"></g>'
+      + '<g class="ticks">' + ticks + '</g>'
+      + nums
+      + '<text class="ctr" x="' + CX + '" y="' + CY + '">' + label + '</text>'
+      + '</svg>';
+  }
+
+  function renderClocks(){
+    var list = entriesOf(selDate);
+    var s = toMin($('startSel').value);
+    var e = toMin($('endSel').value);
+    var myColor = me.color || COLORS[0];
+
+    ['am', 'pm'].forEach(function(kind){
+      var el = clockEl(kind);
+      if (!el) { return; }
+      var g = el.querySelector('.segs');
+      if (!g) { return; }
+      var lo = clockBase(kind), hi = lo + 720;
+      var html = '', i, en, a, b, c;
+
+      /* 이미 등록된 시간대(등록자 색상) */
+      for (i = 0; i < list.length; i++) {
+        en = list[i];
+        a = Math.max(toMin(en.start), lo);
+        b = Math.min(toMin(en.end), hi);
+        if (!(b > a)) { continue; }
+        c = en.color || '#e88295';
+        html += '<path d="' + arcPath(R_IN, R_OUT, (a - lo) / 2, (b - lo) / 2) + '" fill="'
+              + hexA(c, .55) + '" stroke="' + c + '" stroke-width="1"/>';
+      }
+
+      /* 내가 고른 시간대 */
+      if (s >= 0 && e > s) {
+        a = Math.max(s, lo);
+        b = Math.min(e, hi);
+        if (b > a) {
+          html += '<path d="' + arcPath(R_IN, R_OUT, (a - lo) / 2, (b - lo) / 2) + '" fill="'
+                + hexA(myColor, .5) + '" stroke="' + myColor + '" stroke-width="2.6"/>';
+        }
+      }
+
+      /* 겹치는 구간 경고 */
+      if (s >= 0 && e > s) {
+        for (i = 0; i < list.length; i++) {
+          en = list[i];
+          a = Math.max(s, toMin(en.start), lo);
+          b = Math.min(e, toMin(en.end), hi);
+          if (!(b > a)) { continue; }
+          html += '<path d="' + arcPath(R_IN, R_OUT, (a - lo) / 2, (b - lo) / 2) + '" fill="#c24a60" fill-opacity=".82" stroke="#fff" stroke-width=".9"/>';
+        }
+      }
+
+      g.innerHTML = html;
+    });
+
+    var sum = $('pickSum');
+    if (sum) { sum.textContent = (s >= 0 && e >= 0) ? (toHM(s) + ' ~ ' + toHM(e)) : '-'; }
+  }
+
+  function renderPick(){
+    renderClocks();
     var start = $('startSel').value, end = $('endSel').value;
     var warn = $('rangeWarn');
     var btn = $('regBtn');
+    var line = $('pickLine');
+    var hint = $('pickHint');
     btn.textContent = me.name ? (me.name + ' 님으로 등록') : '이름 정하고 등록';
     var msg = '';
-    if (end <= start) {
+    if (!start || !end || end <= start) {
       msg = '종료 시간이 시작 시간보다 빨라요.';
     } else {
       var c = conflictFor(start, end);
@@ -667,6 +825,79 @@
       warn.hidden = true;
       btn.disabled = false;
     }
+    if (line) { line.classList.toggle('bad', !!msg); }
+    if (hint && !msg) {
+      hint.textContent = pickAnchor ? '끝 시간을 눌러 주세요' : '시계를 눌러 시작·끝을 고르세요';
+    }
+  }
+
+  /* 시계 좌표 → 30분 단위 시각(분) */
+  function timeFromPoint(ev, kind){
+    var svg = clockEl(kind) ? clockEl(kind).querySelector('svg') : null;
+    if (!svg) { return -1; }
+    var r = svg.getBoundingClientRect();
+    if (!r.width) { return -1; }
+    var dx = ev.clientX - (r.left + r.width / 2);
+    var dy = ev.clientY - (r.top + r.height / 2);
+    if (!dx && !dy) { return -1; }
+    var deg = Math.atan2(dy, dx) * 180 / Math.PI + 90;
+    deg = ((deg % 360) + 360) % 360;
+    var step = Math.round(deg / 15) % 24;
+    return clockBase(kind) + step * 30;
+  }
+
+  function applyRange(a, b){
+    var lo = Math.min(a, b), hi = Math.max(a, b);
+    if (hi - lo < 30) { hi = lo + 30; }
+    lo = Math.max(0, Math.min(1430, Math.round(lo / 30) * 30));
+    hi = Math.max(30, Math.min(1440, Math.round(hi / 30) * 30));
+    if (hi <= lo) { hi = Math.min(1440, lo + 30); }
+    $('startSel').value = toHM(lo);
+    $('endSel').value = toHM(hi);
+    range.start = toHM(lo);
+    range.end = toHM(hi);
+    renderPick();
+  }
+
+  function bindClock(kind){
+    var el = clockEl(kind);
+    if (!el) { return; }
+    var down = -1, moved = false, fresh = false, dx0 = 0, dy0 = 0;
+
+    el.addEventListener('pointerdown', function(ev){
+      var t = timeFromPoint(ev, kind);
+      if (t < 0) { return; }
+      if (ev.cancelable) { ev.preventDefault(); }
+      try { el.setPointerCapture(ev.pointerId); } catch(e){}
+      down = t; moved = false; dx0 = ev.clientX; dy0 = ev.clientY;
+      if (!pickAnchor) {
+        pickAnchor = t; fresh = true;
+        applyRange(t, t + 60);
+      } else {
+        fresh = false;
+        applyRange(pickAnchor, t);
+      }
+    });
+
+    el.addEventListener('pointermove', function(ev){
+      if (down < 0) { return; }
+      var d = Math.sqrt((ev.clientX - dx0) * (ev.clientX - dx0) + (ev.clientY - dy0) * (ev.clientY - dy0));
+      if (d < 12) { return; }
+      var t = timeFromPoint(ev, kind);
+      if (t < 0) { return; }
+      if (t !== down) { moved = true; }
+      applyRange(pickAnchor || down, t);
+    });
+
+    function endDrag(){
+      if (down < 0) { return; }
+      down = -1;
+      if (moved) { pickAnchor = ''; }
+      else if (!fresh) { pickAnchor = ''; }
+      renderPick();
+    }
+    el.addEventListener('pointerup', endDrag);
+    el.addEventListener('pointercancel', endDrag);
   }
 
   function rememberRange(){
@@ -859,8 +1090,8 @@
     render();
   });
 
-  $('startSel').addEventListener('change', function(){ rememberRange(); renderDateSheet(); });
-  $('endSel').addEventListener('change', function(){ rememberRange(); renderDateSheet(); });
+  $('startSel').addEventListener('change', function(){ pickAnchor = ''; rememberRange(); renderDateSheet(); });
+  $('endSel').addEventListener('change', function(){ pickAnchor = ''; rememberRange(); renderDateSheet(); });
   $('regBtn').addEventListener('click', register);
 
   $('dateList').addEventListener('click', function(e){
@@ -894,6 +1125,10 @@
 
   /* 시작 */
   loadMe();
+  buildDial('am');
+  buildDial('pm');
+  bindClock('am');
+  bindClock('pm');
   buildTimeOptions();
   renderColors();
   render();
