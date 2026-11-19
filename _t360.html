@@ -10,20 +10,22 @@
 </style>
 </head>
 <body>
-<div class="wrap"><iframe id="fr" src="parking.html?notrack=1"></iframe></div>
+<div class="wrap"><iframe id="fr"></iframe></div>
 <script>
   var fr = document.getElementById('fr');
   fr.addEventListener('load', function(){
     setTimeout(function(){
       try {
         var d = fr.contentDocument;
+        var q = new URLSearchParams(location.search).get('d');
         var today = new Date();
-        var key = today.getFullYear() + '-' + ('0'+(today.getMonth()+1)).slice(-2) + '-' + ('0'+today.getDate()).slice(-2);
+        var key = q || (today.getFullYear() + '-' + ('0'+(today.getMonth()+1)).slice(-2) + '-' + ('0'+today.getDate()).slice(-2));
         var cell = d.querySelector('[data-date="' + key + '"]') || d.querySelector('.cell.sel') || d.querySelector('[data-date]');
         if (cell) cell.click();
       } catch(e){}
-    }, 1500);
+    }, 1600);
   });
+  fr.src = 'parking.html?notrack=1&cb=' + Date.now();
 </script>
 </body>
 </html>
