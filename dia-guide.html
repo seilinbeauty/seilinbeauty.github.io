@@ -2367,7 +2367,8 @@
   try{
     if(!window.fetch) return;
     var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
-    var COOL = 1800000;
+    var SITE = 'dia';
+    var COOL = 1800000;   // 서버가 기기ID·회원명 기준으로 30분 중복을 걸러낸다
     function get(k){ try{ return localStorage.getItem(k) || ''; }catch(e){ return ''; } }
     function set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
     function 기기(){
@@ -2392,15 +2393,13 @@
       return s === 'STAFF' || s === '세이린뷰티 본점' || s === '세이린 뷰티';
     }
     function 오늘(){ return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10); }
+    // 페이지가 열릴 때마다 1회 부른다(조회수) — 방문자 30분 중복은 서버에서 걸러진다
     function 보내기(){
       var today = 오늘();
       var m = 회원().trim();
       if(관리자(m)) return;
       var ts = Number(get('dia_visit_ts')) || 0;
-      var 최근 = (get('dia_visit') === today && ts && (Date.now() - ts) < COOL);
-      var 새회원 = !!m && get('dia_visit_m') !== (today + ':' + m);
-      if(최근 && !새회원) return;
-      var url = EXEC + '?mode=visit&d=' + today + '&u=' + encodeURIComponent(기기()) + (m ? '&m=' + encodeURIComponent(m) : '');
+      var url = EXEC + '?mode=visit&d=' + today + '&site=' + SITE + '&u=' + encodeURIComponent(기기()) + (m ? '&m=' + encodeURIComponent(m) : '');
       fetch(url, {cache: 'no-store'})
         .then(function(r){ return r.json(); })
         .then(function(d){
@@ -2411,8 +2410,19 @@
         })
         .catch(function(){});
     }
+    // 현재 접속 중: 화면이 보이는 동안 50초마다 가벼운 하트비트(관리자 제외)
+    function 살아있음(){
+      if(관리자(회원().trim())) return;
+      if(document.visibilityState && document.visibilityState !== 'visible') return;
+      fetch(EXEC + '?mode=hb&site=' + SITE + '&u=' + encodeURIComponent(기기()), {cache: 'no-store'}).catch(function(){});
+    }
     window.diaVisitSync = 보내기;
     보내기();
+    살아있음();
+    setInterval(살아있음, 50000);
+    document.addEventListener('visibilitychange', function(){
+      if(document.visibilityState === 'visible') 살아있음();
+    });
   }catch(e){}
 })();
 </script></body>
