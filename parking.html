@@ -102,7 +102,7 @@
   .grid{display:grid; grid-template-columns:repeat(7,1fr); gap:3px;}
   .cell{
     position:relative; display:flex; flex-direction:column; align-items:center;
-    min-height:60px; padding:4px 2px 3px; border-radius:10px;
+    min-height:64px; padding:4px 1px 3px; border-radius:10px;
     background:#fff; border:1px solid transparent; text-align:center;
     overflow:hidden;
   }
@@ -116,10 +116,12 @@
   .cell.sel{border-color:var(--pink); box-shadow:inset 0 0 0 1px var(--pink);}
   .badges{display:flex; flex-direction:column; gap:2px; width:100%; align-items:center; margin-top:1px;}
   .badges i{
-    display:block; max-width:100%; padding:1px 2px; border-radius:4px;
-    font-size:7.5px; font-style:normal; font-weight:800; line-height:1.25; letter-spacing:-.2px;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    max-width:100%; padding:1px 1px; border-radius:4px;
+    font-style:normal; font-weight:800; line-height:1.15; overflow:hidden;
   }
+  .badges i b{font-size:8px; font-weight:800; letter-spacing:-.3px; white-space:nowrap;}
+  .badges i em{font-size:7px; font-style:normal; font-weight:700; letter-spacing:-.3px; opacity:.9; white-space:nowrap;}
   .badges .more{font-size:8px; font-weight:800; color:var(--dim);}
 
   /* 로그 */
@@ -227,8 +229,9 @@
   @media (min-width:640px){
     main{max-width:620px; padding-top:20px;}
     body{font-size:14.5px;}
-    .cell{min-height:70px;}
-    .badges i{font-size:9.5px;}
+    .cell{min-height:78px;}
+    .badges i b{font-size:9px;}
+    .badges i em{font-size:8px;}
     .sheet-wrap{align-items:center;}
     .sheet{border-radius:18px; max-width:440px; padding-bottom:16px;}
     .grip{display:none;}
@@ -547,8 +550,12 @@
         var e = shown[i];
         var color = e.color || '#e88295';
         var label = String(e.name || '').slice(0, 2);
-        if (e.start && e.end) { label += ' ' + shortH(e.start) + '-' + shortH(e.end); }
-        badges += '<i style="background:' + hexA(color, .16) + ';color:' + color + '">' + esc(label) + '</i>';
+        var time = '';
+        if (e.start && e.end) { time = shortH(e.start) + '-' + shortH(e.end); }
+        badges += '<i style="background:' + hexA(color, .16) + ';color:' + color + '">'
+                + '<b>' + esc(label) + '</b>'
+                + (time ? '<em>' + esc(time) + '</em>' : '')
+                + '</i>';
       }
       if (list.length > 2) { badges += '<span class="more">+' + (list.length - 2) + '</span>'; }
     }
