@@ -797,5 +797,70 @@
   load();
 })();
 </script>
+  <!-- Google tag (gtag.js) - GA4 세이린뷰티 -->
+  <script>
+    (function(){
+      try{
+        var off = false;
+        try{
+          if(/[?&]notrack=1/.test(location.search)){ localStorage.setItem('dia_no_track', '1'); off = true; }
+          if(localStorage.getItem('dia_no_track') === '1'){ off = true; }
+        }catch(e){}
+        if(navigator.webdriver === true){ off = true; }
+        window.__diaNoTrack = off;
+        if(off) return;
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-N7KQ4JLLS2';
+        document.head.appendChild(s);
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function(){ dataLayer.push(arguments); };
+        gtag('js', new Date());
+        gtag('config', 'G-N7KQ4JLLS2');
+      }catch(e){}
+    })();
+  </script>
+
+  <script>
+  (function(){
+    try{
+      if(!window.fetch) return;
+      // 작업·내부 브라우저 제외: ?notrack=1 / dia_no_track=1 / 자동화 브라우저면 집계·하트비트를 보내지 않는다
+      var off = false;
+      try{
+        if(/[?&]notrack=1/.test(location.search)){ try{ localStorage.setItem('dia_no_track', '1'); }catch(e0){} off = true; }
+        if(localStorage.getItem('dia_no_track') === '1'){ off = true; }
+      }catch(e1){}
+      if(navigator.webdriver === true){ off = true; }
+      if(off) return;
+      var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
+      var SITE = 'parking';
+      function get(k){ try{ return localStorage.getItem(k) || ''; }catch(e){ return ''; } }
+      function set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
+      function 기기(){
+        var v = get('dia_vid');
+        if(!v){
+          v = 'd' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+          set('dia_vid', v);
+        }
+        return v;
+      }
+      function 보내기(){
+        var url = EXEC + '?mode=visit&site=' + SITE + '&u=' + encodeURIComponent(기기()) + '&_=' + Date.now();
+        fetch(url, {cache: 'no-store'}).then(function(r){ return r.json(); }).catch(function(){});
+      }
+      function 살아있음(){
+        if(document.visibilityState && document.visibilityState !== 'visible') return;
+        fetch(EXEC + '?mode=hb&site=' + SITE + '&u=' + encodeURIComponent(기기()) + '&_=' + Date.now(), {cache: 'no-store'}).catch(function(){});
+      }
+      보내기();
+      살아있음();
+      setInterval(살아있음, 50000);
+      document.addEventListener('visibilitychange', function(){
+        if(document.visibilityState === 'visible') 살아있음();
+      });
+    }catch(e){}
+  })();
+  </script>
 </body>
 </html>
