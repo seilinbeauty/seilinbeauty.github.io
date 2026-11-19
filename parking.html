@@ -90,7 +90,6 @@
     font-size:19px; font-weight:700; color:var(--pink-deep); background:var(--pink-light);
   }
   .cal-title{display:flex; align-items:center; gap:8px;}
-  .cal-sync{text-align:center; font-size:10.5px; font-weight:600; color:var(--dim); letter-spacing:-.01em; margin:-2px 0 4px; opacity:.75;}
   .cal-title b{font-size:15px; font-weight:800; letter-spacing:-.02em;}
   .today-btn{
     padding:4px 9px; border-radius:999px; font-size:11px; font-weight:700;
@@ -316,7 +315,6 @@
       </div>
       <button class="nav" id="nextBtn" type="button" aria-label="다음 달">›</button>
     </div>
-    <div class="cal-sync" id="calSync" hidden>불러오는 중…</div>
     <div class="dow"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
     <div class="grid" id="calGrid"></div>
   </section>
@@ -541,23 +539,13 @@
     state.logs = d.logs || [];
   }
 
-  var syncN = 0;
-  function setSync(on){
-    syncN = Math.max(0, syncN + (on ? 1 : -1));
-    var el = $('calSync');
-    if (el) { el.hidden = (syncN === 0); }
-  }
-
   function load(){
-    setSync(true);
     return apiRead({ mode: 'parking_get' }).then(function(d){
       applyState(d);
       loaded = true;
       saveCache(d);
-      setSync(false);
       render();
     }).catch(function(){
-      setSync(false);
       if (state.entries.length > 0) {
         /* 캐시로 이미 달력이 그려져 있으면 화면을 덮지 않고 조용히 알린다 */
         toast('연결이 잠시 안 됩니다. 잠시 뒤 다시 시도해 주세요.');
