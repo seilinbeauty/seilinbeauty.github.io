@@ -191,13 +191,12 @@
   .dial{width:258px; max-width:100%;}
   .dial svg{display:block; width:100%; height:auto; touch-action:none; user-select:none; -webkit-user-select:none; cursor:pointer;}
   .dial .face{fill:#fff; stroke:var(--pink-line); stroke-width:1.2;}
-  .dial .track{fill:none; stroke:#f4e9ee; stroke-width:19;}
+  .dial .track{fill:none; stroke:#f5ebf0; stroke-width:17;}
   .dial .segs path{stroke-linejoin:round;}
   .dial .tk{stroke:#dccfd6; stroke-width:1.15; stroke-linecap:round;}
   .dial .tk.half{stroke:#ece2e8; stroke-width:.9;}
-  .dial .num{fill:#4f4a58; font-size:8.4px; font-weight:800; text-anchor:middle; dominant-baseline:central; font-family:inherit;}
-  .dial .nm{font-size:9.2px; font-weight:800; font-family:inherit; paint-order:stroke; stroke:#fff; stroke-width:1.9px; stroke-linejoin:round;}
-  .dial .chip{font-size:7.8px; font-weight:800; font-family:inherit; dominant-baseline:central;}
+  .dial .num{fill:#5a5563; font-size:8.2px; font-weight:800; text-anchor:middle; dominant-baseline:central; font-family:inherit;}
+  .dial .chip{font-size:7.8px; font-weight:800; font-family:inherit; dominant-baseline:central; letter-spacing:-.2px;}
   .dial .ctr-nm{font-size:12px; font-weight:800; text-anchor:middle; font-family:inherit; letter-spacing:-.2px;}
   .dial .ctr-tm{font-size:9.8px; font-weight:800; text-anchor:middle; font-family:inherit; font-variant-numeric:tabular-nums; letter-spacing:.2px;}
   .dial .ctr-bad{font-size:8.4px; font-weight:800; text-anchor:middle; font-family:inherit; fill:#c24a60;}
@@ -705,10 +704,9 @@
 
   /* ---------- 24시간 시계형 시간 선택 ---------- */
   var CX = 100, CY = 100;
-  var R_FACE = 99, R_TK_OUT = 98.8, R_TK_HOUR = 94.3, R_TK_HALF = 96.4;
-  var R_BAND_OUT = 94, R_BAND_IN = 75, R_NUM = 67, R_TXT = 85;
+  var R_FACE = 99, R_TK_OUT = 99, R_TK_HOUR = 95.2, R_TK_HALF = 97.2;
+  var R_BAND_OUT = 95, R_BAND_IN = 78, R_NUM = 54, R_LABEL = 68;
   var pickAnchor = '';
-  var labelSeq = 0;
 
   function f2(n){ return Math.round(n * 100) / 100; }
   function polar(r, deg){
@@ -744,6 +742,25 @@
     return pad(Math.floor(min / 60)) + ':' + pad(min % 60);
   }
   function degOf(min){ return (min / 1440) * 360; }
+  function textW(txt, fs){
+    var w = 0, k, ch;
+    for (k = 0; k < txt.length; k++) {
+      ch = txt.charAt(k);
+      w += /[가-힣]/.test(ch) ? fs : (ch === ' ' ? fs * 0.42 : fs * 0.58);
+    }
+    return w;
+  }
+  function overlaps(a, b){
+    return Math.abs(a.x - b.x) < (a.w + b.w) / 2 && Math.abs(a.y - b.y) < (a.h + b.h) / 2;
+  }
+  function insideDial(b){
+    var pts = [[b.x - b.w/2, b.y - b.h/2], [b.x + b.w/2, b.y - b.h/2], [b.x - b.w/2, b.y + b.h/2], [b.x + b.w/2, b.y + b.h/2]];
+    for (var i = 0; i < pts.length; i++) {
+      var dx = pts[i][0] - CX, dy = pts[i][1] - CY;
+      if (Math.sqrt(dx*dx + dy*dy) > R_FACE - 1) { return false; }
+    }
+    return true;
+  }
 
   /* 시계 판(눈금·숫자) 1회 생성 */
   function buildDial(){
@@ -774,54 +791,39 @@
       + '</svg>';
   }
 
-  /* 등록자 이름: 긴 구간은 호를 따라, 짧은 구간은 안쪽 라벨 칩 */
-  function nameLabel(a0, a1, name, color, placed){
-    var txt = String(name || '').slice(0, 6);
-    if (!txt) { return { html: '', defs: '' }; }
-    var span = Math.max(0.6, a1 - a0), mid = (a0 + a1) / 2;
-    var fs = 9.2, w = 0, k;
-    for (k = 0; k < txt.length; k++) { w += /[가-힣]/.test(txt.charAt(k)) ? fs : fs * 0.62; }
-    var arc = span * Math.PI / 180 * R_TXT;
+  /* 숫자 자리를 피해 이름표를 가로로 놓는다 (겹치면 각도를 조금씩 비켜 배치) */
+  function placeLabel(degMid, txt, color, placed, fs){
+    var w = textW(txt, fs), boxW = w + 10, boxH = 12.4;
+    var offs = [0, -9, 9, -18, 18, -27, 27, -38, 38, -50, 50];
+    var rads = [R_LABEL, R_LABEL - 9, R_LABEL + 9];
+    var p, box, hit, i, j, q, best = null;
 
-    if (arc >= w + 2) {
-      var half = ((w / 2 + 1) / R_TXT) * 180 / Math.PI;
-      var flip = Math.sin((mid - 90) * Math.PI / 180) > 0;
-      var p0 = polar(R_TXT, flip ? mid + half : mid - half);
-      var p1 = polar(R_TXT, flip ? mid - half : mid + half);
-      var id = 'pkl' + (++labelSeq);
-      var defs = '<path id="' + id + '" d="M' + f2(p0[0]) + ',' + f2(p0[1])
-               + 'A' + R_TXT + ',' + R_TXT + ' 0 0 ' + (flip ? 0 : 1) + ' '
-               + f2(p1[0]) + ',' + f2(p1[1]) + '"/>';
-      return {
-        defs: defs,
-        html: '<text class="nm" fill="' + color + '"><textPath href="#' + id + '" xlink:href="#' + id
-            + '" startOffset="50%" text-anchor="middle">' + esc(txt) + '</textPath></text>'
-      };
-    }
-
-    var boxW = w + 11, boxH = 13, rad = 50, p, hit, q, o;
-    for (var tryN = 0; tryN < 3; tryN++) {
-      p = polar(rad, mid);
-      hit = false;
-      for (q = 0; q < placed.length; q++) {
-        o = placed[q];
-        if (Math.abs(o.x - p[0]) < (o.w + boxW) / 2 - 1 && Math.abs(o.y - p[1]) < (o.h + boxH) / 2 - 1) { hit = true; break; }
+    for (j = 0; j < rads.length && !best; j++) {
+      for (i = 0; i < offs.length; i++) {
+        p = polar(rads[j], degMid + offs[i]);
+        box = { x: p[0], y: p[1], w: boxW, h: boxH };
+        if (!insideDial(box)) { continue; }
+        hit = false;
+        for (q = 0; q < placed.length; q++) {
+          if (overlaps(box, placed[q])) { hit = true; break; }
+        }
+        if (!hit) { best = box; break; }
       }
-      if (!hit) { break; }
-      rad -= 16;
-      p = polar(rad, mid);
     }
-    placed.push({ x: p[0], y: p[1], w: boxW, h: boxH });
-    var l1 = polar(R_BAND_IN, mid);
-    return {
-      defs: '',
-      html: '<line x1="' + f2(l1[0]) + '" y1="' + f2(l1[1]) + '" x2="' + f2(p[0]) + '" y2="' + f2(p[1])
-          + '" stroke="' + hexA(color, .45) + '" stroke-width=".8"/>'
-          + '<rect x="' + f2(p[0] - boxW / 2) + '" y="' + f2(p[1] - boxH / 2) + '" width="' + f2(boxW)
-          + '" height="' + boxH + '" rx="6.5" fill="#fff" stroke="' + color + '" stroke-width="1"/>'
-          + '<text class="chip" x="' + f2(p[0]) + '" y="' + f2(p[1]) + '" fill="' + color
-          + '" text-anchor="middle">' + esc(txt) + '</text>'
-    };
+    if (!best) {
+      p = polar(R_LABEL, degMid);
+      best = { x: p[0], y: p[1], w: boxW, h: boxH };
+    }
+    placed.push(best);
+
+    var anchor = polar(R_BAND_IN, degMid);
+    return '<line x1="' + f2(anchor[0]) + '" y1="' + f2(anchor[1]) + '" x2="' + f2(best.x) + '" y2="' + f2(best.y)
+         + '" stroke="' + hexA(color, .5) + '" stroke-width=".7"/>'
+         + '<rect x="' + f2(best.x - boxW / 2) + '" y="' + f2(best.y - boxH / 2) + '" width="' + f2(boxW)
+         + '" height="' + boxH + '" rx="' + f2(boxH / 2) + '" fill="#fff" fill-opacity=".94" stroke="'
+         + hexA(color, .45) + '" stroke-width=".9"/>'
+         + '<text class="chip" x="' + f2(best.x) + '" y="' + f2(best.y) + '" fill="' + color
+         + '" text-anchor="middle">' + esc(txt) + '</text>';
   }
 
   function renderDial(){
@@ -830,8 +832,7 @@
     var segs = el.querySelector('.segs');
     var labels = el.querySelector('.labels');
     var ctr = el.querySelector('.ctr');
-    var defsEl = el.querySelector('defs');
-    if (!segs || !labels || !ctr || !defsEl) { return; }
+    if (!segs || !labels || !ctr) { return; }
 
     var list = entriesOf(selDate);
     var s = toMin($('startSel').value);
@@ -839,7 +840,7 @@
     var myColor = me.color || COLORS[0];
     var ok = (s >= 0 && e > s);
     var conf = ok ? conflictFor(toHM(s), toHM(e)) : null;
-    var arcs = '', lh = '', df = '', placed = [], i, en, a, b, c, r;
+    var arcs = '', i, en, a, b, c;
 
     /* 이미 등록된 주차 구간 (등록자 색상) */
     for (i = 0; i < list.length; i++) {
@@ -847,7 +848,7 @@
       a = toMin(en.start); b = toMin(en.end);
       if (!(b > a)) { continue; }
       c = en.color || '#e88295';
-      arcs += '<path d="' + arcPath(R_BAND_IN, R_BAND_OUT, degOf(a), degOf(b)) + '" fill="' + hexA(c, .55)
+      arcs += '<path d="' + arcPath(R_BAND_IN, R_BAND_OUT, degOf(a), degOf(b)) + '" fill="' + hexA(c, .5)
             + '" stroke="' + c + '" stroke-width="1.1"/>';
     }
 
@@ -865,29 +866,33 @@
         b = Math.min(e, toMin(en.end));
         if (!(b > a)) { continue; }
         arcs += '<path d="' + arcPath(R_BAND_IN, R_BAND_OUT, degOf(a), degOf(b))
-              + '" fill="#c24a60" fill-opacity=".86" stroke="#fff" stroke-width=".9"/>';
+              + '" fill="#c24a60" fill-opacity=".85" stroke="#fff" stroke-width=".9"/>';
       }
     }
     segs.innerHTML = arcs;
 
-    /* 등록자 이름 */
-    labelSeq = 0;
+    /* 이름표 (숫자 자리는 피해서) */
+    var placed = [], hh, pp, nm, tw;
+    for (hh = 0; hh < 24; hh += 3) {
+      pp = polar(R_NUM, hh * 15);
+      nm = String(hh);
+      tw = textW(nm, 8.2) + 4;
+      placed.push({ x: pp[0], y: pp[1], w: tw, h: 10 });
+    }
+    var lh = '';
     for (i = 0; i < list.length; i++) {
       en = list[i];
       a = toMin(en.start); b = toMin(en.end);
       if (!(b > a)) { continue; }
-      r = nameLabel(degOf(a), degOf(b), en.name, en.color || '#e88295', placed);
-      lh += r.html;
-      df += r.defs;
+      lh += placeLabel((degOf(a) + degOf(b)) / 2, String(en.name || '').slice(0, 6), en.color || '#e88295', placed, 7.8);
     }
-    defsEl.innerHTML = df;
     labels.innerHTML = lh;
 
     /* 시계 가운데: 내 이름 + 시간 */
-    var nm = me.name || '내 시간';
+    var nm2 = me.name || '내 시간';
     var col = conf ? '#c24a60' : myColor;
     var tm = ok ? (toHM(s) + '~' + toHM(e)) : '시간을 골라 주세요';
-    var ctrHtml = '<text class="ctr-nm" x="' + CX + '" y="96" fill="' + col + '">' + esc(nm) + '</text>'
+    var ctrHtml = '<text class="ctr-nm" x="' + CX + '" y="96" fill="' + col + '">' + esc(nm2) + '</text>'
                 + '<text class="ctr-tm" x="' + CX + '" y="110" fill="' + (conf ? '#c24a60' : '#6f6a78') + '">'
                 + esc(tm) + '</text>';
     if (conf) {
