@@ -90,6 +90,7 @@
     font-size:19px; font-weight:700; color:var(--pink-deep); background:var(--pink-light);
   }
   .cal-title{display:flex; align-items:center; gap:8px;}
+  .cal-sync{text-align:center; font-size:10.5px; font-weight:600; color:var(--dim); letter-spacing:-.01em; margin:-2px 0 4px; opacity:.75;}
   .cal-title b{font-size:15px; font-weight:800; letter-spacing:-.02em;}
   .today-btn{
     padding:4px 9px; border-radius:999px; font-size:11px; font-weight:700;
@@ -180,6 +181,7 @@
     display:flex; align-items:center; justify-content:center;
   }
   .slot .del:active{background:#fdf1f3; color:#c24a60;}
+  .slot .del-none{flex:0 0 26px; width:26px;}
   .empty{padding:14px 4px 4px; font-size:12.5px; color:var(--dim); text-align:center;}
 
   .range-head{display:flex; align-items:center; justify-content:space-between; margin:16px 0 7px;}
@@ -201,21 +203,19 @@
   .dial .hub-i{fill:#b9a4b0;}
   .dial .nm-lb{font-size:9.2px; font-weight:800; font-family:inherit; text-anchor:middle; dominant-baseline:central; letter-spacing:-.2px;}
   /* 오전·오후 전환 탭 */
-  .ampm{
-    display:flex; gap:4px; width:208px; max-width:100%; margin:1px auto 6px; padding:3px;
-    background:#f8f4f6; border:1px solid var(--line); border-radius:999px;
+  .dawn-row{display:flex; justify-content:center; margin:1px 0 6px;}
+  .dawn-btn{
+    display:inline-flex; align-items:center; gap:4px;
+    padding:6px 13px; border-radius:999px; font-size:11.5px; font-weight:800;
+    color:var(--dim); background:#fff; border:1px solid var(--line);
+    letter-spacing:-.2px; white-space:nowrap;
   }
-  .ampm button{
-    flex:1 1 0; display:flex; align-items:center; justify-content:center; gap:4px;
-    padding:7px 4px; border-radius:999px; font-size:12px; font-weight:800; color:var(--dim);
-    white-space:nowrap; letter-spacing:-.2px;
-  }
-  .ampm button.on{background:#fff; color:var(--pink-deep); box-shadow:0 1px 5px rgba(190,70,94,.16);}
-  .ampm button .hint{
+  .dawn-btn.on{background:var(--pink-light); border-color:var(--pink-line); color:var(--pink-deep);}
+  .dawn-btn .dot{
     width:5px; height:5px; border-radius:50%; background:var(--pink);
     opacity:0; transition:opacity .15s;
   }
-  .ampm button.has .hint{opacity:1;}
+  .dawn-btn.has .dot{opacity:1;}
   .pick-line{display:flex; align-items:baseline; justify-content:center; gap:7px; margin:5px 0 7px; flex-wrap:wrap;}
   .pick-line b{font-size:15px; font-weight:800; color:var(--pink-deep); letter-spacing:-.2px; font-variant-numeric:tabular-nums;}
   .pick-line span{font-size:10.5px; font-weight:700; color:var(--dim);}
@@ -316,6 +316,7 @@
       </div>
       <button class="nav" id="nextBtn" type="button" aria-label="다음 달">›</button>
     </div>
+    <div class="cal-sync" id="calSync" hidden>불러오는 중…</div>
     <div class="dow"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
     <div class="grid" id="calGrid"></div>
   </section>
@@ -341,9 +342,8 @@
     <div class="list-head"><b>등록 현황</b><span id="listCount"></span></div>
     <div class="toggle-list" id="dateList"></div>
     <div class="range-head"><b>시간대 등록</b><span>주차 1대</span></div>
-    <div class="ampm" id="ampmTabs">
-      <button type="button" data-half="am" aria-pressed="true">☀️ 오전<i class="hint"></i></button>
-      <button type="button" data-half="pm" aria-pressed="false">🌙 오후<i class="hint"></i></button>
+    <div class="dawn-row">
+      <button class="dawn-btn" id="dawnBtn" type="button" aria-pressed="false">🌙 새벽<i class="dot"></i></button>
     </div>
     <div class="dial-wrap">
       <div class="dial" id="clockDay"></div>
@@ -401,6 +401,9 @@
   var COLORS = ['#e88295','#ef9c5a','#6bbf8a','#5b9bd5','#9a7ad5','#8b95a3'];
   var DOW = ['일','월','화','수','목','금','토'];
   var STORE = 'pk_me_v2';
+  var PK_CACHE = 'pk_cache_v1';        /* 달력 즉시 표시용 로컬 캐시 */
+  var READ_TIMEOUT = 6000;             /* 읽기 요청 1회 타임아웃 6초 */
+  var RETRY_DELAYS = [800, 1500, 1500]; /* 실패 시 자동 재시도 간격(최대 3회) */
 
   var state = { entries: [], logs: [], notice: { text: '', by: '', at: '' } };
   var loaded = false;
@@ -412,7 +415,8 @@
   var pending = null;
   var chain = Promise.resolve();
   var range = { start: '10:00', end: '13:00' };
-  var half = 'am';   /* 시계판이 보여 주는 반나절: 'am'(00~12시) / 'pm'(12~24시) */
+  var DAY_START = 540;  /* 기본 시계가 보여 주는 시작 시각 09:00 */
+  var dawn = false;     /* 🌙 새벽 보기: 00:00~09:00만 표시 */
 
   function $(id){ return document.getElementById(id); }
   function pad(n){ return (n < 10 ? '0' : '') + n; }
@@ -443,23 +447,73 @@
   }
 
   /* ---------- 저장/불러오기 ---------- */
-  function api(params){
+  function apiOnce(params, timeoutMs){
     var q = [];
     for (var k in params) {
       if (params[k] === undefined || params[k] === null || params[k] === '') { continue; }
       q.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
     }
     var url = EXEC + '?' + q.join('&') + '&_=' + Date.now();
-    return fetch(url, { cache: 'no-store', redirect: 'follow' })
+    var opt = { cache: 'no-store', redirect: 'follow' };
+    var tm = null, ctrl = null;
+    if (timeoutMs && window.AbortController) {
+      ctrl = new AbortController();
+      opt.signal = ctrl.signal;
+      tm = setTimeout(function(){ try { ctrl.abort(); } catch(e){} }, timeoutMs);
+    }
+    var clear = function(){ if (tm) { clearTimeout(tm); tm = null; } };
+    return fetch(url, opt)
       .then(function(r){ return r.json(); })
       .then(function(d){
+        clear();
         if (!d || !d.ok) {
           var e = new Error((d && d.error) || 'fail');
           e.conflict = d && d.with;
           throw e;
         }
         return d;
+      })
+      .catch(function(e){ clear(); throw e; });
+  }
+
+  /* 쓰기 등 일반 요청: 기존과 같이 1회만 */
+  function api(params){
+    return apiOnce(params, 0);
+  }
+
+  /* 읽기 요청: 6초 타임아웃 + 0.8·1.5초 간격으로 최대 3회 자동 재시도 */
+  function apiRead(params){
+    var i = 0;
+    function go(){
+      return apiOnce(params, READ_TIMEOUT).catch(function(err){
+        if (i >= RETRY_DELAYS.length) { throw err; }
+        var wait = RETRY_DELAYS[i++];
+        return new Promise(function(res){ setTimeout(res, wait); }).then(go);
       });
+    }
+    return go();
+  }
+
+  /* ---------- 로컬 캐시 ---------- */
+  function readCache(){
+    try {
+      var raw = localStorage.getItem(PK_CACHE) || '';
+      if (!raw) { return null; }
+      var o = JSON.parse(raw);
+      if (!o || !o.entries || !o.entries.length) { return null; }
+      return o;
+    } catch(e){ return null; }
+  }
+
+  function saveCache(d){
+    if (!d) { return; }
+    try {
+      localStorage.setItem(PK_CACHE, JSON.stringify({
+        v: 1, at: Date.now(),
+        entries: d.entries || [],
+        logs: (d.logs || []).slice(-50)
+      }));
+    } catch(e){}
   }
 
   function applyState(d){
@@ -473,13 +527,27 @@
     state.logs = d.logs || [];
   }
 
+  var syncN = 0;
+  function setSync(on){
+    syncN = Math.max(0, syncN + (on ? 1 : -1));
+    var el = $('calSync');
+    if (el) { el.hidden = (syncN === 0); }
+  }
+
   function load(){
-    return api({ mode: 'parking_get' }).then(function(d){
+    setSync(true);
+    return apiRead({ mode: 'parking_get' }).then(function(d){
       applyState(d);
       loaded = true;
+      saveCache(d);
+      setSync(false);
       render();
     }).catch(function(){
-      if (!loaded) {
+      setSync(false);
+      if (state.entries.length > 0) {
+        /* 캐시로 이미 달력이 그려져 있으면 화면을 덮지 않고 조용히 알린다 */
+        toast('연결이 잠시 안 됩니다. 잠시 뒤 다시 시도해 주세요.');
+      } else if (!loaded) {
         $('calGrid').innerHTML = '<div style="grid-column:1/-1;padding:26px 0;text-align:center;font-size:12.5px;color:#9a95a2;">연결이 잠시 안 됩니다. 아래로 새로고침하거나 잠시 뒤 다시 열어 주세요.</div>';
       }
     });
@@ -689,7 +757,7 @@
     }
     $('startSel').value = range.start;
     $('endSel').value = range.end;
-    half = (toMin(range.start) >= 720) ? 'pm' : 'am';
+    syncDawn();
     renderDateSheet();
     renderCal();
     openSheet('dateSheet');
@@ -715,7 +783,9 @@
             + '<span class="nm">' + esc(e.name) + '</span>'
             + '<span class="tm">' + esc(e.start) + '~' + esc(e.end) + '</span>'
             + (e.note ? '<span class="memo">' + esc(e.note) + '</span>' : '<span class="memo"></span>')
-            + '<button class="del" type="button" data-del="' + esc(e.id) + '" data-name="' + esc(e.name) + '" aria-label="' + esc(e.name) + ' 주차 취소">✕</button>'
+            + (e.name === me.name
+                ? '<button class="del" type="button" data-del="' + esc(e.id) + '" data-name="' + esc(e.name) + '" aria-label="' + esc(e.name) + ' 주차 취소">✕</button>'
+                : '<span class="del-none" aria-hidden="true"></span>')
             + '</div>';
     }
     $('dateList').innerHTML = html || '<div class="empty">아직 등록된 주차가 없어요.</div>';
@@ -763,15 +833,36 @@
     if (min < 0) { min = 0; }
     return pad(Math.floor(min / 60)) + ':' + pad(min % 60);
   }
-  function degOf(min, h){
-    var base = (h === 'pm') ? 720 : 0;
-    return ((min - base) / 720) * 360;
+  /* 지금 보는 구간: 기본은 09:00~24:00, 새벽 보기는 00:00~09:00 */
+  function viewWin(){ return dawn ? [0, DAY_START] : [DAY_START, 1440]; }
+  /* 시작 시간이 새벽(00:00~08:30)이면 새벽 보기, 낮 시간대면 기본 보기로 맞춘다 */
+  function syncDawn(){
+    var s0 = toMin($('startSel').value);
+    dawn = (s0 >= 0 && s0 < DAY_START);
   }
-  /* 등록 구간 [a,b] 중 지금 보는 반나절에 걸치는 부분만 잘라 낸다 */
-  function inHalf(a, b, h){
-    var base = (h === 'pm') ? 720 : 0;
-    var s = Math.max(a, base), e = Math.min(b, base + 720);
-    return (e > s) ? [s, e] : null;
+  /* 하루 24시간을 12시간 시계판 위로 접는다. 보기 구간 밖은 잘라 내고, 정오·자정을 넘으면 각도 토막으로 나눈다 */
+  function dialSegs(a, b){
+    var w = viewWin();
+    var s = Math.max(a, w[0]), e = Math.min(b, w[1]);
+    var out = [];
+    if (!(e > s)) { return out; }
+    var t = s;
+    while (t < e) {
+      var base = Math.floor(t / 720) * 720;
+      var end = Math.min(e, base + 720);
+      out.push([((t - base) / 720) * 360, ((end - base) / 720) * 360]);
+      t = end;
+    }
+    return out;
+  }
+  /* 토막 중 가장 긴 것 (이름표는 한 번만 붙인다) */
+  function biggestSeg(parts){
+    var big = null, i, span;
+    for (i = 0; i < parts.length; i++) {
+      span = parts[i][1] - parts[i][0];
+      if (!big || span > big[2]) { big = [parts[i][0], parts[i][1], span]; }
+    }
+    return big;
   }
   function textW(txt, fs){
     var w = 0, k, ch;
@@ -860,26 +951,6 @@
     return '';
   }
 
-  /* 오전·오후 탭 상태·예약 힌트 새로 고침 */
-  function renderTabs(list){
-    var wrap = $('ampmTabs');
-    if (!wrap) { return; }
-    var hasAm = false, hasPm = false, i, a, b;
-    for (i = 0; i < list.length; i++) {
-      a = toMin(list[i].start); b = toMin(list[i].end);
-      if (!(b > a)) { continue; }
-      if (a < 720) { hasAm = true; }
-      if (b > 720) { hasPm = true; }
-    }
-    var bs = wrap.querySelectorAll('button');
-    for (i = 0; i < bs.length; i++) {
-      var bh = bs[i].getAttribute('data-half');
-      bs[i].classList.toggle('on', bh === half);
-      bs[i].classList.toggle('has', bh === 'am' ? hasAm : hasPm);
-      bs[i].setAttribute('aria-pressed', bh === half ? 'true' : 'false');
-    }
-  }
-
   function renderDial(){
     var el = $('clockDay');
     if (!el) { return; }
@@ -893,52 +964,59 @@
     var myColor = me.color || COLORS[0];
     var ok = (s >= 0 && e > s);
     var conf = ok ? conflictFor(toHM(s), toHM(e)) : null;
-    var arcs = '', i, en, a, b, c, vr, d0, d1;
+    var arcs = '', i, j, en, a, b, c, parts, hasDawn = false;
 
-    renderTabs(list);
+    /* 새벽 예약이 있으면 🌙 새벽 버튼에 점을 찍는다 */
+    for (i = 0; i < list.length; i++) {
+      if (toMin(list[i].start) < DAY_START && toMin(list[i].end) > 0) { hasDawn = true; break; }
+    }
+    var db = $('dawnBtn');
+    if (db) {
+      db.classList.toggle('on', dawn);
+      db.classList.toggle('has', hasDawn);
+      db.setAttribute('aria-pressed', dawn ? 'true' : 'false');
+    }
 
-    /* 이미 등록된 주차 구간 (등록자 색상) — 지금 보는 반나절에 걸치는 부분만 */
+    /* 등록된 주차 구간 (등록자 색상) — 기본은 09~24시, 새벽 보기는 00~09시만 한 시계판에 그린다.
+       같은 시계 위치에 겹치는 구간은 반투명+테두리로 둘 다 보이게 한다 */
     for (i = 0; i < list.length; i++) {
       en = list[i];
       a = toMin(en.start); b = toMin(en.end);
       if (!(b > a)) { continue; }
-      vr = inHalf(a, b, half);
-      if (!vr) { continue; }
       c = en.color || '#e88295';
-      d0 = degOf(vr[0], half); d1 = degOf(vr[1], half);
-      arcs += '<path d="' + piePath(R_PIE, d0, d1) + '" fill="' + hexA(c, .34)
-            + '" stroke="' + c + '" stroke-width="1.3"/>';
+      parts = dialSegs(a, b);
+      for (j = 0; j < parts.length; j++) {
+        arcs += '<path d="' + piePath(R_PIE, parts[j][0], parts[j][1]) + '" fill="' + hexA(c, .25)
+              + '" stroke="' + c + '" stroke-width="1.3"/>';
+      }
     }
 
     /* 내가 지금 맞추고 있는 구간 (내 색상) — 등록된 예약과 겹치면 그리지 않는다 */
+    var mine = null;
     if (ok && !conf) {
-      vr = inHalf(Math.max(0, s), Math.min(1440, e), half);
-      if (vr) {
-        d0 = degOf(vr[0], half); d1 = degOf(vr[1], half);
-        arcs += '<path d="' + piePath(R_PIE, d0, d1)
+      mine = dialSegs(Math.max(0, s), Math.min(1440, e));
+      for (j = 0; j < mine.length; j++) {
+        arcs += '<path d="' + piePath(R_PIE, mine[j][0], mine[j][1])
               + '" fill="' + hexA(myColor, .3) + '" stroke="' + myColor + '" stroke-width="2.2"/>';
       }
     }
     segs.innerHTML = arcs;
 
-    /* 이름표: 각자 색칠된 부채꼴 안에 각자 이름 */
-    var placed = [], lh = '';
+    /* 이름표: 색칠된 부채꼴 안에 이름. 위치가 겹치면 각도·반지름을 비켜 배치한다 */
+    var placed = [], lh = '', big;
     for (i = 0; i < list.length; i++) {
       en = list[i];
       a = toMin(en.start); b = toMin(en.end);
       if (!(b > a)) { continue; }
-      vr = inHalf(a, b, half);
-      if (!vr) { continue; }
-      lh += pieLabel((degOf(vr[0], half) + degOf(vr[1], half)) / 2,
-                     degOf(vr[1], half) - degOf(vr[0], half),
+      big = biggestSeg(dialSegs(a, b));
+      if (!big) { continue; }
+      lh += pieLabel((big[0] + big[1]) / 2, big[1] - big[0],
                      String(en.name || ''), en.color || '#e88295', placed, 9.4);
     }
-    if (ok && !conf) {
-      vr = inHalf(Math.max(0, s), Math.min(1440, e), half);
-      if (vr) {
-        lh += pieLabel((degOf(vr[0], half) + degOf(vr[1], half)) / 2,
-                       degOf(vr[1], half) - degOf(vr[0], half),
-                       me.name || '내 시간', myColor, placed, 9.4);
+    if (mine && mine.length) {
+      big = biggestSeg(mine);
+      if (big) {
+        lh += pieLabel((big[0] + big[1]) / 2, big[1] - big[0], me.name || '내 시간', myColor, placed, 9.4);
       }
     }
     labels.innerHTML = lh;
@@ -990,7 +1068,7 @@
     range.end = fr[1];
     $('startSel').value = range.start;
     $('endSel').value = range.end;
-    half = (toMin(range.start) >= 720) ? 'pm' : 'am';
+    syncDawn();
     renderDateSheet();
   }
 
@@ -1012,6 +1090,7 @@
       });
     }).then(function(d){
       applyState(d);
+      saveCache(d);
         render();
       toast(start + '~' + end + ' 등록했어요.');
       shiftRange(end);
@@ -1031,7 +1110,8 @@
 
   function removeEntry(id, name){
     if (!id) { return; }
-    if (name !== me.name && !window.confirm('“' + name + '” 님의 주차를 취소할까요?')) { return; }
+    /* 내가 등록한 주차만 취소할 수 있다 */
+    if (!me.name || name !== me.name) { toast('내가 등록한 주차만 취소할 수 있어요.'); return; }
     var snapE = state.entries.slice(), snapL = state.logs.slice();
     state.entries = state.entries.filter(function(e){ return e.id !== id; });
     renderDateSheet(); renderCal();
@@ -1039,6 +1119,7 @@
       return api({ mode: 'parking_set', date: selDate, id: id, name: name, on: '0', by: me.name || '이름 미설정' });
     }).then(function(d){
       applyState(d);
+      saveCache(d);
       render();
       toast('주차를 취소했어요.');
     }).catch(function(){
@@ -1116,7 +1197,7 @@
   }
 
   function loadNotice(){
-    return api({ mode: 'parking_notice_get' }).then(function(d){
+    return apiRead({ mode: 'parking_notice_get' }).then(function(d){
       state.notice = d.notice || { text: '', by: '', at: '' };
       noticeLoaded = true;
       renderNotice();
@@ -1168,16 +1249,14 @@
 
   $('startSel').addEventListener('change', function(){
     rememberRange();
-    /* 내가 맞춘 시작 시간이 오전·오후 어느 쪽인지에 맞춰 시계 탭을 자동 전환 */
-    half = (toMin($('startSel').value) >= 720) ? 'pm' : 'am';
+    /* 시작 시간이 새벽이면 새벽 보기로, 낮이면 기본 보기로 자동 전환 */
+    syncDawn();
     renderDateSheet();
   });
   $('endSel').addEventListener('change', function(){ rememberRange(); renderDateSheet(); });
-  $('ampmTabs').addEventListener('click', function(e){
-    var b = e.target.closest ? e.target.closest('button[data-half]') : null;
-    if (!b) { return; }
-    half = b.getAttribute('data-half');
-    renderPick();
+  $('dawnBtn').addEventListener('click', function(){
+    dawn = !dawn;
+    renderDateSheet();
   });
   $('regBtn').addEventListener('click', register);
 
@@ -1212,6 +1291,9 @@
 
   /* 시작 */
   loadMe();
+  /* 서버 응답을 기다리지 않고 캐시가 있으면 바로 달력을 채운다 */
+  var cached = readCache();
+  if (cached) { applyState(cached); }
   buildDial();
   buildTimeOptions();
   renderColors();
