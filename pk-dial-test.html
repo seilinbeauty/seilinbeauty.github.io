@@ -705,7 +705,7 @@
   /* ---------- 24시간 시계형 시간 선택 ---------- */
   var CX = 100, CY = 100;
   var R_FACE = 99, R_TK_OUT = 99, R_TK_HOUR = 95.2, R_TK_HALF = 97.2;
-  var R_BAND_OUT = 95, R_BAND_IN = 78, R_NUM = 54, R_LABEL = 68;
+  var R_BAND_OUT = 95, R_BAND_IN = 78, R_NUM = 54, R_LABEL = 69;
   var pickAnchor = '';
 
   function f2(n){ return Math.round(n * 100) / 100; }
@@ -795,7 +795,7 @@
   function placeLabel(degMid, txt, color, placed, fs){
     var w = textW(txt, fs), boxW = w + 10, boxH = 12.4;
     var offs = [0, -9, 9, -18, 18, -27, 27, -38, 38, -50, 50];
-    var rads = [R_LABEL, R_LABEL - 9, R_LABEL + 9];
+    var rads = [86, 78.5, R_LABEL, R_LABEL - 9];
     var p, box, hit, i, j, q, best = null;
 
     for (j = 0; j < rads.length && !best; j++) {
