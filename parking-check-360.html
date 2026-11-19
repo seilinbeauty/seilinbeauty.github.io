@@ -12,6 +12,9 @@
 </style>
 </head>
 <body>
-<div class="frame"><iframe id="f" src="parking.html?notrack=1&v=12h"></iframe></div>
+<div class="frame"><iframe id="f"></iframe></div>
+<script>
+  document.getElementById('f').src = 'parking.html?notrack=1&cb=' + Date.now();
+</script>
 </body>
 </html>
