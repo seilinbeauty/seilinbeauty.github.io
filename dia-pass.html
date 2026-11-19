@@ -2418,5 +2418,27 @@
   });
 })();
 </script>
-</body>
+<script>
+(function(){
+  try{
+    if(!window.fetch) return;
+    var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
+    var vid = '';
+    try{ vid = localStorage.getItem('dia_vid') || ''; }catch(e){}
+    if(!vid){
+      vid = 'd' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+      try{ localStorage.setItem('dia_vid', vid); }catch(e){}
+    }
+    var kst = new Date(Date.now() + 9 * 3600 * 1000);
+    var today = kst.toISOString().slice(0, 10);
+    var done = '';
+    try{ done = localStorage.getItem('dia_visit') || ''; }catch(e){}
+    if(done === today) return;
+    fetch(EXEC + '?mode=visit&d=' + today + '&u=' + encodeURIComponent(vid), {cache: 'no-store'})
+      .then(function(r){ return r.json(); })
+      .then(function(d){ if(d && d.ok){ try{ localStorage.setItem('dia_visit', today); }catch(e){} } })
+      .catch(function(){});
+  }catch(e){}
+})();
+</script></body>
 </html>
