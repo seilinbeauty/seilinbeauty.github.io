@@ -878,6 +878,10 @@
       color: var(--pink-deep);
       margin-bottom: 10px;
       letter-spacing: -0.02em;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
     }
 
     /* Floating Mobile Bar */
@@ -2733,5 +2737,33 @@
     });
   }catch(e){}
 })();
-</script></body>
+</script>
+<!-- 푸터 로고 5회 연속 탭 → 가게 주차 캘린더 (화면상 힌트 없음) -->
+<script>
+(function(){
+  var brand = document.querySelector('.footer-brand');
+  if (!brand) { return; }
+  var taps = 0, timer = null, lastHit = 0;
+  function reset(){ taps = 0; if (timer) { clearTimeout(timer); timer = null; } }
+  function hit(){
+    var now = Date.now();
+    if (now - lastHit < 350) { return; }   // 터치·클릭 중복 카운트 방지
+    lastHit = now;
+    taps++;
+    if (timer) { clearTimeout(timer); }
+    timer = setTimeout(reset, 2500);
+    if (taps >= 5) {
+      reset();
+      location.href = 'parking.html';
+    }
+  }
+  brand.addEventListener('touchend', function(e){
+    if (e.cancelable) { e.preventDefault(); }
+    hit();
+  }, { passive: false });
+  brand.addEventListener('click', hit);
+  brand.addEventListener('dblclick', function(e){ e.preventDefault(); });
+})();
+</script>
+</body>
 </html>
