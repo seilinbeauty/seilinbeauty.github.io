@@ -188,19 +188,19 @@
 
   /* 24시간 시계형 시간 선택 */
   .dial-wrap{display:flex; justify-content:center; margin:2px 0 4px;}
-  .dial{width:254px; max-width:100%;}
+  .dial{width:258px; max-width:100%;}
   .dial svg{display:block; width:100%; height:auto; touch-action:none; user-select:none; -webkit-user-select:none; cursor:pointer;}
   .dial .face{fill:#fff; stroke:var(--pink-line); stroke-width:1.2;}
-  .dial .track{fill:none; stroke:#f7f0f3; stroke-width:17;}
+  .dial .track{fill:none; stroke:#f4e9ee; stroke-width:19;}
   .dial .segs path{stroke-linejoin:round;}
-  .dial .tk{stroke:#e2d6dc; stroke-width:1.05; stroke-linecap:round;}
-  .dial .tk.half{stroke:#f0e8ec; stroke-width:.85;}
-  .dial .num{fill:#57525f; font-size:7.8px; font-weight:800; text-anchor:middle; dominant-baseline:central; font-family:inherit;}
-  .dial .nm{font-size:8.8px; font-weight:800; font-family:inherit; paint-order:stroke; stroke:#fff; stroke-width:2.4px; stroke-linejoin:round;}
-  .dial .chip{font-size:7.6px; font-weight:800; font-family:inherit; dominant-baseline:central;}
-  .dial .ctr-nm{font-size:11.5px; font-weight:800; text-anchor:middle; font-family:inherit; letter-spacing:-.2px;}
-  .dial .ctr-tm{font-size:9.6px; font-weight:800; text-anchor:middle; font-family:inherit; font-variant-numeric:tabular-nums; letter-spacing:.2px;}
-  .dial .ctr-bad{font-size:8px; font-weight:800; text-anchor:middle; font-family:inherit; fill:#c24a60;}
+  .dial .tk{stroke:#dccfd6; stroke-width:1.15; stroke-linecap:round;}
+  .dial .tk.half{stroke:#ece2e8; stroke-width:.9;}
+  .dial .num{fill:#4f4a58; font-size:8.4px; font-weight:800; text-anchor:middle; dominant-baseline:central; font-family:inherit;}
+  .dial .nm{font-size:9.2px; font-weight:800; font-family:inherit; paint-order:stroke; stroke:#fff; stroke-width:1.9px; stroke-linejoin:round;}
+  .dial .chip{font-size:7.8px; font-weight:800; font-family:inherit; dominant-baseline:central;}
+  .dial .ctr-nm{font-size:12px; font-weight:800; text-anchor:middle; font-family:inherit; letter-spacing:-.2px;}
+  .dial .ctr-tm{font-size:9.8px; font-weight:800; text-anchor:middle; font-family:inherit; font-variant-numeric:tabular-nums; letter-spacing:.2px;}
+  .dial .ctr-bad{font-size:8.4px; font-weight:800; text-anchor:middle; font-family:inherit; fill:#c24a60;}
   .pick-line{display:flex; align-items:baseline; justify-content:center; gap:7px; margin:5px 0 7px; flex-wrap:wrap;}
   .pick-line b{font-size:15px; font-weight:800; color:var(--pink-deep); letter-spacing:-.2px; font-variant-numeric:tabular-nums;}
   .pick-line span{font-size:10.5px; font-weight:700; color:var(--dim);}
@@ -259,7 +259,7 @@
     .badges i em{font-size:8px;}
     .sheet-wrap{align-items:center;}
     .sheet{border-radius:18px; max-width:440px; padding-bottom:16px;}
-    .dial{width:282px;}
+    .dial{width:286px;}
     .grip{display:none;}
   }
 </style>
@@ -705,8 +705,8 @@
 
   /* ---------- 24시간 시계형 시간 선택 ---------- */
   var CX = 100, CY = 100;
-  var R_FACE = 99, R_TK_OUT = 97.4, R_TK_HOUR = 92.6, R_TK_HALF = 95.0;
-  var R_BAND_OUT = 94, R_BAND_IN = 77, R_NUM = 67.6, R_TXT = 85.4;
+  var R_FACE = 99, R_TK_OUT = 98.8, R_TK_HOUR = 94.3, R_TK_HALF = 96.4;
+  var R_BAND_OUT = 94, R_BAND_IN = 75, R_NUM = 67, R_TXT = 85;
   var pickAnchor = '';
   var labelSeq = 0;
 
@@ -779,7 +779,7 @@
     var txt = String(name || '').slice(0, 6);
     if (!txt) { return { html: '', defs: '' }; }
     var span = Math.max(0.6, a1 - a0), mid = (a0 + a1) / 2;
-    var fs = 8.8, w = 0, k;
+    var fs = 9.2, w = 0, k;
     for (k = 0; k < txt.length; k++) { w += /[가-힣]/.test(txt.charAt(k)) ? fs : fs * 0.62; }
     var arc = span * Math.PI / 180 * R_TXT;
 
@@ -799,7 +799,7 @@
       };
     }
 
-    var boxW = w + 11, boxH = 13, rad = 46, p, hit, q, o;
+    var boxW = w + 11, boxH = 13, rad = 50, p, hit, q, o;
     for (var tryN = 0; tryN < 3; tryN++) {
       p = polar(rad, mid);
       hit = false;
@@ -808,7 +808,7 @@
         if (Math.abs(o.x - p[0]) < (o.w + boxW) / 2 - 1 && Math.abs(o.y - p[1]) < (o.h + boxH) / 2 - 1) { hit = true; break; }
       }
       if (!hit) { break; }
-      rad -= 15;
+      rad -= 16;
       p = polar(rad, mid);
     }
     placed.push({ x: p[0], y: p[1], w: boxW, h: boxH });
@@ -847,14 +847,14 @@
       a = toMin(en.start); b = toMin(en.end);
       if (!(b > a)) { continue; }
       c = en.color || '#e88295';
-      arcs += '<path d="' + arcPath(R_BAND_IN, R_BAND_OUT, degOf(a), degOf(b)) + '" fill="' + hexA(c, .45)
+      arcs += '<path d="' + arcPath(R_BAND_IN, R_BAND_OUT, degOf(a), degOf(b)) + '" fill="' + hexA(c, .55)
             + '" stroke="' + c + '" stroke-width="1.1"/>';
     }
 
     /* 내가 지금 맞추고 있는 구간 (내 색상) */
     if (ok) {
       arcs += '<path d="' + arcPath(R_BAND_IN, R_BAND_OUT, degOf(Math.max(0, s)), degOf(Math.min(1440, e)))
-            + '" fill="' + hexA(myColor, .28) + '" stroke="' + myColor + '" stroke-width="2.6"/>';
+            + '" fill="' + hexA(myColor, .26) + '" stroke="' + myColor + '" stroke-width="2.6"/>';
     }
 
     /* 겹치는 구간 경고 */
