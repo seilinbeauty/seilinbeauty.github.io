@@ -373,6 +373,7 @@
 
   var state = { members: [], entries: [], logs: [], notice: { text: '', by: '', at: '' } };
   var loaded = false;
+  var noticeLoaded = false;
   var view = todayMonth();        // {y, m}  m: 0-11
   var selDate = '';
   var me = '';
@@ -679,6 +680,11 @@
   }
 
   function openNoticeEdit(){
+    if (!noticeLoaded) {
+      toast('공지를 불러오는 중이에요. 잠시 뒤 다시 눌러 주세요.');
+      loadNotice();
+      return;
+    }
     $('noticeText').value = String((state.notice && state.notice.text) || '');
     $('noticeBox').classList.add('editing');
     $('noticeForm').hidden = false;
@@ -712,8 +718,11 @@
   function loadNotice(){
     return api({ mode: 'parking_notice_get' }).then(function(d){
       state.notice = d.notice || { text: '', by: '', at: '' };
+      noticeLoaded = true;
       renderNotice();
-    }).catch(function(){});
+    }).catch(function(){
+      if (loaded) { setTimeout(function(){ loadNotice(); }, 1500); }
+    });
   }
 
   /* ---------- 인원 시트 ---------- */
