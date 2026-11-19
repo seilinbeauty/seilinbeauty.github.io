@@ -196,7 +196,7 @@
   .dial .tk{stroke:#dccfd6; stroke-width:1.15; stroke-linecap:round;}
   .dial .tk.half{stroke:#ece2e8; stroke-width:.9;}
   .dial .num{fill:#5a5563; font-size:8.2px; font-weight:800; text-anchor:middle; dominant-baseline:central; font-family:inherit;}
-  .dial .nm-lb{font-size:8.2px; font-weight:800; font-family:inherit; text-anchor:middle; dominant-baseline:central; letter-spacing:-.2px;}
+  .dial .nm-lb{font-size:9.2px; font-weight:800; font-family:inherit; text-anchor:middle; dominant-baseline:central; letter-spacing:-.2px;}
   .pick-line{display:flex; align-items:baseline; justify-content:center; gap:7px; margin:5px 0 7px; flex-wrap:wrap;}
   .pick-line b{font-size:15px; font-weight:800; color:var(--pink-deep); letter-spacing:-.2px; font-variant-numeric:tabular-nums;}
   .pick-line span{font-size:10.5px; font-weight:700; color:var(--dim);}
@@ -767,8 +767,8 @@
     if (!base) { return ''; }
     var L = Math.abs(degSpan) * Math.PI / 180 * R_TEXT;
     var room = Math.max(L * 0.94 + 8, 34);   // 짧은 구간은 이름표가 조금 넘쳐도 그 각도에 붙인다
-    var padX = 5, boxH = 13;
-    var fs = fs0 || 8.2, txt = base, q, hit, k, b;
+    var padX = 5.5, boxH = 14;
+    var fs = fs0 || 9.2, txt = base, q, hit, k, b;
     if (textW(txt, fs) + padX * 2 > room) {
       fs = Math.max(6.4, fs * (room - padX * 2) / textW(txt, fs));
       while (textW(txt, fs) + padX * 2 > room + 4 && txt.length > 1) { txt = txt.slice(0, txt.length - 1); }
@@ -798,7 +798,7 @@
     return '<rect x="' + f2(box.x - w / 2) + '" y="' + f2(box.y - boxH / 2) + '" width="' + f2(w)
          + '" height="' + boxH + '" rx="' + f2(boxH / 2) + '" fill="' + color + '"/>'
          + '<text class="nm-lb" x="' + f2(box.x) + '" y="' + f2(box.y) + '" fill="#fff"'
-         + (fs !== (fs0 || 8.2) ? ' style="font-size:' + f2(fs) + 'px"' : '') + '>'
+         + (fs !== (fs0 || 9.2) ? ' style="font-size:' + f2(fs) + 'px"' : '') + '>'
          + esc(txt) + '</text>';
   }
 
@@ -852,11 +852,11 @@
       en = list[i];
       a = toMin(en.start); b = toMin(en.end);
       if (!(b > a)) { continue; }
-      lh += bandLabel((degOf(a) + degOf(b)) / 2, degOf(b) - degOf(a), String(en.name || ''), en.color || '#e88295', placed, 8.2);
+      lh += bandLabel((degOf(a) + degOf(b)) / 2, degOf(b) - degOf(a), String(en.name || ''), en.color || '#e88295', placed, 9.2);
     }
     if (ok && !conf) {
       var ps = Math.max(0, s), pe = Math.min(1440, e);
-      lh += bandLabel((degOf(ps) + degOf(pe)) / 2, degOf(pe) - degOf(ps), me.name || '내 시간', myColor, placed, 8.2);
+      lh += bandLabel((degOf(ps) + degOf(pe)) / 2, degOf(pe) - degOf(ps), me.name || '내 시간', myColor, placed, 9.2);
     }
     labels.innerHTML = lh;
 
