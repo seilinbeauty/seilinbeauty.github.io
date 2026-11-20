@@ -457,6 +457,14 @@
     return null;
   }
   function colorOf(name){ var s = shopOf(name); return s ? s.color : FALLBACK.color; }
+  /* '솔아윤에스테틱으로' / '세이린뷰티로' — 받침에 맞춰 조사 '로/으로'를 붙인다 */
+  function withRo(name){
+    var s = String(name == null ? '' : name);
+    if (!s) { return ''; }
+    var c = s.charCodeAt(s.length - 1);
+    if (c < 0xAC00 || c > 0xD7A3) { return s + '로'; }
+    return s + (((c - 0xAC00) % 28) ? '으로' : '로');
+  }
   function inkOf(name){ var s = shopOf(name); return s ? s.ink : FALLBACK.ink; }
   var DOW = ['일','월','화','수','목','금','토'];
   var STORE = 'pk_me_v2';
@@ -966,7 +974,7 @@
     var warn = $('rangeWarn');
     var btn = $('regBtn');
     var line = $('pickLine');
-    btn.textContent = me.name ? (me.name + '로 등록') : '샵 선택하고 등록';
+    btn.textContent = me.name ? (withRo(me.name) + ' 등록') : '샵 선택하고 등록';
     var msg = '';
     if (!start || !end || end <= start) {
       msg = '종료 시간이 시작 시간보다 빨라요.';
