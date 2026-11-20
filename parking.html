@@ -277,9 +277,18 @@
     background:#fdfbfc; outline:none;
   }
   .field input:focus{border-color:var(--pink); background:#fff;}
-  .swatches{display:flex; gap:9px; flex-wrap:wrap;}
-  .sw{width:30px; height:30px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px var(--line);}
-  .sw.on{box-shadow:0 0 0 2px var(--pink-deep);}
+  .shop-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  .shop{
+    display:flex; align-items:center; gap:8px; padding:11px 11px; border-radius:12px;
+    border:1px solid var(--line); background:#fff; font-size:13px; font-weight:800;
+    color:var(--text); text-align:left; letter-spacing:-.2px;
+  }
+  .shop .dot{width:12px; height:12px; border-radius:50%; flex:0 0 auto; box-shadow:0 0 0 1px rgba(0,0,0,.06);}
+  .shop .nm{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .shop .ck{margin-left:auto; font-size:12px; font-weight:800; color:var(--pink-deep); opacity:0;}
+  .shop.on{border-color:var(--pink); background:var(--pink-light); box-shadow:inset 0 0 0 1px var(--pink);}
+  .shop.on .ck{opacity:1;}
+  .shop-grid .shop:last-child{grid-column:1 / -1;}
 
   /* 토스트 */
   .toast{
@@ -409,12 +418,8 @@
       <button class="x" type="button" data-close="meSheet">✕</button>
     </div>
     <div class="field">
-      <label for="mName">이름</label>
-      <input id="mName" type="text" maxlength="12" placeholder="예: 도현" autocomplete="off">
-    </div>
-    <div class="field">
-      <label>색상</label>
-      <div class="swatches" id="mColors"></div>
+      <label>샵 선택</label>
+      <div class="shop-grid" id="mShops"></div>
     </div>
     <div class="field">
       <label for="mNote">메모 (선택)</label>
@@ -433,7 +438,26 @@
   'use strict';
 
   var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
-  var COLORS = ['#e88295','#ef9c5a','#6bbf8a','#5b9bd5','#9a7ad5','#8b95a3'];
+  /* 5개 샵 고정 — 이름을 고르면 지정 색상이 함께 따라온다 (자유 입력·임의 색상 없음)
+     ink = 달력 배지·글씨용 진한 톤(노랑·베이지·주황은 원색 그대로면 흰 바탕에서 안 보임) */
+  var SHOPS = [
+    { name: '세이린뷰티',      color: '#E11D48', ink: '#E11D48' },  /* 핑크 */
+    { name: 'HB뷰티',          color: '#EAB308', ink: '#A16207' },  /* 노랑 */
+    { name: '벨라브로우',      color: '#C8A97E', ink: '#7C5A2E' },  /* 베이지 */
+    { name: '여리음네일',      color: '#F97316', ink: '#C2410C' },  /* 주황 */
+    { name: '솔아윤에스테틱',  color: '#8B5CF6', ink: '#6D28D9' }   /* 퍼플 */
+  ];
+  var FALLBACK = { color: '#8b95a3', ink: '#6b6270' };   /* 5개 샵에 없는 옛 이름 표시용 */
+
+  function shopOf(name){
+    var n = String(name == null ? '' : name).trim();
+    for (var i = 0; i < SHOPS.length; i++) {
+      if (SHOPS[i].name === n) { return SHOPS[i]; }
+    }
+    return null;
+  }
+  function colorOf(name){ var s = shopOf(name); return s ? s.color : FALLBACK.color; }
+  function inkOf(name){ var s = shopOf(name); return s ? s.ink : FALLBACK.ink; }
   var DOW = ['일','월','화','수','목','금','토'];
   var STORE = 'pk_me_v2';
   var PK_CACHE = 'pk_cache_v1';        /* 달력 즉시 표시용 로컬 캐시 */
@@ -445,8 +469,8 @@
   var noticeLoaded = false;
   var view = todayMonth();
   var selDate = '';
-  var me = { name: '', color: COLORS[0], note: '' };
-  var pickColor = COLORS[0];
+  var me = { name: '', color: '', note: '' };
+  var pickName = '';   /* 내 정보에서 고른 샵 (5개 중 하나 또는 미선택) */
   var pending = null;
   var chain = Promise.resolve();
   var range = { start: '10:00', end: '13:00' };
@@ -454,7 +478,7 @@
 
   /* 첫 방문자도 바로 볼 수 있게 페이지에 함께 넣어 둔 마지막 확정 스냅샷.
      서버(parking_get) 응답이 오면 그 값으로 100% 덮어쓴다. */
-  var SEED = {"entries":[{"m":"emwo5qtm7pqn","name":"세이린뷰티","color":"#E11D48","d":"2026-11-20","t":"10:30~12:30","note":""},{"m":"emwo5qwkzrzo","name":"세이린뷰티","color":"#E11D48","d":"2026-11-20","t":"21:00~23:00","note":""},{"m":"emwo5qzog3zd","name":"세이린뷰티","color":"#E11D48","d":"2026-11-22","t":"14:00~16:00","note":""},{"m":"emwo5r2mjz23","name":"세이린뷰티","color":"#E11D48","d":"2026-11-24","t":"21:00~23:00","note":""},{"m":"emwo6rbey11l","name":"HB뷰티","color":"#2563EB","d":"2026-11-12","t":"21:00~23:00","note":""},{"m":"emwo6re8qgtz","name":"여리음네일","color":"#7C3AED","d":"2026-11-13","t":"17:00~19:00","note":""},{"m":"emwo6rguyff6","name":"벨라브로우","color":"#059669","d":"2026-11-16","t":"10:30~12:30","note":""},{"m":"emwo6rj4e3lf","name":"벨라브로우","color":"#059669","d":"2026-11-17","t":"10:30~12:30","note":""},{"m":"emwo6rmvv53y","name":"벨라브로우","color":"#059669","d":"2026-11-17","t":"13:00~15:00","note":""},{"m":"emwo6rsjvsoj","name":"세이린뷰티","color":"#E11D48","d":"2026-11-18","t":"11:00~13:00","note":""},{"m":"emwo6rv7k1ns","name":"HB뷰티","color":"#2563EB","d":"2026-11-19","t":"10:00~12:00","note":""}],"logs":[{"at":"2026-11-20 03:30","by":"문도현","action":"주차 등록","date":"2026-11-20","detail":"문도현 10:00~13:00 · 11/20"},{"at":"2026-11-20 03:40","by":"도현","action":"주차 등록","date":"2026-11-20","detail":"도현 20:00~21:00 · 11/20"},{"at":"2026-11-20 03:41","by":"도현","action":"주차 취소","date":"2026-11-20","detail":"도현 20:00~21:00 · 11/20"},{"at":"2026-11-20 04:04","by":"문도현","action":"주차 취소","date":"2026-11-20","detail":"문도현 10:00~13:00 · 11/20"},{"at":"2026-11-20 04:20","by":"문도현","action":"주차 등록","date":"2026-11-20","detail":"문도현 10:00~13:00 · 11/20"},{"at":"2026-11-20 04:20","by":"문도현","action":"주차 취소","date":"2026-11-20","detail":"문도현 10:00~13:00 · 11/20"},{"at":"2026-11-20 08:04","by":"문도현","action":"주차 등록","date":"2026-11-20","detail":"세이린뷰티 10:30~12:30 · 11/20"},{"at":"2026-11-20 08:04","by":"문도현","action":"주차 등록","date":"2026-11-20","detail":"세이린뷰티 21:00~23:00 · 11/20"},{"at":"2026-11-20 08:04","by":"문도현","action":"주차 등록","date":"2026-11-22","detail":"세이린뷰티 14:00~16:00 · 11/22"},{"at":"2026-11-20 08:04","by":"문도현","action":"주차 등록","date":"2026-11-24","detail":"세이린뷰티 21:00~23:00 · 11/24"},{"at":"2026-11-20 08:33","by":"문도현","action":"주차 등록","date":"2026-11-12","detail":"HB뷰티 21:00~23:00 · 11/12"},{"at":"2026-11-20 08:33","by":"문도현","action":"주차 등록","date":"2026-11-13","detail":"여리음네일 17:00~19:00 · 11/13"},{"at":"2026-11-20 08:33","by":"문도현","action":"주차 등록","date":"2026-11-16","detail":"벨라브로우 10:30~12:30 · 11/16"},{"at":"2026-11-20 08:33","by":"문도현","action":"주차 등록","date":"2026-11-17","detail":"벨라브로우 10:30~12:30 · 11/17"},{"at":"2026-11-20 08:33","by":"문도현","action":"주차 등록","date":"2026-11-17","detail":"벨라브로우 13:00~15:00 · 11/17"},{"at":"2026-11-20 08:33","by":"문도현","action":"주차 등록","date":"2026-11-18","detail":"세이린뷰티 11:00~13:00 · 11/18"},{"at":"2026-11-20 08:33","by":"문도현","action":"주차 등록","date":"2026-11-19","detail":"HB뷰티 10:00~12:00 · 11/19"}]};
+  var SEED = {"entries":[{"m":"emwo5qtm7pqn","name":"세이린뷰티","color":"#E11D48","d":"2026-11-20","t":"10:30~12:30","note":""},{"m":"emwo5qwkzrzo","name":"세이린뷰티","color":"#E11D48","d":"2026-11-20","t":"21:00~23:00","note":""},{"m":"emwo5qzog3zd","name":"세이린뷰티","color":"#E11D48","d":"2026-11-22","t":"14:00~16:00","note":""},{"m":"emwo5r2mjz23","name":"세이린뷰티","color":"#E11D48","d":"2026-11-24","t":"21:00~23:00","note":""},{"m":"emwo6rbey11l","name":"HB뷰티","color":"#EAB308","d":"2026-11-12","t":"21:00~23:00","note":""},{"m":"emwo6re8qgtz","name":"여리음네일","color":"#F97316","d":"2026-11-13","t":"17:00~19:00","note":""},{"m":"emwo6rguyff6","name":"벨라브로우","color":"#C8A97E","d":"2026-11-16","t":"10:30~12:30","note":""},{"m":"emwo6rj4e3lf","name":"벨라브로우","color":"#C8A97E","d":"2026-11-17","t":"10:30~12:30","note":""},{"m":"emwo6rmvv53y","name":"벨라브로우","color":"#C8A97E","d":"2026-11-17","t":"13:00~15:00","note":""},{"m":"emwo6rsjvsoj","name":"세이린뷰티","color":"#E11D48","d":"2026-11-18","t":"11:00~13:00","note":""},{"m":"emwo6rv7k1ns","name":"HB뷰티","color":"#EAB308","d":"2026-11-19","t":"10:00~12:00","note":""}],"logs":[{"at":"2026-11-20 03:30","by":"문도현","action":"주차 등록","date":"2026-11-20","detail":"문도현 10:00~13:00 · 11/20"},{"at":"2026-11-20 03:40","by":"도현","action":"주차 등록","date":"2026-11-20","detail":"도현 20:00~21:00 · 11/20"},{"at":"2026-11-20 03:41","by":"도현","action":"주차 취소","date":"2026-11-20","detail":"도현 20:00~21:00 · 11/20"},{"at":"2026-11-20 04:04","by":"문도현","action":"주차 취소","date":"2026-11-20","detail":"문도현 10:00~13:00 · 11/20"},{"at":"2026-11-20 04:20","by":"문도현","action":"주차 등록","date":"2026-11-20","detail":"문도현 10:00~13:00 · 11/20"},{"at":"2026-11-20 04:20","by":"문도현","action":"주차 취소","date":"2026-11-20","detail":"문도현 10:00~13:00 · 11/20"},{"at":"2026-11-20 08:04","by":"문도현","action":"주차 등록","date":"2026-11-20","detail":"세이린뷰티 10:30~12:30 · 11/20"},{"at":"2026-11-20 08:04","by":"문도현","action":"주차 등록","date":"2026-11-20","detail":"세이린뷰티 21:00~23:00 · 11/20"},{"at":"2026-11-20 08:04","by":"문도현","action":"주차 등록","date":"2026-11-22","detail":"세이린뷰티 14:00~16:00 · 11/22"},{"at":"2026-11-20 08:04","by":"문도현","action":"주차 등록","date":"2026-11-24","detail":"세이린뷰티 21:00~23:00 · 11/24"},{"at":"2026-11-20 08:33","by":"문도현","action":"주차 등록","date":"2026-11-12","detail":"HB뷰티 21:00~23:00 · 11/12"},{"at":"2026-11-20 08:33","by":"문도현","action":"주차 등록","date":"2026-11-13","detail":"여리음네일 17:00~19:00 · 11/13"},{"at":"2026-11-20 08:33","by":"문도현","action":"주차 등록","date":"2026-11-16","detail":"벨라브로우 10:30~12:30 · 11/16"},{"at":"2026-11-20 08:33","by":"문도현","action":"주차 등록","date":"2026-11-17","detail":"벨라브로우 10:30~12:30 · 11/17"},{"at":"2026-11-20 08:33","by":"문도현","action":"주차 등록","date":"2026-11-17","detail":"벨라브로우 13:00~15:00 · 11/17"},{"at":"2026-11-20 08:33","by":"문도현","action":"주차 등록","date":"2026-11-18","detail":"세이린뷰티 11:00~13:00 · 11/18"},{"at":"2026-11-20 08:33","by":"문도현","action":"주차 등록","date":"2026-11-19","detail":"HB뷰티 10:00~12:00 · 11/19"}]};
 
   function $(id){ return document.getElementById(id); }
   function pad(n){ return (n < 10 ? '0' : '') + n; }
@@ -568,7 +592,7 @@
     state.entries = (d.entries || []).map(function(e){
       var sp = String(e.t || '').split('~');
       return {
-        id: e.m || e.id || '', name: e.name || '', color: e.color || '',
+        id: e.m || e.id || '', name: e.name || '', color: colorOf(e.name),
         d: e.d || '', start: hm(sp[0] || ''), end: hm(sp[1] || ''), note: e.note || ''
       };
     });
@@ -598,26 +622,32 @@
     if (raw) {
       try {
         var o = JSON.parse(raw);
-        if (o && o.name) {
-          me = { name: String(o.name).slice(0, 12), color: o.color || COLORS[0], note: String(o.note || '').slice(0, 40) };
+        if (o && shopOf(o.name)) {
+          me = { name: String(o.name), color: colorOf(o.name), note: String(o.note || '').slice(0, 40) };
+        } else {
+          /* 과거에 직접 입력한 이름(예: "문도현")은 5개 샵이 아니므로 미선택으로 되돌린다 */
+          try { localStorage.removeItem(STORE); } catch(e1){}
         }
       } catch(e){}
     }
     if (!me.name) {
       var old = '';
       try { old = localStorage.getItem('pk_me') || ''; } catch(e){}
-      if (old) { me.name = old.slice(0, 12); }
+      if (old) {
+        if (shopOf(old)) { me = { name: String(old), color: colorOf(old), note: '' }; }
+        else { try { localStorage.removeItem('pk_me'); } catch(e2){} }
+      }
     }
-    pickColor = me.color || COLORS[0];
+    pickName = me.name;
   }
 
   function saveMe(){
-    var name = ($('mName').value || '').trim().slice(0, 12);
-    if (!name) { toast('이름을 입력해 주세요.'); return; }
-    me = { name: name, color: pickColor, note: ($('mNote').value || '').trim().slice(0, 40) };
+    var name = shopOf(pickName) ? pickName : '';
+    if (!name) { toast('샵을 선택해 주세요.'); return; }
+    me = { name: name, color: colorOf(name), note: ($('mNote').value || '').trim().slice(0, 40) };
     try {
       localStorage.setItem(STORE, JSON.stringify(me));
-      localStorage.setItem('pk_me', me.name);
+      localStorage.removeItem('pk_me');
     } catch(e){}
     closeSheet('meSheet');
     renderMe();
@@ -627,26 +657,30 @@
   }
 
   function openMe(){
-    $('mName').value = me.name || '';
+    pickName = shopOf(me.name) ? me.name : '';
     $('mNote').value = me.note || '';
-    pickColor = me.color || COLORS[0];
-    renderColors();
+    renderShops();
     openSheet('meSheet');
-    setTimeout(function(){ try { $('mName').focus(); } catch(e){} }, 140);
   }
 
-  function renderColors(){
+  /* 5개 샵 버튼 — 고른 샵 옆에 지정 색 동그라미가 함께 보인다 */
+  function renderShops(){
     var html = '';
-    for (var i = 0; i < COLORS.length; i++) {
-      var c = COLORS[i];
-      html += '<button class="sw' + (c === pickColor ? ' on' : '') + '" type="button" data-c="' + c + '" style="background:' + c + '" aria-label="색상 ' + (i + 1) + '"></button>';
+    for (var i = 0; i < SHOPS.length; i++) {
+      var s = SHOPS[i];
+      var on = (s.name === pickName);
+      html += '<button class="shop' + (on ? ' on' : '') + '" type="button" data-n="' + esc(s.name) + '"'
+            + ' aria-pressed="' + (on ? 'true' : 'false') + '">'
+            + '<span class="dot" style="background:' + s.color + '"></span>'
+            + '<span class="nm">' + esc(s.name) + '</span>'
+            + '<span class="ck">✓</span></button>';
     }
-    $('mColors').innerHTML = html;
+    $('mShops').innerHTML = html;
   }
 
   function renderMe(){
-    $('meName').textContent = me.name || '내 이름';
-    $('meDot').style.background = me.color || COLORS[0];
+    $('meName').textContent = me.name || '내 정보 선택';
+    $('meDot').style.background = me.name ? colorOf(me.name) : '#e7dfe4';
   }
 
   /* ---------- 렌더 ---------- */
@@ -706,11 +740,12 @@
       var shown = list.slice(0, 2);
       for (var i = 0; i < shown.length; i++) {
         var e = shown[i];
-        var color = e.color || '#e88295';
+        var color = colorOf(e.name);
+        var ink = inkOf(e.name);
         var label = String(e.name || '').slice(0, 2);
         var time = '';
         if (e.start && e.end) { time = shortH(e.start) + '-' + shortH(e.end); }
-        badges += '<i style="background:' + hexA(color, .16) + ';color:' + color + '">'
+        badges += '<i style="background:' + hexA(color, .16) + ';color:' + ink + '">'
                 + '<b>' + esc(label) + '</b>'
                 + (time ? '<em>' + esc(time) + '</em>' : '')
                 + '</i>';
@@ -829,7 +864,7 @@
     for (var i = 0; i < list.length; i++) {
       var e = list[i];
       html += '<div class="slot">'
-            + '<span class="dot" style="background:' + (e.color || '#e88295') + '"></span>'
+            + '<span class="dot" style="background:' + colorOf(e.name) + '"></span>'
             + '<span class="nm">' + esc(e.name) + '</span>'
             + '<span class="tm">' + esc(e.start) + '~' + esc(e.end) + '</span>'
             + (e.note ? '<span class="memo">' + esc(e.note) + '</span>' : '<span class="memo"></span>')
@@ -885,7 +920,7 @@
     var list = entriesOf(selDate);
     var s = toMin($('startSel').value);
     var e = toMin($('endSel').value);
-    var myColor = me.color || COLORS[0];
+    var myColor = me.name ? colorOf(me.name) : FALLBACK.color;
     var ok = (s >= 0 && e > s);
     var conf = ok ? conflictFor(toHM(s), toHM(e)) : null;
     var w = viewWin(), h0 = w[0], h1 = w[1];
@@ -908,7 +943,7 @@
       if (!(b > a)) { continue; }
       bs = Math.max(a, h0); be = Math.min(b, h1);
       if (be <= bs) { continue; }
-      blocks += ttBlock(en.name, en.start, en.end, en.color, bs, be, h0, false);
+      blocks += ttBlock(en.name, en.start, en.end, colorOf(en.name), bs, be, h0, false);
     }
 
     /* 내가 고른 시간 미리보기 (겹치면 빨갛게 그대로 보여 핸들로 고칠 수 있게 한다) */
@@ -931,7 +966,7 @@
     var warn = $('rangeWarn');
     var btn = $('regBtn');
     var line = $('pickLine');
-    btn.textContent = me.name ? (me.name + ' 님으로 등록') : '이름 정하고 등록';
+    btn.textContent = me.name ? (me.name + '로 등록') : '샵 선택하고 등록';
     var msg = '';
     if (!start || !end || end <= start) {
       msg = '종료 시간이 시작 시간보다 빨라요.';
@@ -1231,13 +1266,13 @@
     var c = conflictFor(start, end);
     if (c) { toast('이미 ' + c.start + '~' + c.end + '(' + c.name + ') 예약이 있어 겹칩니다.'); return; }
     var date = selDate;
-    var entry = { id: 'tmp' + Date.now(), name: me.name, color: me.color, d: date, start: start, end: end, note: me.note };
+    var entry = { id: 'tmp' + Date.now(), name: me.name, color: colorOf(me.name), d: date, start: start, end: end, note: me.note };
     var snapE = state.entries.slice(), snapL = state.logs.slice();
     state.entries = state.entries.concat([entry]);
     renderDateSheet(); renderCal();
     chain = chain.then(function(){
       return api({
-        mode: 'parking_set', date: date, name: me.name, color: me.color,
+        mode: 'parking_set', date: date, name: me.name, color: colorOf(me.name),
         start: start, end: end, note: me.note, on: '1', by: me.name
       });
     }).then(function(d){
@@ -1361,13 +1396,12 @@
   /* ---------- 이벤트 ---------- */
   $('meBtn').addEventListener('click', openMe);
   $('mSave').addEventListener('click', saveMe);
-  $('mName').addEventListener('keydown', function(e){ if (e.key === 'Enter') { saveMe(); } });
 
-  $('mColors').addEventListener('click', function(e){
-    var b = e.target.closest ? e.target.closest('.sw') : null;
+  $('mShops').addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('.shop') : null;
     if (!b) { return; }
-    pickColor = b.getAttribute('data-c');
-    renderColors();
+    pickName = b.getAttribute('data-n') || '';
+    renderShops();
   });
 
   $('noticeEditBtn').addEventListener('click', openNoticeEdit);
@@ -1450,7 +1484,7 @@
   applyState(cached || SEED);   /* 캐시가 없으면 함께 넣어 둔 스냅샷으로 즉시 그린다 */
   buildTimeOptions();
   initWheels();
-  renderColors();
+  renderShops();
   render();
   renderNotice();
   load();
