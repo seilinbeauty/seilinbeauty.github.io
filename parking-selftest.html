@@ -857,14 +857,13 @@
     }
     return out;
   }
-  /* 토막 중 가장 긴 것 (이름표는 한 번만 붙인다) */
-  function biggestSeg(parts){
-    var big = null, i, span;
-    for (i = 0; i < parts.length; i++) {
-      span = parts[i][1] - parts[i][0];
-      if (!big || span > big[2]) { big = [parts[i][0], parts[i][1], span]; }
-    }
-    return big;
+  /* 구간을 시계판 위 한 줄기 각도로 본다 (정오·자정을 넘어도 이름표는 이어서 놓는다) */
+  function dialArc(a, b){
+    var w = viewWin();
+    var s0 = Math.max(a, w[0]), e0 = Math.min(b, w[1]);
+    if (!(e0 > s0)) { return null; }
+    var base = Math.floor(s0 / 720) * 720;
+    return [((s0 - base) / 720) * 360, ((e0 - s0) / 720) * 360];
   }
   function textW(txt, fs){
     var w = 0, k, ch;
@@ -908,46 +907,54 @@
       + '</svg>';
   }
 
-  /* 이름표: 색칠된 부채꼴 안, 그 각도 위치에 가로로 붙여 쓴다 */
-  function labelBox(deg, R, w, h){
-    var p = polar(R, deg);
-    p[0] = Math.max(w / 2 + 6, Math.min(194 - w / 2, p[0]));
-    p[1] = Math.max(h / 2 + 6, Math.min(194 - h / 2, p[1]));
-    return { x: p[0], y: p[1], w: w, h: h };
+  /* 이름표 네 모서리가 모두 그 부채꼴(각도 범위·반지름) 안에 들어오는지 */
+  function inWedge(box, a0, a1, rMax){
+    var pts = [[box.x - box.w/2, box.y - box.h/2], [box.x + box.w/2, box.y - box.h/2],
+               [box.x + box.w/2, box.y + box.h/2], [box.x - box.w/2, box.y + box.h/2]];
+    for (var i = 0; i < 4; i++) {
+      var dx = pts[i][0] - CX, dy = pts[i][1] - CY;
+      if (Math.sqrt(dx * dx + dy * dy) > rMax) { return false; }
+      var t = Math.atan2(dy, dx) * 180 / Math.PI + 90;
+      while (t < a0) { t += 360; }
+      while (t >= a0 + 360) { t -= 360; }
+      if (t > a1 + 0.01) { return false; }
+    }
+    return true;
   }
 
+  /* 이름표: 부채꼴 안쪽에 가로로 넣는다. 들어가지 않으면 글자를 줄이고, 그래도 안 되면 글자를 잘라 낸다 */
   function pieLabel(degMid, degSpan, name, color, placed, fs0){
     var base = String(name || '');
     if (!base) { return ''; }
-    var halfRad = Math.min(88, Math.abs(degSpan) / 2) * Math.PI / 180;
+    var span = Math.min(360, Math.max(1, Math.abs(degSpan)));
+    var a0 = degMid - span / 2, a1 = degMid + span / 2;
     var boxH = 13.4, padX = 4.8;
-    var radii = [54, 48, 42, 36, 30];   /* 바깥쪽부터 골라 넣는다 */
-    for (var ri = 0; ri < radii.length; ri++) {
-      var R = radii[ri];
-      var chord = 2 * R * Math.sin(halfRad);
-      var room = Math.min(46, Math.max(chord * 1.4 + 6, 30));
-      var fs = fs0 || 9.4;
-      var per = textW(base, 1) || 1;
-      if (fs * per + padX * 2 > room) {
-        fs = Math.max(6.6, (room - padX * 2) / per);
-      }
-      var txt = base;
-      while (txt.length > 1 && textW(txt, fs) + padX * 2 > room + .5) { txt = txt.slice(0, txt.length - 1); }
-      var w = textW(txt, fs) + padX * 2;
-      /* 이름표 네 모서리가 시계판(둘레선) 안에 드는지 */
-      if (Math.sqrt(w * w / 4 + (R + boxH / 2) * (R + boxH / 2)) > R_CHAP - 1.2) { continue; }
-      var offs = [0, 9, -9, 17, -17, 25, -25, 33, -33];
-      for (var k = 0; k < offs.length; k++) {
-        var box = labelBox(degMid + offs[k], R, w, boxH);
-        var hit = false;
-        for (var q = 0; q < placed.length; q++) { if (overlaps(box, placed[q])) { hit = true; break; } }
-        if (hit) { continue; }
-        placed.push(box);
-        return '<rect x="' + f2(box.x - w / 2) + '" y="' + f2(box.y - boxH / 2) + '" width="' + f2(w)
-             + '" height="' + boxH + '" rx="' + f2(boxH / 2) + '" fill="' + color + '"/>'
-             + '<text class="nm-lb" x="' + f2(box.x) + '" y="' + f2(box.y) + '" fill="#fff"'
-             + (fs < 9.3 ? ' style="font-size:' + f2(fs) + 'px"' : '') + '>'
-             + esc(txt) + '</text>';
+    var fsList = [fs0 || 9.4, 8.8, 8.2, 7.6, 7.0, 6.4];
+    var radii = [54, 50, 46, 42, 38, 34, 30, 26];
+    var offs = [0, 5, -5, 10, -10, 15, -15];
+    for (var tl = base.length; tl >= 1; tl--) {
+      var txt = base.slice(0, tl);
+      for (var fi = 0; fi < fsList.length; fi++) {
+        var fs = fsList[fi];
+        var w = textW(txt, fs) + padX * 2;
+        for (var ri = 0; ri < radii.length; ri++) {
+          var R = radii[ri];
+          if (Math.sqrt(w * w / 4 + (R + boxH / 2) * (R + boxH / 2)) > R_PIE - 1) { continue; }
+          for (var k = 0; k < offs.length; k++) {
+            var p = polar(R, degMid + offs[k]);
+            var box = { x: p[0], y: p[1], w: w, h: boxH };
+            if (!inWedge(box, a0, a1, R_PIE - 1)) { continue; }
+            var hit = false;
+            for (var q = 0; q < placed.length; q++) { if (overlaps(box, placed[q])) { hit = true; break; } }
+            if (hit) { continue; }
+            placed.push(box);
+            return '<rect x="' + f2(box.x - w / 2) + '" y="' + f2(box.y - boxH / 2) + '" width="' + f2(w)
+                 + '" height="' + boxH + '" rx="' + f2(boxH / 2) + '" fill="' + color + '"/>'
+                 + '<text class="nm-lb" x="' + f2(box.x) + '" y="' + f2(box.y) + '" fill="#fff"'
+                 + (fs < 9.3 ? ' style="font-size:' + f2(fs) + 'px"' : '') + '>'
+                 + esc(txt) + '</text>';
+          }
+        }
       }
     }
     return '';
@@ -1004,21 +1011,19 @@
     }
     segs.innerHTML = arcs;
 
-    /* 이름표: 색칠된 부채꼴 안에 이름. 위치가 겹치면 각도·반지름을 비켜 배치한다 */
-    var placed = [], lh = '', big;
+    /* 이름표: 부채꼴 안쪽 중앙에 이름. 위치가 겹치면 각도를 살짝 비켜 배치한다 */
+    var placed = [], lh = '', arc;
     for (i = 0; i < list.length; i++) {
       en = list[i];
-      a = toMin(en.start); b = toMin(en.end);
-      if (!(b > a)) { continue; }
-      big = biggestSeg(dialSegs(a, b));
-      if (!big) { continue; }
-      lh += pieLabel((big[0] + big[1]) / 2, big[1] - big[0],
+      arc = dialArc(toMin(en.start), toMin(en.end));
+      if (!arc) { continue; }
+      lh += pieLabel(arc[0] + arc[1] / 2, arc[1],
                      String(en.name || ''), en.color || '#e88295', placed, 9.4);
     }
-    if (mine && mine.length) {
-      big = biggestSeg(mine);
-      if (big) {
-        lh += pieLabel((big[0] + big[1]) / 2, big[1] - big[0], me.name || '내 시간', myColor, placed, 9.4);
+    if (ok && !conf) {
+      arc = dialArc(Math.max(0, s), Math.min(1440, e));
+      if (arc) {
+        lh += pieLabel(arc[0] + arc[1] / 2, arc[1], me.name || '내 시간', myColor, placed, 9.4);
       }
     }
     labels.innerHTML = lh;
