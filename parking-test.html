@@ -20,28 +20,34 @@
 (function(){
   var fr = document.getElementById('fr');
   var logEl = document.getElementById('log');
-  var lines = [];
+  var lines = [], D = null, W = null, once = false;
+
   function log(s){ lines.push(s); logEl.textContent = lines.join('\n'); }
+  function val(){
+    var g = function(id){ return D.getElementById(id); };
+    var blk = D.querySelector('#timetable .tt-b.me');
+    return g('startSel').value + ' ~ ' + g('endSel').value +
+      ' / 미리보기 ' + (blk ? blk.textContent.trim() : '없음') +
+      ' / 경고 ' + (g('rangeWarn').hidden ? '없음' : g('rangeWarn').textContent.trim()) +
+      ' / 버튼 ' + (g('regBtn').disabled ? '비활성' : '활성');
+  }
 
   function build(){
-    var d = fr.contentDocument, w = fr.contentWindow;
-    if (!d || !d.getElementById('timetable')) { setTimeout(build, 300); return; }
-    // 실제 손가락이 닿는 곳을 확인할 수 있도록 .tt-blocks 겹침만 잠시 뚫어 둔다
-    var st = d.createElement('style');
+    D = fr.contentDocument; W = fr.contentWindow;
+    if (!D || !D.getElementById('timetable')) { setTimeout(build, 300); return; }
+    var st = D.createElement('style');
     st.textContent = '#timetable .tt-blocks{pointer-events:none !important}' +
                      '#timetable .tt-b{pointer-events:auto !important}';
-    d.head.appendChild(st);
+    D.head.appendChild(st);
 
-    var tt = d.getElementById('timetable');
-    var H = 21;   /* 1시간 = 21px */
+    var tt = D.getElementById('timetable');
+    var H = 21;
 
     function probe(id, label, top){
-      var b = d.createElement('button');
-      b.id = id;
-      b.type = 'button';
-      b.textContent = label;
+      var b = D.createElement('button');
+      b.id = id; b.type = 'button'; b.textContent = label;
       b.setAttribute('aria-label', '탐침 ' + label);
-      b.style.cssText = 'position:absolute;left:58%;width:22px;height:22px;margin:-11px 0 0 -11px;' +
+      b.style.cssText = 'position:absolute;left:62%;width:22px;height:22px;margin:-11px 0 0 -11px;' +
         'border:1px dashed #17a34a;background:rgba(23,163,74,.18);color:#0f6b33;' +
         'font-size:8px;font-weight:800;line-height:1;padding:0;z-index:9;border-radius:6px;';
       b.style.top = top + 'px';
@@ -50,26 +56,45 @@
     }
 
     function ensure(){
-      var blk = d.querySelector('#timetable .tt-b.me');
-      if (!d.getElementById('p1500')) { probe('p1500', '15', 15 * H); }
-      if (!d.getElementById('p1830')) { probe('p1830', '18:30', 18.5 * H); }
-      if (!d.getElementById('p1930')) { probe('p1930', '19:30', 19.5 * H); }
+      if (!D.getElementById('p1500')) { probe('p1500', '15', 15 * H); }
+      if (!D.getElementById('p1830')) { probe('p1830', '18:30', 18.5 * H); }
+      if (!D.getElementById('p1930')) { probe('p1930', '19:30', 19.5 * H); }
+      var blk = D.querySelector('#timetable .tt-b.me');
       if (blk) {
-        var bottom = blk.offsetTop + blk.offsetHeight;
-        var hb = d.getElementById('phandle');
-        if (!hb) { hb = probe('phandle', 'H', bottom - 10); }
-        hb.style.top = (bottom - 10) + 'px';
+        var top = blk.offsetTop, bot = blk.offsetTop + blk.offsetHeight;
+        var hb = D.getElementById('phandle');
+        if (!hb) { hb = probe('phandle', 'H', bot - 10); }
+        hb.style.top = (bot - 10) + 'px';
+        var ht = D.getElementById('phandt');
+        if (!ht) { ht = probe('phandt', 'T', top + 10); }
+        ht.style.top = (top + 10) + 'px';
       }
-      logEl.setAttribute('data-ready', '1');
     }
 
-    var obs = new (w.MutationObserver || MutationObserver)(function(){ setTimeout(ensure, 0); });
+    var obs = new (W.MutationObserver || MutationObserver)(function(){ setTimeout(ensure, 0); });
     obs.observe(tt, { childList: true });
     ensure();
-    w.__ensureProbe = ensure;
+
+    // 시트가 열리면 한 번: 휠을 실제 스크롤했을 때와 같은 경로(스크롤 이벤트)를 확인
+    var iv = setInterval(function(){
+      if (once) { return; }
+      var sheet = D.getElementById('dateSheet');
+      if (!sheet || sheet.hidden) { return; }
+      once = true;
+      clearInterval(iv);
+      setTimeout(function(){
+        var before = val();
+        D.getElementById('colEH').scrollTop = 20 * 44;
+        setTimeout(function(){
+          log('휠(종료 시) 20시로 스크롤 → ' + val() + '  [이전 ' + before + ']');
+          ensure();
+        }, 700);
+      }, 600);
+    }, 300);
+
     log('준비 완료');
   }
-  fr.addEventListener('load', function(){ setTimeout(build, 500); });
+  fr.addEventListener('load', function(){ setTimeout(build, 400); });
 })();
 </script>
 </body>
