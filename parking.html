@@ -188,19 +188,27 @@
   .range-head > span{font-size:11px; font-weight:700; color:var(--dim);}
 
   /* 24시간 시계 (보기 전용 표시) — 진짜 아날로그 시계판 */
-  .dial-wrap{display:flex; justify-content:center; margin:3px 0 5px;}
-  .dial{width:282px; max-width:100%; pointer-events:none; user-select:none; -webkit-user-select:none;}
-  .dial svg{display:block; width:100%; height:auto;}
-  .dial .face{fill:#fff; stroke:var(--pink-line); stroke-width:2;}
-  .dial .bez{fill:none; stroke:#f8eef2; stroke-width:1.6;}
-  .dial .chap{fill:none; stroke:#f2e7ee; stroke-width:.9;}
-  .dial .segs path{stroke-linejoin:round;}
-  .dial .tk{stroke:#b3a0ab; stroke-width:1.6; stroke-linecap:round;}
-  .dial .tk.half{stroke:#e8dce3; stroke-width:.9;}
-  .dial .num{fill:#4a4552; font-size:10.6px; font-weight:800; text-anchor:middle; dominant-baseline:central; font-family:inherit; letter-spacing:-.3px;}
-  .dial .hub-o{fill:#fff; stroke:#d9c6d0; stroke-width:1.3;}
-  .dial .hub-i{fill:#b9a4b0;}
-  .dial .nm-lb{font-size:9.2px; font-weight:800; font-family:inherit; text-anchor:middle; dominant-baseline:central; letter-spacing:-.2px;}
+  .tt{position:relative; margin:4px 0 6px; padding-left:46px;}
+  .tt-h{position:absolute; left:0; right:0; height:0; border-top:1px solid #f1eaee;}
+  .tt-h span{
+    position:absolute; left:0; width:40px; text-align:right; top:-7px;
+    font-size:10.5px; font-weight:700; color:var(--dim); font-variant-numeric:tabular-nums; letter-spacing:-.2px;
+  }
+  .tt-blocks{position:absolute; left:46px; right:0; top:0; bottom:0;}
+  .tt-b{
+    position:absolute; left:0; right:2px; border-radius:9px; border-left:4px solid var(--pink);
+    padding:0 7px; display:flex; align-items:center; gap:5px; overflow:hidden;
+    box-sizing:border-box;
+  }
+  .tt-b b{
+    font-size:11px; font-weight:800; color:#3a3237; white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis; flex:0 1 auto; min-width:0;
+  }
+  .tt-b span{
+    font-size:10px; font-weight:700; color:#6b6270; white-space:nowrap;
+    font-variant-numeric:tabular-nums; flex:0 0 auto;
+  }
+  .tt-b.me b{color:#2f2933;}
   /* 오전·오후 전환 탭 */
   .dawn-row{display:flex; justify-content:center; margin:1px 0 6px;}
   .dawn-btn{
@@ -273,7 +281,6 @@
     .badges i em{font-size:8px;}
     .sheet-wrap{align-items:center;}
     .sheet{border-radius:18px; max-width:440px; padding-bottom:16px;}
-    .dial{width:320px;}
     .grip{display:none;}
   }
 </style>
@@ -343,9 +350,7 @@
     <div class="dawn-row">
       <button class="dawn-btn" id="dawnBtn" type="button" aria-pressed="false">🌙 새벽<i class="dot"></i></button>
     </div>
-    <div class="dial-wrap">
-      <div class="dial" id="clockDay"></div>
-    </div>
+    <div class="tt" id="timetable"></div>
     <div class="pick-line" id="pickLine">
       <b id="pickSum">-</b>
     </div>
@@ -796,34 +801,10 @@
     renderPick();
   }
 
-  /* ---------- 12시간 시계 (보기 전용) ---------- */
-  var CX = 100, CY = 100;
-  var R_FACE = 97.5;                 /* 시계판(베젤) */
-  var R_TK_OUT = 91, R_TK_HOUR = 84.2, R_TK_HALF = 87.6;
-  var R_NUM = 76;                  /* 숫자는 눈금 바로 안쪽 */
-  var R_CHAP = 68.5;                 /* 숫자 안쪽 둘레선 */
-  var R_PIE = 66.5;                  /* 부채꼴(피자 조각) 바깥 반지름 */
+  /* ---------- 세로 타임테이블 (콜라보살롱 스타일) ---------- */
+  var TT_HOUR = 26;                  /* 1시간 높이(px) */
 
   function f2(n){ return Math.round(n * 100) / 100; }
-  function polar(r, deg){
-    var rad = (deg - 90) * Math.PI / 180;
-    return [CX + r * Math.cos(rad), CY + r * Math.sin(rad)];
-  }
-  /* 중심점에서 뻗어 나가는 부채꼴(파이 조각) */
-  function piePath(r, a0, a1){
-    var span = a1 - a0;
-    if (span <= 0.01) { return ''; }
-    if (span >= 359.9) {
-      return 'M' + (CX - r) + ',' + CY + 'A' + r + ',' + r + ' 0 1 1 ' + (CX + r) + ',' + CY
-           + 'A' + r + ',' + r + ' 0 1 1 ' + (CX - r) + ',' + CY + 'Z';
-    }
-    var large = span > 180 ? 1 : 0;
-    var p1 = polar(r, a0), p2 = polar(r, a1);
-    return 'M' + CX + ',' + CY
-      + 'L' + f2(p1[0]) + ',' + f2(p1[1])
-      + 'A' + r + ',' + r + ' 0 ' + large + ' 1 ' + f2(p2[0]) + ',' + f2(p2[1]) + 'Z';
-  }
-
   function toMin(v){
     var s = String(v || '');
     if (!/^\d{1,2}:\d{2}$/.test(s)) { return -1; }
@@ -835,137 +816,34 @@
     if (min < 0) { min = 0; }
     return pad(Math.floor(min / 60)) + ':' + pad(min % 60);
   }
-  /* 지금 보는 구간: 기본은 09:00~24:00, 새벽 보기는 00:00~09:00 */
-  function viewWin(){ return dawn ? [0, DAY_START] : [DAY_START, 1440]; }
-  /* 시작 시간이 새벽(00:00~08:30)이면 새벽 보기, 낮 시간대면 기본 보기로 맞춘다 */
+
+  /* 지금 보는 구간: 기본 09:00~24:00, 🌙 새벽을 켜면 00:00~24:00 */
+  function viewWin(){ return dawn ? [0, 1440] : [DAY_START, 1440]; }
+
+  /* 시작 시간이 새벽(00:00~08:30)이면 새벽 보기, 낮이면 기본 보기로 맞춘다 */
   function syncDawn(){
     var s0 = toMin($('startSel').value);
-    dawn = (s0 >= 0 && s0 < DAY_START);
-  }
-  /* 하루 24시간을 12시간 시계판 위로 접는다. 보기 구간 밖은 잘라 내고, 정오·자정을 넘으면 각도 토막으로 나눈다 */
-  function dialSegs(a, b){
-    var w = viewWin();
-    var s = Math.max(a, w[0]), e = Math.min(b, w[1]);
-    var out = [];
-    if (!(e > s)) { return out; }
-    var t = s;
-    while (t < e) {
-      var base = Math.floor(t / 720) * 720;
-      var end = Math.min(e, base + 720);
-      out.push([((t - base) / 720) * 360, ((end - base) / 720) * 360]);
-      t = end;
-    }
-    return out;
-  }
-  /* 구간을 시계판 위 한 줄기 각도로 본다 (정오·자정을 넘어도 이름표는 이어서 놓는다) */
-  function dialArc(a, b){
-    var w = viewWin();
-    var s0 = Math.max(a, w[0]), e0 = Math.min(b, w[1]);
-    if (!(e0 > s0)) { return null; }
-    var base = Math.floor(s0 / 720) * 720;
-    return [((s0 - base) / 720) * 360, ((e0 - s0) / 720) * 360];
-  }
-  function textW(txt, fs){
-    var w = 0, k, ch;
-    for (k = 0; k < txt.length; k++) {
-      ch = txt.charAt(k);
-      w += /[가-힣]/.test(ch) ? fs : (ch === ' ' ? fs * 0.42 : fs * 0.58);
-    }
-    return w;
-  }
-  function overlaps(a, b){
-    return Math.abs(a.x - b.x) < (a.w + b.w) / 2 && Math.abs(a.y - b.y) < (a.h + b.h) / 2;
+    if (s0 < 0) { return; }
+    dawn = (s0 < DAY_START);
   }
 
-  /* 시계 판(베젤·눈금·숫자·중심축) 1회 생성 — 진짜 12시간 시계 */
-  function buildDial(){
-    var el = $('clockDay');
-    if (!el) { return; }
-    var ticks = '';
-    for (var i = 0; i < 24; i++) {
-      var d = i * 15;
-      var isHour = (i % 2 === 0);
-      var a = polar(R_TK_OUT, d), b = polar(isHour ? R_TK_HOUR : R_TK_HALF, d);
-      ticks += '<line class="tk' + (isHour ? '' : ' half') + '" x1="' + f2(a[0]) + '" y1="' + f2(a[1])
-             + '" x2="' + f2(b[0]) + '" y2="' + f2(b[1]) + '"/>';
+  function ttBlock(name, from, to, color, s0, e0, h0, mine){
+    var c = color || '#e88295';
+    var top = ((s0 - h0) / 60) * TT_HOUR;
+    var hgt = Math.max(17, ((e0 - s0) / 60) * TT_HOUR - 1.5);
+    var style = 'top:' + f2(top) + 'px;height:' + f2(hgt) + 'px;background:' + hexA(c, mine ? .10 : .16) + ';';
+    if (mine) {
+      style += 'border:1px dashed ' + c + ';border-left:4px solid ' + c + ';';
+    } else {
+      style += 'border-left-color:' + c + ';';
     }
-    var nums = '';
-    for (var h = 0; h < 12; h++) {
-      var p = polar(R_NUM, h * 30);
-      nums += '<text class="num" x="' + f2(p[0]) + '" y="' + f2(p[1]) + '">' + (h === 0 ? 12 : h) + '</text>';
-    }
-    el.innerHTML = '<svg viewBox="0 0 200 200" role="img" aria-label="12시간 주차 시간대 시계판">'
-      + '<circle class="face" cx="' + CX + '" cy="' + CY + '" r="' + R_FACE + '"/>'
-      + '<circle class="bez" cx="' + CX + '" cy="' + CY + '" r="93.8"/>'
-      + '<g class="segs"></g>'
-      + '<circle class="chap" cx="' + CX + '" cy="' + CY + '" r="' + R_CHAP + '"/>'
-      + '<g class="ticks">' + ticks + '</g>'
-      + nums
-      + '<g class="labels"></g>'
-      + '<circle class="hub-o" cx="' + CX + '" cy="' + CY + '" r="4.2"/>'
-      + '<circle class="hub-i" cx="' + CX + '" cy="' + CY + '" r="1.9"/>'
-      + '</svg>';
-  }
-
-  /* 이름표 네 모서리가 모두 그 부채꼴(각도 범위·반지름) 안에 들어오는지 */
-  function inWedge(box, a0, a1, rMax){
-    var pts = [[box.x - box.w/2, box.y - box.h/2], [box.x + box.w/2, box.y - box.h/2],
-               [box.x + box.w/2, box.y + box.h/2], [box.x - box.w/2, box.y + box.h/2]];
-    for (var i = 0; i < 4; i++) {
-      var dx = pts[i][0] - CX, dy = pts[i][1] - CY;
-      if (Math.sqrt(dx * dx + dy * dy) > rMax) { return false; }
-      var t = Math.atan2(dy, dx) * 180 / Math.PI + 90;
-      while (t < a0) { t += 360; }
-      while (t >= a0 + 360) { t -= 360; }
-      if (t > a1 + 0.01) { return false; }
-    }
-    return true;
-  }
-
-  /* 이름표: 부채꼴 안쪽에 가로로 넣는다. 들어가지 않으면 글자를 줄이고, 그래도 안 되면 글자를 잘라 낸다 */
-  function pieLabel(degMid, degSpan, name, color, placed, fs0){
-    var base = String(name || '');
-    if (!base) { return ''; }
-    var span = Math.min(360, Math.max(1, Math.abs(degSpan)));
-    var a0 = degMid - span / 2, a1 = degMid + span / 2;
-    var boxH = 13.4, padX = 4.8;
-    var fsList = [fs0 || 9.4, 8.8, 8.2, 7.6, 7.0, 6.4];
-    var radii = [54, 50, 46, 42, 38, 34, 30, 26];
-    var offs = [0, 5, -5, 10, -10, 15, -15];
-    for (var tl = base.length; tl >= 1; tl--) {
-      var txt = base.slice(0, tl);
-      for (var fi = 0; fi < fsList.length; fi++) {
-        var fs = fsList[fi];
-        var w = textW(txt, fs) + padX * 2;
-        for (var ri = 0; ri < radii.length; ri++) {
-          var R = radii[ri];
-          if (Math.sqrt(w * w / 4 + (R + boxH / 2) * (R + boxH / 2)) > R_PIE - 1) { continue; }
-          for (var k = 0; k < offs.length; k++) {
-            var p = polar(R, degMid + offs[k]);
-            var box = { x: p[0], y: p[1], w: w, h: boxH };
-            if (!inWedge(box, a0, a1, R_PIE - 1)) { continue; }
-            var hit = false;
-            for (var q = 0; q < placed.length; q++) { if (overlaps(box, placed[q])) { hit = true; break; } }
-            if (hit) { continue; }
-            placed.push(box);
-            return '<rect x="' + f2(box.x - w / 2) + '" y="' + f2(box.y - boxH / 2) + '" width="' + f2(w)
-                 + '" height="' + boxH + '" rx="' + f2(boxH / 2) + '" fill="' + color + '"/>'
-                 + '<text class="nm-lb" x="' + f2(box.x) + '" y="' + f2(box.y) + '" fill="#fff"'
-                 + (fs < 9.3 ? ' style="font-size:' + f2(fs) + 'px"' : '') + '>'
-                 + esc(txt) + '</text>';
-          }
-        }
-      }
-    }
-    return '';
+    return '<div class="tt-b' + (mine ? ' me' : '') + '" style="' + style + '">'
+         + '<b>' + esc(name) + '</b><span>' + esc(from) + '~' + esc(to) + '</span></div>';
   }
 
   function renderDial(){
-    var el = $('clockDay');
+    var el = $('timetable');
     if (!el) { return; }
-    var segs = el.querySelector('.segs');
-    var labels = el.querySelector('.labels');
-    if (!segs || !labels) { return; }
 
     var list = entriesOf(selDate);
     var s = toMin($('startSel').value);
@@ -973,9 +851,20 @@
     var myColor = me.color || COLORS[0];
     var ok = (s >= 0 && e > s);
     var conf = ok ? conflictFor(toHM(s), toHM(e)) : null;
-    var arcs = '', i, j, en, a, b, c, parts, hasDawn = false;
+    var w = viewWin(), h0 = w[0], h1 = w[1];
+    var i, t, en, a, b, bs, be, ms, mf;
 
-    /* 새벽 예약이 있으면 🌙 새벽 버튼에 점을 찍는다 */
+    el.style.height = (((h1 - h0) / 60) * TT_HOUR) + 'px';
+
+    /* 시간 눈금 */
+    var grid = '';
+    for (t = h0; t <= h1; t += 60) {
+      grid += '<div class="tt-h" style="top:' + f2(((t - h0) / 60) * TT_HOUR) + 'px">'
+            + '<span>' + toHM(t) + '</span></div>';
+    }
+
+    /* 새벽 예약이 있으면 🌙 새벽 버튼에 점 */
+    var hasDawn = false;
     for (i = 0; i < list.length; i++) {
       if (toMin(list[i].start) < DAY_START && toMin(list[i].end) > 0) { hasDawn = true; break; }
     }
@@ -986,47 +875,26 @@
       db.setAttribute('aria-pressed', dawn ? 'true' : 'false');
     }
 
-    /* 등록된 주차 구간 (등록자 색상) — 기본은 09~24시, 새벽 보기는 00~09시만 한 시계판에 그린다.
-       같은 시계 위치에 겹치는 구간은 반투명+테두리로 둘 다 보이게 한다 */
+    /* 등록된 주차 블록 */
+    var blocks = '';
     for (i = 0; i < list.length; i++) {
       en = list[i];
       a = toMin(en.start); b = toMin(en.end);
       if (!(b > a)) { continue; }
-      c = en.color || '#e88295';
-      parts = dialSegs(a, b);
-      for (j = 0; j < parts.length; j++) {
-        arcs += '<path d="' + piePath(R_PIE, parts[j][0], parts[j][1]) + '" fill="' + hexA(c, .25)
-              + '" stroke="' + c + '" stroke-width="1.3"/>';
+      bs = Math.max(a, h0); be = Math.min(b, h1);
+      if (be <= bs) { continue; }
+      blocks += ttBlock(en.name, en.start, en.end, en.color, bs, be, h0, false);
+    }
+
+    /* 내가 고른 시간 미리보기 (겹치면 그리지 않는다) */
+    if (ok && !conf) {
+      ms = Math.max(s, h0); mf = Math.min(e, h1);
+      if (mf > ms) {
+        blocks += ttBlock(me.name || '내 시간', toHM(s), toHM(e), myColor, ms, mf, h0, true);
       }
     }
 
-    /* 내가 지금 맞추고 있는 구간 (내 색상) — 등록된 예약과 겹치면 그리지 않는다 */
-    var mine = null;
-    if (ok && !conf) {
-      mine = dialSegs(Math.max(0, s), Math.min(1440, e));
-      for (j = 0; j < mine.length; j++) {
-        arcs += '<path d="' + piePath(R_PIE, mine[j][0], mine[j][1])
-              + '" fill="' + hexA(myColor, .3) + '" stroke="' + myColor + '" stroke-width="2.2"/>';
-      }
-    }
-    segs.innerHTML = arcs;
-
-    /* 이름표: 부채꼴 안쪽 중앙에 이름. 위치가 겹치면 각도를 살짝 비켜 배치한다 */
-    var placed = [], lh = '', arc;
-    for (i = 0; i < list.length; i++) {
-      en = list[i];
-      arc = dialArc(toMin(en.start), toMin(en.end));
-      if (!arc) { continue; }
-      lh += pieLabel(arc[0] + arc[1] / 2, arc[1],
-                     String(en.name || ''), en.color || '#e88295', placed, 9.4);
-    }
-    if (ok && !conf) {
-      arc = dialArc(Math.max(0, s), Math.min(1440, e));
-      if (arc) {
-        lh += pieLabel(arc[0] + arc[1] / 2, arc[1], me.name || '내 시간', myColor, placed, 9.4);
-      }
-    }
-    labels.innerHTML = lh;
+    el.innerHTML = grid + '<div class="tt-blocks">' + blocks + '</div>';
 
     var sum = $('pickSum');
     if (sum) { sum.textContent = (s >= 0 && e >= 0) ? (toHM(s) + ' ~ ' + toHM(e)) : '-'; }
@@ -1301,7 +1169,6 @@
   /* 서버 응답을 기다리지 않고 캐시가 있으면 바로 달력을 채운다 */
   var cached = readCache();
   applyState(cached || SEED);   /* 캐시가 없으면 함께 넣어 둔 스냅샷으로 즉시 그린다 */
-  buildDial();
   buildTimeOptions();
   renderColors();
   render();
