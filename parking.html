@@ -209,6 +209,8 @@
     font-variant-numeric:tabular-nums; flex:0 0 auto;
   }
   .tt-b.me b{color:#2f2933;}
+  /* 상단 내 이름 버튼 클래스(.me)의 max-width:150px이 내 블록에도 걸리지 않게 */
+  .tt-b.me{max-width:none;}
   /* 내 블록 위·아래 조절 핸들(═) */
   .tt-b.me .hd{position:absolute; left:0; right:0; height:15px; display:flex; align-items:center; justify-content:center; pointer-events:none;}
   .tt-b.me .hd.t{top:0;}
