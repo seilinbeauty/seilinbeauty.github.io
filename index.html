@@ -1635,6 +1635,33 @@
         border-radius: 14px;
       }
     }
+
+    /* PC 상단 대표 영상 (PC 900px 이상에서만 노출, 모바일은 기존 화면 그대로) */
+    .pc-hero-video { display: none; }
+    @media (min-width: 900px) {
+      .pc-hero-video {
+        display: block;
+        padding-top: 66px; /* 고정 헤더 높이만큼 띄움 */
+      }
+      .pc-hero-video .container { max-width: 1040px; }
+      .pchv-frame {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1600 / 736;
+        border-radius: 26px;
+        overflow: hidden;
+        background: #1a1116;
+        box-shadow: 0 26px 60px rgba(158, 51, 72, 0.18), 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .pchv-el {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      /* 영상이 헤더 여백을 대신하므로 히어로 상단 여백만 줄여 붙임 */
+      .pc-hero-video + .hero { padding-top: 44px; }
+    }
   </style>
 
   <!-- Google tag (gtag.js) - GA4 세이린뷰티 아카데미 -->
@@ -1687,6 +1714,37 @@
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
   </header>
+
+  <!-- PC 상단 대표 영상 (인스타 @seilin_beauty 릴스·시술 사진 편집본) -->
+  <section class="pc-hero-video" id="pcHeroVideo" aria-label="세이린뷰티 아카데미 시술·수업 현장 영상">
+    <div class="container">
+      <div class="pchv-frame">
+        <video class="pchv-el" id="pcHeroVideoEl" muted loop playsinline preload="none"
+               aria-label="세이린뷰티 아카데미 시술과 수업 현장 영상"></video>
+      </div>
+    </div>
+  </section>
+  <script>
+    (function () {
+      var v = document.getElementById('pcHeroVideoEl');
+      if (!v) return;
+      var mq = window.matchMedia('(min-width: 900px)');
+      function start() {
+        if (!mq.matches || v.getAttribute('data-loaded') === '1') return;
+        v.setAttribute('data-loaded', '1');
+        v.poster = 'assets/ig/seilin-pc-hero-poster.jpg';
+        var s = document.createElement('source');
+        s.src = 'assets/ig/seilin-pc-hero.mp4';
+        s.type = 'video/mp4';
+        v.appendChild(s);
+        v.load();
+        var p = v.play();
+        if (p && p.catch) p.catch(function () {});
+      }
+      start();
+      if (mq.addEventListener) mq.addEventListener('change', start);
+    })();
+  </script>
 
   <!-- Hero Section (창업 & 1:1 아카데미 중심) -->
   <section class="hero">
