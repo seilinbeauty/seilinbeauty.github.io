@@ -971,12 +971,14 @@
     return Math.max(0, Math.min(1440, Math.round(v / 30) * 30));
   }
 
-  /* 내 미리보기 블록의 위·아래 가장자리를 잡았는지 */
+  /* 내 미리보기 블록의 위·아래 가장자리를 잡았는지 (가로는 시계 폭 전체에서 잡힌다) */
   function mineEdge(clientX, clientY){
     var el = document.querySelector('#timetable .tt-b.me');
     if (!el) { return ''; }
     var r = el.getBoundingClientRect();
-    if (clientX < r.left - 8 || clientX > r.right + 8) { return ''; }
+    var row = document.querySelector('#timetable .tt-blocks');
+    var rr = row ? row.getBoundingClientRect() : r;
+    if (clientX < rr.left - 6 || clientX > rr.right + 6) { return ''; }
     if (clientY < r.top - 12 || clientY > r.bottom + 12) { return ''; }
     var rel = clientY - r.top;
     var edge = Math.min(16, Math.max(7, r.height / 2));
