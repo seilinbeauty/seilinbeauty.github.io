@@ -673,7 +673,7 @@
             + ' aria-pressed="' + (on ? 'true' : 'false') + '">'
             + '<span class="dot" style="background:' + s.color + '"></span>'
             + '<span class="nm">' + esc(s.name) + '</span>'
-            + '<span class="ck">✓</span></button>';
+            + '<span class="ck" aria-hidden="true">✓</span></button>';
     }
     $('mShops').innerHTML = html;
   }

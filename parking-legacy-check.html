@@ -1,0 +1,9 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>옛 이름 초기화 확인</title></head><body>
+<script>
+try{
+  localStorage.setItem('pk_me_v2', JSON.stringify({name:'문도현', color:'#e88295', note:'오전만'}));
+  localStorage.setItem('pk_me', '문도현');
+}catch(e){}
+location.replace('./parking.html?v=legacy');
+</script>
+</body></html>
