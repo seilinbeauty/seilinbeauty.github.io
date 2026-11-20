@@ -188,7 +188,7 @@
   .range-head > span{font-size:11px; font-weight:700; color:var(--dim);}
 
   /* 24시간 시계 (보기 전용 표시) — 진짜 아날로그 시계판 */
-  .tt{position:relative; margin:4px 0 6px; padding-left:46px;}
+  .tt{position:relative; margin:4px 0 6px; padding-left:46px; touch-action:none; -webkit-user-select:none; user-select:none; cursor:ns-resize;}
   .tt-h{position:absolute; left:0; right:0; height:0; border-top:1px solid #f1eaee;}
   .tt-h span{
     position:absolute; left:0; width:40px; text-align:right; top:-7px;
@@ -209,37 +209,52 @@
     font-variant-numeric:tabular-nums; flex:0 0 auto;
   }
   .tt-b.me b{color:#2f2933;}
-  /* 오전·오후 전환 탭 */
-  .dawn-row{display:flex; justify-content:center; margin:1px 0 6px;}
-  .dawn-btn{
-    display:inline-flex; align-items:center; gap:4px;
-    padding:6px 13px; border-radius:999px; font-size:11.5px; font-weight:800;
-    color:var(--dim); background:#fff; border:1px solid var(--line);
-    letter-spacing:-.2px; white-space:nowrap;
-  }
-  .dawn-btn.on{background:var(--pink-light); border-color:var(--pink-line); color:var(--pink-deep);}
-  .dawn-btn .dot{
-    width:5px; height:5px; border-radius:50%; background:var(--pink);
-    opacity:0; transition:opacity .15s;
-  }
-  .dawn-btn.has .dot{opacity:1;}
+  /* 내 블록 위·아래 조절 핸들(═) */
+  .tt-b.me .hd{position:absolute; left:0; right:0; height:15px; display:flex; align-items:center; justify-content:center; pointer-events:none;}
+  .tt-b.me .hd.t{top:0;}
+  .tt-b.me .hd.b{bottom:0;}
+  .tt-b.me .hd i{display:block; width:26px; height:4px; border-radius:2px; background:#fff; box-shadow:0 0 0 1px rgba(38,35,42,.16), 0 1px 2px rgba(38,35,42,.10);}
   .pick-line{display:flex; align-items:baseline; justify-content:center; gap:7px; margin:5px 0 7px; flex-wrap:wrap;}
   .pick-line b{font-size:15px; font-weight:800; color:var(--pink-deep); letter-spacing:-.2px; font-variant-numeric:tabular-nums;}
   .pick-line span{font-size:10.5px; font-weight:700; color:var(--dim);}
   .pick-line.bad b{color:#c24a60;}
-  .range-row{display:flex; align-items:center; gap:6px;}
-  .range-row .mini{
-    flex:1 1 0; min-width:0; display:flex; align-items:center; gap:5px;
-    padding:8px 10px; border-radius:11px; border:1px solid var(--line); background:#fdfbfc;
+  /* 휠 피커 (갤럭시 시계 알람 스타일 드럼롤) */
+  .wp-row{display:flex; align-items:center; justify-content:center; gap:6px; margin:9px 0 3px;}
+  .wp{flex:1 1 0; min-width:0;}
+  .wp-lab{font-size:10.5px; font-weight:800; color:var(--dim); text-align:center; margin-bottom:3px;}
+  .wp-body{
+    position:relative; display:flex; align-items:stretch; justify-content:center;
+    height:132px; padding:0 4px; border-radius:14px;
+    background:#fdfbfc; border:1px solid var(--line); overflow:hidden;
   }
-  .range-row .mini:focus-within{border-color:var(--pink); background:#fff;}
-  .range-row .mini span{flex:0 0 auto; font-size:10.5px; font-weight:800; color:var(--dim);}
-  .range-row .mini select{
-    flex:1 1 auto; min-width:0; padding:0; border:0; background:transparent;
-    color:var(--text); font-size:13px; font-weight:800; text-align:center; outline:none;
-    font-variant-numeric:tabular-nums; -webkit-appearance:none; appearance:none;
+  .wp-band{
+    position:absolute; left:5px; right:5px; top:44px; height:44px; border-radius:10px;
+    background:var(--pink-light); border:1px solid var(--pink-line); pointer-events:none;
   }
-  .range-row .tilde{flex:0 0 auto; color:var(--dim); font-weight:800;}
+  .wp-sep{
+    display:flex; align-items:center; justify-content:center; flex:0 0 8px;
+    font-size:13px; font-weight:800; color:var(--dim); z-index:1; pointer-events:none;
+  }
+  .wp-col{
+    position:relative; z-index:1; flex:0 0 44px; height:100%;
+    overflow-y:auto; overflow-x:hidden;
+    scroll-snap-type:y mandatory; -webkit-overflow-scrolling:touch;
+    scrollbar-width:none; -ms-overflow-style:none;
+    -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 0%,#000 26%,#000 74%,rgba(0,0,0,0) 100%);
+    mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 0%,#000 26%,#000 74%,rgba(0,0,0,0) 100%);
+  }
+  .wp-col::-webkit-scrollbar{display:none; width:0; height:0;}
+  .wp-col .wp-pad{height:44px;}
+  .wp-col .it{
+    height:44px; display:flex; align-items:center; justify-content:center;
+    scroll-snap-align:center;
+    font-size:17px; font-weight:800; color:var(--muted);
+    font-variant-numeric:tabular-nums; letter-spacing:-.4px;
+    transition:transform .13s ease, opacity .13s ease;
+  }
+  .wp-col .it.on{color:var(--pink-deep);}
+  .wp-col.lock{opacity:.35; pointer-events:none;}
+  .wp-tilde{flex:0 0 auto; color:var(--dim); font-weight:800; font-size:13px; align-self:center; margin-top:18px;}
   .warn{
     margin:9px 0 0; padding:8px 10px; border-radius:10px;
     background:#fdf1f3; color:#c24a60; font-size:11.5px; font-weight:700; line-height:1.4;
@@ -347,18 +362,33 @@
     <div class="list-head"><b>등록 현황</b><span id="listCount"></span></div>
     <div class="toggle-list" id="dateList"></div>
     <div class="range-head"><b>시간대 등록</b><span>주차 1대</span></div>
-    <div class="dawn-row">
-      <button class="dawn-btn" id="dawnBtn" type="button" aria-pressed="false">🌙 새벽<i class="dot"></i></button>
-    </div>
     <div class="tt" id="timetable"></div>
     <div class="pick-line" id="pickLine">
       <b id="pickSum">-</b>
     </div>
-    <div class="range-row">
-      <label class="mini"><span>시작</span><select id="startSel" aria-label="시작 시간"></select></label>
-      <span class="tilde">~</span>
-      <label class="mini"><span>종료</span><select id="endSel" aria-label="종료 시간"></select></label>
+    <div class="wp-row">
+      <div class="wp">
+        <div class="wp-lab">시작</div>
+        <div class="wp-body">
+          <div class="wp-band"></div>
+          <div class="wp-col" id="colSH"></div>
+          <div class="wp-sep">:</div>
+          <div class="wp-col" id="colSM"></div>
+        </div>
+      </div>
+      <span class="wp-tilde">~</span>
+      <div class="wp">
+        <div class="wp-lab">종료</div>
+        <div class="wp-body">
+          <div class="wp-band"></div>
+          <div class="wp-col" id="colEH"></div>
+          <div class="wp-sep">:</div>
+          <div class="wp-col" id="colEM"></div>
+        </div>
+      </div>
     </div>
+    <select id="startSel" hidden aria-label="시작 시간"></select>
+    <select id="endSel" hidden aria-label="종료 시간"></select>
     <p class="warn" id="rangeWarn" hidden></p>
     <div class="sheet-actions">
       <button class="btn primary" id="regBtn" type="button">내 이름으로 등록</button>
@@ -418,8 +448,7 @@
   var pending = null;
   var chain = Promise.resolve();
   var range = { start: '10:00', end: '13:00' };
-  var DAY_START = 540;  /* 기본 시계가 보여 주는 시작 시각 09:00 */
-  var dawn = false;     /* 🌙 새벽 보기: 00:00~09:00만 표시 */
+  var drag = null;      /* 타임테이블 직접 드래그 상태 */
 
   /* 첫 방문자도 바로 볼 수 있게 페이지에 함께 넣어 둔 마지막 확정 스냅샷.
      서버(parking_get) 응답이 오면 그 값으로 100% 덮어쓴다. */
@@ -764,10 +793,21 @@
     }
     $('startSel').value = range.start;
     $('endSel').value = range.end;
-    syncDawn();
     renderDateSheet();
     renderCal();
     openSheet('dateSheet');
+    /* 24시간 전체를 보여 주므로 열 때 09:00 부근이 보이게 스크롤을 맞춘다 */
+    setTimeout(function(){ syncWheels(false); scrollTtTo(540); }, 30);
+  }
+
+  function scrollTtTo(min){
+    var wrap = $('dateSheet');
+    var sc = wrap ? wrap.querySelector('.sheet') : null;
+    var tt = $('timetable');
+    if (!sc || !tt) { return; }
+    var y = tt.offsetTop + (min / 60) * TT_HOUR - 96;
+    var max = sc.scrollHeight - sc.clientHeight;
+    sc.scrollTop = Math.max(0, Math.min(y, max > 0 ? max : 0));
   }
 
   function conflictFor(start, end){
@@ -802,7 +842,7 @@
   }
 
   /* ---------- 세로 타임테이블 (콜라보살롱 스타일) ---------- */
-  var TT_HOUR = 26;                  /* 1시간 높이(px) */
+  var TT_HOUR = 21;                  /* 1시간 높이(px) — 24시간 전체가 504px */
 
   function f2(n){ return Math.round(n * 100) / 100; }
   function toMin(v){
@@ -817,15 +857,8 @@
     return pad(Math.floor(min / 60)) + ':' + pad(min % 60);
   }
 
-  /* 지금 보는 구간: 기본 09:00~24:00, 🌙 새벽을 켜면 00:00~24:00 */
-  function viewWin(){ return dawn ? [0, 1440] : [DAY_START, 1440]; }
-
-  /* 시작 시간이 새벽(00:00~08:30)이면 새벽 보기, 낮이면 기본 보기로 맞춘다 */
-  function syncDawn(){
-    var s0 = toMin($('startSel').value);
-    if (s0 < 0) { return; }
-    dawn = (s0 < DAY_START);
-  }
+  /* 시계는 00:00~24:00을 하루 24시간 전체로 한 번에 보여 준다 */
+  function viewWin(){ return [0, 1440]; }
 
   function ttBlock(name, from, to, color, s0, e0, h0, mine){
     var c = color || '#e88295';
@@ -838,6 +871,7 @@
       style += 'border-left-color:' + c + ';';
     }
     return '<div class="tt-b' + (mine ? ' me' : '') + '" style="' + style + '">'
+         + (mine ? '<span class="hd t"><i></i></span><span class="hd b"><i></i></span>' : '')
          + '<b>' + esc(name) + '</b><span>' + esc(from) + '~' + esc(to) + '</span></div>';
   }
 
@@ -863,18 +897,6 @@
             + '<span>' + toHM(t) + '</span></div>';
     }
 
-    /* 새벽 예약이 있으면 🌙 새벽 버튼에 점 */
-    var hasDawn = false;
-    for (i = 0; i < list.length; i++) {
-      if (toMin(list[i].start) < DAY_START && toMin(list[i].end) > 0) { hasDawn = true; break; }
-    }
-    var db = $('dawnBtn');
-    if (db) {
-      db.classList.toggle('on', dawn);
-      db.classList.toggle('has', hasDawn);
-      db.setAttribute('aria-pressed', dawn ? 'true' : 'false');
-    }
-
     /* 등록된 주차 블록 */
     var blocks = '';
     for (i = 0; i < list.length; i++) {
@@ -886,11 +908,11 @@
       blocks += ttBlock(en.name, en.start, en.end, en.color, bs, be, h0, false);
     }
 
-    /* 내가 고른 시간 미리보기 (겹치면 그리지 않는다) */
-    if (ok && !conf) {
+    /* 내가 고른 시간 미리보기 (겹치면 빨갛게 그대로 보여 핸들로 고칠 수 있게 한다) */
+    if (ok) {
       ms = Math.max(s, h0); mf = Math.min(e, h1);
       if (mf > ms) {
-        blocks += ttBlock(me.name || '내 시간', toHM(s), toHM(e), myColor, ms, mf, h0, true);
+        blocks += ttBlock(me.name || '내 시간', toHM(s), toHM(e), conf ? '#c24a60' : myColor, ms, mf, h0, true);
       }
     }
 
@@ -927,11 +949,253 @@
       btn.disabled = false;
     }
     if (line) { line.classList.toggle('bad', !!msg); }
+    /* 아래 휠 피커도 같은 시작~종류로 맞춘다 (드래그 중에는 즉시 따라오게) */
+    syncWheels(!drag);
   }
 
   function rememberRange(){
     range.start = $('startSel').value;
     range.end = $('endSel').value;
+  }
+
+  /* ---------- 타임테이블 직접 선택: 드래그·탭·핸들 ---------- */
+  /* 시계 위 좌표(y)를 30분 단위 시각으로 바꿈 */
+  function ttMinAt(clientY){
+    var r = $('timetable').getBoundingClientRect();
+    var h = r.height || 1;
+    var y = clientY - r.top;
+    if (y < 0) { y = 0; }
+    if (y > h) { y = h; }
+    var v = (y / h) * 1440;
+    return Math.max(0, Math.min(1440, Math.round(v / 30) * 30));
+  }
+
+  /* 내 미리보기 블록의 위·아래 가장자리를 잡았는지 */
+  function mineEdge(clientX, clientY){
+    var el = document.querySelector('#timetable .tt-b.me');
+    if (!el) { return ''; }
+    var r = el.getBoundingClientRect();
+    if (clientX < r.left - 8 || clientX > r.right + 8) { return ''; }
+    if (clientY < r.top - 12 || clientY > r.bottom + 12) { return ''; }
+    var rel = clientY - r.top;
+    var edge = Math.min(16, Math.max(7, r.height / 2));
+    if (rel <= edge) { return 'start'; }
+    if (r.height - rel <= edge) { return 'end'; }
+    return 'body';
+  }
+
+  /* 시작~종료를 30분 단위로 맞춰 셀렉트·미리보기·경고를 바로 반영 */
+  function setRange(s0, e0){
+    var s = Math.max(0, Math.min(1410, Math.round(s0 / 30) * 30));
+    var e = Math.min(1440, Math.max(s + 30, Math.round(e0 / 30) * 30));
+    range.start = toHM(s);
+    range.end = toHM(e);
+    $('startSel').value = range.start;
+    $('endSel').value = range.end;
+    renderPick();
+  }
+
+  /* 빈 칸을 톡 누르면 그 시각부터 2시간 (뒤에 예약이 걸리면 그 앞까지) */
+  function tapPick(min){
+    var s0 = Math.max(0, Math.min(1410, min));
+    var list = entriesOf(selDate);
+    var i, a, b, start = s0, end;
+    for (i = 0; i < list.length; i++) {
+      a = toMin(list[i].start); b = toMin(list[i].end);
+      if (b > a && a <= s0 && s0 < b && b > start) { start = b; }
+    }
+    if (start > 1410) { start = 1410; }
+    end = Math.min(1440, start + 120);
+    for (i = 0; i < list.length; i++) {
+      a = toMin(list[i].start); b = toMin(list[i].end);
+      if (b > a && a >= start && a < end) { end = a; }
+    }
+    if (end - start < 30) { end = Math.min(1440, start + 30); }
+    setRange(start, end);
+  }
+
+  function ttDown(e){
+    if (drag) { return; }
+    if (e.button != null && e.button !== 0) { return; }
+    var edge = mineEdge(e.clientX, e.clientY);
+    if (edge === 'body') { return; }
+    var s = toMin($('startSel').value), t = toMin($('endSel').value);
+    drag = {
+      mode: edge || 'new',
+      anchor: ttMinAt(e.clientY),
+      y0: e.clientY,
+      moved: false,
+      from: s, to: t,
+      fixed: (edge === 'start') ? t : s,
+      id: e.pointerId
+    };
+    try { $('timetable').setPointerCapture(e.pointerId); } catch(err){}
+    e.preventDefault();
+  }
+
+  function ttMove(e){
+    if (!drag) { return; }
+    e.preventDefault();
+    if (Math.abs(e.clientY - drag.y0) > 5) { drag.moved = true; }
+    var s = drag.from, t = drag.to;
+    var cur = ttMinAt(e.clientY);
+    if (drag.mode === 'start') {
+      s = Math.min(cur, drag.fixed - 30);
+      t = drag.fixed;
+    } else if (drag.mode === 'end') {
+      s = drag.fixed;
+      t = Math.max(cur, drag.fixed + 30);
+    } else {
+      /* 위로 드래그해도 시작·종료가 자동 정렬된다 */
+      s = Math.min(drag.anchor, cur);
+      t = Math.max(drag.anchor, cur);
+      if (t - s < 30) {
+        if (cur >= drag.anchor) { t = drag.anchor + 30; } else { s = drag.anchor - 30; }
+      }
+    }
+    setRange(s, t);
+  }
+
+  function ttUp(e){
+    if (!drag) { return; }
+    var d = drag;
+    drag = null;
+    try { $('timetable').releasePointerCapture(e.pointerId); } catch(err){}
+    if (!d.moved) {
+      if (d.mode === 'new') { tapPick(d.anchor); }
+      else { setRange(d.from, d.to); }
+    }
+    rememberRange();
+    renderDateSheet();
+  }
+
+  function ttCancel(){
+    if (!drag) { return; }
+    var d = drag;
+    drag = null;
+    setRange(d.from, d.to);
+    renderDateSheet();
+  }
+
+  /* ---------- 휠 피커 (갤럭시 시계 알람 스타일 드럼롤) ---------- */
+  var WP_ITEM = 44;      /* 한 칸(44px)씩 세 칸이 보인다 */
+  var wheels = null;
+  var wheelBusy = 0;     /* 사용자가 직접 휠을 돌리는 중 */
+  var progUntil = 0;     /* 프로그램으로 돌리는 중(그 사이 사용자 값 반영은 건넌다) */
+
+  function buildWheel(col, arr){
+    var html = '<div class="wp-pad"></div>';
+    for (var i = 0; i < arr.length; i++) {
+      html += '<div class="it" data-i="' + i + '">' + arr[i] + '</div>';
+    }
+    html += '<div class="wp-pad"></div>';
+    col.innerHTML = html;
+  }
+
+  function markWheel(col, idx){
+    var its = col.children;
+    for (var i = 0; i < its.length; i++) {
+      var el = its[i];
+      if (!el.getAttribute || el.getAttribute('data-i') === null) { continue; }
+      var d = Math.abs((+el.getAttribute('data-i')) - idx);
+      if (d === 0) { el.classList.add('on'); } else { el.classList.remove('on'); }
+      el.style.opacity = d === 0 ? '1' : (d === 1 ? '.55' : '.3');
+      el.style.transform = d === 0 ? 'scale(1)' : 'scale(' + (d === 1 ? '.9' : '.84') + ')';
+    }
+  }
+
+  function setWheel(col, idx, smooth, prog){
+    if (!col) { return; }
+    var last = col.children.length - 3;   /* 앞·뒤 여백 제외 */
+    if (idx < 0) { idx = 0; }
+    if (idx > last) { idx = last; }
+    var top = idx * WP_ITEM;
+    if (Math.abs(col.scrollTop - top) < 1) { markWheel(col, idx); return; }
+    if (prog) { progUntil = Date.now() + 520; }
+    if (smooth && col.scrollTo) { col.scrollTo({ top: top, behavior: 'smooth' }); }
+    else { col.scrollTop = top; }
+    markWheel(col, idx);
+  }
+
+  /* 휠에서 고른 값을 셀렉트(상태 원본)에 반영하고 타임테이블·경고를 바로 갱신 */
+  function commitWheel(side, unit, idx){
+    var sSel = $('startSel'), eSel = $('endSel');
+    var sel = (side === 'start') ? sSel : eSel;
+    var cur = String(sel.value || '');
+    if (!/^\d{2}:\d{2}$/.test(cur)) { return; }
+    var h = +cur.slice(0, 2), m = cur.slice(3, 5);
+    if (side === 'start') {
+      if (unit === 'h') { h = Math.max(0, Math.min(23, idx)); }
+      else { m = idx ? '30' : '00'; }
+    } else {
+      if (unit === 'h') {
+        h = Math.max(0, Math.min(24, idx));
+        if (h === 24) { m = '00'; }
+      } else {
+        m = idx ? '30' : '00';
+        if (h === 24) { m = '00'; }
+      }
+    }
+    sel.value = pad(h) + ':' + m;
+    rememberRange();
+    renderPick();
+    syncWheels(false);
+  }
+
+  function bindWheel(col, side, unit){
+    var tm = null;
+    col.addEventListener('scroll', function(){
+      var idx = Math.round(col.scrollTop / WP_ITEM);
+      markWheel(col, idx);
+      wheelBusy++;
+      clearTimeout(tm);
+      tm = setTimeout(function(){
+        wheelBusy = 0;
+        if (Date.now() < progUntil) { return; }
+        var i = Math.round(col.scrollTop / WP_ITEM);
+        if (Math.abs(col.scrollTop - i * WP_ITEM) > 1) { col.scrollTop = i * WP_ITEM; }
+        commitWheel(side, unit, i);
+      }, 140);
+    }, { passive: true });
+    col.addEventListener('click', function(e){
+      var it = e.target.closest ? e.target.closest('.it') : null;
+      if (!it) { return; }
+      var i = +it.getAttribute('data-i');
+      setWheel(col, i, true, false);
+      commitWheel(side, unit, i);
+    });
+  }
+
+  function initWheels(){
+    if (wheels) { return; }
+    var hs = [], he = [];
+    for (var i = 0; i < 24; i++) { hs.push(pad(i)); }
+    for (var j = 0; j < 25; j++) { he.push(pad(j)); }
+    wheels = { SH: $('colSH'), SM: $('colSM'), EH: $('colEH'), EM: $('colEM') };
+    if (!wheels.SH) { wheels = null; return; }
+    buildWheel(wheels.SH, hs);
+    buildWheel(wheels.SM, ['00', '30']);
+    buildWheel(wheels.EH, he);
+    buildWheel(wheels.EM, ['00', '30']);
+    bindWheel(wheels.SH, 'start', 'h');
+    bindWheel(wheels.SM, 'start', 'm');
+    bindWheel(wheels.EH, 'end', 'h');
+    bindWheel(wheels.EM, 'end', 'm');
+    syncWheels(false);
+  }
+
+  /* 타임테이블·셀렉트의 시작~종료를 휠 위치로 맞춘다 */
+  function syncWheels(smooth){
+    if (!wheels) { return; }
+    if (wheelBusy > 0) { return; }
+    var s = $('startSel').value, e = $('endSel').value;
+    var sm = toMin(s), em = toMin(e);
+    if (sm < 0 || em < 0) { return; }
+    setWheel(wheels.SH, Math.floor(sm / 60), smooth, true);
+    setWheel(wheels.SM, (sm % 60) ? 1 : 0, smooth, true);
+    setWheel(wheels.EH, Math.floor(em / 60), smooth, true);
+    setWheel(wheels.EM, (em % 60) ? 1 : 0, smooth, true);
+    wheels.EM.classList.toggle('lock', em >= 1440);
   }
 
   /* 등록 직후: 그날 빈 2시간대로 자동 이동(겹침 경고가 띄지 않도록) */
@@ -943,7 +1207,6 @@
     range.end = fr[1];
     $('startSel').value = range.start;
     $('endSel').value = range.end;
-    syncDawn();
     renderDateSheet();
   }
 
@@ -1124,16 +1387,18 @@
 
   $('startSel').addEventListener('change', function(){
     rememberRange();
-    /* 시작 시간이 새벽이면 새벽 보기로, 낮이면 기본 보기로 자동 전환 */
-    syncDawn();
     renderDateSheet();
   });
   $('endSel').addEventListener('change', function(){ rememberRange(); renderDateSheet(); });
-  $('dawnBtn').addEventListener('click', function(){
-    dawn = !dawn;
-    renderDateSheet();
-  });
   $('regBtn').addEventListener('click', register);
+
+  /* 휠 피커 */
+  var wpEl = $('timetable');
+  wpEl.addEventListener('pointerdown', ttDown);
+  wpEl.addEventListener('pointermove', ttMove);
+  wpEl.addEventListener('pointerup', ttUp);
+  wpEl.addEventListener('pointercancel', ttCancel);
+  wpEl.addEventListener('contextmenu', function(e){ e.preventDefault(); });
 
   $('dateList').addEventListener('click', function(e){
     var b = e.target.closest ? e.target.closest('.del') : null;
@@ -1170,6 +1435,7 @@
   var cached = readCache();
   applyState(cached || SEED);   /* 캐시가 없으면 함께 넣어 둔 스냅샷으로 즉시 그린다 */
   buildTimeOptions();
+  initWheels();
   renderColors();
   render();
   renderNotice();
