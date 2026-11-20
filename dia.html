@@ -2451,6 +2451,99 @@
                 return {m:m, k:k};
               });
               var 요일명 = ['월','화','수','목','금','토','일'];
+
+              // [창고 다이렉트 실시간 연동] 사용량/재빌드와 무관하게 카톡 창고에서 오늘/어제 참여·완료 직접 반영
+              (function(){
+                var WH_URL = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec?key=UpSPqZHyuXkR8k71iPJFWr3y9o2sCPjq&limit=500';
+                fetch(WH_URL).then(function(r){ return r.json(); }).then(function(res){
+                  if(!res || !res.ok || !Array.isArray(res.rows)) return;
+                  var now = new Date(Date.now() + 9 * 3600 * 1000);
+                  function ymd(d){ return d.getUTCFullYear() + '-' + ('0'+(d.getUTCMonth()+1)).slice(-2) + '-' + ('0'+d.getUTCDate()).slice(-2); }
+                  var todayK = ymd(now);
+                  var yestK = ymd(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1)));
+                  var todayIdx = (now.getUTCDay() + 6) % 7;
+                  var byDate = {};
+                  res.rows.forEach(function(row){
+                    var sender = String(row.sender || '').trim();
+                    var msg = String(row.message || '').trim();
+                    var recv = String(row.recv || '');
+                    if(!sender || sender.indexOf('오픈채팅봇') >= 0 || sender.indexOf('방장봇') >= 0 || sender === 'STAFF') return;
+                    var dPart = recv.slice(0, 10);
+                    if(!dPart) return;
+                    var hh = parseInt(recv.slice(11, 13), 10);
+                    var mm = recv.slice(14, 16);
+                    if(isNaN(hh)) return;
+                    var hhmm = ('0'+hh).slice(-2) + ':' + mm;
+                    var isComp = (msg.indexOf('완료') >= 0 && msg.indexOf('참여') < 0 && msg.indexOf('참녀') < 0);
+                    var isJoin = (msg.indexOf('참여') >= 0 || msg.indexOf('참녀') >= 0);
+                    if(!byDate[dPart]) byDate[dPart] = {joins:{}, comps:{}, firstJoin:null, fastAuth:null};
+                    if(isJoin && hh >= 9){
+                      if(!byDate[dPart].joins[sender]) byDate[dPart].joins[sender] = hhmm;
+                      if(!byDate[dPart].firstJoin) byDate[dPart].firstJoin = {sender:sender, time:hhmm};
+                    } else if(isComp && hh >= 21){
+                      if(!byDate[dPart].comps[sender]) byDate[dPart].comps[sender] = hhmm;
+                      if(!byDate[dPart].fastAuth) byDate[dPart].fastAuth = {sender:sender, time:hhmm};
+                    }
+                  });
+                  // 오늘 참여 반영
+                  var tData = byDate[todayK];
+                  var changed = false;
+                  if(tData){
+                    var joinSenders = Object.keys(tData.joins);
+                    명부.forEach(function(m){
+                      var mn = String(m.n || '').trim();
+                      if(tData.joins[mn] || tData.comps[mn]){
+                        if(m.w && m.w[todayIdx] !== 1){
+                          m.w[todayIdx] = 1;
+                          m.mc = (m.mc || 0) + 1;
+                          m.tot = (m.tot || 0) + 1;
+                          m.sk = Math.max(m.sk || 0, 1);
+                          changed = true;
+                        }
+                      }
+                    });
+                  }
+                  var hhNow = ('0'+now.getUTCHours()).slice(-2) + ':' + ('0'+now.getUTCMinutes()).slice(-2);
+                  기준 = todayK.slice(5) + ' ' + hhNow + ' (창고 실시간)';
+                  // 어제 1등/스피드인증 카드 실시간 보정
+                  var yData = byDate[yestK];
+                  var fbEl = document.getElementById('firstBadgeCard');
+                  if(yData && fbEl && (yData.firstJoin || yData.fastAuth)){
+                    function parseNmCat(s){
+                      var parts = String(s||'').split('/');
+                      var nm = parts.length >= 2 ? parts[1] : s;
+                      var cat = parts.length >= 3 ? parts[2] : '';
+                      return {nm:nm, cat:cat, q:s, ig:nm.replace(/[^a-zA-Z0-9._]/g,'')};
+                    }
+                    var fj = yData.firstJoin ? parseNmCat(yData.firstJoin.sender) : null;
+                    if(fj) fj.tm = yData.firstJoin.time;
+                    var fa = yData.fastAuth ? parseNmCat(yData.fastAuth.sender) : null;
+                    if(fa) fa.tm = yData.fastAuth.time;
+                    function esc2(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+                    function slot2(badge, title, one){
+                      if(!one) return '<div class="fb-box is-empty"><div class="fb-k">'+badge+' '+title+'</div><div class="fb-wait">기록 없음</div></div>';
+                      var ig = one.ig ? ' data-insta="'+esc2(one.ig)+'"' : '';
+                      var cat = one.cat ? '<span class="fb-cat">'+esc2(one.cat)+'</span>' : '';
+                      var tm = one.tm ? '<div class="fb-tm">'+esc2(one.tm)+'</div>' : '';
+                      return '<div class="fb-box" data-q="'+esc2(one.q)+'"'+ig+'><div class="fb-k">'+badge+' '+title+'</div><div class="fb-nm">'+esc2(one.nm)+cat+'</div>'+tm+'</div>';
+                    }
+                    var grid = fbEl.querySelector('.fb-grid');
+                    if(grid && (fj || fa)){
+                      var curF = fbEl.getAttribute('data-first');
+                      var curS = fbEl.getAttribute('data-fast');
+                      if(!curF && fj || !curS && fa){
+                        grid.innerHTML = slot2('🥇', '참여 1등', fj) + slot2('⚡', '스피드 인증', fa);
+                        if(fj) fbEl.setAttribute('data-first', fj.q);
+                        if(fa) fbEl.setAttribute('data-fast', fa.q);
+                      }
+                    }
+                  }
+                  if(changed && 결과 && !결과.hidden && typeof 검색 === 'function'){
+                    검색();
+                  }
+                }).catch(function(){});
+              })();
+
               var 라벨 = "이번 주";
               var 기준 = "2026-11-21 08:04";
               function 요일줄(w, m){
