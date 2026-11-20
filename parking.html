@@ -225,11 +225,11 @@
   .wp-body{
     position:relative; display:flex; align-items:stretch; justify-content:center;
     height:132px; padding:0 4px; border-radius:14px;
-    background:#fdfbfc; border:1px solid var(--line); overflow:hidden;
+    background:#fdfbfc; box-shadow:inset 0 0 0 1px var(--line); overflow:hidden;
   }
   .wp-band{
     position:absolute; left:5px; right:5px; top:44px; height:44px; border-radius:10px;
-    background:var(--pink-light); border:1px solid var(--pink-line); pointer-events:none;
+    background:var(--pink-light); box-shadow:inset 0 0 0 1px var(--pink-line); pointer-events:none;
   }
   .wp-sep{
     display:flex; align-items:center; justify-content:center; flex:0 0 8px;
@@ -798,6 +798,7 @@
     openSheet('dateSheet');
     /* 24시간 전체를 보여 주므로 열 때 09:00 부근이 보이게 스크롤을 맞춘다 */
     setTimeout(function(){ syncWheels(false); scrollTtTo(540); }, 30);
+    setTimeout(function(){ syncWheels(false); }, 220);
   }
 
   function scrollTtTo(min){
@@ -1115,6 +1116,12 @@
     if (smooth && col.scrollTo) { col.scrollTo({ top: top, behavior: 'smooth' }); }
     else { col.scrollTop = top; }
     markWheel(col, idx);
+    /* 폭이 생기기 전· 화면에 막 드러난 직후에는 한 프레임 늦게 한 번 더 맞춘다 */
+    if (Math.abs(col.scrollTop - top) > 2 && window.requestAnimationFrame) {
+      requestAnimationFrame(function(){
+        if (Math.abs(col.scrollTop - top) > 1) { col.scrollTop = top; }
+      });
+    }
   }
 
   /* 휠에서 고른 값을 셀렉트(상태 원본)에 반영하고 타임테이블·경고를 바로 갱신 */
