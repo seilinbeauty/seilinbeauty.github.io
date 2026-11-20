@@ -503,13 +503,14 @@
 
     .look-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: clamp(10px, 1.4vw, 20px);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(10px, 1.6vw, 24px);
       align-items: start;
     }
 
     .look-item { margin: 0; }
-    .look-item:nth-child(2), .look-item:nth-child(4) { margin-top: clamp(16px, 3vw, 44px); }
+    .look-item:nth-child(2) { margin-top: clamp(16px, 3vw, 46px); }
+    .look-item:nth-child(3) { margin-top: clamp(8px, 1.4vw, 18px); }
     .look-item img {
       width: 100%;
       height: auto;
@@ -1324,6 +1325,7 @@
       .about-grid { grid-template-columns: 96px minmax(0, 1fr); }
       .about-figure { grid-column: 2; }
       .look-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .look-item:nth-child(3) { margin-top: 0; }
       .why-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
       .why-card { padding-bottom: 24px; }
       .gallery-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -1400,7 +1402,7 @@
       .hero-actions { gap: 8px; }
       .btn-hero-primary, .btn-hero-secondary { flex: 1 1 100%; height: 46px; }
       .look-grid { gap: 8px; }
-      .look-item:nth-child(2), .look-item:nth-child(4) { margin-top: 14px; }
+      .look-item:nth-child(2) { margin-top: 14px; }
       .why-grid { grid-template-columns: 1fr; gap: 0; }
       .why-card { padding: 18px 0 20px; }
       .why-num { margin-bottom: 14px; }
@@ -1586,10 +1588,6 @@
         <figure class="look-item" onclick="openModal('assets/ig/look-03.jpg')">
           <img src="assets/ig/look-03.jpg" alt="1:1 밀착 실습 현장" width="900" height="790" loading="lazy">
           <figcaption><span class="look-index">03</span> 1:1 밀착 실습</figcaption>
-        </figure>
-        <figure class="look-item" onclick="openModal('assets/ig/look-04.jpg')">
-          <img src="assets/ig/look-04.jpg" alt="수강 원장님 실습" width="971" height="560" loading="lazy">
-          <figcaption><span class="look-index">04</span> 수강 원장님 실습</figcaption>
         </figure>
       </div>
     </div>
