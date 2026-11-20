@@ -21,6 +21,10 @@
   var fr = document.getElementById('fr');
   var logEl = document.getElementById('log');
   var lines = [], D = null, W = null, once = false;
+  try {
+    var w0 = new URLSearchParams(location.search).get('w');
+    if (w0) { fr.style.width = (+w0) + 'px'; }
+  } catch(e){}
 
   function log(s){ lines.push(s); logEl.textContent = lines.join('\n'); }
   function val(){
