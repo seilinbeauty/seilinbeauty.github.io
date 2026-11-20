@@ -952,8 +952,8 @@
       btn.disabled = false;
     }
     if (line) { line.classList.toggle('bad', !!msg); }
-    /* 아래 휠 피커도 같은 시작~종류로 맞춘다 (드래그 중에는 즉시 따라오게) */
-    syncWheels(!drag);
+    /* 아래 휠 피커도 같은 시작~종료로 맞춘다 (드래그 중에는 즉시 따라오게) */
+    syncWheels(!drag, true);
   }
 
   function rememberRange(){
@@ -1117,15 +1117,18 @@
     var top = idx * WP_ITEM;
     if (Math.abs(col.scrollTop - top) < 1) { markWheel(col, idx); return; }
     if (prog) { progUntil = Date.now() + 520; }
-    if (smooth && col.scrollTo) { col.scrollTo({ top: top, behavior: 'smooth' }); }
-    else { col.scrollTop = top; }
-    markWheel(col, idx);
-    /* 폭이 생기기 전· 화면에 막 드러난 직후에는 한 프레임 늦게 한 번 더 맞춘다 */
-    if (Math.abs(col.scrollTop - top) > 2 && window.requestAnimationFrame) {
-      requestAnimationFrame(function(){
-        if (Math.abs(col.scrollTop - top) > 1) { col.scrollTop = top; }
-      });
+    if (smooth && col.scrollTo) {
+      col.scrollTo({ top: top, behavior: 'smooth' });
+    } else {
+      col.scrollTop = top;
+      /* 폭이 생기기 전·화면에 막 드러난 직후에는 한 프레임 늦게 한 번 더 맞춘다 */
+      if (Math.abs(col.scrollTop - top) > 2 && window.requestAnimationFrame) {
+        requestAnimationFrame(function(){
+          if (Math.abs(col.scrollTop - top) > 1) { col.scrollTop = top; }
+        });
+      }
     }
+    markWheel(col, idx);
   }
 
   /* 휠에서 고른 값을 셀렉트(상태 원본)에 반영하고 타임테이블·경고를 바로 갱신 */
@@ -1196,9 +1199,9 @@
   }
 
   /* 타임테이블·셀렉트의 시작~종료를 휠 위치로 맞춘다 */
-  function syncWheels(smooth){
+  function syncWheels(smooth, force){
     if (!wheels) { return; }
-    if (wheelBusy > 0) { return; }
+    if (wheelBusy > 0 && !force) { return; }
     var s = $('startSel').value, e = $('endSel').value;
     var sm = toMin(s), em = toMin(e);
     if (sm < 0 || em < 0) { return; }
