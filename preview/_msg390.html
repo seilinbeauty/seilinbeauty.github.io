@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>390 미리보기</title>
+<style>html,body{margin:0;padding:0;background:#fff;overflow:hidden}iframe{display:block;width:390px;height:662px;border:0}</style>
+</head>
+<body>
+<iframe id="f" src="/messenger.html"></iframe>
+<script>
+try { sessionStorage.setItem('dia_msg_ok', '1'); } catch (e) {}
+document.getElementById('f').src = '/messenger.html?_=' + Date.now();
+</script>
+</body>
+</html>
