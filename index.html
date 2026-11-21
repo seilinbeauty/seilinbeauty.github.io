@@ -1719,32 +1719,14 @@
   <section class="pc-hero-video" id="pcHeroVideo" aria-label="세이린뷰티 아카데미 시술·수업 현장 영상">
     <div class="container">
       <div class="pchv-frame">
-        <video class="pchv-el" id="pcHeroVideoEl" muted loop playsinline preload="none"
-               aria-label="세이린뷰티 아카데미 시술과 수업 현장 영상"></video>
+        <video class="pchv-el" id="pcHeroVideoEl" autoplay muted loop playsinline preload="none"
+               poster="assets/ig/seilin-pc-hero-poster.jpg?v=3"
+               aria-label="세이린뷰티 아카데미 시술과 수업 현장 영상">
+          <source src="assets/ig/seilin-pc-hero.mp4?v=3" type="video/mp4">
+        </video>
       </div>
     </div>
   </section>
-  <script>
-    (function () {
-      var v = document.getElementById('pcHeroVideoEl');
-      if (!v) return;
-      var mq = window.matchMedia('(min-width: 900px)');
-      function start() {
-        if (!mq.matches || v.getAttribute('data-loaded') === '1') return;
-        v.setAttribute('data-loaded', '1');
-        v.poster = 'assets/ig/seilin-pc-hero-poster.jpg?v=3';
-        var s = document.createElement('source');
-        s.src = 'assets/ig/seilin-pc-hero.mp4?v=3';
-        s.type = 'video/mp4';
-        v.appendChild(s);
-        v.load();
-        var p = v.play();
-        if (p && p.catch) p.catch(function () {});
-      }
-      start();
-      if (mq.addEventListener) mq.addEventListener('change', start);
-    })();
-  </script>
 
   <!-- Hero Section (창업 & 1:1 아카데미 중심) -->
   <section class="hero">
