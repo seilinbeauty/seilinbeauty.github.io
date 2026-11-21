@@ -116,7 +116,10 @@
   .row.me .bubble{background:var(--me);color:#3a2c08;border-bottom-right-radius:5px;}
   .row.kobi .bubble{background:var(--kobi);color:#43232f;border-bottom-left-radius:5px;}
   .row.claude .bubble{background:var(--claude);color:#333;border-bottom-left-radius:5px;}
-  .time{flex:0 0 auto;font-size:10px;color:#9a907f;white-space:nowrap;padding-bottom:2px;}
+  .meta{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding-bottom:2px;}
+  .row.me .meta{align-items:flex-end;}
+  .unread{font-size:10.5px;font-weight:800;color:#d69e00;line-height:1;}
+  .time{font-size:10px;color:#9a907f;white-space:nowrap;line-height:1.1;}
   .wait{font-size:10.5px;color:#9a907f;margin-top:4px;padding-right:2px;}
   #err{align-self:center;font-size:11.5px;color:#b54545;background:#fdeced;border:1px solid #f6d5d7;
     border-radius:12px;padding:7px 12px;text-align:center;}
@@ -259,7 +262,12 @@
     col.appendChild(nameNode(who, opts));
     var line = el('div', 'line');
     line.appendChild(el('div', 'bubble', body));
-    if (timeText) { line.appendChild(el('div', 'time', timeText)); }
+    if (timeText || opts.unread) {
+      var meta = el('div', 'meta');
+      if (opts.unread) { meta.appendChild(el('span', 'unread', String(opts.unread))); }
+      if (timeText) { meta.appendChild(el('span', 'time', timeText)); }
+      line.appendChild(meta);
+    }
     col.appendChild(line);
     if (opts.wait) { col.appendChild(el('div', 'wait', '로디 확인 대기')); }
     row.appendChild(col);
@@ -279,12 +287,18 @@
       var s = senderOf(it['지령내용']);
       var report = String(it['클로드보고'] || '').trim();
       var status = String(it['상태'] || '').trim();
+      var acked = String(it['확인'] || '').trim();
       var t = clock(p);
+      var rodiRead = (s.who === '로디') || (status !== '대기') || !!report;
+      var kobiRead = (s.who === '커비') || !!acked;
+      var unreadMain = (rodiRead ? 0 : 1) + (kobiRead ? 0 : 1);
       frag.appendChild(msgRow(s.who, s.body, t, {
+        unread: unreadMain,
         wait: s.who !== '로디' && !report && status === '대기'
       }));
       if (report){
         frag.appendChild(msgRow('로디', report, t, {
+          unread: acked ? 0 : 1,
           tag: status || '',
           bad: status === '실패',
           mid: status === '대기'
