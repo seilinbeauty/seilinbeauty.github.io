@@ -178,7 +178,8 @@
   var PW = '0423';
   var ROLES = { '도현': '대표', '커비': '총괄실장', '로디': '실무담당' };
   var KEY = 'dia_msg_ok';
-  var POLL = 10000;
+  var CACHE_KEY = 'dia_msg_cache_v1';
+  var POLL = 2000;
 
   var gate = document.getElementById('gate');
   var room = document.getElementById('room');
@@ -192,8 +193,10 @@
 
   var timer = null;
   var sending = false;
+  var inFlight = false;
   var stick = true;
   var lastSig = '';
+  var lastItems = [];
   var firstPaint = true;
 
   /* ── 화면 높이: 키보드가 올라와도 입력창이 가려지지 않게 ── */
@@ -330,7 +333,28 @@
     if (e) { e.parentNode.removeChild(e); }
   }
 
+  function sigOf(items){
+    return items.map(function(x){
+      return [x.row, x['지령일시'], x['클로드보고'], x['상태'], x['확인'], (x['지령내용']||'').length].join('~');
+    }).join('|');
+  }
+
+  function applyItems(items, fromCache){
+    lastItems = items;
+    var sig = sigOf(items);
+    if (sig === lastSig && !firstPaint) { return; }
+    lastSig = sig;
+    render(items);
+    if (firstPaint || stick) { bottom(); }
+    firstPaint = false;
+    if (!fromCache){
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify(items)); } catch (e) {}
+    }
+  }
+
   function load(){
+    if (inFlight) { return Promise.resolve(); }
+    inFlight = true;
     return fetch(EXEC + '?mode=order_list&pw=' + encodeURIComponent(PW) + '&_=' + Date.now(),
                  { cache: 'no-store' })
       .then(function(r){ return r.json(); })
@@ -338,24 +362,20 @@
         if (!d || !d.ok) { throw new Error('bad'); }
         clearErr();
         var items = (d.items || []).slice().sort(function(a, b){ return (a.row || 0) - (b.row || 0); });
-        var sig = items.map(function(x){
-          return [x.row, x['지령일시'], x['클로드보고'], x['상태'], x['확인'], (x['지령내용']||'').length].join('~');
-        }).join('|');
-        if (sig === lastSig && !firstPaint) { return; }
-        lastSig = sig;
-        render(items);
-        if (firstPaint || stick) { bottom(); }
-        firstPaint = false;
+        applyItems(items, false);
       })
       .catch(function(){
-        showErr('창고에 연결하지 못했습니다. 10초마다 다시 시도합니다.');
+        showErr('창고에 연결하지 못했습니다. 2초마다 다시 시도합니다.');
+      })
+      .then(function(){
+        inFlight = false;
       });
   }
 
   function startPolling(){
     if (timer) { clearInterval(timer); }
     timer = setInterval(function(){
-      if (document.hidden || sending) { return; }
+      if (document.hidden || sending || inFlight) { return; }
       load();
     }, POLL);
   }
@@ -367,29 +387,46 @@
   }
   function syncBtn(){ sendBtn.disabled = sending || !input.value.trim(); }
 
+  function nowStr(){
+    var d = new Date();
+    var p = function(n){ return ('0' + n).slice(-2); };
+    return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+  }
+
   function send(){
     var text = input.value.trim();
     if (!text || sending) { return; }
     sending = true;
-    sendBtn.textContent = '전송 중';
+    input.value = '';
+    autoGrow();
     syncBtn();
+    stick = true;
+    var tempItem = {
+      row: (lastItems.length ? (lastItems[lastItems.length - 1].row || 0) + 1 : 1),
+      '지령일시': nowStr(),
+      '지령내용': '[도현] ' + text,
+      '상태': '대기',
+      '클로드보고': '',
+      '확인': ''
+    };
+    applyItems(lastItems.concat([tempItem]), true);
+    bottom();
     fetch(EXEC + '?mode=order_add&pw=' + encodeURIComponent(PW)
               + '&order=' + encodeURIComponent('[도현] ' + text) + '&_=' + Date.now(),
           { cache: 'no-store' })
       .then(function(r){ return r.json(); })
       .then(function(d){
         if (!d || !d.ok) { throw new Error('bad'); }
-        input.value = '';
-        autoGrow();
-        stick = true;
+        inFlight = false;
         return load();
       })
       .catch(function(){
+        input.value = text;
+        autoGrow();
         showErr('보내지 못했습니다. 잠시 후 다시 보내 주세요.');
       })
       .then(function(){
         sending = false;
-        sendBtn.textContent = '전송';
         syncBtn();
       });
   }
@@ -416,6 +453,10 @@
     gate.style.display = 'none';
     room.classList.add('on');
     fit();
+    try {
+      var cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+      if (Array.isArray(cached) && cached.length) { applyItems(cached, true); }
+    } catch (e) {}
     load();
     startPolling();
   }
