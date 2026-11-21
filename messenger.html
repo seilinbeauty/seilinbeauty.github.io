@@ -182,6 +182,7 @@
   var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
   var PW = '0423';
   var ROLES = { '도현': '대표', '커비': '총괄실장', '로디': '실무담당' };
+  var STATUS_KO = { '대기': '하는 중', '완료': '끝냄', '진행': '하는 중', '실패': '안 됨', '보류': '미룸' };
   var KEY = 'dia_msg_ok';
   var CACHE_KEY = 'dia_msg_cache_v1';
   var POLL = 2000;
@@ -323,7 +324,7 @@
     if (report){
       nodes.push(msgRow('로디', report, t, {
         unread: acked ? 0 : 1,
-        tag: status || '',
+        tag: STATUS_KO[status] || status,
         bad: status === '실패',
         mid: status === '대기'
       }));
