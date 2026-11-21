@@ -4102,26 +4102,26 @@ document.addEventListener('DOMContentLoaded', function(){
           </div></div>
           <div class="mem-empty" id="mem-empty" style="display:none;">해당하는 회원이 없습니다.</div>
           </div>          <div id="ops-course" style="display:none;">
-          <style>.oc-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 6px;}.oc-t{font-size:15px;font-weight:800;color:#3d3538;}.oc-cnt{font-size:11.5px;color:#a0969b;}.oc-cnt b{color:#c2456a;}.oc-s{font-size:12px;color:#a0969b;line-height:1.6;margin:0 0 14px;word-break:keep-all;}.oc-card{border:1px solid #f0e2e7;border-radius:14px;background:#fff;padding:16px 16px 14px;margin-bottom:14px;}.oc-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;}.oc-f{display:flex;flex-direction:column;gap:4px;min-width:0;}.oc-f.oc-wide{grid-column:1/-1;}.oc-f span{font-size:11.5px;font-weight:800;color:#8a7b81;letter-spacing:-.2px;}.oc-f input,.oc-f select{width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid #ecdfe4;border-radius:9px;font-size:13px;font-family:inherit;color:#3d3538;background:#fff;outline:none;}.oc-f input:focus,.oc-f select:focus{border-color:#e6a6bb;}.oc-actions{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;}.oc-save{padding:10px 24px;border:0;border-radius:10px;cursor:pointer;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;font-size:13.5px;font-weight:800;font-family:inherit;}.oc-save:disabled{opacity:.6;}.oc-msg{font-size:12px;color:#a9778a;}.oc-list{display:grid;gap:8px;}.oc-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #f2e2e8;border-radius:11px;background:#fffdfd;flex-wrap:wrap;}.oc-av{width:34px;height:34px;flex:0 0 auto;border-radius:50%;overflow:hidden;background:#fdeef3;border:1px solid #f0d6df;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#b35172;}.oc-av img{width:100%;height:100%;object-fit:cover;display:block;}.oc-info{min-width:0;flex:1 1 160px;}.oc-nm{font-size:12.5px;font-weight:800;color:#3c2b31;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.oc-meta{font-size:11px;color:#a9808d;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.oc-tag{flex:0 0 auto;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;background:#e8f7ee;border:1px solid #cde8d9;color:#1c6b3f;}.oc-del{flex:0 0 auto;padding:4px 11px;border:1px solid #f0cdd8;border-radius:999px;background:#fff;color:#c6506f;font-size:11px;font-weight:800;font-family:inherit;cursor:pointer;}.oc-empty{font-size:12.5px;color:#9a8f94;padding:6px 2px;}@media (max-width:700px){.oc-grid{grid-template-columns:1fr;}.oc-f.oc-wide{grid-column:auto;}}</style>
-          <div class="oc-card">
-            <div class="oc-head"><div class="oc-t">🎓 뷰티수강 추가</div><div class="oc-cnt">창고 등록 <b id="oc-count">0</b>곳</div></div>
-            <div class="oc-s">링크를 붙여넣으면 인스타 아이디와 주소 형태를 자동으로 다듬습니다. 저장하면 뷰티수강 페이지에 바로 반영됩니다.</div>
+          <style>.oc-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 6px;}.oc-t{font-size:15px;font-weight:800;color:#3d3538;}.oc-cnt{font-size:11.5px;color:#a0969b;}.oc-cnt b{color:#c2456a;}.oc-s{font-size:12px;color:#a0969b;line-height:1.6;margin:0 0 14px;word-break:keep-all;}.oc-card{border:1px solid #f0e2e7;border-radius:14px;background:#fff;padding:16px 16px 14px;margin-bottom:14px;}.oc-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;}.oc-f{display:flex;flex-direction:column;gap:4px;min-width:0;}.oc-f.oc-wide{grid-column:1/-1;}.oc-f span{font-size:11.5px;font-weight:800;color:#8a7b81;letter-spacing:-.2px;}.oc-f input,.oc-f select{width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid #ecdfe4;border-radius:9px;font-size:13px;font-family:inherit;color:#3d3538;background:#fff;outline:none;}.oc-f input:focus,.oc-f select:focus{border-color:#e6a6bb;}.oc-actions{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;}.oc-save{padding:10px 24px;border:0;border-radius:10px;cursor:pointer;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;font-size:13.5px;font-weight:800;font-family:inherit;}.oc-save:disabled{opacity:.6;}.oc-cancel{padding:10px 14px;border:1px solid #e7d8de;border-radius:10px;cursor:pointer;background:#fff;color:#7a6870;font-size:13px;font-weight:700;font-family:inherit;}.oc-msg{font-size:12px;color:#a9778a;}.oc-list{display:grid;gap:8px;}.oc-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #f2e2e8;border-radius:11px;background:#fffdfd;flex-wrap:wrap;}.oc-av{width:34px;height:34px;flex:0 0 auto;border-radius:50%;overflow:hidden;background:#fdeef3;border:1px solid #f0d6df;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#b35172;}.oc-av img{width:100%;height:100%;object-fit:cover;display:block;}.oc-info{min-width:0;flex:1 1 140px;}.oc-nm{font-size:12.5px;font-weight:800;color:#3c2b31;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.oc-meta{font-size:11px;color:#a9808d;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.oc-tag{flex:0 0 auto;font-size:10.5px;font-weight:800;color:#b93d64;background:#fdeef3;border:1px solid #f6d5df;border-radius:999px;padding:3px 8px;}.oc-btns{display:flex;gap:5px;flex:0 0 auto;}.oc-edit{flex:0 0 auto;padding:6px 11px;border:1px solid #e4d4da;border-radius:8px;background:#fff;color:#5b4a51;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;}.oc-del{flex:0 0 auto;padding:6px 11px;border:1px solid #ecd4dc;border-radius:8px;background:#fff;color:#b24b6b;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;}.oc-del:disabled,.oc-edit:disabled{opacity:.5;}.oc-empty{font-size:12.5px;color:#9a8f94;padding:6px 2px;}@media (max-width:700px){.oc-grid{grid-template-columns:1fr;}.oc-f.oc-wide{grid-column:auto;}}</style>
+          <div class="oc-card" id="oc-form-card">
+            <div class="oc-head"><div class="oc-t" id="oc-form-title">🎓 뷰티수강 추가</div><div class="oc-cnt">전체 등록 <b id="oc-count">15</b>곳</div></div>
+            <div class="oc-s">아래 목록에서 기존 분들도 수정·삭제할 수 있습니다. 저장하면 뷰티수강 페이지에 바로 반영됩니다.</div>
             <div class="oc-grid">
-              <label class="oc-f"><span>인스타 아이디 (@ 제외)</span><input id="oc-insta" type="text" maxlength="60" autocomplete="off" placeholder="adela_academy"></label>
-              <label class="oc-f"><span>상호명</span><input id="oc-name" type="text" maxlength="60" placeholder="아델라 아카데미"></label>
-              <label class="oc-f"><span>지역</span><input id="oc-region" type="text" maxlength="40" placeholder="서울 송파"></label>
-              <label class="oc-f"><span>카테고리</span><select id="oc-cat"><option value="">선택 안 함</option><option value="속눈썹펌">속눈썹펌</option><option value="속눈썹연장">속눈썹연장</option><option value="네일">네일</option><option value="반영구">반영구</option><option value="SMP">SMP</option><option value="왁싱">왁싱</option><option value="피부">피부</option><option value="토탈뷰티">토탈뷰티</option></select></label>
-              <label class="oc-f oc-wide"><span>인스타 URL</span><input id="oc-igurl" type="text" placeholder="https://www.instagram.com/adela_academy/"></label>
-              <label class="oc-f oc-wide"><span>네이버 플레이스·지도 URL</span><input id="oc-naver" type="text" placeholder="https://map.naver.com/p/entry/place/..."></label>
-              <label class="oc-f oc-wide"><span>홈페이지·링크트리 URL (선택)</span><input id="oc-home" type="text" placeholder="https://..."></label>
-              <label class="oc-f oc-wide"><span>다이아 회원 혜택 문구 (선택)</span><input id="oc-benefit" type="text" maxlength="200" placeholder="입력하면 상단 혜택 그룹으로 올라갑니다"></label>
-              <label class="oc-f oc-wide"><span>수강 소개 (선택)</span><input id="oc-intro" type="text" maxlength="200" placeholder="예: 잠실 네일 수강 · 국가자격증·취업반·창업반 4:1 기수제"></label>
+              <label class="oc-f"><span>인스타 아이디 (@ 제외)</span><input id="oc-insta" type="text" maxlength="60" autocomplete="off"></label>
+              <label class="oc-f"><span>상호명</span><input id="oc-name" type="text" maxlength="60"></label>
+              <label class="oc-f"><span>지역</span><input id="oc-region" type="text" maxlength="40"></label>
+              <label class="oc-f"><span>카테고리</span><select id="oc-cat"><option value="">선택 안 함</option><option value="속눈썹펌">속눈썹펌</option><option value="속눈썹연장">속눈썹연장</option><option value="속눈썹">속눈썹</option><option value="네일">네일</option><option value="반영구">반영구</option><option value="SMP">SMP</option><option value="왁싱">왁싱</option><option value="피부">피부</option><option value="토탈뷰티">토탈뷰티</option></select></label>
+              <label class="oc-f oc-wide"><span>인스타 URL</span><input id="oc-igurl" type="text"></label>
+              <label class="oc-f oc-wide"><span>네이버 플레이스·지도 URL (선택)</span><input id="oc-naver" type="text"></label>
+              <label class="oc-f oc-wide"><span>홈페이지·링크트리 URL (선택)</span><input id="oc-home" type="text"></label>
+              <label class="oc-f oc-wide"><span>다이아 회원 혜택 문구 (선택)</span><input id="oc-benefit" type="text" maxlength="200"></label>
+              <label class="oc-f oc-wide"><span>수강 소개 (선택)</span><input id="oc-intro" type="text" maxlength="200"></label>
             </div>
-            <div class="oc-actions"><button type="button" id="oc-save" class="oc-save">저장</button><span id="oc-msg" class="oc-msg"></span></div>
+            <div class="oc-actions"><button type="button" id="oc-save" class="oc-save">저장</button><button type="button" id="oc-cancel" class="oc-cancel" style="display:none;">취소</button><span id="oc-msg" class="oc-msg"></span></div>
           </div>
           <div class="oc-card">
-            <div class="oc-head"><div class="oc-t">창고에 등록된 뷰티수강</div></div>
-            <div class="oc-s">여기서 지운 카드는 뷰티수강 페이지에서도 바로 사라집니다.</div>
+            <div class="oc-head"><div class="oc-t">뷰티수강 목록</div></div>
+            <div class="oc-s">수정 버튼을 누르면 위 칸에 내용이 채워집니다.</div>
             <div id="oc-list" class="oc-list"><div class="oc-empty">불러오는 중…</div></div>
           </div>
           </div>
@@ -4129,8 +4129,11 @@ document.addEventListener('DOMContentLoaded', function(){
 (function(){
   var EXEC = "https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec";
   var KEY = atob("MDQyMw==");
+  var BASE = [{"insta": "haute_ob", "name": "haute_ob", "region": "서울", "cat": "속눈썹", "insta_url": "https://www.instagram.com/haute_ob/", "naver_url": "", "home_url": "", "benefit": "", "intro": "11월 뷰티 교육 수강 중 · 교육 일정으로 휴무 공지", "base": true}, {"insta": "youux153", "name": "youux153", "region": "군포", "cat": "속눈썹", "insta_url": "https://www.instagram.com/youux153/", "naver_url": "https://map.naver.com/p/entry/place/1045785429", "home_url": "https://litt.ly/studio.ilosam153", "benefit": "수강 회차 2회 추가!", "intro": "유우아카데미 속눈썹 수강 · 매달 소수 정예 1:1 맞춤 수업", "base": true}, {"insta": "domely_lash", "name": "domely_lash", "region": "서울", "cat": "속눈썹", "insta_url": "https://www.instagram.com/domely_lash/", "naver_url": "", "home_url": "", "benefit": "", "intro": "잠실 속눈썹 수강 · 창업반·단과반 상시모집, 수강 후 2개월 연습실", "base": true}, {"insta": "nail_leego", "name": "nail_leego", "region": "서울", "cat": "네일", "insta_url": "https://www.instagram.com/nail_leego/", "naver_url": "", "home_url": "", "benefit": "", "intro": "가락동 네일리고 · 네일 수강(연장·물어뜯는 손톱 교정)", "base": true}, {"insta": "uni.salon", "name": "uni.salon", "region": "인천", "cat": "네일", "insta_url": "https://www.instagram.com/uni.salon/", "naver_url": "", "home_url": "", "benefit": "", "intro": "부평 유니살롱 아카데미 · 네일 수강(살롱반·취업반·원데이)", "base": true}, {"insta": "lash_n_plan", "name": "lash_n_plan", "region": "경기", "cat": "속눈썹", "insta_url": "https://www.instagram.com/lash_n_plan/", "naver_url": "", "home_url": "", "benefit": "", "intro": "병점·동탄 속눈썹펌·연장 원데이수강", "base": true}, {"insta": "star___beauty_", "name": "star___beauty_", "region": "부산", "cat": "속눈썹", "insta_url": "https://www.instagram.com/star___beauty_/", "naver_url": "", "home_url": "", "benefit": "", "intro": "서면 별뷰티 속눈썹 수강 · 수강생 대상 시술 팁 콘텐츠 운영", "base": true}, {"insta": "sina.br__", "name": "sina.br__", "region": "서울", "cat": "반영구", "insta_url": "https://www.instagram.com/sina.br__/", "naver_url": "", "home_url": "", "benefit": "", "intro": "눈썹문신·멜라닌케어 반영구 & 속눈썹 · 예약·상담·수강문의 운영", "base": true}, {"insta": "seilin_beauty", "name": "세이린 뷰티", "region": "서울/강서", "cat": "속눈썹", "insta_url": "https://www.instagram.com/seilin_beauty/", "naver_url": "", "home_url": "", "benefit": "", "intro": "속눈썹펌 전문 아카데미 · 1:1 밀착 지도 · 눈매 분석·롯드 선정부터 창업까지 실무 커리큘럼", "base": true}, {"insta": "seilin_beauty.chu", "name": "seilin_beauty.chu", "region": "서울", "cat": "속눈썹", "insta_url": "https://www.instagram.com/seilin_beauty.chu/", "naver_url": "", "home_url": "", "benefit": "", "intro": "까치산역점 속눈썹펌·브로우펌 수강 · 기초 이론·눈매 분석·컬 디자인·실전 테크닉 1:1 교육", "base": true}, {"insta": "jio.ink", "name": "jio_ink", "region": "용산", "cat": "SMP", "insta_url": "https://www.instagram.com/jio.ink/", "naver_url": "", "home_url": "", "benefit": "", "intro": "SMP 두피문신 수강 · 1:1 밀착 코칭 · 이론·실습·데모까지 실전 중심 커리큘럼", "base": true}, {"insta": "m.beautylab_", "name": "m_beauty_ink", "region": "용산", "cat": "반영구", "insta_url": "https://www.instagram.com/m.beautylab_/", "naver_url": "", "home_url": "", "benefit": "", "intro": "종합반·단과반·원데이 클래스 · 두피반영구(SMP)·눈썹·입술·속눈썹 1:1 맞춤 케어 시스템", "base": true}, {"insta": "ella_beauty._", "name": "_ella_beauty._", "region": "부산", "cat": "반영구", "insta_url": "https://www.instagram.com/ella_beauty._/", "naver_url": "https://map.naver.com/p/search/%EB%B6%80%EC%82%B0%20%EC%88%98%EC%98%81%EA%B5%AC%20%ED%99%A9%EB%A0%B9%EB%8C%80%EB%A1%9C%20477%20%EC%97%98%EB%9D%BC%EB%B7%B0%ED%8B%B0", "home_url": "", "benefit": "진심을 담은 소수정예 아카데미, 선착순4명 480->390만원 할인!!!", "intro": "남천동 엘라뷰티 아카데미 · 반영구 수강(원데이·단과반·정규창업반) · 27년 수강생 모집 중", "base": true}, {"insta": "nail_n_plan", "name": "nail_n_plan", "region": "경기", "cat": "네일", "insta_url": "https://www.instagram.com/nail_n_plan/", "naver_url": "", "home_url": "", "benefit": "", "intro": "병점 네일앤플랜 · 네일 수강(병점·동탄·수원·오산 권역)", "base": true}, {"insta": "adela_academy", "name": "아델라 아카데미", "region": "서울 송파", "cat": "네일", "insta_url": "https://www.instagram.com/adela_academy/", "naver_url": "", "home_url": "", "benefit": "", "intro": "아델라&장쌀롱 네일전문아카데미 · 잠실·삼전 네일 수강(국가자격증·취업반·창업반 4:1 기수제)", "base": true}];
   var box = document.getElementById("oc-list");
   if(!box) return;
+  var rawItems = [];
+  var editTarget = null;
   function $(id){ return document.getElementById(id); }
   function say(t, ok){ var m = $("oc-msg"); if(!m) return; m.textContent = t || ""; m.style.color = ok ? "#2f7d4b" : "#c6506f"; }
   function idOnly(v){
@@ -4154,11 +4157,54 @@ document.addEventListener('DOMContentLoaded', function(){
     if(s.indexOf(".") > 0 && s.indexOf(" ") < 0) return "https://" + s;
     return s;
   }
+  function clearForm(){
+    ["oc-insta","oc-name","oc-region","oc-igurl","oc-naver","oc-home","oc-benefit","oc-intro"].forEach(function(k){ var f = $(k); if(f) f.value = ""; });
+    if($("oc-cat")) $("oc-cat").value = "";
+    editTarget = null;
+    if($("oc-form-title")) $("oc-form-title").textContent = "🎓 뷰티수강 추가";
+    if($("oc-save")) $("oc-save").textContent = "저장";
+    if($("oc-cancel")) $("oc-cancel").style.display = "none";
+  }
+  function mergeAll(items){
+    rawItems = items || [];
+    var byKey = {};
+    var order = [];
+    BASE.forEach(function(b){
+      var k = String(b.insta || b.name || "").toLowerCase();
+      byKey[k] = Object.assign({}, b);
+      order.push(k);
+    });
+    rawItems.forEach(function(it){
+      var k = String(it.insta || it.name || "").trim().toLowerCase();
+      if(!k) return;
+      if(!byKey[k]) order.push(k);
+      byKey[k] = Object.assign({}, byKey[k] || {}, it, { cloudId: it.id, base: !!(byKey[k] && byKey[k].base) });
+    });
+    var list = [];
+    order.forEach(function(k){
+      var row = byKey[k];
+      if(!row || row.intro === "__DELETED__") return;
+      list.push(row);
+    });
+    return list;
+  }
+  function findCloudIds(insta, name){
+    var ik = String(insta || "").trim().toLowerCase();
+    var nk = String(name || "").trim().toLowerCase();
+    var ids = [];
+    rawItems.forEach(function(it){
+      var a = String(it.insta || "").trim().toLowerCase();
+      var b = String(it.name || "").trim().toLowerCase();
+      if((ik && a === ik) || (!ik && nk && b === nk)) ids.push(it.id);
+    });
+    return ids;
+  }
   function render(items){
-    var n = $("oc-count"); if(n) n.textContent = String(items.length);
+    var merged = mergeAll(items);
+    var n = $("oc-count"); if(n) n.textContent = String(merged.length);
     box.innerHTML = "";
-    if(!items.length){ var e = document.createElement("div"); e.className = "oc-empty"; e.textContent = "아직 창고에 등록한 카드가 없습니다. 위 칸에 입력하고 저장해 주세요."; box.appendChild(e); return; }
-    items.forEach(function(it){
+    if(!merged.length){ var e = document.createElement("div"); e.className = "oc-empty"; e.textContent = "등록된 카드가 없습니다."; box.appendChild(e); return; }
+    merged.forEach(function(it){
       var row = document.createElement("div"); row.className = "oc-item";
       var av = document.createElement("div"); av.className = "oc-av";
       var nm = String(it.name || it.insta || "").trim();
@@ -4171,33 +4217,66 @@ document.addEventListener('DOMContentLoaded', function(){
       if(it.insta) bits.push("@" + it.insta);
       if(it.region) bits.push(it.region);
       if(it.cat) bits.push(it.cat);
-      if(it.added) bits.push(it.added);
       t2.textContent = bits.join(" · ");
       info.appendChild(t1); info.appendChild(t2);
       row.appendChild(av); row.appendChild(info);
       if(String(it.benefit || "").trim()){ var tag = document.createElement("span"); tag.className = "oc-tag"; tag.textContent = "혜택 카드"; row.appendChild(tag); }
+      var btns = document.createElement("div"); btns.className = "oc-btns";
+      var edt = document.createElement("button"); edt.type = "button"; edt.className = "oc-edit"; edt.textContent = "수정";
+      edt.addEventListener("click", function(){
+        editTarget = it;
+        if($("oc-insta")) $("oc-insta").value = it.insta || "";
+        if($("oc-name")) $("oc-name").value = it.name || "";
+        if($("oc-region")) $("oc-region").value = it.region || "";
+        if($("oc-cat")){
+          var sel = $("oc-cat"), cv = String(it.cat || "").trim();
+          sel.value = cv;
+          if(cv && sel.value !== cv){
+            var o = document.createElement("option"); o.value = cv; o.textContent = cv; sel.appendChild(o); sel.value = cv;
+          }
+        }
+        if($("oc-igurl")) $("oc-igurl").value = it.insta_url || (it.insta ? "https://www.instagram.com/" + it.insta + "/" : "");
+        if($("oc-naver")) $("oc-naver").value = it.naver_url || "";
+        if($("oc-home")) $("oc-home").value = it.home_url || "";
+        if($("oc-benefit")) $("oc-benefit").value = it.benefit || "";
+        if($("oc-intro")) $("oc-intro").value = it.intro || "";
+        if($("oc-form-title")) $("oc-form-title").textContent = "✏️ 뷰티수강 수정 · " + (nm || it.insta);
+        if($("oc-save")) $("oc-save").textContent = "수정 저장";
+        if($("oc-cancel")) $("oc-cancel").style.display = "";
+        say("내용을 수정한 뒤 [수정 저장]을 눌러 주세요.", true);
+        var fc = $("oc-form-card"); if(fc && fc.scrollIntoView) fc.scrollIntoView({behavior: "smooth", block: "start"});
+      });
       var del = document.createElement("button"); del.type = "button"; del.className = "oc-del"; del.textContent = "삭제";
       del.addEventListener("click", function(){
         if(!window.confirm((nm || "이 카드") + " 카드를 뷰티수강에서 삭제할까요?")) return;
         del.disabled = true; del.textContent = "삭제 중";
-        fetch(EXEC + "?mode=course_del&pw=" + encodeURIComponent(KEY) + "&id=" + encodeURIComponent(it.id), {cache: "no-store"})
-          .then(function(r){ return r.json(); })
-          .then(function(d){
-            if(d && d.ok){ render(d.items || []); say("삭제했습니다.", true); }
-            else { del.disabled = false; del.textContent = "삭제"; say("삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.", false); }
-          })
-          .catch(function(){ del.disabled = false; del.textContent = "삭제"; say("삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.", false); });
+        var ids = findCloudIds(it.insta, it.name);
+        var chain = Promise.resolve();
+        ids.forEach(function(cid){
+          chain = chain.then(function(){ return fetch(EXEC + "?mode=course_del&pw=" + encodeURIComponent(KEY) + "&id=" + encodeURIComponent(cid), {cache: "no-store"}).then(function(r){ return r.json(); }); });
+        });
+        chain.then(function(lastD){
+          if(it.base){
+            var q = "?mode=course_add&pw=" + encodeURIComponent(KEY) + "&insta=" + encodeURIComponent(it.insta || "") + "&name=" + encodeURIComponent(it.name || "") + "&intro=__DELETED__";
+            return fetch(EXEC + q, {cache: "no-store"}).then(function(r){ return r.json(); });
+          }
+          return lastD;
+        }).then(function(d){
+          if(d && d.ok){ if(editTarget && editTarget.insta === it.insta) clearForm(); render(d.items || []); say("삭제했습니다.", true); }
+          else { del.disabled = false; del.textContent = "삭제"; say("삭제에 실패했습니다.", false); }
+        }).catch(function(){ del.disabled = false; del.textContent = "삭제"; say("삭제에 실패했습니다.", false); });
       });
-      row.appendChild(del);
+      btns.appendChild(edt); btns.appendChild(del);
+      row.appendChild(btns);
       box.appendChild(row);
     });
   }
   function load(){
-    if(!window.fetch){ box.innerHTML = "<div class=oc-empty>불러올 수 없습니다.</div>"; return; }
+    if(!window.fetch){ render([]); return; }
     fetch(EXEC + "?mode=course_list&_=" + Date.now(), {cache: "no-store"})
       .then(function(r){ return r.json(); })
       .then(function(d){ render((d && d.ok && d.items) ? d.items : []); })
-      .catch(function(){ box.innerHTML = ""; var e = document.createElement("div"); e.className = "oc-empty"; e.textContent = "목록을 불러오지 못했습니다."; box.appendChild(e); });
+      .catch(function(){ render([]); });
   }
   var 인스타 = $("oc-insta"), 아이디url = $("oc-igurl");
   if(아이디url) 아이디url.addEventListener("blur", function(){
@@ -4214,12 +4293,22 @@ document.addEventListener('DOMContentLoaded', function(){
     var f = $(k); if(!f) return;
     f.addEventListener("blur", function(){ var u = urlFix(f.value); if(u) f.value = u; });
   });
+  if($("oc-cancel")) $("oc-cancel").addEventListener("click", function(){ clearForm(); say("", true); });
   var 저장 = $("oc-save");
   if(저장) 저장.addEventListener("click", function(){
     if(!window.fetch) return;
     var insta = idOnly(인스타 && 인스타.value);
     var name = $("oc-name") ? $("oc-name").value.trim() : "";
     if(!insta && !name){ say("인스타 아이디나 상호명 중 하나는 넣어 주세요.", false); return; }
+    저장.disabled = true; say("저장하는 중…", true);
+    var ids = findCloudIds(insta, name);
+    if(editTarget && editTarget.insta && editTarget.insta.toLowerCase() !== insta.toLowerCase()){
+      findCloudIds(editTarget.insta, editTarget.name).forEach(function(x){ if(ids.indexOf(x) < 0) ids.push(x); });
+    }
+    var chain = Promise.resolve();
+    ids.forEach(function(cid){
+      chain = chain.then(function(){ return fetch(EXEC + "?mode=course_del&pw=" + encodeURIComponent(KEY) + "&id=" + encodeURIComponent(cid), {cache: "no-store"}).then(function(r){ return r.json(); }); });
+    });
     var q = "?mode=course_add&pw=" + encodeURIComponent(KEY)
       + "&insta=" + encodeURIComponent(insta)
       + "&name=" + encodeURIComponent(name)
@@ -4230,15 +4319,12 @@ document.addEventListener('DOMContentLoaded', function(){
       + "&home_url=" + encodeURIComponent(urlFix($("oc-home") ? $("oc-home").value : ""))
       + "&benefit=" + encodeURIComponent($("oc-benefit") ? $("oc-benefit").value.trim() : "")
       + "&intro=" + encodeURIComponent($("oc-intro") ? $("oc-intro").value.trim() : "");
-    저장.disabled = true; say("저장하는 중…", true);
-    fetch(EXEC + q, {cache: "no-store"})
-      .then(function(r){ return r.json(); })
+    chain.then(function(){ return fetch(EXEC + q, {cache: "no-store"}).then(function(r){ return r.json(); }); })
       .then(function(d){
         저장.disabled = false;
         if(d && d.ok){
+          clearForm();
           render(d.items || []);
-          ["oc-insta","oc-name","oc-region","oc-igurl","oc-naver","oc-home","oc-benefit","oc-intro"].forEach(function(k){ var f = $(k); if(f) f.value = ""; });
-          if($("oc-cat")) $("oc-cat").value = "";
           say("저장했습니다. 뷰티수강 페이지에 바로 반영됩니다.", true);
         } else { say("저장에 실패했습니다. 잠시 후 다시 시도해 주세요.", false); }
       })

@@ -2574,37 +2574,37 @@ document.addEventListener('click', function(e){
   }
   function el(tag, cls){ var d = document.createElement(tag); if(cls) d.className = cls; return d; }
   function cat2text(v){ return String(v || '').replace(/,/g, ' · '); }
-  function makeCard(it){
-    var name = String(it.name || '').trim() || String(it.insta || '').trim();
+  function makeCard(it, prevCard){
     var insta = String(it.insta || '').trim();
-    var benefit = String(it.benefit || '').trim();
-    var cats = String(it.cat || '').trim();
+    var name = String(it.name || insta || '').trim() || '뷰티 수강';
     var region = String(it.region || '').trim();
-    var igUrl = String(it.insta_url || '').trim();
-    if(!igUrl && insta) igUrl = 'https://www.instagram.com/' + insta + '/';
+    var cats = String(it.cat || '').trim();
+    var benefit = String(it.benefit || '').trim();
+    var igUrl = String(it.insta_url || (insta ? 'https://www.instagram.com/' + insta + '/' : '')).trim();
     var naver = String(it.naver_url || '').trim();
     var home = String(it.home_url || '').trim();
 
     var card = el('article', 'crs-card' + (benefit ? ' is-benefit' : ''));
-    card.setAttribute('data-cats', cats);
+    card.setAttribute('data-cats', cats || '기타');
     card.setAttribute('data-benefit', benefit ? '1' : '0');
-    card.setAttribute('data-wh', '1');
+    if(insta) card.setAttribute('data-insta', insta);
     if(benefit){
-      var rb = el('div', 'crs-ribbon');
-      rb.textContent = '다이아 회원 단독 수강 혜택';
-      card.appendChild(rb);
+      var rib = el('div', 'crs-ribbon');
+      rib.textContent = '다이아 회원 단독 수강 혜택';
+      card.appendChild(rib);
     }
     var head = el('div', 'crs-head');
     var av = el('div', 'crs-av');
-    if(insta){
-      var im = document.createElement('img');
-      im.src = 'avatars/' + insta + '.jpg';
-      im.alt = name;
-      im.loading = 'lazy';
-      im.onerror = function(){ if(im.parentNode){ im.parentNode.removeChild(im); } av.textContent = (name.charAt(0) || '수'); };
-      av.appendChild(im);
+    var prevAv = prevCard && prevCard.querySelector('.crs-av img');
+    if(prevAv){
+      av.appendChild(prevAv.cloneNode(true));
+    } else if(insta){
+      var img = document.createElement('img');
+      img.src = 'avatars/' + insta + '.jpg'; img.alt = name; img.loading = 'lazy';
+      img.onerror = function(){ av.textContent = (name.slice(0,1) || '수'); };
+      av.appendChild(img);
     } else {
-      av.textContent = (name.charAt(0) || '수');
+      av.textContent = (name.slice(0,1) || '수');
     }
     var me = el('div', 'crs-me');
     var nick = el('div', 'crs-nick'); nick.textContent = name;
@@ -2655,14 +2655,19 @@ document.addEventListener('click', function(e){
       card.appendChild(bf);
     }
 
-    var ph = el('div', 'crs-photos');
-    var empty = el('a', 'crs-ph crs-ph-empty');
-    empty.href = igUrl || '#';
-    empty.target = '_blank'; empty.rel = 'noopener';
-    if(insta) empty.setAttribute('data-insta', insta);
-    empty.textContent = '인스타그램에서 작품 보기';
-    ph.appendChild(empty);
-    card.appendChild(ph);
+    var prevPh = prevCard && prevCard.querySelector('.crs-photos');
+    if(prevPh){
+      card.appendChild(prevPh.cloneNode(true));
+    } else {
+      var ph = el('div', 'crs-photos');
+      var empty = el('a', 'crs-ph crs-ph-empty');
+      empty.href = igUrl || '#';
+      empty.target = '_blank'; empty.rel = 'noopener';
+      if(insta) empty.setAttribute('data-insta', insta);
+      empty.textContent = '인스타그램에서 작품 보기';
+      ph.appendChild(empty);
+      card.appendChild(ph);
+    }
     return card;
   }
   function currentTab(){
@@ -2691,7 +2696,12 @@ document.addEventListener('click', function(e){
     .then(function(d){
       var items = (d && d.ok && d.items) ? d.items : [];
       if(!items.length) return;
-      var seen = {};
+      var byKey = {};
+      items.forEach(function(it){
+        var k = String(it.insta || it.name || '').trim().toLowerCase();
+        if(k) byKey[k] = it;
+      });
+      var cardMap = {};
       var exist = grid.querySelectorAll('.crs-card');
       for(var i = 0; i < exist.length; i++){
         var ins = exist[i].getAttribute('data-insta');
@@ -2699,21 +2709,31 @@ document.addEventListener('click', function(e){
           var inner = exist[i].querySelector('[data-insta]');
           if(inner) ins = inner.getAttribute('data-insta');
         }
-        if(ins) seen[String(ins).toLowerCase()] = 1;
+        if(ins) cardMap[String(ins).toLowerCase()] = exist[i];
         var nm = exist[i].querySelector('.crs-nick');
-        if(nm && nm.textContent) seen[String(nm.textContent).trim().toLowerCase()] = 1;
-        var alt = exist[i].querySelector('.crs-av img');
-        if(alt && alt.getAttribute('alt')) seen[String(alt.getAttribute('alt')).split('/').join('|').toLowerCase()] = 1;
+        if(nm && nm.textContent) cardMap[String(nm.textContent).trim().toLowerCase()] = exist[i];
       }
-      var added = 0;
-      items.forEach(function(it){
-        var key = String(it.insta || it.name || '').trim().toLowerCase();
-        if(key && seen[key]) return;
-        if(key) seen[key] = 1;
-        grid.appendChild(makeCard(it));
-        added++;
+      var changed = 0;
+      Object.keys(byKey).forEach(function(k){
+        var it = byKey[k];
+        var oldCard = cardMap[k];
+        if(it.intro === '__DELETED__'){
+          if(oldCard && oldCard.parentNode){ oldCard.parentNode.removeChild(oldCard); changed++; }
+          return;
+        }
+        if(oldCard && oldCard.parentNode){
+          var rep = makeCard(it, oldCard);
+          oldCard.parentNode.replaceChild(rep, oldCard);
+          cardMap[k] = rep;
+          changed++;
+        } else {
+          var nc = makeCard(it, null);
+          grid.appendChild(nc);
+          cardMap[k] = nc;
+          changed++;
+        }
       });
-      if(added){ reorder(); applyTab(); }
+      if(changed){ reorder(); applyTab(); }
     })
     .catch(function(){});
 })();
