@@ -70,8 +70,10 @@
   }
   .hd-title{font-size:15px;font-weight:800;letter-spacing:-.3px;color:#2f2a24;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .hd-sub{font-size:11.5px;color:var(--muted);margin-top:3px;font-weight:600;}
-  .hd-sub .cnt{color:#a89a86;font-weight:700;}
+  .hd-sub{display:flex;justify-content:center;flex-wrap:wrap;gap:2px 10px;margin-top:4px;font-size:11px;line-height:1.4;}
+  .hd-sub .mem{white-space:nowrap;}
+  .hd-sub .mem b{font-weight:800;color:#5c5346;}
+  .hd-sub .mem i{font-style:normal;font-weight:600;color:#a89c85;}
 
   #view{
     flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
@@ -97,7 +99,10 @@
   .av.me{background:var(--me);color:#4a3410;}
   .col{display:flex;flex-direction:column;min-width:0;max-width:calc(100% - 40px);}
   .row.me .col{max-width:82%;align-items:flex-end;}
-  .name{font-size:11px;font-weight:700;color:#6f6558;margin:0 0 3px 2px;display:flex;align-items:center;gap:5px;}
+  .name{font-size:11px;font-weight:800;color:#6f6558;margin:0 0 3px 2px;display:flex;align-items:center;}
+  .name .role{font-weight:600;color:#a2957f;}
+  .name .tag{margin-left:5px;}
+  .row.me .name{justify-content:flex-end;margin:0 2px 3px 0;}
   .tag{font-size:9.5px;font-weight:800;padding:1px 5px;border-radius:5px;background:#e6f2e8;color:#3f7a4f;}
   .tag.bad{background:#fbe8e8;color:#b54545;}
   .tag.mid{background:#fdf2d9;color:#8f6f1c;}
@@ -149,7 +154,11 @@
 <div id="room">
   <header>
     <div class="hd-title">세이린뷰티 · 다이아 업무방</div>
-    <div class="hd-sub">도현 · 커비 · 로디 <span class="cnt">3명</span></div>
+    <div class="hd-sub">
+      <span class="mem"><b>도현 님</b><i> · 대표</i></span>
+      <span class="mem"><b>커비</b><i> · 총괄실장</i></span>
+      <span class="mem"><b>로디</b><i> · 실무담당</i></span>
+    </div>
   </header>
   <main id="view"><div id="list"></div></main>
   <div id="composer">
@@ -164,6 +173,7 @@
 
   var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
   var PW = '0423';
+  var ROLES = { '도현': '대표', '커비': '총괄실장', '로디': '실무담당' };
   var KEY = 'dia_msg_ok';
   var POLL = 10000;
 
@@ -231,6 +241,14 @@
     return n;
   }
 
+  function nameNode(who, opts){
+    var nm = el('div', 'name');
+    nm.appendChild(el('span', 'nm', who === '도현' ? '도현 님' : who));
+    nm.appendChild(el('span', 'role', ' \u00b7 ' + (ROLES[who] || '')));
+    if (opts.tag) { nm.appendChild(el('span', 'tag' + (opts.bad ? ' bad' : opts.mid ? ' mid' : ''), opts.tag)); }
+    return nm;
+  }
+
   function msgRow(who, body, timeText, opts){
     opts = opts || {};
     var row = el('div', 'row ' + (who === '도현' ? 'me' : who === '커비' ? 'kobi' : 'claude'));
@@ -238,11 +256,7 @@
       row.appendChild(el('div', 'av ' + (who === '커비' ? 'kobi' : 'claude'), who === '커비' ? '커' : '로'));
     }
     var col = el('div', 'col');
-    if (who !== '도현') {
-      var nm = el('div', 'name', who);
-      if (opts.tag) { nm.appendChild(el('span', 'tag' + (opts.bad ? ' bad' : opts.mid ? ' mid' : ''), opts.tag)); }
-      col.appendChild(nm);
-    }
+    col.appendChild(nameNode(who, opts));
     var line = el('div', 'line');
     line.appendChild(el('div', 'bubble', body));
     if (timeText) { line.appendChild(el('div', 'time', timeText)); }
