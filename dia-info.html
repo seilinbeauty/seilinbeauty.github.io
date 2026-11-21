@@ -4102,10 +4102,14 @@ document.addEventListener('DOMContentLoaded', function(){
           </div></div>
           <div class="mem-empty" id="mem-empty" style="display:none;">해당하는 회원이 없습니다.</div>
           </div>          <div id="ops-course" style="display:none;">
-          <style>.oc-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 6px;}.oc-t{font-size:15px;font-weight:800;color:#3d3538;}.oc-cnt{font-size:11.5px;color:#a0969b;}.oc-cnt b{color:#c2456a;}.oc-s{font-size:12px;color:#a0969b;line-height:1.6;margin:0 0 14px;word-break:keep-all;}.oc-card{border:1px solid #f0e2e7;border-radius:14px;background:#fff;padding:16px 16px 14px;margin-bottom:14px;}.oc-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;}.oc-f{display:flex;flex-direction:column;gap:4px;min-width:0;}.oc-f.oc-wide{grid-column:1/-1;}.oc-f span{font-size:11.5px;font-weight:800;color:#8a7b81;letter-spacing:-.2px;}.oc-f input,.oc-f select{width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid #ecdfe4;border-radius:9px;font-size:13px;font-family:inherit;color:#3d3538;background:#fff;outline:none;}.oc-f input:focus,.oc-f select:focus{border-color:#e6a6bb;}.oc-actions{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;}.oc-save{padding:10px 24px;border:0;border-radius:10px;cursor:pointer;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;font-size:13.5px;font-weight:800;font-family:inherit;}.oc-save:disabled{opacity:.6;}.oc-cancel{padding:10px 14px;border:1px solid #e7d8de;border-radius:10px;cursor:pointer;background:#fff;color:#7a6870;font-size:13px;font-weight:700;font-family:inherit;}.oc-msg{font-size:12px;color:#a9778a;}.oc-list{display:grid;gap:8px;}.oc-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #f2e2e8;border-radius:11px;background:#fffdfd;flex-wrap:wrap;}.oc-av{width:34px;height:34px;flex:0 0 auto;border-radius:50%;overflow:hidden;background:#fdeef3;border:1px solid #f0d6df;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#b35172;}.oc-av img{width:100%;height:100%;object-fit:cover;display:block;}.oc-info{min-width:0;flex:1 1 140px;}.oc-nm{font-size:12.5px;font-weight:800;color:#3c2b31;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.oc-meta{font-size:11px;color:#a9808d;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.oc-tag{flex:0 0 auto;font-size:10.5px;font-weight:800;color:#b93d64;background:#fdeef3;border:1px solid #f6d5df;border-radius:999px;padding:3px 8px;}.oc-btns{display:flex;gap:5px;flex:0 0 auto;}.oc-edit{flex:0 0 auto;padding:6px 11px;border:1px solid #e4d4da;border-radius:8px;background:#fff;color:#5b4a51;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;}.oc-del{flex:0 0 auto;padding:6px 11px;border:1px solid #ecd4dc;border-radius:8px;background:#fff;color:#b24b6b;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;}.oc-del:disabled,.oc-edit:disabled{opacity:.5;}.oc-empty{font-size:12.5px;color:#9a8f94;padding:6px 2px;}@media (max-width:700px){.oc-grid{grid-template-columns:1fr;}.oc-f.oc-wide{grid-column:auto;}}</style>
+          <style>.oc-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 6px;}.oc-t{font-size:15px;font-weight:800;color:#3d3538;}.oc-cnt{font-size:11.5px;color:#a0969b;}.oc-cnt b{color:#c2456a;}.oc-s{font-size:12px;color:#a0969b;line-height:1.6;margin:0 0 14px;word-break:keep-all;}.oc-card{border:1px solid #f0e2e7;border-radius:14px;background:#fff;padding:16px 16px 14px;margin-bottom:14px;}.oc-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;}.oc-f{display:flex;flex-direction:column;gap:4px;min-width:0;}.oc-f.oc-wide{grid-column:1/-1;}.oc-f span{font-size:11.5px;font-weight:800;color:#8a7b81;letter-spacing:-.2px;}.oc-f input,.oc-f select,.oc-f textarea{width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid #ecdfe4;border-radius:9px;font-size:13px;font-family:inherit;color:#3d3538;background:#fff;outline:none;resize:vertical;}.oc-f input:focus,.oc-f select:focus,.oc-f textarea:focus{border-color:#e6a6bb;}.oc-bio-box{margin-bottom:12px;padding:11px 12px;border:1px dashed #e6c6d2;border-radius:11px;background:#fff9fb;}.oc-bio-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}.oc-bio-top span{font-size:11.5px;font-weight:800;color:#9b5972;}.oc-bio-btn{padding:5px 11px;border:1px solid #e4c2cf;border-radius:7px;background:#fff;color:#b24b6b;font-size:11.5px;font-weight:800;cursor:pointer;font-family:inherit;}.oc-actions{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;}.oc-save{padding:10px 24px;border:0;border-radius:10px;cursor:pointer;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;font-size:13.5px;font-weight:800;font-family:inherit;}.oc-save:disabled{opacity:.6;}.oc-cancel{padding:10px 14px;border:1px solid #e7d8de;border-radius:10px;cursor:pointer;background:#fff;color:#7a6870;font-size:13px;font-weight:700;font-family:inherit;}.oc-msg{font-size:12px;color:#a9778a;}.oc-list{display:grid;gap:8px;}.oc-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #f2e2e8;border-radius:11px;background:#fffdfd;flex-wrap:wrap;}.oc-av{width:34px;height:34px;flex:0 0 auto;border-radius:50%;overflow:hidden;background:#fdeef3;border:1px solid #f0d6df;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#b35172;}.oc-av img{width:100%;height:100%;object-fit:cover;display:block;}.oc-info{min-width:0;flex:1 1 140px;}.oc-nm{font-size:12.5px;font-weight:800;color:#3c2b31;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.oc-meta{font-size:11px;color:#a9808d;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.oc-tag{flex:0 0 auto;font-size:10.5px;font-weight:800;color:#b93d64;background:#fdeef3;border:1px solid #f6d5df;border-radius:999px;padding:3px 8px;}.oc-btns{display:flex;gap:5px;flex:0 0 auto;}.oc-edit{flex:0 0 auto;padding:6px 11px;border:1px solid #e4d4da;border-radius:8px;background:#fff;color:#5b4a51;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;}.oc-del{flex:0 0 auto;padding:6px 11px;border:1px solid #ecd4dc;border-radius:8px;background:#fff;color:#b24b6b;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;}.oc-del:disabled,.oc-edit:disabled{opacity:.5;}.oc-empty{font-size:12.5px;color:#9a8f94;padding:6px 2px;}@media (max-width:700px){.oc-grid{grid-template-columns:1fr;}.oc-f.oc-wide{grid-column:auto;}}</style>
           <div class="oc-card" id="oc-form-card">
             <div class="oc-head"><div class="oc-t" id="oc-form-title">🎓 뷰티수강 추가</div><div class="oc-cnt">전체 등록 <b id="oc-count">15</b>곳</div></div>
             <div class="oc-s">아래 목록에서 기존 분들도 수정·삭제할 수 있습니다. 저장하면 뷰티수강 페이지에 바로 반영됩니다.</div>
+            <div class="oc-bio-box">
+              <div class="oc-bio-top"><span>인스타 프로필 바이오 붙여넣기</span><button type="button" id="oc-bio-btn" class="oc-bio-btn">자동 채우기</button></div>
+              <label class="oc-f"><textarea id="oc-bio" rows="3"></textarea></label>
+            </div>
             <div class="oc-grid">
               <label class="oc-f"><span>인스타 아이디 (@ 제외)</span><input id="oc-insta" type="text" maxlength="60" autocomplete="off"></label>
               <label class="oc-f"><span>상호명</span><input id="oc-name" type="text" maxlength="60"></label>
@@ -4158,7 +4162,7 @@ document.addEventListener('DOMContentLoaded', function(){
     return s;
   }
   function clearForm(){
-    ["oc-insta","oc-name","oc-region","oc-igurl","oc-naver","oc-home","oc-benefit","oc-intro"].forEach(function(k){ var f = $(k); if(f) f.value = ""; });
+    ["oc-bio","oc-insta","oc-name","oc-region","oc-igurl","oc-naver","oc-home","oc-benefit","oc-intro"].forEach(function(k){ var f = $(k); if(f) f.value = ""; });
     if($("oc-cat")) $("oc-cat").value = "";
     editTarget = null;
     if($("oc-form-title")) $("oc-form-title").textContent = "🎓 뷰티수강 추가";
@@ -4278,6 +4282,86 @@ document.addEventListener('DOMContentLoaded', function(){
       .then(function(d){ render((d && d.ok && d.items) ? d.items : []); })
       .catch(function(){ render([]); });
   }
+  function parseBio(raw){
+    var text = String(raw || "").trim();
+    if(!text) return;
+    var urls = text.match(/https?:\/\/[^\s<>"')]+|(?:www\.|instagram\.com|map\.naver\.com|naver\.me|litt\.ly|linktr\.ee|pf\.kakao\.com)\/[^\s<>"')]+/gi) || [];
+    urls.forEach(function(u){
+      var full = urlFix(u);
+      var low = full.toLowerCase();
+      if(low.indexOf("instagram.com/") >= 0){
+        var id = idOnly(full);
+        if(id){
+          if($("oc-insta") && !$("oc-insta").value.trim()) $("oc-insta").value = id;
+          if($("oc-igurl") && !$("oc-igurl").value.trim()) $("oc-igurl").value = "https://www.instagram.com/" + id + "/";
+        }
+      } else if(low.indexOf("naver.com") >= 0 || low.indexOf("naver.me") >= 0){
+        if($("oc-naver") && !$("oc-naver").value.trim()) $("oc-naver").value = full;
+      } else {
+        if($("oc-home") && !$("oc-home").value.trim()) $("oc-home").value = full;
+      }
+    });
+    var atM = text.match(/@([a-zA-Z0-9._]{2,30})/);
+    if(atM && $("oc-insta") && !$("oc-insta").value.trim()){
+      $("oc-insta").value = atM[1];
+      if($("oc-igurl") && !$("oc-igurl").value.trim()) $("oc-igurl").value = "https://www.instagram.com/" + atM[1] + "/";
+    }
+    var regMap = [
+      ["서울 송파","송파"],["서울 송파","잠실"],["서울 송파","삼전"],["서울 강서","강서"],["서울 강서","까치산"],["서울 강서","화곡"],
+      ["서울 강남","강남"],["서울 강남","역삼"],["서울 강남","신사"],["서울 강남","청담"],["서울 강남","압구정"],["서울 마포","홍대"],
+      ["서울 마포","연남"],["서울 마포","합정"],["서울 용산","용산"],["서울 성동","성수"],["서울","서울"],
+      ["부산 서면","서면"],["부산","부산"],["인천 부평","부평"],["인천","인천"],["대구","대구"],["대전","대전"],
+      ["울산","울산"],["광주","광주"],["세종","세종"],["경기 군포","군포"],["경기 군포","산본"],["경기 수원","수원"],
+      ["경기 화성","동탄"],["경기 화성","병점"],["경기 성남","분당"],["경기 성남","판교"],["경기 고양","일산"],
+      ["경기 용인","용인"],["경기 부천","부천"],["경기 안양","안양"],["경기","경기"],["전주","전주"],["천안","천안"],
+      ["청주","청주"],["춘천","춘천"],["원주","원주"],["창원","창원"],["제주","제주"]
+    ];
+    if($("oc-region") && !$("oc-region").value.trim()){
+      for(var r = 0; r < regMap.length; r++){
+        if(text.indexOf(regMap[r][1]) >= 0){ $("oc-region").value = regMap[r][0]; break; }
+      }
+    }
+    var catMap = [
+      ["속눈썹펌",["속눈썹펌","속펌","래쉬리프트","아이래쉬펌"]],
+      ["속눈썹연장",["속눈썹연장","래쉬연장"]],
+      ["속눈썹",["속눈썹","래쉬"]],
+      ["네일",["네일","패디","젤네일"]],
+      ["SMP",["SMP","smp","두피문신"]],
+      ["반영구",["반영구","눈썹문신","아이라인","입술문신","자연눈썹"]],
+      ["왁싱",["왁싱","슈가링"]],
+      ["피부",["피부관리","에스테틱","스킨케어"]],
+      ["토탈뷰티",["토탈뷰티","토탈샵"]]
+    ];
+    if($("oc-cat") && !$("oc-cat").value){
+      outer: for(var c = 0; c < catMap.length; c++){
+        var kws = catMap[c][1];
+        for(var k = 0; k < kws.length; k++){
+          if(text.indexOf(kws[k]) >= 0){ $("oc-cat").value = catMap[c][0]; break outer; }
+        }
+      }
+    }
+    var lines = text.split(/\r?\n/).map(function(s){ return s.trim(); }).filter(function(s){
+      if(!s) return false;
+      if(/^https?:\/\//i.test(s)) return false;
+      if(/^(www\.|instagram\.com|map\.naver|naver\.me|litt\.ly|linktr\.ee)/i.test(s)) return false;
+      if(/^@[a-zA-Z0-9._]+$/.test(s)) return false;
+      if(/^(게시물|팔로워|팔로우|팔로잉|프로필|메시지|연락처)\b/.test(s)) return false;
+      if(/^[0-9.,만천K]+$/.test(s)) return false;
+      return true;
+    });
+    if(lines.length){
+      if($("oc-name") && !$("oc-name").value.trim()){
+        $("oc-name").value = lines[0].slice(0, 60);
+      }
+      if($("oc-intro") && !$("oc-intro").value.trim()){
+        var introTxt = lines.join(" · ").replace(/\s+/g, " ").trim();
+        $("oc-intro").value = introTxt.slice(0, 200);
+      }
+    }
+    say("바이오 내용을 자동으로 채웠습니다. 빠진 부분만 확인해 주세요.", true);
+  }
+  if($("oc-bio-btn")) $("oc-bio-btn").addEventListener("click", function(){ parseBio($("oc-bio") && $("oc-bio").value); });
+  if($("oc-bio")) $("oc-bio").addEventListener("paste", function(){ setTimeout(function(){ parseBio($("oc-bio").value); }, 30); });
   var 인스타 = $("oc-insta"), 아이디url = $("oc-igurl");
   if(아이디url) 아이디url.addEventListener("blur", function(){
     var id = idOnly(아이디url.value);
