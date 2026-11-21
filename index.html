@@ -1635,40 +1635,6 @@
         border-radius: 14px;
       }
     }
-
-    /* PC 상단 대표 영상 (PC 900px 이상에서만 노출, 모바일은 기존 화면 그대로) */
-    .pc-hero-video { display: none; }
-    @media (min-width: 900px) {
-      .pc-hero-video {
-        display: block;
-        padding-top: 66px; /* 고정 헤더 높이만큼 띄움 */
-      }
-      .pc-hero-video .container {
-        max-width: none;
-        width: 100%;
-        padding: 0;
-        margin: 0;
-      }
-      .pchv-frame {
-        position: relative;
-        width: 100%;
-        height: calc(100vh - 66px);
-        min-height: 540px;
-        border-radius: 0;
-        overflow: hidden;
-        background: transparent;
-        cursor: pointer;
-      }
-      .pchv-el {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        cursor: pointer;
-      }
-      /* 영상이 헤더 여백을 대신하므로 히어로 상단 여백만 줄여 붙임 */
-      .pc-hero-video + .hero { padding-top: 44px; }
-    }
   </style>
 
   <!-- Google tag (gtag.js) - GA4 세이린뷰티 아카데미 -->
@@ -1721,19 +1687,6 @@
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
   </header>
-
-  <!-- PC 상단 대표 영상 (인스타 @seilin_beauty 릴스·시술 사진 편집본) -->
-  <section class="pc-hero-video" id="pcHeroVideo" aria-label="세이린뷰티 아카데미 시술·수업 현장 영상">
-    <div class="container">
-      <div class="pchv-frame">
-        <video class="pchv-el" id="pcHeroVideoEl" autoplay muted loop playsinline preload="none"
-               poster="assets/ig/seilin-pc-hero-poster.jpg?v=5"
-               aria-label="세이린뷰티 아카데미 시술과 수업 현장 영상">
-          <source src="assets/ig/seilin-pc-hero.mp4?v=5" type="video/mp4">
-        </video>
-      </div>
-    </div>
-  </section>
 
   <!-- Hero Section (창업 & 1:1 아카데미 중심) -->
   <section class="hero">
@@ -2785,17 +2738,6 @@
       if(document.visibilityState === 'visible') 살아있음();
     });
   }catch(e){}
-})();
-</script>
-<!-- PC 상단 대표 영상 클릭 → 바로 아래 히어로 섹션으로 부드럽게 이동 -->
-<script>
-(function(){
-  var frame = document.querySelector('.pchv-frame');
-  if (!frame) { return; }
-  frame.addEventListener('click', function(){
-    var hero = document.querySelector('.hero');
-    if (hero) { hero.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-  });
 })();
 </script>
 <!-- 푸터 로고 5회 연속 탭 → 가게 주차 캘린더 (화면상 힌트 없음) -->
