@@ -281,7 +281,7 @@
       var status = String(it['상태'] || '').trim();
       var t = clock(p);
       frag.appendChild(msgRow(s.who, s.body, t, {
-        wait: !report && status === '대기'
+        wait: s.who !== '로디' && !report && status === '대기'
       }));
       if (report){
         frag.appendChild(msgRow('로디', report, t, {
