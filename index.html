@@ -1657,12 +1657,14 @@
         border-radius: 0;
         overflow: hidden;
         background: transparent;
+        cursor: pointer;
       }
       .pchv-el {
         display: block;
         width: 100%;
         height: 100%;
         object-fit: cover;
+        cursor: pointer;
       }
       /* 영상이 헤더 여백을 대신하므로 히어로 상단 여백만 줄여 붙임 */
       .pc-hero-video + .hero { padding-top: 44px; }
@@ -1725,9 +1727,9 @@
     <div class="container">
       <div class="pchv-frame">
         <video class="pchv-el" id="pcHeroVideoEl" autoplay muted loop playsinline preload="none"
-               poster="assets/ig/seilin-pc-hero-poster.jpg?v=3"
+               poster="assets/ig/seilin-pc-hero-poster.jpg?v=4"
                aria-label="세이린뷰티 아카데미 시술과 수업 현장 영상">
-          <source src="assets/ig/seilin-pc-hero.mp4?v=3" type="video/mp4">
+          <source src="assets/ig/seilin-pc-hero.mp4?v=4" type="video/mp4">
         </video>
       </div>
     </div>
@@ -2783,6 +2785,17 @@
       if(document.visibilityState === 'visible') 살아있음();
     });
   }catch(e){}
+})();
+</script>
+<!-- PC 상단 대표 영상 클릭 → 바로 아래 히어로 섹션으로 부드럽게 이동 -->
+<script>
+(function(){
+  var frame = document.querySelector('.pchv-frame');
+  if (!frame) { return; }
+  frame.addEventListener('click', function(){
+    var hero = document.querySelector('.hero');
+    if (hero) { hero.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  });
 })();
 </script>
 <!-- 푸터 로고 5회 연속 탭 → 가게 주차 캘린더 (화면상 힌트 없음) -->
