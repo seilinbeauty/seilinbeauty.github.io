@@ -2357,7 +2357,7 @@
           </div>
           <div class="crs-course"><span class="crs-kind">수강 운영</span>병점 네일앤플랜 · 네일 수강(병점·동탄·수원·오산 권역)</div>
           <div class="crs-photos"><a class="crs-ph" href="https://www.instagram.com/nail_n_plan/" data-insta="nail_n_plan" target="_blank" rel="noopener"><img src="course-photos/nail_n_plan_1.jpg" alt="경기/nail_n_plan/네일앤플랜 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/nail_n_plan/" data-insta="nail_n_plan" target="_blank" rel="noopener"><img src="course-photos/nail_n_plan_2.jpg" alt="경기/nail_n_plan/네일앤플랜 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/nail_n_plan/" data-insta="nail_n_plan" target="_blank" rel="noopener"><img src="course-photos/nail_n_plan_3.jpg" alt="경기/nail_n_plan/네일앤플랜 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/nail_n_plan/" data-insta="nail_n_plan" target="_blank" rel="noopener"><img src="course-photos/nail_n_plan_4.jpg" alt="경기/nail_n_plan/네일앤플랜 작품 사진" loading="lazy"></a></div>
-        </article></div>
+        </article>
 <article class="crs-card" data-cats="네일" data-benefit="0">
           <div class="crs-head">
             <div class="crs-av"><img src="avatars/adela_academy.jpg" alt="서울 송파/아델라 아카데미/네일" loading="lazy"></div>
@@ -2370,7 +2370,8 @@
           <div class="crs-actions cols-2"><a class="crs-act crs-act-map" href="https://map.naver.com/p/entry/place/1817700322" target="_blank" rel="noopener">네이버</a><a class="crs-act crs-act-ig" href="https://www.instagram.com/adela_academy/" data-insta="adela_academy" target="_blank" rel="noopener">인스타그램</a></div>
           <div class="crs-course"><span class="crs-kind">수강 운영</span>아델라&amp;장쌀롱 네일전문아카데미 · 잠실·삼전 네일 수강(국가자격증·취업반·창업반 4:1 기수제)</div>
           <div class="crs-photos"><a class="crs-ph" href="https://www.instagram.com/adela_academy/" data-insta="adela_academy" target="_blank" rel="noopener"><img src="course-photos/adela_academy_1.jpg" alt="서울 송파/아델라 아카데미/네일 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/adela_academy/" data-insta="adela_academy" target="_blank" rel="noopener"><img src="course-photos/adela_academy_2.jpg" alt="서울 송파/아델라 아카데미/네일 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/adela_academy/" data-insta="adela_academy" target="_blank" rel="noopener"><img src="course-photos/adela_academy_3.jpg" alt="서울 송파/아델라 아카데미/네일 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/adela_academy/" data-insta="adela_academy" target="_blank" rel="noopener"><img src="course-photos/adela_academy_4.jpg" alt="서울 송파/아델라 아카데미/네일 작품 사진" loading="lazy"></a></div>
-        </article>
+        </article></div>
+
         <a href="dia.html" class="back-link">← 커뮤니티 홈으로</a>
       </div>
     </div>
@@ -2693,7 +2694,15 @@ document.addEventListener('click', function(e){
       var exist = grid.querySelectorAll('.crs-card');
       for(var i = 0; i < exist.length; i++){
         var ins = exist[i].getAttribute('data-insta');
+        if(!ins){
+          var inner = exist[i].querySelector('[data-insta]');
+          if(inner) ins = inner.getAttribute('data-insta');
+        }
         if(ins) seen[String(ins).toLowerCase()] = 1;
+        var nm = exist[i].querySelector('.crs-nick');
+        if(nm && nm.textContent) seen[String(nm.textContent).trim().toLowerCase()] = 1;
+        var alt = exist[i].querySelector('.crs-av img');
+        if(alt && alt.getAttribute('alt')) seen[String(alt.getAttribute('alt')).split('/').join('|').toLowerCase()] = 1;
       }
       var added = 0;
       items.forEach(function(it){
