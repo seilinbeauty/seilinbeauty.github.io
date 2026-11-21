@@ -2358,6 +2358,19 @@
           <div class="crs-course"><span class="crs-kind">수강 운영</span>병점 네일앤플랜 · 네일 수강(병점·동탄·수원·오산 권역)</div>
           <div class="crs-photos"><a class="crs-ph" href="https://www.instagram.com/nail_n_plan/" data-insta="nail_n_plan" target="_blank" rel="noopener"><img src="course-photos/nail_n_plan_1.jpg" alt="경기/nail_n_plan/네일앤플랜 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/nail_n_plan/" data-insta="nail_n_plan" target="_blank" rel="noopener"><img src="course-photos/nail_n_plan_2.jpg" alt="경기/nail_n_plan/네일앤플랜 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/nail_n_plan/" data-insta="nail_n_plan" target="_blank" rel="noopener"><img src="course-photos/nail_n_plan_3.jpg" alt="경기/nail_n_plan/네일앤플랜 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/nail_n_plan/" data-insta="nail_n_plan" target="_blank" rel="noopener"><img src="course-photos/nail_n_plan_4.jpg" alt="경기/nail_n_plan/네일앤플랜 작품 사진" loading="lazy"></a></div>
         </article></div>
+<article class="crs-card" data-cats="네일" data-benefit="0">
+          <div class="crs-head">
+            <div class="crs-av"><img src="avatars/adela_academy.jpg" alt="서울 송파/아델라 아카데미/네일" loading="lazy"></div>
+            <div class="crs-me">
+              <div class="crs-nick">아델라 아카데미</div>
+              <div class="crs-tags">서울 송파 · 네일</div>
+            </div>
+            
+          </div>
+          <div class="crs-actions cols-2"><a class="crs-act crs-act-map" href="https://map.naver.com/p/entry/place/1817700322" target="_blank" rel="noopener">네이버</a><a class="crs-act crs-act-ig" href="https://www.instagram.com/adela_academy/" data-insta="adela_academy" target="_blank" rel="noopener">인스타그램</a></div>
+          <div class="crs-course"><span class="crs-kind">수강 운영</span>아델라&amp;장쌀롱 네일전문아카데미 · 잠실·삼전 네일 수강(국가자격증·취업반·창업반 4:1 기수제)</div>
+          <div class="crs-photos"><a class="crs-ph" href="https://www.instagram.com/adela_academy/" data-insta="adela_academy" target="_blank" rel="noopener"><img src="course-photos/adela_academy_1.jpg" alt="서울 송파/아델라 아카데미/네일 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/adela_academy/" data-insta="adela_academy" target="_blank" rel="noopener"><img src="course-photos/adela_academy_2.jpg" alt="서울 송파/아델라 아카데미/네일 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/adela_academy/" data-insta="adela_academy" target="_blank" rel="noopener"><img src="course-photos/adela_academy_3.jpg" alt="서울 송파/아델라 아카데미/네일 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/adela_academy/" data-insta="adela_academy" target="_blank" rel="noopener"><img src="course-photos/adela_academy_4.jpg" alt="서울 송파/아델라 아카데미/네일 작품 사진" loading="lazy"></a></div>
+        </article>
         <a href="dia.html" class="back-link">← 커뮤니티 홈으로</a>
       </div>
     </div>
@@ -2546,5 +2559,154 @@ document.addEventListener('click', function(e){
     });
   }catch(e){}
 })();
-</script></body>
+</script><script>
+/* 운영 센터(창고)에서 직접 추가·삭제한 뷰티수강 카드를 페이지를 열 때마다 바로 불러옵니다. */
+(function(){
+  var grid = document.getElementById('crsGrid');
+  if(!grid || !window.fetch) return;
+  var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
+  function esc(v){
+    return String(v === undefined || v === null ? '' : v).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function el(tag, cls){ var d = document.createElement(tag); if(cls) d.className = cls; return d; }
+  function cat2text(v){ return String(v || '').replace(/,/g, ' · '); }
+  function makeCard(it){
+    var name = String(it.name || '').trim() || String(it.insta || '').trim();
+    var insta = String(it.insta || '').trim();
+    var benefit = String(it.benefit || '').trim();
+    var cats = String(it.cat || '').trim();
+    var region = String(it.region || '').trim();
+    var igUrl = String(it.insta_url || '').trim();
+    if(!igUrl && insta) igUrl = 'https://www.instagram.com/' + insta + '/';
+    var naver = String(it.naver_url || '').trim();
+    var home = String(it.home_url || '').trim();
+
+    var card = el('article', 'crs-card' + (benefit ? ' is-benefit' : ''));
+    card.setAttribute('data-cats', cats);
+    card.setAttribute('data-benefit', benefit ? '1' : '0');
+    card.setAttribute('data-wh', '1');
+    if(benefit){
+      var rb = el('div', 'crs-ribbon');
+      rb.textContent = '다이아 회원 단독 수강 혜택';
+      card.appendChild(rb);
+    }
+    var head = el('div', 'crs-head');
+    var av = el('div', 'crs-av');
+    if(insta){
+      var im = document.createElement('img');
+      im.src = 'avatars/' + insta + '.jpg';
+      im.alt = name;
+      im.loading = 'lazy';
+      im.onerror = function(){ if(im.parentNode){ im.parentNode.removeChild(im); } av.textContent = (name.charAt(0) || '수'); };
+      av.appendChild(im);
+    } else {
+      av.textContent = (name.charAt(0) || '수');
+    }
+    var me = el('div', 'crs-me');
+    var nick = el('div', 'crs-nick'); nick.textContent = name;
+    var tags = el('div', 'crs-tags');
+    var tagText = region ? region : '';
+    if(cats) tagText = tagText ? tagText + ' · ' + cat2text(cats) : cat2text(cats);
+    tags.textContent = tagText || '뷰티 수강';
+    me.appendChild(nick); me.appendChild(tags);
+    head.appendChild(av); head.appendChild(me);
+    card.appendChild(head);
+
+    var linkCount = (naver ? 1 : 0) + (home ? 1 : 0) + (igUrl ? 1 : 0);
+    if(linkCount > 1){
+      var acts = el('div', 'crs-actions' + (linkCount === 2 ? ' cols-2' : ''));
+      function act(cls, href, txt, forInsta){
+        var a = document.createElement('a');
+        a.className = cls; a.href = href; a.target = '_blank'; a.rel = 'noopener'; a.textContent = txt;
+        if(forInsta && insta) a.setAttribute('data-insta', insta);
+        acts.appendChild(a);
+      }
+      if(naver) act('crs-act crs-act-map', naver, '네이버');
+      if(home) act('crs-act crs-act-home', home, '홈페이지');
+      if(igUrl) act('crs-act crs-act-ig', igUrl, '인스타그램', true);
+      card.appendChild(acts);
+    } else if(igUrl){
+      var lk = el('div', 'crs-links');
+      var a2 = document.createElement('a');
+      a2.className = 'crs-ig'; a2.href = igUrl; a2.target = '_blank'; a2.rel = 'noopener';
+      a2.textContent = '인스타그램';
+      if(insta) a2.setAttribute('data-insta', insta);
+      lk.appendChild(a2);
+      head.appendChild(lk);
+    }
+
+    var course = el('div', 'crs-course');
+    var kind = el('span', 'crs-kind'); kind.textContent = '수강 운영';
+    course.appendChild(kind);
+    var intro = String(it.intro || '').trim();
+    course.appendChild(document.createTextNode(intro || (name + ' 뷰티 수강 · 문의 환영')));
+    card.appendChild(course);
+
+    if(benefit){
+      var bf = el('div', 'crs-benefit');
+      var ico = el('span', 'crs-benefit-ico'); ico.textContent = '🎁';
+      var tg = el('span', 'crs-benefit-tag'); tg.textContent = '다이아 회원 혜택';
+      var tx = el('span', 'crs-benefit-txt'); tx.textContent = benefit;
+      bf.appendChild(ico); bf.appendChild(tg); bf.appendChild(tx);
+      card.appendChild(bf);
+    }
+
+    var ph = el('div', 'crs-photos');
+    var empty = el('a', 'crs-ph crs-ph-empty');
+    empty.href = igUrl || '#';
+    empty.target = '_blank'; empty.rel = 'noopener';
+    if(insta) empty.setAttribute('data-insta', insta);
+    empty.textContent = '인스타그램에서 작품 보기';
+    ph.appendChild(empty);
+    card.appendChild(ph);
+    return card;
+  }
+  function currentTab(){
+    var on = document.querySelector('.crs-tab.is-on');
+    return on ? on.getAttribute('data-cat') : '전체';
+  }
+  function applyTab(){
+    var cat = currentTab();
+    var cards = grid.querySelectorAll('.crs-card');
+    for(var i = 0; i < cards.length; i++){
+      if(cat === '전체'){ cards[i].style.display = ''; continue; }
+      var cs = (cards[i].getAttribute('data-cats') || '').split(',');
+      cards[i].style.display = cs.indexOf(cat) >= 0 ? '' : 'none';
+    }
+  }
+  function reorder(){
+    var all = Array.prototype.slice.call(grid.querySelectorAll('.crs-card'));
+    var b = all.filter(function(c){ return c.getAttribute('data-benefit') === '1'; });
+    var n = all.filter(function(c){ return c.getAttribute('data-benefit') !== '1'; });
+    b.concat(n).forEach(function(c){ grid.appendChild(c); });
+  }
+  var tabs = document.getElementById('crsTabs');
+  if(tabs) tabs.addEventListener('click', function(){ setTimeout(applyTab, 0); });
+  fetch(EXEC + '?mode=course_list&_=' + Date.now(), {cache: 'no-store'})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var items = (d && d.ok && d.items) ? d.items : [];
+      if(!items.length) return;
+      var seen = {};
+      var exist = grid.querySelectorAll('.crs-card');
+      for(var i = 0; i < exist.length; i++){
+        var ins = exist[i].getAttribute('data-insta');
+        if(ins) seen[String(ins).toLowerCase()] = 1;
+      }
+      var added = 0;
+      items.forEach(function(it){
+        var key = String(it.insta || it.name || '').trim().toLowerCase();
+        if(key && seen[key]) return;
+        if(key) seen[key] = 1;
+        grid.appendChild(makeCard(it));
+        added++;
+      });
+      if(added){ reorder(); applyTab(); }
+    })
+    .catch(function(){});
+})();
+</script>
+</body>
 </html>

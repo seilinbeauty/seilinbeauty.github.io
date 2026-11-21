@@ -2281,9 +2281,12 @@ document.addEventListener('DOMContentLoaded', function(){
         var 통계칸 = document.getElementById('ops-stats');
         var 회원칸 = document.getElementById('ops-members');
         var 게임칸 = document.getElementById('ops-games');
+        var 수강칸 = document.getElementById('ops-course');
         if(통계칸) 통계칸.style.display = (대상 === 'ops-stats') ? '' : 'none';
         if(회원칸) 회원칸.style.display = (대상 === 'ops-members') ? '' : 'none';
         if(게임칸) 게임칸.style.display = (대상 === 'ops-games') ? '' : 'none';
+        if(수강칸) 수강칸.style.display = (대상 === 'ops-course') ? '' : 'none';
+        if(대상 === 'ops-course' && typeof window.diaCourseReload === 'function') window.diaCourseReload();
       });
     })(메뉴탭[ni]);
   }
@@ -2681,6 +2684,7 @@ document.addEventListener('DOMContentLoaded', function(){
           <div class="ops-nav">
               <button type="button" class="ops-nav-item" data-nav="ops-stats" data-on="1">통계</button>
               <button type="button" class="ops-nav-item" data-nav="ops-members">회원 목록</button>
+              <button type="button" class="ops-nav-item" data-nav="ops-course">🎓 뷰티수강</button>
               <button type="button" class="ops-nav-item" data-nav="ops-games">미니게임</button>
           </div>
           <div id="ops-stats">
@@ -4097,7 +4101,154 @@ document.addEventListener('DOMContentLoaded', function(){
             </table>
           </div></div>
           <div class="mem-empty" id="mem-empty" style="display:none;">해당하는 회원이 없습니다.</div>
-          </div>          <div id="ops-games" style="display:none;">
+          </div>          <div id="ops-course" style="display:none;">
+          <style>.oc-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 6px;}.oc-t{font-size:15px;font-weight:800;color:#3d3538;}.oc-cnt{font-size:11.5px;color:#a0969b;}.oc-cnt b{color:#c2456a;}.oc-s{font-size:12px;color:#a0969b;line-height:1.6;margin:0 0 14px;word-break:keep-all;}.oc-card{border:1px solid #f0e2e7;border-radius:14px;background:#fff;padding:16px 16px 14px;margin-bottom:14px;}.oc-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;}.oc-f{display:flex;flex-direction:column;gap:4px;min-width:0;}.oc-f.oc-wide{grid-column:1/-1;}.oc-f span{font-size:11.5px;font-weight:800;color:#8a7b81;letter-spacing:-.2px;}.oc-f input,.oc-f select{width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid #ecdfe4;border-radius:9px;font-size:13px;font-family:inherit;color:#3d3538;background:#fff;outline:none;}.oc-f input:focus,.oc-f select:focus{border-color:#e6a6bb;}.oc-actions{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;}.oc-save{padding:10px 24px;border:0;border-radius:10px;cursor:pointer;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;font-size:13.5px;font-weight:800;font-family:inherit;}.oc-save:disabled{opacity:.6;}.oc-msg{font-size:12px;color:#a9778a;}.oc-list{display:grid;gap:8px;}.oc-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #f2e2e8;border-radius:11px;background:#fffdfd;flex-wrap:wrap;}.oc-av{width:34px;height:34px;flex:0 0 auto;border-radius:50%;overflow:hidden;background:#fdeef3;border:1px solid #f0d6df;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#b35172;}.oc-av img{width:100%;height:100%;object-fit:cover;display:block;}.oc-info{min-width:0;flex:1 1 160px;}.oc-nm{font-size:12.5px;font-weight:800;color:#3c2b31;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.oc-meta{font-size:11px;color:#a9808d;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.oc-tag{flex:0 0 auto;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;background:#e8f7ee;border:1px solid #cde8d9;color:#1c6b3f;}.oc-del{flex:0 0 auto;padding:4px 11px;border:1px solid #f0cdd8;border-radius:999px;background:#fff;color:#c6506f;font-size:11px;font-weight:800;font-family:inherit;cursor:pointer;}.oc-empty{font-size:12.5px;color:#9a8f94;padding:6px 2px;}@media (max-width:700px){.oc-grid{grid-template-columns:1fr;}.oc-f.oc-wide{grid-column:auto;}}</style>
+          <div class="oc-card">
+            <div class="oc-head"><div class="oc-t">🎓 뷰티수강 추가</div><div class="oc-cnt">창고 등록 <b id="oc-count">0</b>곳</div></div>
+            <div class="oc-s">링크를 붙여넣으면 인스타 아이디와 주소 형태를 자동으로 다듬습니다. 저장하면 뷰티수강 페이지에 바로 반영됩니다.</div>
+            <div class="oc-grid">
+              <label class="oc-f"><span>인스타 아이디 (@ 제외)</span><input id="oc-insta" type="text" maxlength="60" autocomplete="off" placeholder="adela_academy"></label>
+              <label class="oc-f"><span>상호명</span><input id="oc-name" type="text" maxlength="60" placeholder="아델라 아카데미"></label>
+              <label class="oc-f"><span>지역</span><input id="oc-region" type="text" maxlength="40" placeholder="서울 송파"></label>
+              <label class="oc-f"><span>카테고리</span><select id="oc-cat"><option value="">선택 안 함</option><option value="속눈썹펌">속눈썹펌</option><option value="속눈썹연장">속눈썹연장</option><option value="네일">네일</option><option value="반영구">반영구</option><option value="SMP">SMP</option><option value="왁싱">왁싱</option><option value="피부">피부</option><option value="토탈뷰티">토탈뷰티</option></select></label>
+              <label class="oc-f oc-wide"><span>인스타 URL</span><input id="oc-igurl" type="text" placeholder="https://www.instagram.com/adela_academy/"></label>
+              <label class="oc-f oc-wide"><span>네이버 플레이스·지도 URL</span><input id="oc-naver" type="text" placeholder="https://map.naver.com/p/entry/place/..."></label>
+              <label class="oc-f oc-wide"><span>홈페이지·링크트리 URL (선택)</span><input id="oc-home" type="text" placeholder="https://..."></label>
+              <label class="oc-f oc-wide"><span>다이아 회원 혜택 문구 (선택)</span><input id="oc-benefit" type="text" maxlength="200" placeholder="입력하면 상단 혜택 그룹으로 올라갑니다"></label>
+              <label class="oc-f oc-wide"><span>수강 소개 (선택)</span><input id="oc-intro" type="text" maxlength="200" placeholder="예: 잠실 네일 수강 · 국가자격증·취업반·창업반 4:1 기수제"></label>
+            </div>
+            <div class="oc-actions"><button type="button" id="oc-save" class="oc-save">저장</button><span id="oc-msg" class="oc-msg"></span></div>
+          </div>
+          <div class="oc-card">
+            <div class="oc-head"><div class="oc-t">창고에 등록된 뷰티수강</div></div>
+            <div class="oc-s">여기서 지운 카드는 뷰티수강 페이지에서도 바로 사라집니다.</div>
+            <div id="oc-list" class="oc-list"><div class="oc-empty">불러오는 중…</div></div>
+          </div>
+          </div>
+          <script>
+(function(){
+  var EXEC = "https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec";
+  var KEY = atob("MDQyMw==");
+  var box = document.getElementById("oc-list");
+  if(!box) return;
+  function $(id){ return document.getElementById(id); }
+  function say(t, ok){ var m = $("oc-msg"); if(!m) return; m.textContent = t || ""; m.style.color = ok ? "#2f7d4b" : "#c6506f"; }
+  function idOnly(v){
+    var s = String(v || "").trim();
+    if(!s) return "";
+    if(s.indexOf("http://") === 0){ s = s.slice(7); }
+    else if(s.indexOf("https://") === 0){ s = s.slice(8); }
+    var i = s.toLowerCase().indexOf("instagram.com/");
+    if(i >= 0){ s = s.slice(i + 14); }
+    var j = s.search(/[/?#]/);
+    if(j >= 0){ s = s.slice(0, j); }
+    while(s.charAt(0) === "@"){ s = s.slice(1); }
+    while(s.charAt(s.length - 1) === "/"){ s = s.slice(0, -1); }
+    return s.trim();
+  }
+  function urlFix(v){
+    var s = String(v || "").trim();
+    if(!s) return "";
+    if(s.indexOf("http://") === 0 || s.indexOf("https://") === 0) return s;
+    while(s.charAt(0) === "/"){ s = s.slice(1); }
+    if(s.indexOf(".") > 0 && s.indexOf(" ") < 0) return "https://" + s;
+    return s;
+  }
+  function render(items){
+    var n = $("oc-count"); if(n) n.textContent = String(items.length);
+    box.innerHTML = "";
+    if(!items.length){ var e = document.createElement("div"); e.className = "oc-empty"; e.textContent = "아직 창고에 등록한 카드가 없습니다. 위 칸에 입력하고 저장해 주세요."; box.appendChild(e); return; }
+    items.forEach(function(it){
+      var row = document.createElement("div"); row.className = "oc-item";
+      var av = document.createElement("div"); av.className = "oc-av";
+      var nm = String(it.name || it.insta || "").trim();
+      if(it.insta){ var im = document.createElement("img"); im.alt = nm; im.src = "avatars/" + it.insta + ".jpg"; im.onerror = function(){ av.textContent = (nm.slice(0,1) || "수"); }; av.appendChild(im); }
+      else { av.textContent = (nm.slice(0,1) || "수"); }
+      var info = document.createElement("div"); info.className = "oc-info";
+      var t1 = document.createElement("div"); t1.className = "oc-nm"; t1.textContent = nm || "이름 없음";
+      var t2 = document.createElement("div"); t2.className = "oc-meta";
+      var bits = [];
+      if(it.insta) bits.push("@" + it.insta);
+      if(it.region) bits.push(it.region);
+      if(it.cat) bits.push(it.cat);
+      if(it.added) bits.push(it.added);
+      t2.textContent = bits.join(" · ");
+      info.appendChild(t1); info.appendChild(t2);
+      row.appendChild(av); row.appendChild(info);
+      if(String(it.benefit || "").trim()){ var tag = document.createElement("span"); tag.className = "oc-tag"; tag.textContent = "혜택 카드"; row.appendChild(tag); }
+      var del = document.createElement("button"); del.type = "button"; del.className = "oc-del"; del.textContent = "삭제";
+      del.addEventListener("click", function(){
+        if(!window.confirm((nm || "이 카드") + " 카드를 뷰티수강에서 삭제할까요?")) return;
+        del.disabled = true; del.textContent = "삭제 중";
+        fetch(EXEC + "?mode=course_del&pw=" + encodeURIComponent(KEY) + "&id=" + encodeURIComponent(it.id), {cache: "no-store"})
+          .then(function(r){ return r.json(); })
+          .then(function(d){
+            if(d && d.ok){ render(d.items || []); say("삭제했습니다.", true); }
+            else { del.disabled = false; del.textContent = "삭제"; say("삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.", false); }
+          })
+          .catch(function(){ del.disabled = false; del.textContent = "삭제"; say("삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.", false); });
+      });
+      row.appendChild(del);
+      box.appendChild(row);
+    });
+  }
+  function load(){
+    if(!window.fetch){ box.innerHTML = "<div class=oc-empty>불러올 수 없습니다.</div>"; return; }
+    fetch(EXEC + "?mode=course_list&_=" + Date.now(), {cache: "no-store"})
+      .then(function(r){ return r.json(); })
+      .then(function(d){ render((d && d.ok && d.items) ? d.items : []); })
+      .catch(function(){ box.innerHTML = ""; var e = document.createElement("div"); e.className = "oc-empty"; e.textContent = "목록을 불러오지 못했습니다."; box.appendChild(e); });
+  }
+  var 인스타 = $("oc-insta"), 아이디url = $("oc-igurl");
+  if(아이디url) 아이디url.addEventListener("blur", function(){
+    var id = idOnly(아이디url.value);
+    if(id && 인스타 && !인스타.value.trim()) 인스타.value = id;
+    if(id) 아이디url.value = "https://www.instagram.com/" + id + "/";
+  });
+  if(인스타) 인스타.addEventListener("blur", function(){
+    var id = idOnly(인스타.value);
+    if(id) 인스타.value = id;
+    if(id && 아이디url && !아이디url.value.trim()) 아이디url.value = "https://www.instagram.com/" + id + "/";
+  });
+  ["oc-naver", "oc-home"].forEach(function(k){
+    var f = $(k); if(!f) return;
+    f.addEventListener("blur", function(){ var u = urlFix(f.value); if(u) f.value = u; });
+  });
+  var 저장 = $("oc-save");
+  if(저장) 저장.addEventListener("click", function(){
+    if(!window.fetch) return;
+    var insta = idOnly(인스타 && 인스타.value);
+    var name = $("oc-name") ? $("oc-name").value.trim() : "";
+    if(!insta && !name){ say("인스타 아이디나 상호명 중 하나는 넣어 주세요.", false); return; }
+    var q = "?mode=course_add&pw=" + encodeURIComponent(KEY)
+      + "&insta=" + encodeURIComponent(insta)
+      + "&name=" + encodeURIComponent(name)
+      + "&region=" + encodeURIComponent($("oc-region") ? $("oc-region").value.trim() : "")
+      + "&cat=" + encodeURIComponent($("oc-cat") ? $("oc-cat").value : "")
+      + "&insta_url=" + encodeURIComponent(urlFix(아이디url ? 아이디url.value : ""))
+      + "&naver_url=" + encodeURIComponent(urlFix($("oc-naver") ? $("oc-naver").value : ""))
+      + "&home_url=" + encodeURIComponent(urlFix($("oc-home") ? $("oc-home").value : ""))
+      + "&benefit=" + encodeURIComponent($("oc-benefit") ? $("oc-benefit").value.trim() : "")
+      + "&intro=" + encodeURIComponent($("oc-intro") ? $("oc-intro").value.trim() : "");
+    저장.disabled = true; say("저장하는 중…", true);
+    fetch(EXEC + q, {cache: "no-store"})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        저장.disabled = false;
+        if(d && d.ok){
+          render(d.items || []);
+          ["oc-insta","oc-name","oc-region","oc-igurl","oc-naver","oc-home","oc-benefit","oc-intro"].forEach(function(k){ var f = $(k); if(f) f.value = ""; });
+          if($("oc-cat")) $("oc-cat").value = "";
+          say("저장했습니다. 뷰티수강 페이지에 바로 반영됩니다.", true);
+        } else { say("저장에 실패했습니다. 잠시 후 다시 시도해 주세요.", false); }
+      })
+      .catch(function(){ 저장.disabled = false; say("저장에 실패했습니다. 잠시 후 다시 시도해 주세요.", false); });
+  });
+  window.diaCourseReload = load;
+  load();
+})();
+          </script>
+          <div id="ops-games" style="display:none;">
           <style>
           .mg-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:0 0 14px;}
           .mg-title{font-size:15px;font-weight:800;color:#4a4a4a;}
