@@ -100,6 +100,7 @@
   .name{font-size:11px;font-weight:700;color:#6f6558;margin:0 0 3px 2px;display:flex;align-items:center;gap:5px;}
   .tag{font-size:9.5px;font-weight:800;padding:1px 5px;border-radius:5px;background:#e6f2e8;color:#3f7a4f;}
   .tag.bad{background:#fbe8e8;color:#b54545;}
+  .tag.mid{background:#fdf2d9;color:#8f6f1c;}
   .line{display:flex;align-items:flex-end;gap:5px;min-width:0;}
   .row.me .line{flex-direction:row-reverse;}
   .bubble{
@@ -148,7 +149,7 @@
 <div id="room">
   <header>
     <div class="hd-title">세이린뷰티 · 다이아 업무방</div>
-    <div class="hd-sub">도현 · 커비 · 클로드 <span class="cnt">3명</span></div>
+    <div class="hd-sub">도현 · 커비 · 로디 <span class="cnt">3명</span></div>
   </header>
   <main id="view"><div id="list"></div></main>
   <div id="composer">
@@ -212,11 +213,14 @@
     return p.y + '년 ' + p.mo + '월 ' + p.d + '일 ' + wd + '요일';
   }
 
-  /* ── 발신자 구분: [도현] [커비] [클로드] 접두어 ── */
+  /* ── 발신자 구분: [도현] [커비] [로디] 접두어 ([클로드]도 로디로 인식) ── */
   function senderOf(text){
     var s = String(text || '');
-    var m = /^\s*\[(도현|커비|클로드)\]\s*/.exec(s);
-    if (m) { return { who: m[1], body: s.slice(m[0].length) }; }
+    var m = /^\s*\[(도현|커비|로디|클로드)\]\s*/.exec(s);
+    if (m) {
+      var who = (m[1] === '클로드') ? '로디' : m[1];
+      return { who: who, body: s.slice(m[0].length) };
+    }
     return { who: '커비', body: s };
   }
 
@@ -231,19 +235,19 @@
     opts = opts || {};
     var row = el('div', 'row ' + (who === '도현' ? 'me' : who === '커비' ? 'kobi' : 'claude'));
     if (who !== '도현') {
-      row.appendChild(el('div', 'av ' + (who === '커비' ? 'kobi' : 'claude'), who === '커비' ? '커' : '클'));
+      row.appendChild(el('div', 'av ' + (who === '커비' ? 'kobi' : 'claude'), who === '커비' ? '커' : '로'));
     }
     var col = el('div', 'col');
     if (who !== '도현') {
       var nm = el('div', 'name', who);
-      if (opts.tag) { nm.appendChild(el('span', 'tag' + (opts.bad ? ' bad' : ''), opts.tag)); }
+      if (opts.tag) { nm.appendChild(el('span', 'tag' + (opts.bad ? ' bad' : opts.mid ? ' mid' : ''), opts.tag)); }
       col.appendChild(nm);
     }
     var line = el('div', 'line');
     line.appendChild(el('div', 'bubble', body));
     if (timeText) { line.appendChild(el('div', 'time', timeText)); }
     col.appendChild(line);
-    if (opts.wait) { col.appendChild(el('div', 'wait', '클로드 확인 대기')); }
+    if (opts.wait) { col.appendChild(el('div', 'wait', '로디 확인 대기')); }
     row.appendChild(col);
     return row;
   }
@@ -266,14 +270,15 @@
         wait: !report && status === '대기'
       }));
       if (report){
-        frag.appendChild(msgRow('클로드', report, t, {
+        frag.appendChild(msgRow('로디', report, t, {
           tag: status || '',
-          bad: status === '실패'
+          bad: status === '실패',
+          mid: status === '대기'
         }));
       }
     }
     if (!items.length){
-      frag.appendChild(el('div', 'sys', '아직 대화가 없습니다. 아래에 메시지를 남기면 커비와 클로드가 확인합니다.'));
+      frag.appendChild(el('div', 'sys', '아직 대화가 없습니다. 아래에 메시지를 남기면 커비와 로디가 확인합니다.'));
     }
     list.innerHTML = '';
     list.appendChild(frag);
