@@ -74,6 +74,11 @@
   .hd-sub .mem{white-space:nowrap;}
   .hd-sub .mem b{font-weight:800;color:#5c5346;}
   .hd-sub .mem i{font-style:normal;font-weight:600;color:#a89c85;}
+  .live{display:inline-flex;align-items:center;gap:4px;margin-left:6px;font-size:10px;font-weight:800;color:#4f8a5f;vertical-align:middle;}
+  .live .dot{width:6px;height:6px;border-radius:50%;background:#4fc06d;box-shadow:0 0 0 0 rgba(79,192,109,.55);animation:pulse 1.8s ease-out infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(79,192,109,.5);}70%{box-shadow:0 0 0 6px rgba(79,192,109,0);}100%{box-shadow:0 0 0 0 rgba(79,192,109,0);}}
+  .row.in{animation:pop .22s ease-out both;}
+  @keyframes pop{from{opacity:0;transform:translateY(6px) scale(.985);}to{opacity:1;transform:none;}}
 
   #view{
     flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
@@ -156,7 +161,7 @@
 
 <div id="room">
   <header>
-    <div class="hd-title">세이린뷰티 · 다이아 업무방</div>
+    <div class="hd-title">세이린뷰티 · 다이아 업무방<span class="live"><span class="dot"></span>실시간</span></div>
     <div class="hd-sub">
       <span class="mem"><b>도현 님</b><i> · 대표</i></span>
       <span class="mem"><b>커비</b><i> · 총괄실장</i></span>
@@ -198,6 +203,20 @@
   var lastSig = '';
   var lastItems = [];
   var firstPaint = true;
+  var pending = [];   /* 아직 창고에 안 들어간 내 메시지 */
+
+  function mergePending(items){
+    if (!pending.length) { return items; }
+    pending = pending.filter(function(p){
+      for (var i = 0; i < items.length; i++){
+        if ((items[i].row || 0) > p.afterRow && String(items[i]['지령내용'] || '').indexOf(p.text) >= 0) { return false; }
+      }
+      return true;
+    });
+    var out = items.slice();
+    for (var k = 0; k < pending.length; k++){ out.push(pending[k].item); }
+    return out;
+  }
 
   /* ── 화면 높이: 키보드가 올라와도 입력창이 가려지지 않게 ── */
   function fit(){
@@ -277,42 +296,87 @@
     return row;
   }
 
-  function render(items){
-    var frag = document.createDocumentFragment();
-    var lastDay = '';
-    for (var i = 0; i < items.length; i++){
-      var it = items[i];
-      var p = parseTs(it['지령일시']);
-      if (p && p.key !== lastDay){
-        lastDay = p.key;
-        frag.appendChild(el('div', 'day', dayLabel(p)));
-      }
-      var s = senderOf(it['지령내용']);
-      var report = String(it['클로드보고'] || '').trim();
-      var status = String(it['상태'] || '').trim();
-      var acked = String(it['확인'] || '').trim();
-      var t = clock(p);
-      var rodiRead = (s.who === '로디') || (status !== '대기') || !!report;
-      var kobiRead = (s.who === '커비') || !!acked;
-      var unreadMain = (rodiRead ? 0 : 1) + (kobiRead ? 0 : 1);
-      frag.appendChild(msgRow(s.who, s.body, t, {
-        unread: unreadMain,
-        wait: s.who !== '로디' && !report && status === '대기'
+  /* ── 렌더: 바뀐 부분만 다시 그려 가볍게 유지 ── */
+  var rendered = [];   /* [{sig, nodes:[...], day}] */
+
+  function sigOne(it){
+    return [it.row, it['지령일시'], it['클로드보고'], it['상태'], it['확인'], (it['지령내용'] || '').length].join('~');
+  }
+
+  function nodesFor(it, prevDay){
+    var nodes = [];
+    var dayKey = prevDay;
+    var p = parseTs(it['지령일시']);
+    if (p && p.key !== prevDay){
+      dayKey = p.key;
+      nodes.push(el('div', 'day', dayLabel(p)));
+    }
+    var s = senderOf(it['지령내용']);
+    var report = String(it['클로드보고'] || '').trim();
+    var status = String(it['상태'] || '').trim();
+    var acked = String(it['확인'] || '').trim();
+    var t = clock(p);
+    var rodiRead = (s.who === '로디') || (status !== '대기') || !!report;
+    var kobiRead = (s.who === '커비') || !!acked;
+    var unreadMain = (rodiRead ? 0 : 1) + (kobiRead ? 0 : 1);
+    nodes.push(msgRow(s.who, s.body, t, { unread: unreadMain }));
+    if (report){
+      nodes.push(msgRow('로디', report, t, {
+        unread: acked ? 0 : 1,
+        tag: status || '',
+        bad: status === '실패',
+        mid: status === '대기'
       }));
-      if (report){
-        frag.appendChild(msgRow('로디', report, t, {
-          unread: acked ? 0 : 1,
-          tag: status || '',
-          bad: status === '실패',
-          mid: status === '대기'
-        }));
+    }
+    return { nodes: nodes, day: dayKey };
+  }
+
+  function render(items, animate){
+    var n = items.length;
+    var k = 0;
+    while (k < n && k < rendered.length && rendered[k].sig === sigOne(items[k])) { k++; }
+    if (k === n && n === rendered.length) { return; }
+
+    for (var i = k; i < rendered.length; i++){
+      var ns = rendered[i].nodes;
+      for (var j = 0; j < ns.length; j++){
+        if (ns[j].parentNode) { ns[j].parentNode.removeChild(ns[j]); }
       }
     }
-    if (!items.length){
-      frag.appendChild(el('div', 'sys', '아직 대화가 없습니다. 아래에 메시지를 남기면 커비와 로디가 확인합니다.'));
+    rendered.length = k;
+
+    var empty = document.getElementById('empty');
+    if (empty) { empty.parentNode.removeChild(empty); }
+
+    var prevDay = k > 0 ? rendered[k - 1].day : '';
+    var frag = document.createDocumentFragment();
+    var grew = n > k;
+    for (var i2 = k; i2 < n; i2++){
+      var r = nodesFor(items[i2], prevDay);
+      prevDay = r.day;
+      var arr = [];
+      for (var m = 0; m < r.nodes.length; m++){
+        frag.appendChild(r.nodes[m]);
+        arr.push(r.nodes[m]);
+      }
+      rendered.push({ sig: sigOne(items[i2]), nodes: arr, day: r.day });
     }
-    list.innerHTML = '';
+
+    if (!n){
+      var sys = el('div', 'sys', '아직 대화가 없습니다. 아래에 메시지를 남기면 커비와 로디가 확인합니다.');
+      sys.id = 'empty';
+      frag.appendChild(sys);
+    }
+
     list.appendChild(frag);
+
+    if (animate && grew && !firstPaint){
+      for (var q = k; q < rendered.length; q++){
+        for (var w = 0; w < rendered[q].nodes.length; w++){
+          rendered[q].nodes[w].classList.add('in');
+        }
+      }
+    }
   }
 
   function bottom(){ view.scrollTop = view.scrollHeight; }
@@ -344,7 +408,7 @@
     var sig = sigOf(items);
     if (sig === lastSig && !firstPaint) { return; }
     lastSig = sig;
-    render(items);
+    render(items, true);
     if (firstPaint || stick) { bottom(); }
     firstPaint = false;
     if (!fromCache){
@@ -361,7 +425,7 @@
       .then(function(d){
         if (!d || !d.ok) { throw new Error('bad'); }
         clearErr();
-        var items = (d.items || []).slice().sort(function(a, b){ return (a.row || 0) - (b.row || 0); });
+        var items = mergePending((d.items || []).slice().sort(function(a, b){ return (a.row || 0) - (b.row || 0); }));
         applyItems(items, false);
       })
       .catch(function(){
@@ -409,6 +473,8 @@
       '클로드보고': '',
       '확인': ''
     };
+    var afterRow = (lastItems.length ? (lastItems[lastItems.length - 1].row || 0) : 0);
+    pending.push({ item: tempItem, text: text, afterRow: afterRow });
     applyItems(lastItems.concat([tempItem]), true);
     bottom();
     fetch(EXEC + '?mode=order_add&pw=' + encodeURIComponent(PW)
@@ -423,6 +489,8 @@
       .catch(function(){
         input.value = text;
         autoGrow();
+        pending = pending.filter(function(p){ return p.item !== tempItem; });
+        applyItems(lastItems.filter(function(x){ return x !== tempItem; }), true);
         showErr('보내지 못했습니다. 잠시 후 다시 보내 주세요.');
       })
       .then(function(){
