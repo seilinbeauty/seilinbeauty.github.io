@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>세이린뷰티 · 다이아 업무방</title>
+<meta name="robots" content="noindex">
+<meta name="apple-mobile-web-app-title" content="다이아 업무방">
+<meta name="application-name" content="다이아 업무방">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#efe9df">
+<link rel="icon" type="image/png" sizes="192x192" href="/dia-icon-192.png?v=1">
+<link rel="apple-touch-icon" sizes="180x180" href="/dia-apple-touch-icon.png?v=1">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --app-h: 100dvh;
+    --bg: #efe9df;
+    --line: rgba(70,55,40,.10);
+    --ink: #3a332b;
+    --muted: #8b8172;
+    --me: #fee500;
+    --kobi: #ffdbe6;
+    --claude: #ededed;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;background:var(--bg);}
+  body{
+    font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    -webkit-text-size-adjust:100%;
+    -webkit-tap-highlight-color:transparent;
+    overflow:hidden;
+  }
+  button{font-family:inherit;}
+
+  /* ── 잠금 화면 ── */
+  #gate{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    padding:24px;background:var(--bg);
+  }
+  .gate-card{
+    width:100%;max-width:340px;background:#fff;border:1px solid #e8e0d3;border-radius:18px;
+    box-shadow:0 12px 32px rgba(120,95,60,.10);padding:30px 22px;text-align:center;
+  }
+  .gate-title{font-size:16px;font-weight:800;color:#2f2a24;margin-bottom:6px;letter-spacing:-.2px;}
+  .gate-sub{font-size:12.5px;color:#9b9285;margin-bottom:20px;}
+  #pw{
+    width:100%;padding:12px 14px;border:1px solid #e6ddd0;border-radius:11px;font-size:15px;
+    text-align:center;letter-spacing:4px;outline:none;font-family:inherit;background:#fdfcf9;color:#2f2a24;
+  }
+  #pw:focus{border-color:#d9b64a;background:#fff;}
+  #go{
+    width:100%;margin-top:10px;padding:12px;border:0;border-radius:11px;cursor:pointer;
+    background:#fee500;color:#3b1e1e;font-size:14px;font-weight:800;
+  }
+  #go:active{filter:brightness(.96);}
+  #gate-msg{font-size:12px;color:#c24a63;margin-top:10px;min-height:16px;}
+
+  /* ── 대화방 ── */
+  #room{
+    position:fixed;left:0;right:0;top:0;height:var(--app-h);
+    display:none;flex-direction:column;background:var(--bg);
+  }
+  #room.on{display:flex;}
+  header{
+    flex:0 0 auto;background:rgba(255,255,255,.94);border-bottom:1px solid var(--line);
+    padding:calc(10px + env(safe-area-inset-top)) 14px 9px;text-align:center;
+    backdrop-filter:saturate(1.1) blur(6px);
+  }
+  .hd-title{font-size:15px;font-weight:800;letter-spacing:-.3px;color:#2f2a24;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hd-sub{font-size:11.5px;color:var(--muted);margin-top:3px;font-weight:600;}
+  .hd-sub .cnt{color:#a89a86;font-weight:700;}
+
+  #view{
+    flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;padding:12px 12px 6px;scroll-behavior:auto;
+  }
+  #list{display:flex;flex-direction:column;gap:9px;}
+
+  .day{
+    align-self:center;background:rgba(60,48,35,.07);color:#6f6558;font-size:11px;font-weight:700;
+    padding:5px 12px;border-radius:20px;margin:6px 0 2px;
+  }
+  .sys{align-self:center;font-size:11px;color:#8b8172;background:rgba(255,255,255,.7);
+    border-radius:12px;padding:5px 11px;line-height:1.5;text-align:center;max-width:88%;}
+
+  .row{display:flex;align-items:flex-start;gap:7px;max-width:100%;}
+  .row.me{justify-content:flex-end;}
+  .av{
+    flex:0 0 auto;width:30px;height:30px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:800;color:#4a3f34;margin-top:14px;background:#e7e0d4;user-select:none;
+  }
+  .av.kobi{background:#f9b7c9;color:#5a2436;}
+  .av.claude{background:#d8d8d8;color:#3d3d3d;}
+  .av.me{background:var(--me);color:#4a3410;}
+  .col{display:flex;flex-direction:column;min-width:0;max-width:calc(100% - 40px);}
+  .row.me .col{max-width:82%;align-items:flex-end;}
+  .name{font-size:11px;font-weight:700;color:#6f6558;margin:0 0 3px 2px;display:flex;align-items:center;gap:5px;}
+  .tag{font-size:9.5px;font-weight:800;padding:1px 5px;border-radius:5px;background:#e6f2e8;color:#3f7a4f;}
+  .tag.bad{background:#fbe8e8;color:#b54545;}
+  .line{display:flex;align-items:flex-end;gap:5px;min-width:0;}
+  .row.me .line{flex-direction:row-reverse;}
+  .bubble{
+    padding:8px 11px;border-radius:14px;font-size:13.5px;line-height:1.58;letter-spacing:-.1px;
+    white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;background:#fff;color:#332e28;
+    box-shadow:0 1px 2px rgba(90,70,45,.06);
+  }
+  .row.me .bubble{background:var(--me);color:#3a2c08;border-bottom-right-radius:5px;}
+  .row.kobi .bubble{background:var(--kobi);color:#43232f;border-bottom-left-radius:5px;}
+  .row.claude .bubble{background:var(--claude);color:#333;border-bottom-left-radius:5px;}
+  .time{flex:0 0 auto;font-size:10px;color:#9a907f;white-space:nowrap;padding-bottom:2px;}
+  .wait{font-size:10.5px;color:#9a907f;margin-top:4px;padding-right:2px;}
+  #err{align-self:center;font-size:11.5px;color:#b54545;background:#fdeced;border:1px solid #f6d5d7;
+    border-radius:12px;padding:7px 12px;text-align:center;}
+
+  /* ── 입력창 ── */
+  #composer{
+    flex:0 0 auto;display:flex;align-items:flex-end;gap:7px;background:#fff;
+    border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+  }
+  #in{
+    flex:1 1 auto;min-width:0;border:0;outline:none;resize:none;background:#f4f0e7;color:#2f2a24;
+    border-radius:18px;padding:10px 13px;font-size:14px;line-height:1.45;font-family:inherit;
+    max-height:96px;overflow-y:auto;
+  }
+  #in::placeholder{color:#a89d8c;}
+  #send{
+    flex:0 0 auto;height:40px;padding:0 15px;border:0;border-radius:18px;cursor:pointer;
+    background:var(--me);color:#3b1e1e;font-size:13.5px;font-weight:800;
+  }
+  #send:disabled{background:#e8e1d4;color:#a79c8a;cursor:default;}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-title">다이아 업무방</div>
+    <div class="gate-sub">관계자만 열람할 수 있습니다.</div>
+    <input id="pw" type="password" inputmode="numeric" maxlength="8" placeholder="비밀번호" autocomplete="off">
+    <button id="go" type="button">열기</button>
+    <div id="gate-msg"></div>
+  </div>
+</div>
+
+<div id="room">
+  <header>
+    <div class="hd-title">세이린뷰티 · 다이아 업무방</div>
+    <div class="hd-sub">도현 · 커비 · 클로드 <span class="cnt">3명</span></div>
+  </header>
+  <main id="view"><div id="list"></div></main>
+  <div id="composer">
+    <textarea id="in" rows="1" maxlength="1000" enterkeyhint="send" placeholder="메시지를 입력하세요"></textarea>
+    <button id="send" type="button" disabled>전송</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
+  var PW = '0423';
+  var KEY = 'dia_msg_ok';
+  var POLL = 10000;
+
+  var gate = document.getElementById('gate');
+  var room = document.getElementById('room');
+  var pw = document.getElementById('pw');
+  var go = document.getElementById('go');
+  var gateMsg = document.getElementById('gate-msg');
+  var view = document.getElementById('view');
+  var list = document.getElementById('list');
+  var input = document.getElementById('in');
+  var sendBtn = document.getElementById('send');
+
+  var timer = null;
+  var sending = false;
+  var stick = true;
+  var lastSig = '';
+  var firstPaint = true;
+
+  /* ── 화면 높이: 키보드가 올라와도 입력창이 가려지지 않게 ── */
+  function fit(){
+    var h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+    document.documentElement.style.setProperty('--app-h', Math.round(h) + 'px');
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', function(){ setTimeout(fit, 220); });
+  if (window.visualViewport){
+    window.visualViewport.addEventListener('resize', fit);
+    window.visualViewport.addEventListener('scroll', fit);
+  }
+
+  /* ── 시각 표기 (시트 문자열을 그대로 해석, 시간대 변환 없음) ── */
+  function parseTs(s){
+    var m = /(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{2})/.exec(String(s || ''));
+    if (!m) { return null; }
+    return { y:+m[1], mo:+m[2], d:+m[3], h:+m[4], mi:+m[5],
+             key: m[1] + ('0'+m[2]).slice(-2) + ('0'+m[3]).slice(-2) };
+  }
+  function clock(p){
+    if (!p) { return ''; }
+    var h = p.h % 12; if (h === 0) { h = 12; }
+    return (p.h < 12 ? '오전 ' : '오후 ') + h + ':' + ('0'+p.mi).slice(-2);
+  }
+  function dayLabel(p){
+    var wd = ['일','월','화','수','목','금','토'][new Date(Date.UTC(p.y, p.mo-1, p.d)).getUTCDay()];
+    return p.y + '년 ' + p.mo + '월 ' + p.d + '일 ' + wd + '요일';
+  }
+
+  /* ── 발신자 구분: [도현] [커비] [클로드] 접두어 ── */
+  function senderOf(text){
+    var s = String(text || '');
+    var m = /^\s*\[(도현|커비|클로드)\]\s*/.exec(s);
+    if (m) { return { who: m[1], body: s.slice(m[0].length) }; }
+    return { who: '커비', body: s };
+  }
+
+  function el(tag, cls, text){
+    var n = document.createElement(tag);
+    if (cls) { n.className = cls; }
+    if (text !== undefined) { n.textContent = text; }
+    return n;
+  }
+
+  function msgRow(who, body, timeText, opts){
+    opts = opts || {};
+    var row = el('div', 'row ' + (who === '도현' ? 'me' : who === '커비' ? 'kobi' : 'claude'));
+    if (who !== '도현') {
+      row.appendChild(el('div', 'av ' + (who === '커비' ? 'kobi' : 'claude'), who === '커비' ? '커' : '클'));
+    }
+    var col = el('div', 'col');
+    if (who !== '도현') {
+      var nm = el('div', 'name', who);
+      if (opts.tag) { nm.appendChild(el('span', 'tag' + (opts.bad ? ' bad' : ''), opts.tag)); }
+      col.appendChild(nm);
+    }
+    var line = el('div', 'line');
+    line.appendChild(el('div', 'bubble', body));
+    if (timeText) { line.appendChild(el('div', 'time', timeText)); }
+    col.appendChild(line);
+    if (opts.wait) { col.appendChild(el('div', 'wait', '클로드 확인 대기')); }
+    row.appendChild(col);
+    return row;
+  }
+
+  function render(items){
+    var frag = document.createDocumentFragment();
+    var lastDay = '';
+    for (var i = 0; i < items.length; i++){
+      var it = items[i];
+      var p = parseTs(it['지령일시']);
+      if (p && p.key !== lastDay){
+        lastDay = p.key;
+        frag.appendChild(el('div', 'day', dayLabel(p)));
+      }
+      var s = senderOf(it['지령내용']);
+      var report = String(it['클로드보고'] || '').trim();
+      var status = String(it['상태'] || '').trim();
+      var t = clock(p);
+      frag.appendChild(msgRow(s.who, s.body, t, {
+        wait: !report && status === '대기'
+      }));
+      if (report){
+        frag.appendChild(msgRow('클로드', report, t, {
+          tag: status || '',
+          bad: status === '실패'
+        }));
+      }
+    }
+    if (!items.length){
+      frag.appendChild(el('div', 'sys', '아직 대화가 없습니다. 아래에 메시지를 남기면 커비와 클로드가 확인합니다.'));
+    }
+    list.innerHTML = '';
+    list.appendChild(frag);
+  }
+
+  function bottom(){ view.scrollTop = view.scrollHeight; }
+  view.addEventListener('scroll', function(){
+    stick = (view.scrollHeight - view.scrollTop - view.clientHeight) < 70;
+  });
+
+  function showErr(text){
+    var e = document.getElementById('err');
+    if (!e){
+      e = el('div', ''); e.id = 'err';
+      list.insertBefore(e, list.firstChild);
+    }
+    e.textContent = text;
+  }
+  function clearErr(){
+    var e = document.getElementById('err');
+    if (e) { e.parentNode.removeChild(e); }
+  }
+
+  function load(){
+    return fetch(EXEC + '?mode=order_list&pw=' + encodeURIComponent(PW) + '&_=' + Date.now(),
+                 { cache: 'no-store' })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (!d || !d.ok) { throw new Error('bad'); }
+        clearErr();
+        var items = (d.items || []).slice().sort(function(a, b){ return (a.row || 0) - (b.row || 0); });
+        var sig = items.map(function(x){
+          return [x.row, x['지령일시'], x['클로드보고'], x['상태'], x['확인'], (x['지령내용']||'').length].join('~');
+        }).join('|');
+        if (sig === lastSig && !firstPaint) { return; }
+        lastSig = sig;
+        render(items);
+        if (firstPaint || stick) { bottom(); }
+        firstPaint = false;
+      })
+      .catch(function(){
+        showErr('창고에 연결하지 못했습니다. 10초마다 다시 시도합니다.');
+      });
+  }
+
+  function startPolling(){
+    if (timer) { clearInterval(timer); }
+    timer = setInterval(function(){
+      if (document.hidden || sending) { return; }
+      load();
+    }, POLL);
+  }
+
+  /* ── 전송 ── */
+  function autoGrow(){
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 96) + 'px';
+  }
+  function syncBtn(){ sendBtn.disabled = sending || !input.value.trim(); }
+
+  function send(){
+    var text = input.value.trim();
+    if (!text || sending) { return; }
+    sending = true;
+    sendBtn.textContent = '전송 중';
+    syncBtn();
+    fetch(EXEC + '?mode=order_add&pw=' + encodeURIComponent(PW)
+              + '&order=' + encodeURIComponent('[도현] ' + text) + '&_=' + Date.now(),
+          { cache: 'no-store' })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (!d || !d.ok) { throw new Error('bad'); }
+        input.value = '';
+        autoGrow();
+        stick = true;
+        return load();
+      })
+      .catch(function(){
+        showErr('보내지 못했습니다. 잠시 후 다시 보내 주세요.');
+      })
+      .then(function(){
+        sending = false;
+        sendBtn.textContent = '전송';
+        syncBtn();
+      });
+  }
+
+  input.addEventListener('input', function(){ autoGrow(); syncBtn(); });
+  input.addEventListener('focus', function(){
+    stick = true;
+    setTimeout(function(){ bottom(); fit(); }, 260);
+  });
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing){
+      e.preventDefault();
+      send();
+    }
+  });
+  sendBtn.addEventListener('click', send);
+
+  document.addEventListener('visibilitychange', function(){
+    if (!document.hidden && room.classList.contains('on')) { load(); }
+  });
+
+  /* ── 잠금 해제 ── */
+  function openRoom(){
+    gate.style.display = 'none';
+    room.classList.add('on');
+    fit();
+    load();
+    startPolling();
+  }
+  function tryOpen(){
+    if (pw.value.trim() === PW){
+      try { sessionStorage.setItem(KEY, '1'); } catch (err) {}
+      openRoom();
+    } else {
+      gateMsg.textContent = '비밀번호가 맞지 않습니다.';
+      pw.value = '';
+      pw.focus();
+    }
+  }
+  go.addEventListener('click', tryOpen);
+  pw.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') { e.preventDefault(); tryOpen(); }
+  });
+
+  var saved = false;
+  try { saved = sessionStorage.getItem(KEY) === '1'; } catch (err) {}
+  if (saved) { openRoom(); } else { pw.focus(); }
+})();
+</script>
+</body>
+</html>
