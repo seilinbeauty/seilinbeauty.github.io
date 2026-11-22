@@ -39,6 +39,8 @@
     '#diaLinkBox{margin-top:10px;align-self:stretch;width:auto;max-width:100%;min-width:0;box-sizing:border-box;}',
     '#diaLinkBox[hidden]{display:none;}',
     '#diaLinkBox *{box-sizing:border-box;}',
+    /* PC 화면: 위쪽 공지사항·내 품앗이·뷰티수강 버튼 크게 (휴대폰은 그대로) */
+    '@media (min-width:881px){body.dia-page .quick-links{gap:10px !important;}body.dia-page .quick-links > a,body.dia-page .quick-links > button{height:46px !important;min-height:46px !important;min-width:118px !important;padding:0 22px !important;font-size:15px !important;font-weight:800 !important;border-radius:23px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;}}',
     /* 활동기록 박스(mcHeroStatus) 안 맨 위에 붙을 때: 한 박스처럼 보이게 테두리 없이 */
     '#mcHeroStatus > #diaLinkBox{margin:0 0 8px;}',
     '#mcHeroStatus > #diaLinkBox .dl{border:0;border-bottom:1px dashed #f0dce3;border-radius:0;padding:8px 2px 12px;background:transparent;}',
