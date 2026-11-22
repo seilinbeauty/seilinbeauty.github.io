@@ -2217,12 +2217,13 @@
   .lk-time { margin-top: 2px; font-size: 12px; color: #a99aa0; }
   .lk-open { height: 34px; padding: 0 14px; border-radius: 17px; background: #fff4f7; border: 1.5px solid #ffd0dc; color: #c2476a; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; text-decoration: none; white-space: nowrap; }
   .lk-empty { padding: 14px 14px; text-align: center; color: #a99aa0; font-size: 15px; }
-  .lk-days { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 12px; scrollbar-width: none; }
-  .lk-days::-webkit-scrollbar { display: none; }
-  .lk-day { flex: 0 0 auto; height: 34px; padding: 0 12px; border-radius: 17px; border: 1.5px solid #f3cad6; background: #fff; font-size: 13px; font-weight: 800; color: #8a6a75; cursor: pointer; font-family: inherit; }
-  .lk-day.on { background: #c2476a; border-color: #c2476a; color: #fff; }
-  .lk-day i { font-style: normal; margin-left: 4px; font-size: 11px; color: #ff5d8f; }
-  .lk-day.on i { color: #ffe0ea; }
+  .lk-days { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 4px; margin: 0 0 14px; border-radius: 16px; background: #f7eef1; }
+  .lk-day { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; min-width: 0; height: 52px; padding: 0 4px; border: 0; border-radius: 12px; background: transparent; cursor: pointer; font-family: inherit; color: #8a6a75; transition: background .15s, color .15s; }
+  .lk-day b { font-size: 14px; font-weight: 900; line-height: 1.2; }
+  .lk-day small { font-size: 11px; font-weight: 600; color: #a99aa0; line-height: 1.2; }
+  .lk-day.on { background: #fff; color: #c2476a; box-shadow: 0 2px 8px rgba(194,71,106,.16); }
+  .lk-day.on small { color: #c2476a; }
+  .lk-day i { position: absolute; top: 5px; right: 6px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: #ff5d8f; color: #fff; font-style: normal; font-size: 10px; font-weight: 800; line-height: 16px; text-align: center; }
   .lk-prog { margin-top: 14px; font-size: 14px; color: #5a4a50; text-align: center; }
   .lk-prog b { color: #ff5d8f; font-size: 17px; }
   .lk-sec { margin-top: 16px; }
@@ -2329,7 +2330,8 @@
     var t = today(), h = '';
     for(var n = 0; n <= 3; n++){
       var day = dayAt(n), cnt = (allDays()[day] || []).length;
-      h += '<button type="button" class="lk-day' + (day === sel ? ' on' : '') + '" data-day="' + day + '">' + (n === 0 ? '오늘' : dayLabel(day)) + (cnt ? '<i>' + cnt + '</i>' : '') + '</button>';
+      h += '<button type="button" class="lk-day' + (day === sel ? ' on' : '') + '" data-day="' + day + '">' +
+        '<b>' + ['오늘', '어제', '그제', '3일 전'][n] + '</b><small>' + dayLabel(day) + '</small>' + (cnt ? '<i>' + cnt + '</i>' : '') + '</button>';
     }
     $('lkDays').innerHTML = h;
   }
