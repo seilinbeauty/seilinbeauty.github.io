@@ -2240,7 +2240,6 @@
   }
 </style>
 <div class="lk">
-  <div class="lk-preview" id="lkPreview">🔧 미리보기 화면이에요. 아직 저장 연결 전이라 이 기기에서만 보이고, 다른 원장님께는 보이지 않아요.</div>
 
   <div class="lk-top">
     <div>
@@ -2360,7 +2359,7 @@
     copy(t || '(아직 없음)', this);
   });
   $('lkReset').addEventListener('click', function(){ try{ localStorage.removeItem(KEY_DONE); }catch(e){} render(); });
-  $('lkPreview').style.display = PREVIEW ? 'block' : 'none';
+
   head(); render();
   setInterval(function(){ head(); render(); }, 30000);
 })();

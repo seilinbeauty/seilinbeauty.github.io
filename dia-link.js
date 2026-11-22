@@ -121,7 +121,7 @@
         '<form class="dl-f" id="dlForm" autocomplete="off"><input id="dlUrl" inputmode="url" placeholder="게시물 주소 붙여 넣기"><button type="submit">남기기</button></form>' +
         '<div class="dl-msg" id="dlMsg"></div>' +
         '<div class="dl-mine" id="dlMine"></div>' +
-        '<div class="dl-foot"><a class="dl-list" href="dia-link.html">오늘 참여 링크 보기 →</a>' + (PREVIEW ? '<span class="dl-pv">미리보기: 이 기기에만 저장돼요</span>' : '') + '</div>' +
+        '<div class="dl-foot"><a class="dl-list" href="dia-link.html">오늘 참여 링크 보기 →</a>' + '</div>' +
       '</div>';
     document.getElementById('dlKinds').addEventListener('click', function(e){
       var b = e.target.closest('.dl-kind'); if(!b) return;
@@ -213,7 +213,7 @@
     var row = e.target.closest('.dl-mi'); if(!row) return;
     var no = +row.getAttribute('data-no');
     var items = load(), it = items.filter(function(x){ return x.no === no; })[0]; if(!it) return;
-    if(e.target.closest('.dl-edit')){ editNo = no; delNo = null; editKind = it.kind; paintMine(true); var u = row.parentNode.querySelector('.dl-mu'); if(u) u.focus(); return; }
+    if(e.target.closest('.dl-edit')){ editNo = no; delNo = null; editKind = it.kind; paintMine(true); var u = box.querySelector('.dl-mu'); if(u) u.focus(); return; }
     if(e.target.closest('.dl-del')){ delNo = no; editNo = null; paintMine(true); return; }
     if(e.target.closest('.dl-cancel')){ editNo = null; delNo = null; paintMine(true); return; }
     var mk = e.target.closest('.dl-mk-b');
