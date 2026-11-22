@@ -2217,6 +2217,12 @@
   .lk-time { margin-top: 2px; font-size: 12px; color: #a99aa0; }
   .lk-open { height: 34px; padding: 0 14px; border-radius: 17px; background: #fff4f7; border: 1.5px solid #ffd0dc; color: #c2476a; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; text-decoration: none; white-space: nowrap; }
   .lk-empty { padding: 14px 14px; text-align: center; color: #a99aa0; font-size: 15px; }
+  .lk-days { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 12px; scrollbar-width: none; }
+  .lk-days::-webkit-scrollbar { display: none; }
+  .lk-day { flex: 0 0 auto; height: 34px; padding: 0 12px; border-radius: 17px; border: 1.5px solid #f3cad6; background: #fff; font-size: 13px; font-weight: 800; color: #8a6a75; cursor: pointer; font-family: inherit; }
+  .lk-day.on { background: #c2476a; border-color: #c2476a; color: #fff; }
+  .lk-day i { font-style: normal; margin-left: 4px; font-size: 11px; color: #ff5d8f; }
+  .lk-day.on i { color: #ffe0ea; }
   .lk-prog { margin-top: 14px; font-size: 14px; color: #5a4a50; text-align: center; }
   .lk-prog b { color: #ff5d8f; font-size: 17px; }
   .lk-sec { margin-top: 16px; }
@@ -2241,6 +2247,8 @@
 </style>
 <div class="lk">
 
+  <div class="lk-days" id="lkDays"></div>
+
   <div class="lk-top">
     <div>
       <div class="lk-date" id="lkDate">-</div>
@@ -2248,7 +2256,7 @@
     </div>
     <div class="lk-state">
       <span class="lk-badge" id="lkBadge">참여 중</span>
-      <div class="lk-count">오늘 <b id="lkCount">0</b>개</div>
+      <div class="lk-count"><span id="lkCountL">오늘</span> <b id="lkCount">0</b>개</div>
     </div>
   </div>
 
@@ -2298,8 +2306,12 @@
   function today(){ return kst().toISOString().slice(0, 10); }
   function hm(){ var d = kst(); return d.getUTCHours() * 60 + d.getUTCMinutes(); }
   function isOpen(){ var m = hm(); return m >= 9 * 60 && m < 21 * 60; }
-  function load(){ try{ var o = JSON.parse(localStorage.getItem(KEY_LIST) || '{}'); return o.d === today() ? (o.items || []) : []; }catch(e){ return []; } }
-  function save(items){ try{ localStorage.setItem(KEY_LIST, JSON.stringify({ d: today(), items: items })); }catch(e){} }
+  // 날짜별로 6일치(오늘 + 지난 5일) 남김
+  function allDays(){ try{ var o = JSON.parse(localStorage.getItem(KEY_LIST) || '{}'); if(o.d && o.items){ var m = {}; m[o.d] = o.items; return m; } return o.days || {}; }catch(e){ return {}; } }
+  function load(day){ return allDays()[day || sel] || []; }
+  var sel = today(); // 지금 보고 있는 날짜
+  function dayAt(n){ return new Date(Date.now() + 9 * 3600 * 1000 - n * 86400000).toISOString().slice(0, 10); }
+  function dateOf(day){ return new Date(day + 'T03:00:00Z'); } // 한국 정오
   function me(){
     try{
       var raw = localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak') || '';
@@ -2310,19 +2322,32 @@
   function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
   function kcls(k){ return k.indexOf('벤') > -1 ? 'ban' : (k === '릴스' ? 'reels' : ''); }
 
-  function head(){
-    var d = kst(), mm = d.getUTCMonth() + 1, dd = d.getUTCDate();
-    var days = ['일','월','화','수','목','금','토'];
-    $('lkDate').textContent = mm + '월 ' + dd + '일 (' + days[d.getUTCDay()] + ') 오늘의 해시태그';
-    $('lkTag').textContent = window.DiaTag ? window.DiaTag.today() : ('#' + String(mm).padStart(2, '0') + String(dd).padStart(2, '0') + '_행운을부탁해');
-    var open = isOpen();
-    $('lkBadge').textContent = open ? '참여 중' : '참여 마감';
-    $('lkBadge').className = 'lk-badge' + (open ? '' : ' off');
+  var WD = ['일','월','화','수','목','금','토'];
+  function dayLabel(day){ var d = dateOf(day); return (d.getUTCMonth() + 1) + '/' + d.getUTCDate() + '(' + WD[d.getUTCDay()] + ')'; }
+  function chips(){
+    if(!$('lkDays')) return;
+    var t = today(), h = '';
+    for(var n = 0; n <= 5; n++){
+      var day = dayAt(n), cnt = (allDays()[day] || []).length;
+      h += '<button type="button" class="lk-day' + (day === sel ? ' on' : '') + '" data-day="' + day + '">' + (n === 0 ? '오늘' : dayLabel(day)) + (cnt ? '<i>' + cnt + '</i>' : '') + '</button>';
+    }
+    $('lkDays').innerHTML = h;
   }
-  // 내가 연 링크 (✔ 표시, 이 기기에만)
+  function head(){
+    if(sel !== today() && !$('lkDays').querySelector('[data-day="' + sel + '"]')) sel = today();
+    var isToday = sel === today(), d = dateOf(sel), mm = d.getUTCMonth() + 1, dd = d.getUTCDate();
+    $('lkDate').textContent = mm + '월 ' + dd + '일 (' + WD[d.getUTCDay()] + ') ' + (isToday ? '오늘의 해시태그' : '해시태그');
+    $('lkTag').textContent = window.DiaTag ? window.DiaTag.render(null, d) : ('#' + String(mm).padStart(2, '0') + String(dd).padStart(2, '0') + '_행운을부탁해');
+    var open = isToday && isOpen();
+    $('lkBadge').textContent = isToday ? (open ? '참여 중' : '참여 마감') : '지난 날';
+    $('lkBadge').className = 'lk-badge' + (open ? '' : ' off');
+    $('lkCountL').textContent = isToday ? '오늘' : '이날';
+  }
+  // 내가 연 링크 (✔ 표시, 이 기기에만, 날짜별)
   var KEY_DONE = 'dia_link_done';
-  function doneSet(){ try{ var o = JSON.parse(localStorage.getItem(KEY_DONE) || '{}'); return o.d === today() ? (o.u || []) : []; }catch(e){ return []; } }
-  function markDone(u){ var a = doneSet(); if(a.indexOf(u) < 0) a.push(u); try{ localStorage.setItem(KEY_DONE, JSON.stringify({ d: today(), u: a })); }catch(e){} }
+  function doneAll(){ try{ var o = JSON.parse(localStorage.getItem(KEY_DONE) || '{}'); if(o.d && o.u){ var m = {}; m[o.d] = o.u; return m; } return o.days || {}; }catch(e){ return {}; } }
+  function doneSet(){ return doneAll()[sel] || []; }
+  function markDone(u){ var m = doneAll(), a = m[sel] || []; if(a.indexOf(u) < 0) a.push(u); m[sel] = a; Object.keys(m).sort().reverse().slice(6).forEach(function(k){ delete m[k]; }); try{ localStorage.setItem(KEY_DONE, JSON.stringify({ days: m })); }catch(e){} }
   function row(it, nick, done){
     var mine = nick && it.shop === nick, ok = done.indexOf(it.url) > -1;
     return '<div class="lk-item' + (mine ? ' mine' : '') + (ok ? ' done' : '') + '">' +
@@ -2336,7 +2361,7 @@
     $('lkCount').textContent = items.length;
     var others = items.filter(function(it){ return !(nick && it.shop === nick); });
     var cnt = others.filter(function(it){ return done.indexOf(it.url) > -1; }).length;
-    $('lkProg').innerHTML = items.length ? '오늘 다녀온 게시물 <b>' + cnt + '</b> / ' + others.length + '개' : '';
+    $('lkProg').innerHTML = items.length ? (sel === today() ? '오늘' : '이날') + ' 다녀온 게시물 <b>' + cnt + '</b> / ' + others.length + '개' : '';
     [['벤', 'lkBan', 'cBan'], ['릴스 벤', 'lkReelBan', 'cReelBan'], ['릴스', 'lkReel', 'cReel'], ['🤍', 'lkNormal', 'cNormal']].forEach(function(g){
       var list = items.filter(function(it){ return it.kind === g[0]; });
       $(g[2]).textContent = list.length ? list.length + '개' : '';
@@ -2358,10 +2383,14 @@
     var t = load().map(function(it){ return it.shop + ' ' + it.kind + '\n' + it.url; }).join('\n');
     copy(t || '(아직 없음)', this);
   });
-  $('lkReset').addEventListener('click', function(){ try{ localStorage.removeItem(KEY_DONE); }catch(e){} render(); });
+  $('lkReset').addEventListener('click', function(){ var m = doneAll(); delete m[sel]; try{ localStorage.setItem(KEY_DONE, JSON.stringify({ days: m })); }catch(e){} render(); });
+  $('lkDays').addEventListener('click', function(e){
+    var b = e.target.closest('.lk-day'); if(!b) return;
+    sel = b.getAttribute('data-day'); chips(); head(); render();
+  });
 
-  head(); render();
-  setInterval(function(){ head(); render(); }, 30000);
+  chips(); head(); render();
+  setInterval(function(){ chips(); head(); render(); }, 30000);
 })();
 </script>
 
