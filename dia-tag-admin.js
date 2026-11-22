@@ -39,7 +39,7 @@
     '</style>' +
     '<div class="tg">' +
       '<div class="tg-h">#️⃣ 품앗이 해시태그</div>' +
-      '<div class="tg-d">원장님들 “내 품앗이”와 오늘 참여 목록에 나오는 해시태그예요. [날짜]·[연도] 자리는 매일 자동으로 채워져요.</div>' +
+      '<div class="tg-d">원장님들 “내 품앗이”와 오늘 참여 링크에 나오는 해시태그예요. [날짜]·[연도] 자리는 매일 자동으로 채워져요.</div>' +
       '<div class="tg-now"><small>지금 원장님들께 보이는 오늘 해시태그</small><b id="tgNow"></b></div>' +
       '<label class="tg-l" for="tgIn">해시태그 모양</label>' +
       '<input class="tg-in" id="tgIn" maxlength="60" autocomplete="off">' +
