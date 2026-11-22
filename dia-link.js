@@ -37,6 +37,9 @@
     '#diaLinkBox{margin-top:10px;align-self:stretch;width:auto;max-width:100%;min-width:0;box-sizing:border-box;}',
     '#diaLinkBox[hidden]{display:none;}',
     '#diaLinkBox *{box-sizing:border-box;}',
+    /* 활동기록 박스(mcHeroStatus) 안 맨 위에 붙을 때: 한 박스처럼 보이게 테두리 없이 */
+    '#mcHeroStatus > #diaLinkBox{margin:0 0 8px;}',
+    '#mcHeroStatus > #diaLinkBox .dl{border:0;border-bottom:1px dashed #f0dce3;border-radius:0;padding:8px 2px 12px;background:transparent;}',
     '.dl{width:100%;max-width:100%;min-width:0;padding:12px 13px 13px;border-radius:12px;background:#fff;border:1.5px solid #f6c9d7;text-align:left;overflow-wrap:anywhere;word-break:keep-all;}',
     '.dl-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}',
     '.dl-t{font-size:14px;font-weight:900;color:#c2456a;}',
@@ -85,11 +88,23 @@
   ].join('');
   document.head.appendChild(css);
 
+  // 활동기록 박스 안 맨 위로 옮겨 한 박스로 보이게 (그 박스는 로그인 때마다 다시 그려지므로 계속 지켜본다)
+  var hs = document.getElementById('mcHeroStatus');
+  function dock(){
+    if(!hs || box.hidden || hs.hidden) return;
+    if(hs.firstChild !== box) hs.insertBefore(box, hs.firstChild);
+  }
+  if(hs && window.MutationObserver){
+    new MutationObserver(function(){ if(!box.hidden && !hs.hidden && hs.firstChild !== box) dock(); })
+      .observe(hs, { childList: true, attributes: true, attributeFilter: ['hidden'] });
+  }
+
   var kind = '', shownFor = null;
   function paint(){
     var nick = me();
     if(!nick){ box.hidden = true; box.innerHTML = ''; shownFor = null; return; }
     box.hidden = false;
+    dock();
     if(shownFor === nick){ refresh(); return; }
     shownFor = nick; kind = '';
     box.innerHTML =
