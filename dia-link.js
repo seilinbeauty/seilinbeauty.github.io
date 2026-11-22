@@ -34,9 +34,10 @@
 
   var css = document.createElement('style');
   css.textContent = [
-    '#diaLinkBox{margin-top:10px;}',
+    '#diaLinkBox{margin-top:10px;align-self:stretch;width:auto;max-width:100%;min-width:0;box-sizing:border-box;}',
     '#diaLinkBox[hidden]{display:none;}',
-    '.dl{padding:12px 13px 13px;border-radius:12px;background:#fff;border:1.5px solid #f6c9d7;text-align:left;}',
+    '#diaLinkBox *{box-sizing:border-box;}',
+    '.dl{width:100%;max-width:100%;min-width:0;padding:12px 13px 13px;border-radius:12px;background:#fff;border:1.5px solid #f6c9d7;text-align:left;overflow-wrap:anywhere;word-break:keep-all;}',
     '.dl-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}',
     '.dl-t{font-size:14px;font-weight:900;color:#c2456a;}',
     '.dl-badge{font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 8px;color:#fff;background:#ff5d8f;}',
@@ -92,7 +93,7 @@
         '<form class="dl-f" id="dlForm" autocomplete="off"><input id="dlUrl" inputmode="url" placeholder="게시물 주소 붙여 넣기"><button type="submit">남기기</button></form>' +
         '<div class="dl-msg" id="dlMsg"></div>' +
         '<div class="dl-mine" id="dlMine"></div>' +
-        '<div class="dl-foot"><a class="dl-list" href="dia-link.html">오늘 참여 목록 보기 →</a>' + (PREVIEW ? '<span class="dl-pv">미리보기: 이 기기에만 저장돼요</span>' : '') + '</div>' +
+        '<div class="dl-foot"><a class="dl-list" href="dia-link.html">오늘 참여 링크 보기 →</a>' + (PREVIEW ? '<span class="dl-pv">미리보기: 이 기기에만 저장돼요</span>' : '') + '</div>' +
       '</div>';
     document.getElementById('dlKinds').addEventListener('click', function(e){
       var b = e.target.closest('.dl-kind'); if(!b) return;
@@ -130,13 +131,13 @@
           return;
         }
         var items = load();
-        var no = items.length ? items[items.length - 1].no + 1 : 1;
+        var no = items.length ? items[items.length - 1].no + 1 : 1; // 화면에는 안 보이는 내부 순서
         var d = kst(), t = String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0');
         items.push({ no: no, shop: nick, kind: kind, url: url, t: t });
         save(items);
         document.getElementById('dlUrl').value = '';
         msg.className = 'dl-msg ok';
-        msg.innerHTML = '<b>' + no + '번</b>으로 남겼어요! 단톡방에 <b>' + no + ' ' + esc(nick) + ' 참여</b> 한 줄도 남겨 주세요.';
+        msg.innerHTML = '<b>남겼어요!</b> 단톡방에 <b>' + esc(nick) + ' 참여</b> 한 줄도 남겨 주세요.';
         refresh();
       });
     });
@@ -150,7 +151,7 @@
     document.getElementById('dlTag').textContent = tagText();
     var nick = me(), mine = load().filter(function(it){ return it.shop === nick; });
     document.getElementById('dlMine').innerHTML = mine.length
-      ? '오늘 내가 남긴 것 ' + mine.map(function(it){ return '<span>' + it.no + '번 ' + esc(it.kind) + '</span>'; }).join('')
+      ? '오늘 내가 남긴 것 ' + mine.map(function(it){ return '<span>' + esc(it.t) + ' ' + esc(it.kind) + '</span>'; }).join('')
       : '';
   }
 

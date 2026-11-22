@@ -2170,7 +2170,7 @@
         <div class="board-content">
           <span class="section-tag">DIA PUMASI</span>
           <h2 class="section-title">오늘의 참여 링크</h2>
-          <p class="section-desc">공지 댓글 대신 여기에 남겨 주세요. 번호는 자동으로 붙습니다.</p>
+          <p class="section-desc">밤 인증 때 여기서 링크를 눌러 팔로우·좋아요·저장·댓글을 해 주세요.</p>
 <style>
   .lk { max-width: 720px; margin: 0 auto; color: #33262a; word-break: keep-all; }
   .lk * { box-sizing: border-box; }
@@ -2205,7 +2205,7 @@
   .lk-tool { height: 34px; padding: 0 12px; border-radius: 17px; border: 1.5px solid #f3cad6; background: #fff; font-size: 13px; font-weight: 800; color: #c2476a; cursor: pointer; }
   .lk-tool.on { background: #c2476a; border-color: #c2476a; color: #fff; }
   .lk-list { margin-top: 10px; border: 2px solid #f2e5ea; border-radius: 18px; background: #fff; overflow: hidden; }
-  .lk-item { display: grid; grid-template-columns: 40px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 12px 14px; border-top: 1px solid #f8eef1; }
+  .lk-item { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 12px 14px; border-top: 1px solid #f8eef1; }
   .lk-item:first-child { border-top: 0; }
   .lk-item.mine { background: #fff6f9; }
   .lk-no { font-size: 17px; font-weight: 900; color: #c7b3b9; text-align: center; }
@@ -2217,6 +2217,16 @@
   .lk-time { margin-top: 2px; font-size: 12px; color: #a99aa0; }
   .lk-open { height: 34px; padding: 0 14px; border-radius: 17px; background: #fff4f7; border: 1.5px solid #ffd0dc; color: #c2476a; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; text-decoration: none; white-space: nowrap; }
   .lk-empty { padding: 28px 14px; text-align: center; color: #a99aa0; font-size: 15px; }
+  .lk-prog { margin-top: 14px; font-size: 14px; color: #5a4a50; text-align: center; }
+  .lk-prog b { color: #ff5d8f; font-size: 17px; }
+  .lk-sec { margin-top: 16px; }
+  .lk-sec-h { font-size: 17px; font-weight: 900; color: #222; }
+  .lk-sec-h span { display: block; margin-top: 2px; font-size: 12.5px; font-weight: 600; color: #9a8a90; }
+  .lk-sec.ban .lk-sec-h { color: #b8690c; }
+  .lk-sec.ban .lk-list { border-color: #ffd9a8; background: #fffaf2; }
+  .lk-item.done { opacity: .55; }
+  .lk-item.done .lk-open { background: #eefaf2; border-color: #bfe6cb; color: #24734a; }
+  .lk-tools-row { margin-top: 12px; display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
   .lk-rule { margin-top: 18px; padding: 14px 16px; border-radius: 14px; background: #fdfafb; border: 1px solid #eee2e6; font-size: 14px; color: #5a4a50; line-height: 1.8; }
   .lk-rule b { color: #c2476a; }
   @media (max-width: 520px) {
@@ -2224,7 +2234,7 @@
     .lk-state { text-align: center; }
     .lk-tag { font-size: 18px; }
     .lk-kinds { grid-template-columns: repeat(2, minmax(0,1fr)); }
-    .lk-item { grid-template-columns: 32px minmax(0,1fr) auto; padding: 11px 10px; gap: 8px; }
+    .lk-item { padding: 11px 10px; gap: 8px; }
     .lk-form { padding: 16px 14px; }
   }
 </style>
@@ -2242,27 +2252,34 @@
     </div>
   </div>
 
+  <div class="lk-prog" id="lkProg"></div>
+
+  <div class="lk-sec ban">
+    <div class="lk-sec-h">🔍 해시태그로 안 나와요 <span>벤 게시물 · 꼭 링크로 들어가 주세요</span></div>
+    <div class="lk-list" id="lkBan"></div>
+  </div>
+
+  <div class="lk-sec">
+    <div class="lk-sec-h">📌 그 밖의 게시물 <span>해시태그로도 찾을 수 있어요</span></div>
+    <div class="lk-list" id="lkList"></div>
+  </div>
+
+  <div class="lk-tools-row">
+    <button type="button" class="lk-tool" id="lkCopyAll">링크 전체 복사</button>
+    <button type="button" class="lk-tool" id="lkReset">✔ 표시 지우기</button>
+  </div>
+
   <div class="lk-form">
     <h3>내 게시물은 “내 품앗이”에서 남겨요</h3>
     <div class="lk-hint" style="text-align:center;font-size:14px;color:#6a5a60;">다이아 홈 → “내 품앗이”에서 내 이름을 고르면<br>닉네임이 자동으로 들어가고, 구분과 주소만 넣으면 끝나요.</div>
     <a class="lk-submit" href="dia.html" style="display:flex;align-items:center;justify-content:center;text-decoration:none;" id="lkGoMy">“내 품앗이”에서 남기기 →</a>
   </div>
 
-  <div class="lk-list-hd">
-    <h3>오늘 참여 목록</h3>
-    <div class="lk-tools">
-      <button type="button" class="lk-tool on" id="lkNew">최신순</button>
-      <button type="button" class="lk-tool" id="lkOld">번호순</button>
-      <button type="button" class="lk-tool" id="lkCopyAll">전체 복사</button>
-    </div>
-  </div>
-  <div class="lk-list" id="lkList"></div>
-
   <div class="lk-rule">
     · 남기는 시간: <b>낮 09:00 ~ 21:00</b> / 인증: 밤 21:01 ~ 24:00<br>
-    · 남긴 뒤 단톡방에 <b>'번호 샵이름 참여'</b> 한 줄도 꼭 남겨 주세요.<br>
+    · [열기]를 누른 게시물에는 <b>✔</b>가 남아요. 이 표시는 내 휴대폰에만 보여요.<br>
     · 완료패스를 쓰는 날은 단톡방 참여 글 끝에 <b>(완료패스)</b>를 붙여 주세요.<br>
-    · 목록은 매일 자정(0시)에 새로 시작합니다.
+    · 링크는 매일 자정(0시)에 새로 시작합니다.
   </div>
 </div>
 
@@ -2298,22 +2315,33 @@
     $('lkBadge').textContent = open ? '참여 중' : '참여 마감';
     $('lkBadge').className = 'lk-badge' + (open ? '' : ' off');
   }
-  function render(){
-    var items = load(), nick = me();
-    $('lkCount').textContent = items.length;
-    var list = items.slice();
-    if(order === 'new') list.reverse();
-    if(!list.length){ $('lkList').innerHTML = '<div class="lk-empty">아직 남긴 원장님이 없어요. “내 품앗이”에서 첫 번째로 남겨 보세요!</div>'; return; }
-    $('lkList').innerHTML = list.map(function(it){
-      var mine = nick && it.shop === nick;
-      return '<div class="lk-item' + (mine ? ' mine' : '') + '">' +
-        '<div class="lk-no">' + it.no + '</div>' +
-        '<div><div class="lk-shop">' + esc(it.shop) + '<span class="lk-k ' + kcls(it.kind) + '">' + esc(it.kind) + '</span></div>' +
-        '<div class="lk-time">' + esc(it.t) + (mine ? ' · 내가 남긴 것' : '') + '</div></div>' +
-        '<a class="lk-open" href="' + esc(it.url) + '" target="_blank" rel="noopener">열기</a>' +
-      '</div>';
-    }).join('');
+  // 내가 연 링크 (✔ 표시, 이 기기에만)
+  var KEY_DONE = 'dia_link_done';
+  function doneSet(){ try{ var o = JSON.parse(localStorage.getItem(KEY_DONE) || '{}'); return o.d === today() ? (o.u || []) : []; }catch(e){ return []; } }
+  function markDone(u){ var a = doneSet(); if(a.indexOf(u) < 0) a.push(u); try{ localStorage.setItem(KEY_DONE, JSON.stringify({ d: today(), u: a })); }catch(e){} }
+  function row(it, nick, done){
+    var mine = nick && it.shop === nick, ok = done.indexOf(it.url) > -1;
+    return '<div class="lk-item' + (mine ? ' mine' : '') + (ok ? ' done' : '') + '">' +
+      '<div><div class="lk-shop">' + esc(it.shop) + '<span class="lk-k ' + kcls(it.kind) + '">' + esc(it.kind) + '</span></div>' +
+      '<div class="lk-time">' + esc(it.t) + (mine ? ' · 내 게시물' : '') + '</div></div>' +
+      '<a class="lk-open" href="' + esc(it.url) + '" target="_blank" rel="noopener" data-u="' + esc(it.url) + '">' + (ok ? '✔ 다녀옴' : '열기') + '</a>' +
+    '</div>';
   }
+  function render(){
+    var items = load(), nick = me(), done = doneSet();
+    $('lkCount').textContent = items.length;
+    var ban = items.filter(function(it){ return it.kind.indexOf('벤') > -1; });
+    var rest = items.filter(function(it){ return it.kind.indexOf('벤') < 0; });
+    var others = items.filter(function(it){ return !(nick && it.shop === nick); });
+    var cnt = others.filter(function(it){ return done.indexOf(it.url) > -1; }).length;
+    $('lkProg').innerHTML = items.length ? '오늘 다녀온 게시물 <b>' + cnt + '</b> / ' + others.length + '개' : '';
+    $('lkBan').innerHTML = ban.length ? ban.map(function(it){ return row(it, nick, done); }).join('') : '<div class="lk-empty">오늘은 벤 게시물이 없어요.</div>';
+    $('lkList').innerHTML = rest.length ? rest.map(function(it){ return row(it, nick, done); }).join('') : '<div class="lk-empty">아직 올라온 게시물이 없어요.</div>';
+  }
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('.lk-open[data-u]'); if(!a) return;
+    markDone(a.getAttribute('data-u')); setTimeout(render, 300);
+  });
   function copy(text, btn){
     var done = function(){ var o = btn.textContent; btn.textContent = '복사됨'; setTimeout(function(){ btn.textContent = o; }, 1200); };
     if(navigator.clipboard){ navigator.clipboard.writeText(text).then(done, function(){}); }
@@ -2321,12 +2349,11 @@
   }
 
   $('lkTagCopy').addEventListener('click', function(){ copy($('lkTag').textContent, this); });
-  $('lkNew').addEventListener('click', function(){ order = 'new'; this.classList.add('on'); $('lkOld').classList.remove('on'); render(); });
-  $('lkOld').addEventListener('click', function(){ order = 'old'; this.classList.add('on'); $('lkNew').classList.remove('on'); render(); });
   $('lkCopyAll').addEventListener('click', function(){
-    var t = load().map(function(it){ return it.no + ' ' + it.shop + ' ' + it.kind + '\n' + it.url; }).join('\n');
+    var t = load().map(function(it){ return it.shop + ' ' + it.kind + '\n' + it.url; }).join('\n');
     copy(t || '(아직 없음)', this);
   });
+  $('lkReset').addEventListener('click', function(){ try{ localStorage.removeItem(KEY_DONE); }catch(e){} render(); });
   $('lkPreview').style.display = PREVIEW ? 'block' : 'none';
   head(); render();
   setInterval(function(){ head(); render(); }, 30000);
