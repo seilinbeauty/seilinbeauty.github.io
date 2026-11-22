@@ -2151,7 +2151,7 @@
       </div>
       <div class="quick-links">
         <a href="dia-notice.html" class="solid">공지사항</a>
-        <button type="button" id="mcLoginBtn" class="mc-hero-login">마이페이지</button>
+        <button type="button" id="mcLoginBtn" class="mc-hero-login">내 품앗이</button>
         <a href="dia-course.html" id="mcCourseBtn">뷰티수강</a>
       </div>
       <a id="mcHeroClock" class="mc-hero-clock" hidden href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" title="오픈채팅방 바로 가기"><span class="book-cd" id="diaCd">--</span></a>
@@ -2160,9 +2160,10 @@
           <input id="mcLoginIn" type="search" placeholder="회원 검색 (닉네임·인스타·초성)" autocomplete="off" style="flex:1;min-width:0;height:34px;border:1px solid #ecdce2;border-radius:9px;padding:0 10px;font-size:12.5px;background:#fff;text-align:center;">
         </div>
         <div id="mcLoginPick" style="margin-top:6px;display:grid;gap:4px;"></div>
-        <div class="mc-login-msg" id="mcLoginMsg" style="text-align:center;">회원목록에서 본인 이름을 검색해 누르면 바로 열립니다.</div>
+        <div class="mc-login-msg" id="mcLoginMsg" style="text-align:center;">회원목록에서 본인 이름을 검색해 누르고 암호 4자리를 넣으면 열립니다.</div>
       </div>
       <div id="mcHeroStatus" hidden style="margin-top:0;"></div>
+      <div id="diaLinkBox" hidden></div><!-- 오늘 내 게시물 남기기 (dia-link.js) -->
     </div>
   </section>
 
@@ -3414,7 +3415,7 @@
                   pingTimer = setInterval(function(){ if(!document.hidden) 접속핑(m.n, false); }, 15000);
                 } else {
                   lgBtn.classList.remove('on');
-                  lgBtn.textContent = '마이페이지';
+                  lgBtn.textContent = '내 품앗이';
                   if(heroClock) heroClock.hidden = true;
                   배너반영(null);
                 }
@@ -3513,7 +3514,7 @@
                   lgBox.hidden = !lgBox.hidden;
                   if(!lgBox.hidden && lgIn){
                     picked = null; lgIn.value = ''; lgPick.innerHTML = '';
-                    lgMsg.textContent = '회원목록에서 본인 이름을 검색해 누르면 바로 열립니다.';
+                    lgMsg.textContent = '회원목록에서 본인 이름을 검색해 누르고 암호 4자리를 넣으면 열립니다.';
                     lgMsg.style.color = '#8a7b81';
                     lgIn.focus();
                   }
@@ -6293,5 +6294,6 @@
     });
   }catch(e){}
 })();
-</script></body>
+</script>
+<script src="dia-tag.js?v=1" defer></script><script src="dia-pin.js?v=1" defer></script><script src="dia-pin-gate.js?v=1" defer></script><script src="dia-link.js?v=1" defer></script></body>
 </html>
