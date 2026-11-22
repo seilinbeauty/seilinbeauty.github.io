@@ -2243,9 +2243,9 @@
   </div>
 
   <div class="lk-form">
-    <h3>내 게시물은 '내 품앗이'에서 남겨요</h3>
-    <div class="lk-hint" style="text-align:center;font-size:14px;color:#6a5a60;">다이아 홈 → '내 품앗이'에서 내 이름을 고르면<br>닉네임이 자동으로 들어가고, 구분과 주소만 넣으면 끝나요.</div>
-    <a class="lk-submit" href="dia.html" style="display:flex;align-items:center;justify-content:center;text-decoration:none;" id="lkGoMy">'내 품앗이'에서 남기기 →</a>
+    <h3>내 게시물은 “내 품앗이”에서 남겨요</h3>
+    <div class="lk-hint" style="text-align:center;font-size:14px;color:#6a5a60;">다이아 홈 → “내 품앗이”에서 내 이름을 고르면<br>닉네임이 자동으로 들어가고, 구분과 주소만 넣으면 끝나요.</div>
+    <a class="lk-submit" href="dia.html" style="display:flex;align-items:center;justify-content:center;text-decoration:none;" id="lkGoMy">“내 품앗이”에서 남기기 →</a>
   </div>
 
   <div class="lk-list-hd">
@@ -2303,7 +2303,7 @@
     $('lkCount').textContent = items.length;
     var list = items.slice();
     if(order === 'new') list.reverse();
-    if(!list.length){ $('lkList').innerHTML = '<div class="lk-empty">아직 남긴 원장님이 없어요. '내 품앗이'에서 첫 번째로 남겨 보세요!</div>'; return; }
+    if(!list.length){ $('lkList').innerHTML = '<div class="lk-empty">아직 남긴 원장님이 없어요. “내 품앗이”에서 첫 번째로 남겨 보세요!</div>'; return; }
     $('lkList').innerHTML = list.map(function(it){
       var mine = nick && it.shop === nick;
       return '<div class="lk-item' + (mine ? ' mine' : '') + '">' +
