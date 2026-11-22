@@ -1,4 +1,4 @@
-/* 다이아 “내 품앗이”: 오늘 내 게시물 남기기
+/* 다이아 “내 품앗이”: 오늘 내 링크 남기기
    - “내 품앗이”에서 본인을 고르면(로그인) 닉네임이 자동으로 들어갑니다.
    - 지금은 미리보기: 저장 연결 전이라 이 기기에만 저장됩니다(PREVIEW).
    - 목록 화면: dia-link.html (같은 저장 키를 씁니다) */
@@ -81,7 +81,7 @@
     shownFor = nick; kind = '';
     box.innerHTML =
       '<div class="dl">' +
-        '<div class="dl-h"><span class="dl-t">📎 오늘 내 게시물 남기기</span><span class="dl-badge" id="dlBadge"></span></div>' +
+        '<div class="dl-h"><span class="dl-t">📎 오늘 내 링크 남기기</span><span class="dl-badge" id="dlBadge"></span></div>' +
         '<div class="dl-me">닉네임 <b>' + esc(nick) + '</b> (“내 품앗이”에서 고른 이름으로 남아요)</div>' +
         '<div class="dl-tag">오늘 해시태그 <b id="dlTag"></b><button type="button" class="dl-mini" id="dlTagCopy">복사</button></div>' +
         '<div class="dl-kinds" id="dlKinds">' +
