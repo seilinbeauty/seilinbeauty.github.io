@@ -1637,6 +1637,19 @@
         border-radius: 14px;
       }
     }
+
+    /* 태블릿 위쪽 메뉴 정리 — 768~1023: 짧은 메뉴(버튼 잘림 방지), 1024~1279: 메뉴 한 줄 (1280 이상 컴퓨터는 그대로) */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .nav-links { display: none; }
+      .nav-mobile-links { display: flex; gap: 8px; margin-right: 10px; }
+      .nav-mobile-link { box-sizing: border-box; display: inline-flex; align-items: center; height: 38px; padding: 0 16px; font-size: 13px; border-radius: 19px; }
+    }
+    @media (min-width: 1024px) and (max-width: 1279px) {
+      header { padding: 0 20px; gap: 12px; }
+      .nav-links { gap: 14px; font-size: 13px; }
+      .nav-links a { white-space: nowrap; }
+      .nav-links a.nav-board, .nav-links a.nav-dia, .nav-btn { min-width: 0; padding: 0 13px; }
+    }
   </style>
 
   <!-- Google tag (gtag.js) - GA4 세이린뷰티 아카데미 -->

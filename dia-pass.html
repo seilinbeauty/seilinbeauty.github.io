@@ -2046,6 +2046,8 @@
     .pass-item .pass-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .pass-item .pass-num { flex: 0 0 auto; }
     @media (max-width: 760px) { .pass-cols { column-count: 2; } }
+    /* 휴대폰: 샵 이름이 '...'로 잘리지 않게 두 줄 허용 */
+    @media (max-width: 480px) { .pass-item .pass-name { white-space: normal; overflow: visible; word-break: keep-all; overflow-wrap: anywhere; line-height: 1.35; font-size: 12px; letter-spacing: -0.03em; } }
     .pass-table { width: 100%; margin-top: 6px; border-collapse: collapse; font-size: 12.5px; }
     .pass-table td { padding: 9px 4px; border-bottom: 1px solid #f8eef1; vertical-align: middle; }
     .pass-table tr:last-child td { border-bottom: 0; }
