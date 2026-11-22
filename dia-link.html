@@ -2216,11 +2216,12 @@
   .lk-k.ban { background: #fff2e0; color: #b8690c; }
   .lk-time { margin-top: 2px; font-size: 12px; color: #a99aa0; }
   .lk-open { height: 34px; padding: 0 14px; border-radius: 17px; background: #fff4f7; border: 1.5px solid #ffd0dc; color: #c2476a; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; text-decoration: none; white-space: nowrap; }
-  .lk-empty { padding: 28px 14px; text-align: center; color: #a99aa0; font-size: 15px; }
+  .lk-empty { padding: 14px 14px; text-align: center; color: #a99aa0; font-size: 15px; }
   .lk-prog { margin-top: 14px; font-size: 14px; color: #5a4a50; text-align: center; }
   .lk-prog b { color: #ff5d8f; font-size: 17px; }
   .lk-sec { margin-top: 16px; }
   .lk-sec-h { font-size: 17px; font-weight: 900; color: #222; }
+  .lk-sec-h em { font-style: normal; margin-left: 4px; font-size: 13px; font-weight: 800; color: #ff5d8f; }
   .lk-sec-h span { display: block; margin-top: 2px; font-size: 12.5px; font-weight: 600; color: #9a8a90; }
   .lk-sec.ban .lk-sec-h { color: #b8690c; }
   .lk-sec.ban .lk-list { border-color: #ffd9a8; background: #fffaf2; }
@@ -2255,13 +2256,23 @@
   <div class="lk-prog" id="lkProg"></div>
 
   <div class="lk-sec ban">
-    <div class="lk-sec-h">🔍 해시태그로 안 나와요 <span>벤 게시물 · 꼭 링크로 들어가 주세요</span></div>
+    <div class="lk-sec-h">🚫 벤 <em id="cBan"></em><span>해시태그로 안 나와요 · 꼭 링크로 들어가 주세요</span></div>
     <div class="lk-list" id="lkBan"></div>
   </div>
 
+  <div class="lk-sec ban">
+    <div class="lk-sec-h">🚫 릴스 벤 <em id="cReelBan"></em><span>해시태그로 안 나와요 · 꼭 링크로 들어가 주세요</span></div>
+    <div class="lk-list" id="lkReelBan"></div>
+  </div>
+
   <div class="lk-sec">
-    <div class="lk-sec-h">📌 그 밖의 게시물 <span>해시태그로도 찾을 수 있어요</span></div>
-    <div class="lk-list" id="lkList"></div>
+    <div class="lk-sec-h">🎬 릴스 <em id="cReel"></em><span>해시태그로도 찾을 수 있어요</span></div>
+    <div class="lk-list" id="lkReel"></div>
+  </div>
+
+  <div class="lk-sec">
+    <div class="lk-sec-h">🤍 일반 <em id="cNormal"></em><span>해시태그로도 찾을 수 있어요</span></div>
+    <div class="lk-list" id="lkNormal"></div>
   </div>
 
   <div class="lk-tools-row">
@@ -2324,13 +2335,14 @@
   function render(){
     var items = load(), nick = me(), done = doneSet();
     $('lkCount').textContent = items.length;
-    var ban = items.filter(function(it){ return it.kind.indexOf('벤') > -1; });
-    var rest = items.filter(function(it){ return it.kind.indexOf('벤') < 0; });
     var others = items.filter(function(it){ return !(nick && it.shop === nick); });
     var cnt = others.filter(function(it){ return done.indexOf(it.url) > -1; }).length;
     $('lkProg').innerHTML = items.length ? '오늘 다녀온 게시물 <b>' + cnt + '</b> / ' + others.length + '개' : '';
-    $('lkBan').innerHTML = ban.length ? ban.map(function(it){ return row(it, nick, done); }).join('') : '<div class="lk-empty">오늘은 벤 게시물이 없어요.</div>';
-    $('lkList').innerHTML = rest.length ? rest.map(function(it){ return row(it, nick, done); }).join('') : '<div class="lk-empty">아직 올라온 게시물이 없어요.</div>';
+    [['벤', 'lkBan', 'cBan'], ['릴스 벤', 'lkReelBan', 'cReelBan'], ['릴스', 'lkReel', 'cReel'], ['🤍', 'lkNormal', 'cNormal']].forEach(function(g){
+      var list = items.filter(function(it){ return it.kind === g[0]; });
+      $(g[2]).textContent = list.length ? list.length + '개' : '';
+      $(g[1]).innerHTML = list.length ? list.map(function(it){ return row(it, nick, done); }).join('') : '<div class="lk-empty">아직 없어요.</div>';
+    });
   }
   document.addEventListener('click', function(e){
     var a = e.target.closest('.lk-open[data-u]'); if(!a) return;
