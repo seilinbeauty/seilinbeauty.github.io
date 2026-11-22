@@ -1637,6 +1637,8 @@
       .nav-links a { white-space: nowrap; }
       .nav-links a.nav-board, .nav-links a.nav-dia, .nav-btn { min-width: 0; padding: 0 13px; }
     }
+    /* 작은 휴대폰(400 이하): 위 공통 버튼 설정보다 뒤에 둬야 적용됨 — 로고 잘림 방지 */
+    @media (max-width: 400px) { .nav-mobile-link { padding: 0 6px; } }
   </style>
   <style>
     .nav-links a.nav-dia { display: inline-flex; align-items: center; line-height: 1; color: var(--pink-deep);
