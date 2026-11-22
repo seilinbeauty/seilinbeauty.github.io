@@ -2306,7 +2306,7 @@
   function today(){ return kst().toISOString().slice(0, 10); }
   function hm(){ var d = kst(); return d.getUTCHours() * 60 + d.getUTCMinutes(); }
   function isOpen(){ var m = hm(); return m >= 9 * 60 && m < 21 * 60; }
-  // 날짜별로 6일치(오늘 + 지난 5일) 남김
+  // 날짜별로 4일치(오늘 + 지난 3일) 남김
   function allDays(){ try{ var o = JSON.parse(localStorage.getItem(KEY_LIST) || '{}'); if(o.d && o.items){ var m = {}; m[o.d] = o.items; return m; } return o.days || {}; }catch(e){ return {}; } }
   function load(day){ return allDays()[day || sel] || []; }
   var sel = today(); // 지금 보고 있는 날짜
@@ -2327,7 +2327,7 @@
   function chips(){
     if(!$('lkDays')) return;
     var t = today(), h = '';
-    for(var n = 0; n <= 5; n++){
+    for(var n = 0; n <= 3; n++){
       var day = dayAt(n), cnt = (allDays()[day] || []).length;
       h += '<button type="button" class="lk-day' + (day === sel ? ' on' : '') + '" data-day="' + day + '">' + (n === 0 ? '오늘' : dayLabel(day)) + (cnt ? '<i>' + cnt + '</i>' : '') + '</button>';
     }
@@ -2347,7 +2347,7 @@
   var KEY_DONE = 'dia_link_done';
   function doneAll(){ try{ var o = JSON.parse(localStorage.getItem(KEY_DONE) || '{}'); if(o.d && o.u){ var m = {}; m[o.d] = o.u; return m; } return o.days || {}; }catch(e){ return {}; } }
   function doneSet(){ return doneAll()[sel] || []; }
-  function markDone(u){ var m = doneAll(), a = m[sel] || []; if(a.indexOf(u) < 0) a.push(u); m[sel] = a; Object.keys(m).sort().reverse().slice(6).forEach(function(k){ delete m[k]; }); try{ localStorage.setItem(KEY_DONE, JSON.stringify({ days: m })); }catch(e){} }
+  function markDone(u){ var m = doneAll(), a = m[sel] || []; if(a.indexOf(u) < 0) a.push(u); m[sel] = a; Object.keys(m).sort().reverse().slice(4).forEach(function(k){ delete m[k]; }); try{ localStorage.setItem(KEY_DONE, JSON.stringify({ days: m })); }catch(e){} }
   function row(it, nick, done){
     var mine = nick && it.shop === nick, ok = done.indexOf(it.url) > -1;
     return '<div class="lk-item' + (mine ? ' mine' : '') + (ok ? ' done' : '') + '">' +

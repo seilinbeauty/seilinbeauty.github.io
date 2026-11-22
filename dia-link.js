@@ -16,10 +16,10 @@
     if(window.DiaTag) return window.DiaTag.today(); // 운영 센터에서 바꾼 모양
     var d = kst(); return '#' + String(d.getUTCMonth() + 1).padStart(2, '0') + String(d.getUTCDate()).padStart(2, '0') + '_행운을부탁해';
   }
-  // 날짜별로 6일치(오늘 + 지난 5일) 남김
+  // 날짜별로 4일치(오늘 + 지난 3일) 남김
   function allDays(){ try{ var o = JSON.parse(localStorage.getItem(KEY_LIST) || '{}'); if(o.d && o.items){ var m = {}; m[o.d] = o.items; return m; } return o.days || {}; }catch(e){ return {}; } }
   function load(day){ return allDays()[day || today()] || []; }
-  function save(items, day){ try{ var m = allDays(); m[day || today()] = items; Object.keys(m).sort().reverse().slice(6).forEach(function(k){ delete m[k]; }); localStorage.setItem(KEY_LIST, JSON.stringify({ days: m })); }catch(e){} }
+  function save(items, day){ try{ var m = allDays(); m[day || today()] = items; Object.keys(m).sort().reverse().slice(4).forEach(function(k){ delete m[k]; }); localStorage.setItem(KEY_LIST, JSON.stringify({ days: m })); }catch(e){} }
   function me(){
     try{
       var raw = localStorage.getItem(LG_KEY) || localStorage.getItem(LG_KEY + '_bak') || '';
