@@ -5,6 +5,7 @@
      · 남기기: mode=link_add&shop=닉네임&pin=암호&kind=구분&url=주소
      · 고치기: mode=link_add&shop=닉네임&pin=암호&row=행&kind=구분&url=주소
      · 지우기: mode=link_del&shop=닉네임&pin=암호&row=행
+     · 서버가 closed(09:00~21:00 밖) · dup_url(같은 날 같은 주소)을 돌려주면 그대로 안내한다.
    - 목록 화면: dia-link.html (같은 창고 서버를 봅니다) */
 (function(){
   var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
@@ -198,6 +199,10 @@
           msg.textContent = '암호 확인이 필요해요. 로그아웃 후 “내 품앗이”에서 다시 들어와 주세요.';
         } else if(d && (d.error === 'nourl')){
           msg.textContent = '인스타그램 게시물 주소를 붙여 넣어 주세요.';
+        } else if(d && (d.error === 'closed')){
+          msg.textContent = '지금은 남기는 시간이 아니에요. (낮 09:00 ~ 21:00)';
+        } else if(d && (d.error === 'dup_url')){
+          msg.textContent = '이미 올라온 주소예요.';
         } else {
           msg.textContent = '연결이 잠깐 안 돼요. 다시 눌러 주세요.';
         }
@@ -271,7 +276,9 @@
       api(qs({ mode:'link_del', shop:nick, pin:pin, row:it.row })).then(function(d){
         if(d && d.ok){ delKey = null; say('<b>지웠어요.</b>', true); return fetchMine().then(function(){ paintMine(true); }); }
         rowBusy(row, false);
-        say(d && d.error === 'bad_pin' ? '암호가 바뀌었어요. 로그아웃 후 다시 들어와 주세요.' : '지우지 못했어요. 다시 눌러 주세요.');
+        say(d && d.error === 'bad_pin' ? '암호가 바뀌었어요. 로그아웃 후 다시 들어와 주세요.'
+          : d && d.error === 'closed' ? '지금은 남기는 시간이 아니에요. (낮 09:00 ~ 21:00)'
+          : '지우지 못했어요. 다시 눌러 주세요.');
       }).catch(function(){ rowBusy(row, false); say('연결이 잠깐 안 돼요. 다시 눌러 주세요.'); });
       return;
     }
@@ -285,7 +292,10 @@
       api(qs({ mode:'link_add', shop:nick, pin:pin, row:it.row, kind:editKind || it.kind, url:url })).then(function(d){
         if(d && d.ok){ editKey = null; say('<b>고쳤어요!</b>', true); return fetchMine().then(function(){ paintMine(true); }); }
         rowBusy(row, false);
-        err.textContent = d && d.error === 'bad_pin' ? '암호가 바뀌었어요. 로그아웃 후 다시 들어와 주세요.' : '고치지 못했어요. 다시 눌러 주세요.';
+        err.textContent = d && d.error === 'bad_pin' ? '암호가 바뀌었어요. 로그아웃 후 다시 들어와 주세요.'
+          : d && d.error === 'closed' ? '지금은 남기는 시간이 아니에요. (낮 09:00 ~ 21:00)'
+          : d && d.error === 'dup_url' ? '이미 올라온 주소예요.'
+          : '고치지 못했어요. 다시 눌러 주세요.';
       }).catch(function(){ rowBusy(row, false); err.textContent = '연결이 잠깐 안 돼요. 다시 눌러 주세요.'; });
       return;
     }
