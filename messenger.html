@@ -101,6 +101,7 @@
   }
   .av.kobi{background:#f9b7c9;color:#5a2436;}
   .av.claude{background:#d8d8d8;color:#3d3d3d;}
+  .av.muse{background:#c5d9ff;color:#1e3a6e;}
   .av.me{background:var(--me);color:#4a3410;}
   .col{display:flex;flex-direction:column;min-width:0;max-width:calc(100% - 40px);}
   .row.me .col{max-width:82%;align-items:flex-end;}
@@ -121,6 +122,7 @@
   .row.me .bubble{background:var(--me);color:#3a2c08;border-bottom-right-radius:5px;}
   .row.kobi .bubble{background:var(--kobi);color:#43232f;border-bottom-left-radius:5px;}
   .row.claude .bubble{background:var(--claude);color:#333;border-bottom-left-radius:5px;}
+  .row.muse .bubble{background:#eaf1ff;color:#1d2e4c;border-bottom-left-radius:5px;}
   .meta{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding-bottom:2px;}
   .row.me .meta{align-items:flex-end;}
   .unread{font-size:10.5px;font-weight:800;color:#d69e00;line-height:1;}
@@ -166,6 +168,7 @@
       <span class="mem"><b>도현 님</b><i> · 대표</i></span>
       <span class="mem"><b>커비</b><i> · 총괄실장</i></span>
       <span class="mem"><b>로디</b><i> · 실무담당</i></span>
+      <span class="mem"><b>뮤즈</b><i> · 외주협력팀 팀장</i></span>
     </div>
   </header>
   <main id="view"><div id="list"></div></main>
@@ -181,7 +184,7 @@
 
   var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
   var PW = '0423';
-  var ROLES = { '도현': '대표', '커비': '총괄실장', '로디': '실무담당' };
+  var ROLES = { '도현': '대표', '커비': '총괄실장', '로디': '실무담당', '뮤즈': '외주협력팀 팀장' };
   var STATUS_KO = { '대기': '하는 중', '완료': '끝냄', '진행': '하는 중', '실패': '안 됨', '보류': '미룸' };
   var KEY = 'dia_msg_ok';
   var CACHE_KEY = 'dia_msg_cache_v1';
@@ -249,10 +252,10 @@
     return p.y + '년 ' + p.mo + '월 ' + p.d + '일 ' + wd + '요일';
   }
 
-  /* ── 발신자 구분: [도현] [커비] [로디] 접두어 ([클로드]도 로디로 인식) ── */
+  /* ── 발신자 구분: [도현] [커비] [로디] [뮤즈] 접두어 ([클로드]도 로디로 인식) ── */
   function senderOf(text){
     var s = String(text || '');
-    var m = /^\s*\[(도현|커비|로디|클로드)\]\s*/.exec(s);
+    var m = /^\s*\[(도현|커비|로디|클로드|뮤즈)\]\s*/.exec(s);
     if (m) {
       var who = (m[1] === '클로드') ? '로디' : m[1];
       return { who: who, body: s.slice(m[0].length) };
@@ -277,9 +280,11 @@
 
   function msgRow(who, body, timeText, opts){
     opts = opts || {};
-    var row = el('div', 'row ' + (who === '도현' ? 'me' : who === '커비' ? 'kobi' : 'claude'));
+    var cls = (who === '도현' ? 'me' : who === '커비' ? 'kobi' : who === '뮤즈' ? 'muse' : 'claude');
+    var row = el('div', 'row ' + cls);
     if (who !== '도현') {
-      row.appendChild(el('div', 'av ' + (who === '커비' ? 'kobi' : 'claude'), who === '커비' ? '커' : '로'));
+      var avTxt = (who === '커비' ? '커' : who === '뮤즈' ? '뮤' : '로');
+      row.appendChild(el('div', 'av ' + cls, avTxt));
     }
     var col = el('div', 'col');
     col.appendChild(nameNode(who, opts));
