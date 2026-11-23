@@ -2302,7 +2302,7 @@
   var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
   var STAFF_PW = '0423';
   var STAFF = /[?&]staff=1/.test(location.search); // 스태프 지우기: 주소 끝에 ?staff=1
-  var TTL = 20000, dayItems = {}, dayTs = {};
+  var TTL = 45000, dayItems = {}, dayTs = {};
   function $(id){ return document.getElementById(id); }
   function kst(){ return new Date(Date.now() + 9 * 3600 * 1000); }
   function today(){ return kst().toISOString().slice(0, 10); }
@@ -2439,7 +2439,7 @@
   redraw();
   // 창고에서 오늘·어제·그제·3일 전 네 날짜를 한 번에 받아온다
   Promise.all([dayAt(0), dayAt(1), dayAt(2), dayAt(3)].map(fetchDay)).then(redraw);
-  setInterval(function(){ if(!document.hidden) ensure(sel).then(redraw); }, 30000);
+  setInterval(function(){ if(!document.hidden) ensure(sel).then(redraw); }, 60000);
   if(window.DiaTag && window.DiaTag.on) window.DiaTag.on(function(){ head(); });
 })();
 </script>
