@@ -2,24 +2,34 @@
    - “내 품앗이” '오늘 내 링크 남기기'에서 본인 확인용.
    - 처음 넣은 숫자 4자리가 그대로 내 암호가 됩니다. 다음부터는 맞아야 남길 수 있어요.
    - 운영 센터 회원 목록에서 스태프가 보고 바꿀 수 있어요.
-   - LIVE=false(미리보기): 이 기기에만 저장. LIVE=true: 창고 서버의 기존 암호 확인(mode=auth) 사용.
-     스태프 보기·바꾸기는 서버에 기능이 생기면 연결합니다(커비 실장님). */
+   - LIVE=false(미리보기): 이 기기에만 저장. LIVE=true: 창고 서버.
+     · 확인: mode=auth (기존 로그인과 같은 규칙)
+     · 스태프 보기: mode=pin_list&pw=0423 → { "닉네임": "1234" }
+     · 스태프 바꾸기·초기화: mode=pin_set&pw=0423&user=...&pin=... (pin 비우면 초기화) */
 (function(){
-  var LIVE = false;
+  var LIVE = true;
   var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
+  var STAFF_PW = '0423';
   var KEY_MAP = 'dia_pin_preview';
   function okPin(p){ return /^\d{4}$/.test(String(p || '')); }
   function map(){ try{ return JSON.parse(localStorage.getItem(KEY_MAP) || '{}') || {}; }catch(e){ return {}; } }
   function saveMap(m){ try{ localStorage.setItem(KEY_MAP, JSON.stringify(m)); }catch(e){} }
   function devKey(nick){ return 'dia_pin_dev:' + nick; }
+  function call(q){
+    if(!window.fetch) return Promise.reject(new Error('nosupport'));
+    return fetch(EXEC + '?' + q + '&_=' + Date.now(), { cache: 'no-store' }).then(function(r){ return r.json(); });
+  }
 
   // 결과: {ok:true, first:true|false} 또는 {ok:false, reason:'형식'|'틀림'|'연결'}
   function check(nick, pin){
     if(!okPin(pin)) return Promise.resolve({ ok: false, reason: '형식' });
     if(LIVE){
-      return fetch(EXEC + '?mode=auth&user=' + encodeURIComponent(nick) + '&pw=' + encodeURIComponent(pin), { cache: 'no-store' })
-        .then(function(r){ return r.json(); })
-        .then(function(d){ return d && d.ok ? { ok: true, first: !!d.first } : { ok: false, reason: '틀림' }; })
+      return call('mode=auth&user=' + encodeURIComponent(nick) + '&pw=' + encodeURIComponent(pin))
+        .then(function(d){
+          if(d && d.ok) return { ok: true, first: !!(d.first || d.set) };
+          if(d && d.error === 'wrong') return { ok: false, reason: '틀림' };
+          return { ok: false, reason: '연결' };
+        })
         .catch(function(){ return { ok: false, reason: '연결' }; });
     }
     var m = map();
@@ -31,13 +41,27 @@
   function remembered(nick){ try{ return localStorage.getItem(devKey(nick)) || ''; }catch(e){ return ''; } }
   function forget(nick){ try{ localStorage.removeItem(devKey(nick)); }catch(e){} }
 
-  // 스태프용(운영 센터): 미리보기에서는 이 기기 목록, LIVE는 서버 기능 생기면 연결
-  function staffList(){ return Promise.resolve(LIVE ? null : map()); }
+  // 스태프용(운영 센터): 보기 → 닉네임:암호 표, 불러오지 못하면 null
+  function staffList(){
+    if(!LIVE) return Promise.resolve(map());
+    return call('mode=pin_list&pw=' + encodeURIComponent(STAFF_PW))
+      .then(function(d){ if(d && d.ok && d.pins) return d.pins; return null; })
+      .catch(function(){ return null; });
+  }
+  // 스태프용(운영 센터): 바꾸기(pin='' 이면 초기화)
   function staffSet(nick, pin){
     if(pin !== '' && !okPin(pin)) return Promise.resolve({ ok: false, reason: '형식' });
-    if(LIVE) return Promise.resolve({ ok: false, reason: '준비중' });
-    var m = map(); if(pin === '') delete m[nick]; else m[nick] = pin; saveMap(m);
-    return Promise.resolve({ ok: true });
+    if(!LIVE){
+      var m = map(); if(pin === '') delete m[nick]; else m[nick] = pin; saveMap(m);
+      return Promise.resolve({ ok: true });
+    }
+    return call('mode=pin_set&pw=' + encodeURIComponent(STAFF_PW) + '&user=' + encodeURIComponent(nick) + '&pin=' + encodeURIComponent(pin))
+      .then(function(d){
+        if(d && d.ok) return { ok: true };
+        if(d && d.error === 'bad_pin') return { ok: false, reason: '형식' };
+        return { ok: false, reason: '연결' };
+      })
+      .catch(function(){ return { ok: false, reason: '연결' }; });
   }
   window.DiaPin = { LIVE: LIVE, okPin: okPin, check: check, remember: remember, remembered: remembered, forget: forget, staffList: staffList, staffSet: staffSet };
 })();

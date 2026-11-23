@@ -35,7 +35,8 @@
     '#ops-tag .tg-save{flex:1;height:42px;border:0;border-radius:10px;background:#ff5d8f;color:#fff;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;}' +
     '#ops-tag .tg-reset{height:42px;padding:0 14px;border:1px solid #ecdfe4;border-radius:10px;background:#fff;color:#7a6a70;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;}' +
     '#ops-tag .tg-msg{margin-top:10px;font-size:13px;font-weight:700;color:#24734a;text-align:center;min-height:1em;}' +
-    '#ops-tag .tg-pvnote{margin-top:12px;padding:9px 12px;border-radius:10px;background:#fff8e9;border:1px dashed #ffd27a;color:#8a5a0b;font-size:12px;line-height:1.6;}' +
+    '#ops-tag .tg-msg.err{color:#d23b5e;}' +
+    '#ops-tag .tg-save[disabled],#ops-tag .tg-reset[disabled]{opacity:.55;cursor:default;}' +
     '</style>' +
     '<div class="tg">' +
       '<div class="tg-h">#️⃣ 품앗이 해시태그</div>' +
@@ -48,7 +49,6 @@
       '<div class="tg-warn" id="tgWarn"></div>' +
       '<div class="tg-btns"><button type="button" class="tg-save" id="tgSave">저장</button><button type="button" class="tg-reset" id="tgReset">처음 모양으로</button></div>' +
       '<div class="tg-msg" id="tgMsg"></div>' +
-      (T.PREVIEW ? '<div class="tg-pvnote">🔧 미리보기: 저장 연결 전이라 바꾼 모양이 이 기기에서만 보여요. 연결되면 모든 원장님 화면에 바로 바뀌어요.</div>' : '') +
     '</div>';
   games.parentNode.insertBefore(sec, games.nextSibling);
 
@@ -61,7 +61,13 @@
     $('tgPv2').textContent = T.render(raw, new Date(Date.now() + 86400000));
     $('tgPv3').textContent = T.render(raw, nextNewYear());
   }
-  function load(){ $('tgIn').value = T.get(); $('tgNow').textContent = T.today(); $('tgMsg').textContent = ''; preview(); }
+  function say(t, isErr){ $('tgMsg').textContent = t || ''; $('tgMsg').className = 'tg-msg' + (isErr ? ' err' : ''); }
+  function fill(){ $('tgIn').value = T.get(); $('tgNow').textContent = T.today(); preview(); }
+  function load(){
+    say('');
+    fill();
+    return T.load().then(function(){ fill(); });
+  }
   $('tgIn').addEventListener('input', function(){ $('tgMsg').textContent = ''; preview(); });
   sec.addEventListener('click', function(e){
     var c = e.target.closest('.tg-chip'); if(!c) return;
@@ -70,12 +76,24 @@
     inp.focus(); inp.setSelectionRange(s + ins.length, s + ins.length); preview();
   });
   $('tgSave').addEventListener('click', function(){
-    var v = T.set($('tgIn').value); $('tgIn').value = v; $('tgNow').textContent = T.today(); preview();
-    $('tgMsg').textContent = '저장했어요. 오늘 해시태그: ' + T.today();
+    var btn = this; if(btn.disabled) return;
+    btn.disabled = true; say('저장 중…');
+    T.save($('tgIn').value).then(function(r){
+      btn.disabled = false;
+      if(!r.ok){ say(r.error === '연결' ? '서버에 저장하지 못했어요. 잠시 뒤 다시 눌러 주세요.' : '저장하지 못했어요. (' + r.error + ')', true); return; }
+      $('tgIn').value = T.get(); $('tgNow').textContent = T.today(); preview();
+      say('저장했어요. 오늘 해시태그: ' + T.today());
+    });
   });
   $('tgReset').addEventListener('click', function(){
+    var btn = this; if(btn.disabled) return;
     if(!confirm('처음 모양(' + T.DEFAULT + ')으로 되돌릴까요?')) return;
-    T.reset(); load(); $('tgMsg').textContent = '처음 모양으로 되돌렸어요.';
+    btn.disabled = true; say('되돌리는 중…');
+    T.resetServer().then(function(r){
+      btn.disabled = false;
+      if(!r.ok){ say(r.error === '연결' ? '서버에 저장하지 못했어요. 잠시 뒤 다시 눌러 주세요.' : '되돌리지 못했어요. (' + r.error + ')', true); return; }
+      fill(); say('처음 모양으로 되돌렸어요.');
+    });
   });
 
   // 탭 전환: 기존 탭 코드는 그대로 두고, 이 탭만 따로 켜고 끈다

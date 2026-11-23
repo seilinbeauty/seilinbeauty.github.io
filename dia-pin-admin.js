@@ -36,7 +36,7 @@
       var td = tr.querySelector('td.c-pin');
       if(!td){ td = document.createElement('td'); td.className = 'c-pin'; tr.appendChild(td); }
       var v = pins ? pins[nick] : null;
-      var html = pins === null ? '<span class="no">연결 전</span>' : (v ? '<b>' + v + '</b>' : '<span class="no">없음</span>');
+      var html = pins === null ? '<span class="no">' + (P.LIVE ? '불러오기 실패' : '연결 전') + '</span>' : (v ? '<b>' + v + '</b>' : '<span class="no">없음</span>');
       td.innerHTML = html + '<button type="button" class="pin-edit" data-nick="">바꾸기</button>';
       td.querySelector('.pin-edit').setAttribute('data-nick', nick);
     });
@@ -63,8 +63,14 @@
     var v = e.target.closest('.pin-clear') ? '' : (e.target.closest('.pin-ok') ? td2.querySelector('.pin-in').value.trim() : null);
     if(v === null) return;
     if(v === '' && !e.target.closest('.pin-clear')){ td2.querySelector('.pin-err').textContent = '숫자 4자리를 넣어 주세요.'; return; }
+    td2.querySelector('.pin-err').textContent = '저장 중…';
+    [].forEach.call(td2.querySelectorAll('button'), function(b){ b.disabled = true; });
     P.staffSet(n2, v).then(function(r){
-      if(!r.ok){ td2.querySelector('.pin-err').textContent = r.reason === '형식' ? '숫자 4자리만 돼요.' : '서버 연결 전이에요.'; return; }
+      if(!r.ok){
+        [].forEach.call(td2.querySelectorAll('button'), function(b){ b.disabled = false; });
+        td2.querySelector('.pin-err').textContent = r.reason === '형식' ? '숫자 4자리만 돼요.' : '저장하지 못했어요. 잠시 뒤 다시 해 주세요.';
+        return;
+      }
       td2.removeAttribute('data-nick'); reload();
     });
   });

@@ -1,10 +1,13 @@
 /* 다이아 “내 품앗이”: 오늘 내 링크 남기기
    - “내 품앗이”에서 본인을 고르면(로그인) 닉네임이 자동으로 들어갑니다.
-   - 지금은 미리보기: 저장 연결 전이라 이 기기에만 저장됩니다(PREVIEW).
-   - 목록 화면: dia-link.html (같은 저장 키를 씁니다) */
+   - PREVIEW=false: 창고 서버와 연결. 본인 4자리 암호(pin)로 인증합니다.
+     · 목록: mode=link_list&shop=닉네임&pin=암호&date=오늘
+     · 남기기: mode=link_add&shop=닉네임&pin=암호&kind=구분&url=주소
+     · 고치기: mode=link_add&shop=닉네임&pin=암호&row=행&kind=구분&url=주소
+     · 지우기: mode=link_del&shop=닉네임&pin=암호&row=행
+   - 목록 화면: dia-link.html (같은 창고 서버를 봅니다) */
 (function(){
-  var PREVIEW = true;
-  var KEY_LIST = 'dia_link_preview';
+  var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
   var LG_KEY = 'dia_login_member';
   var box = document.getElementById('diaLinkBox');
   if(!box) return;
@@ -16,10 +19,10 @@
     if(window.DiaTag) return window.DiaTag.today(); // 운영 센터에서 바꾼 모양
     var d = kst(); return '#' + String(d.getUTCMonth() + 1).padStart(2, '0') + String(d.getUTCDate()).padStart(2, '0') + '_행운을부탁해';
   }
-  // 날짜별로 4일치(오늘 + 지난 3일) 남김
-  function allDays(){ try{ var o = JSON.parse(localStorage.getItem(KEY_LIST) || '{}'); if(o.d && o.items){ var m = {}; m[o.d] = o.items; return m; } return o.days || {}; }catch(e){ return {}; } }
-  function load(day){ return allDays()[day || today()] || []; }
-  function save(items, day){ try{ var m = allDays(); m[day || today()] = items; Object.keys(m).sort().reverse().slice(4).forEach(function(k){ delete m[k]; }); localStorage.setItem(KEY_LIST, JSON.stringify({ days: m })); }catch(e){} }
+  function api(q){
+    if(!window.fetch) return Promise.reject(new Error('nosupport'));
+    return fetch(EXEC + '?' + q + '&_=' + Date.now(), { cache: 'no-store' }).then(function(r){ return r.json(); });
+  }
   function me(){
     try{
       var raw = localStorage.getItem(LG_KEY) || localStorage.getItem(LG_KEY + '_bak') || '';
@@ -28,10 +31,34 @@
       return String(raw);
     }catch(e){ return ''; }
   }
+  function pinOf(nick){ return window.DiaPin && nick ? window.DiaPin.remembered(nick) : ''; }
   function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
   function clean(u){
     var m = String(u || '').trim().match(/https?:\/\/(www\.)?instagram\.com\/(p|reel|reels|tv)\/[A-Za-z0-9_-]+/i);
     return m ? m[0].replace(/^http:/i, 'https:').replace(/\/reels\//i, '/reel/') + '/' : '';
+  }
+  function qs(o){
+    var a = [];
+    for(var k in o){ if(o[k] !== undefined && o[k] !== null) a.push(k + '=' + encodeURIComponent(o[k])); }
+    return a.join('&');
+  }
+
+  // 오늘 내 링크(서버) — 창고에서 받아 둔 목록
+  var items = [];
+  function load(){ return items; }
+  function fetchMine(){
+    var nick = me(), pin = pinOf(nick);
+    if(!nick){ items = []; return Promise.resolve(false); }
+    if(!pin){ items = []; return Promise.resolve(false); }
+    return api(qs({ mode:'link_list', shop:nick, pin:pin, date:today() }))
+      .then(function(d){
+        if(d && d.ok && d.items && d.items.length !== undefined){
+          items = d.items.filter(function(it){ return it.shop === nick; });
+          return true;
+        }
+        items = []; return false;
+      })
+      .catch(function(){ return false; });
   }
 
   var css = document.createElement('style');
@@ -61,12 +88,7 @@
     '.dl-f input{flex:1 1 auto;min-width:0;height:38px;padding:0 11px;border:1px solid #f0e2e7;border-radius:9px;font-size:14px;font-family:inherit;color:#4a4a4a;background:#fff;outline:none;}',
     '.dl-f input:focus{border-color:#e6a6bb;}',
     '.dl-f button{flex:0 0 auto;height:38px;padding:0 16px;border:0;border-radius:9px;background:#ff5d8f;color:#fff;font-size:14px;font-weight:900;font-family:inherit;cursor:pointer;}',
-    '.dl-pin{margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}',
-    '.dl-pin input{width:150px;height:36px;padding:0 11px;border:1px solid #f0e2e7;border-radius:9px;font-size:16px;letter-spacing:4px;font-family:inherit;color:#4a4a4a;background:#fff;outline:none;-webkit-text-security:disc;}',
-    '.dl-pin input:focus{border-color:#e6a6bb;}',
-    '.dl-pin-h{font-size:11.5px;color:#9a8a90;line-height:1.4;flex:1 1 160px;}',
-    '.dl-pin-ok{margin-top:8px;font-size:12px;color:#5a4a50;}',
-    '.dl-pin-ok[hidden],.dl-pin[hidden]{display:none;}',
+    '.dl-f button[disabled]{opacity:.55;cursor:default;}',
     '.dl-msg{margin-top:7px;font-size:12.5px;font-weight:700;line-height:1.55;min-height:0;}',
     '.dl-msg.err{color:#d23b5e;}',
     '.dl-msg.ok{color:#24734a;background:#eefaf2;border:1px solid #bfe6cb;border-radius:9px;padding:7px 10px;}',
@@ -87,7 +109,6 @@
     '.dl-me-err{font-size:11.5px;font-weight:700;color:#d23b5e;}',
     '.dl-foot{margin-top:9px;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;}',
     '.dl-list{font-size:12.5px;font-weight:800;color:#c2456a;text-decoration:none;}',
-    '.dl-pv{font-size:10.5px;color:#b08a2e;}',
     '@media (max-width:420px){.dl-kinds,.dl-mk{grid-template-columns:repeat(2,minmax(0,1fr));}}'
   ].join('');
   document.head.appendChild(css);
@@ -103,14 +124,14 @@
       .observe(hs, { childList: true, attributes: true, attributeFilter: ['hidden'] });
   }
 
-  var kind = '', shownFor = null;
+  var kind = '', shownFor = null, busy = false;
   function paint(){
     var nick = me();
-    if(!nick){ box.hidden = true; box.innerHTML = ''; shownFor = null; return; }
+    if(!nick){ box.hidden = true; box.innerHTML = ''; shownFor = null; items = []; return; }
     box.hidden = false;
     dock();
     if(shownFor === nick){ refresh(); return; }
-    shownFor = nick; kind = '';
+    shownFor = nick; kind = ''; editKey = null; delKey = null;
     box.innerHTML =
       '<div class="dl">' +
         '<div class="dl-h"><span class="dl-t">📎 오늘 내 링크 남기기</span><span class="dl-badge" id="dlBadge"></span></div>' +
@@ -137,43 +158,46 @@
       var done = function(){ btn.textContent = '복사됨'; setTimeout(function(){ btn.textContent = '복사'; }, 1200); };
       if(navigator.clipboard){ navigator.clipboard.writeText(t).then(done, function(){}); }
     });
-    var P = window.DiaPin;
-    var busy = false;
     document.getElementById('dlForm').addEventListener('submit', function(e){
       e.preventDefault();
       if(busy) return;
-      var msg = document.getElementById('dlMsg'), url = clean(document.getElementById('dlUrl').value);
+      var msg = document.getElementById('dlMsg'), btn = this.querySelector('button[type="submit"]');
+      var url = clean(document.getElementById('dlUrl').value);
       msg.className = 'dl-msg err';
       if(!kind){ msg.textContent = '구분을 먼저 골라 주세요.'; return; }
       if(!url){ msg.textContent = '인스타그램 게시물 주소를 붙여 넣어 주세요.'; return; }
-      if(!isOpen() && !PREVIEW){ msg.textContent = '지금은 남기는 시간이 아니에요. (낮 09:00 ~ 21:00)'; return; }
+      if(!isOpen()){ msg.textContent = '지금은 남기는 시간이 아니에요. (낮 09:00 ~ 21:00)'; return; }
       if(load().some(function(it){ return it.url === url; })){ msg.textContent = '이미 올라온 주소예요.'; return; }
       // 암호는 “내 품앗이”에 들어올 때 이미 확인했다 (이 기기에 기억된 암호로 한 번 더 확인)
-      var pin = P ? P.remembered(nick) : '';
-      if(P && !P.okPin(pin)){ msg.textContent = '암호 확인이 필요해요. 위의 로그아웃을 누르고 “내 품앗이”에서 다시 들어와 주세요.'; return; }
+      var nick = me(), pin = pinOf(nick);
+      if(!window.DiaPin || !window.DiaPin.okPin(pin)){ msg.textContent = '암호 확인이 필요해요. 위의 로그아웃을 누르고 “내 품앗이”에서 다시 들어와 주세요.'; return; }
       busy = true; msg.className = 'dl-msg'; msg.textContent = '확인 중…';
-      (P ? P.check(nick, pin) : Promise.resolve({ ok: true })).then(function(r){
-        busy = false;
-        if(!r.ok){
-          msg.className = 'dl-msg err';
-          if(r.reason === '틀림'){
-            if(P) P.forget(nick);
-            msg.textContent = '암호가 바뀌었어요. 로그아웃 후 “내 품앗이”에서 다시 들어와 주세요.';
-          } else { msg.textContent = '연결이 잠깐 안 돼요. 다시 눌러 주세요.'; }
-          return;
+      btn.disabled = true;
+      api(qs({ mode:'link_add', shop:nick, pin:pin, kind:kind, url:url })).then(function(d){
+        busy = false; btn.disabled = false;
+        if(d && d.ok){
+          document.getElementById('dlUrl').value = '';
+          msg.className = 'dl-msg ok';
+          msg.innerHTML = '<b>남겼어요!</b> 단톡방에 <b>' + esc(nick) + ' 참여</b> 한 줄도 남겨 주세요.';
+          return fetchMine().then(function(){ paintMine(true); });
         }
-        var items = load();
-        var no = items.length ? items[items.length - 1].no + 1 : 1; // 화면에는 안 보이는 내부 순서
-        var d = kst(), t = String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0');
-        items.push({ no: no, shop: nick, kind: kind, url: url, t: t });
-        save(items);
-        document.getElementById('dlUrl').value = '';
-        msg.className = 'dl-msg ok';
-        msg.innerHTML = '<b>남겼어요!</b> 단톡방에 <b>' + esc(nick) + ' 참여</b> 한 줄도 남겨 주세요.';
-        refresh();
+        msg.className = 'dl-msg err';
+        if(d && d.error === 'bad_pin'){
+          if(window.DiaPin) window.DiaPin.forget(nick);
+          msg.textContent = '암호가 바뀌었어요. 로그아웃 후 “내 품앗이”에서 다시 들어와 주세요.';
+        } else if(d && d.error === 'unauthorized'){
+          msg.textContent = '암호 확인이 필요해요. 로그아웃 후 “내 품앗이”에서 다시 들어와 주세요.';
+        } else if(d && (d.error === 'nourl')){
+          msg.textContent = '인스타그램 게시물 주소를 붙여 넣어 주세요.';
+        } else {
+          msg.textContent = '연결이 잠깐 안 돼요. 다시 눌러 주세요.';
+        }
+      }).catch(function(){
+        busy = false; btn.disabled = false;
+        msg.className = 'dl-msg err'; msg.textContent = '연결이 잠깐 안 돼요. 다시 눌러 주세요.';
       });
     });
-    refresh();
+    fetchMine().then(function(){ refresh(); });
   }
   function refresh(){
     var b = document.getElementById('dlBadge'); if(!b) return;
@@ -184,55 +208,77 @@
     paintMine(false);
   }
 
-  // 오늘 내가 남긴 링크: 고치기·지우기
-  var editNo = null, delNo = null, editKind = '', mineSig = '';
+  // 오늘 내가 남긴 링크: 고치기·지우기 (서버 행 번호 row 로 구분)
+  var editKey = null, delKey = null, editKind = '', mineSig = '';
   var KINDS = [['🤍', '🤍 일반'], ['릴스', '릴스'], ['벤', '벤'], ['릴스 벤', '릴스 벤']];
+  function mineList(){
+    var nick = me();
+    return load().filter(function(it){ return it.shop === nick; });
+  }
   function paintMine(force){
     var el = document.getElementById('dlMine'); if(!el) return;
-    var nick = me(), mine = load().filter(function(it){ return it.shop === nick; });
-    var sig = JSON.stringify(mine) + '|' + editNo + '|' + delNo + '|' + editKind;
+    var mine = mineList();
+    var sig = JSON.stringify(mine) + '|' + editKey + '|' + delKey + '|' + editKind;
     if(!force && sig === mineSig) return;
-    if(!force && editNo !== null) return; // 고치는 중엔 입력이 지워지지 않게 다시 그리지 않음
+    if(!force && editKey !== null) return; // 고치는 중엔 입력이 지워지지 않게 다시 그리지 않음
     mineSig = sig;
     if(!mine.length){ el.innerHTML = ''; return; }
     el.innerHTML = '<div class="dl-mine-t">오늘 내가 남긴 링크</div>' + mine.map(function(it){
-      if(it.no === editNo){
-        return '<div class="dl-mi edit" data-no="' + it.no + '">' +
+      var row = String(it.row);
+      if(row === editKey){
+        return '<div class="dl-mi edit" data-row="' + row + '">' +
           '<div class="dl-mk">' + KINDS.map(function(k){ return '<button type="button" class="dl-mk-b' + (editKind === k[0] ? ' on' : '') + '" data-k="' + esc(k[0]) + '">' + esc(k[1]) + '</button>'; }).join('') + '</div>' +
           '<input class="dl-mu" value="' + esc(it.url) + '" inputmode="url">' +
           '<div class="dl-ma"><button type="button" class="dl-mini dl-save">저장</button><button type="button" class="dl-mini dl-cancel">취소</button></div>' +
           '<div class="dl-me-err"></div></div>';
       }
-      if(it.no === delNo){
-        return '<div class="dl-mi" data-no="' + it.no + '"><span class="dl-mi-k">' + esc(it.kind) + '</span><span class="dl-mi-q">이 링크를 지울까요?</span>' +
+      if(row === delKey){
+        return '<div class="dl-mi" data-row="' + row + '"><span class="dl-mi-k">' + esc(it.kind) + '</span><span class="dl-mi-q">이 링크를 지울까요?</span>' +
           '<div class="dl-ma"><button type="button" class="dl-mini dl-del-ok">지우기</button><button type="button" class="dl-mini dl-cancel">취소</button></div></div>';
       }
-      return '<div class="dl-mi" data-no="' + it.no + '"><span class="dl-mi-k">' + esc(it.kind) + '</span>' +
-        '<a class="dl-mi-u" href="' + esc(it.url) + '" target="_blank" rel="noopener">' + esc(it.url.replace(/^https:\/\/(www\.)?instagram\.com/, '')) + '</a>' +
+      return '<div class="dl-mi" data-row="' + row + '"><span class="dl-mi-k">' + esc(it.kind) + '</span>' +
+        '<a class="dl-mi-u" href="' + esc(it.url) + '" target="_blank" rel="noopener">' + esc(String(it.url).replace(/^https:\/\/(www\.)?instagram\.com/, '')) + '</a>' +
         '<span class="dl-mi-t">' + esc(it.t) + '</span>' +
         '<div class="dl-ma"><button type="button" class="dl-mini dl-edit">고치기</button><button type="button" class="dl-mini dl-del">지우기</button></div></div>';
     }).join('');
   }
+  function rowBusy(el, on){
+    if(!el) return;
+    [].forEach.call(el.querySelectorAll('button'), function(b){ b.disabled = on; });
+  }
   box.addEventListener('click', function(e){
     var row = e.target.closest('.dl-mi'); if(!row) return;
-    var no = +row.getAttribute('data-no');
-    var items = load(), it = items.filter(function(x){ return x.no === no; })[0]; if(!it) return;
-    if(e.target.closest('.dl-edit')){ editNo = no; delNo = null; editKind = it.kind; paintMine(true); var u = box.querySelector('.dl-mu'); if(u) u.focus(); return; }
-    if(e.target.closest('.dl-del')){ delNo = no; editNo = null; paintMine(true); return; }
-    if(e.target.closest('.dl-cancel')){ editNo = null; delNo = null; paintMine(true); return; }
+    var key = row.getAttribute('data-row');
+    var it = load().filter(function(x){ return String(x.row) === key; })[0]; if(!it) return;
+    if(e.target.closest('.dl-edit')){ editKey = key; delKey = null; editKind = it.kind; paintMine(true); var u = box.querySelector('.dl-mu'); if(u) u.focus(); return; }
+    if(e.target.closest('.dl-del')){ delKey = key; editKey = null; paintMine(true); return; }
+    if(e.target.closest('.dl-cancel')){ editKey = null; delKey = null; paintMine(true); return; }
     var mk = e.target.closest('.dl-mk-b');
     if(mk){ editKind = mk.getAttribute('data-k'); [].forEach.call(row.querySelectorAll('.dl-mk-b'), function(b){ b.classList.toggle('on', b === mk); }); return; }
+    var nick = me(), pin = pinOf(nick), msg = document.getElementById('dlMsg');
+    function say(t, ok){ if(!msg) return; msg.className = 'dl-msg ' + (ok ? 'ok' : 'err'); msg.innerHTML = t; }
     if(e.target.closest('.dl-del-ok')){
-      save(items.filter(function(x){ return x.no !== no; }));
-      delNo = null; paintMine(true); return;
+      if(!window.DiaPin || !window.DiaPin.okPin(pin)){ say('암호 확인이 필요해요. 로그아웃 후 다시 들어와 주세요.'); return; }
+      api(qs({ mode:'link_del', shop:nick, pin:pin, row:it.row })).then(function(d){
+        if(d && d.ok){ delKey = null; say('<b>지웠어요.</b>', true); return fetchMine().then(function(){ paintMine(true); }); }
+        rowBusy(row, false);
+        say(d && d.error === 'bad_pin' ? '암호가 바뀌었어요. 로그아웃 후 다시 들어와 주세요.' : '지우지 못했어요. 다시 눌러 주세요.');
+      }).catch(function(){ rowBusy(row, false); say('연결이 잠깐 안 돼요. 다시 눌러 주세요.'); });
+      return;
     }
     if(e.target.closest('.dl-save')){
       var url = clean(row.querySelector('.dl-mu').value), err = row.querySelector('.dl-me-err');
       if(!url){ err.textContent = '인스타그램 게시물 주소를 넣어 주세요.'; return; }
-      if(items.some(function(x){ return x.no !== no && x.url === url; })){ err.textContent = '이미 올라온 주소예요.'; return; }
-      it.url = url; it.kind = editKind || it.kind; save(items);
-      editNo = null; paintMine(true);
-      var msg = document.getElementById('dlMsg'); if(msg){ msg.className = 'dl-msg ok'; msg.innerHTML = '<b>고쳤어요!</b>'; }
+      if(load().some(function(x){ return String(x.row) !== key && x.url === url; })){ err.textContent = '이미 올라온 주소예요.'; return; }
+      if(!window.DiaPin || !window.DiaPin.okPin(pin)){ err.textContent = '암호 확인이 필요해요. 로그아웃 후 다시 들어와 주세요.'; return; }
+      err.textContent = '저장 중…';
+      rowBusy(row, true);
+      api(qs({ mode:'link_add', shop:nick, pin:pin, row:it.row, kind:editKind || it.kind, url:url })).then(function(d){
+        if(d && d.ok){ editKey = null; say('<b>고쳤어요!</b>', true); return fetchMine().then(function(){ paintMine(true); }); }
+        rowBusy(row, false);
+        err.textContent = d && d.error === 'bad_pin' ? '암호가 바뀌었어요. 로그아웃 후 다시 들어와 주세요.' : '고치지 못했어요. 다시 눌러 주세요.';
+      }).catch(function(){ rowBusy(row, false); err.textContent = '연결이 잠깐 안 돼요. 다시 눌러 주세요.'; });
+      return;
     }
   });
 
@@ -240,5 +286,7 @@
   // “내 품앗이” 로그인·로그아웃은 이 파일 밖에서 일어나므로 가볍게 확인한다
   var last = me();
   setInterval(function(){ var n = me(); if(n !== last){ last = n; paint(); } else { refresh(); } }, 1000);
+  // 창고에서 오늘 내 링크를 1분에 한 번 조용히 다시 받아온다
+  setInterval(function(){ if(me() && !box.hidden){ fetchMine().then(function(){ paintMine(false); }); } }, 60000);
   window.addEventListener('storage', function(){ last = me(); paint(); });
 })();

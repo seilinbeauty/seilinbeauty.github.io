@@ -2296,20 +2296,34 @@
   </div>
 </div>
 
-<script src="dia-tag.js?v=1"></script>
+<script src="dia-tag.js?v=2"></script>
 <script>
 (function(){
-  var PREVIEW = true; // 저장 연결 전: 이 기기에만 저장
-  var KEY_LIST = 'dia_link_preview';
-  var order = 'new';
+  var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
+  var STAFF_PW = '0423';
+  var STAFF = /[?&]staff=1/.test(location.search); // 스태프 지우기: 주소 끝에 ?staff=1
+  var TTL = 20000, dayItems = {}, dayTs = {};
   function $(id){ return document.getElementById(id); }
   function kst(){ return new Date(Date.now() + 9 * 3600 * 1000); }
   function today(){ return kst().toISOString().slice(0, 10); }
   function hm(){ var d = kst(); return d.getUTCHours() * 60 + d.getUTCMinutes(); }
   function isOpen(){ var m = hm(); return m >= 9 * 60 && m < 21 * 60; }
-  // 날짜별로 4일치(오늘 + 지난 3일) 남김
-  function allDays(){ try{ var o = JSON.parse(localStorage.getItem(KEY_LIST) || '{}'); if(o.d && o.items){ var m = {}; m[o.d] = o.items; return m; } return o.days || {}; }catch(e){ return {}; } }
-  function load(day){ return allDays()[day || sel] || []; }
+  function api(q){
+    if(!window.fetch) return Promise.reject(new Error('nosupport'));
+    return fetch(EXEC + '?' + q + '&_=' + Date.now(), { cache: 'no-store' }).then(function(r){ return r.json(); });
+  }
+  // 창고 서버에서 그날 참여 링크를 받아 둔다 (읽기는 운영 센터 비밀번호)
+  function fetchDay(day){
+    return api('mode=link_list&pw=' + encodeURIComponent(STAFF_PW) + '&date=' + day).then(function(d){
+      if(d && d.ok && d.items){ dayItems[day] = d.items; dayTs[day] = Date.now(); }
+      return dayItems[day] || [];
+    }).catch(function(){ return dayItems[day] || []; });
+  }
+  function ensure(day){
+    if(Date.now() - (dayTs[day] || 0) < TTL) return Promise.resolve(dayItems[day] || []);
+    return fetchDay(day);
+  }
+  function load(day){ return dayItems[day || sel] || []; }
   var sel = today(); // 지금 보고 있는 날짜
   function dayAt(n){ return new Date(Date.now() + 9 * 3600 * 1000 - n * 86400000).toISOString().slice(0, 10); }
   function dateOf(day){ return new Date(day + 'T03:00:00Z'); } // 한국 정오
@@ -2323,13 +2337,20 @@
   function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
   function kcls(k){ return k.indexOf('벤') > -1 ? 'ban' : (k === '릴스' ? 'reels' : ''); }
 
+  if(STAFF){
+    var st = document.createElement('style');
+    st.textContent = '.lk-item.staff{grid-template-columns:minmax(0,1fr) auto auto;}' +
+      '.lk-del{flex:0 0 auto;width:34px;height:34px;padding:0;border-radius:17px;border:1.5px solid #ffd0dc;background:#fff;color:#d23b5e;font-size:14px;font-weight:900;line-height:1;cursor:pointer;font-family:inherit;}';
+    document.head.appendChild(st);
+  }
+
   var WD = ['일','월','화','수','목','금','토'];
   function dayLabel(day){ var d = dateOf(day); return (d.getUTCMonth() + 1) + '/' + d.getUTCDate() + '(' + WD[d.getUTCDay()] + ')'; }
   function chips(){
     if(!$('lkDays')) return;
-    var t = today(), h = '';
+    var h = '';
     for(var n = 0; n <= 3; n++){
-      var day = dayAt(n), cnt = (allDays()[day] || []).length;
+      var day = dayAt(n), cnt = (dayItems[day] || []).length;
       h += '<button type="button" class="lk-day' + (day === sel ? ' on' : '') + '" data-day="' + day + '">' +
         '<b>' + ['오늘', '어제', '그제', '3일 전'][n] + '</b><small>' + dayLabel(day) + '</small>' + (cnt ? '<i>' + cnt + '</i>' : '') + '</button>';
     }
@@ -2352,10 +2373,11 @@
   function markDone(u){ var m = doneAll(), a = m[sel] || []; if(a.indexOf(u) < 0) a.push(u); m[sel] = a; Object.keys(m).sort().reverse().slice(4).forEach(function(k){ delete m[k]; }); try{ localStorage.setItem(KEY_DONE, JSON.stringify({ days: m })); }catch(e){} }
   function row(it, nick, done){
     var mine = nick && it.shop === nick, ok = done.indexOf(it.url) > -1;
-    return '<div class="lk-item' + (mine ? ' mine' : '') + (ok ? ' done' : '') + '">' +
+    var del = STAFF ? '<button type="button" class="lk-del" data-row="' + esc(String(it.row)) + '" title="이 링크 지우기">✕</button>' : '';
+    return '<div class="lk-item' + (mine ? ' mine' : '') + (ok ? ' done' : '') + (STAFF ? ' staff' : '') + '">' +
       '<div><div class="lk-shop">' + esc(it.shop) + '<span class="lk-k ' + kcls(it.kind) + '">' + esc(it.kind) + '</span></div>' +
       '<div class="lk-time">' + esc(it.t) + (mine ? ' · 내 게시물' : '') + '</div></div>' +
-      '<a class="lk-open" href="' + esc(it.url) + '" target="_blank" rel="noopener" data-u="' + esc(it.url) + '">' + (ok ? '✔ 다녀옴' : '열기') + '</a>' +
+      '<a class="lk-open" href="' + esc(it.url) + '" target="_blank" rel="noopener" data-u="' + esc(it.url) + '">' + (ok ? '✔ 다녀옴' : '열기') + '</a>' + del +
     '</div>';
   }
   function render(){
@@ -2370,7 +2392,20 @@
       $(g[1]).innerHTML = list.length ? list.map(function(it){ return row(it, nick, done); }).join('') : '<div class="lk-empty">아직 없어요.</div>';
     });
   }
+  function redraw(){ chips(); head(); render(); }
+  // 스태프: 잘못 올라온 링크 지우기 (창고 서버 실제 삭제)
+  function delRow(row, btn){
+    if(!confirm('이 링크를 지울까요?\n되돌릴 수 없어요.')) return;
+    if(btn){ btn.disabled = true; }
+    api('mode=link_del&pw=' + encodeURIComponent(STAFF_PW) + '&row=' + encodeURIComponent(row)).then(function(d){
+      if(d && d.ok){ dayTs[sel] = 0; return fetchDay(sel).then(redraw); }
+      if(btn){ btn.disabled = false; }
+      alert(d && d.error === 'notfound' ? '이미 지워진 링크예요.' : '지우지 못했어요. 잠시 뒤 다시 해 주세요.');
+    }).catch(function(){ if(btn){ btn.disabled = false; } alert('연결이 잠깐 안 돼요. 잠시 뒤 다시 해 주세요.'); });
+  }
   document.addEventListener('click', function(e){
+    var del = e.target.closest('.lk-del[data-row]');
+    if(del){ e.preventDefault(); delRow(del.getAttribute('data-row'), del); return; }
     var a = e.target.closest('.lk-open[data-u]'); if(!a) return;
     markDone(a.getAttribute('data-u')); setTimeout(render, 300);
   });
@@ -2388,11 +2423,15 @@
   $('lkReset').addEventListener('click', function(){ var m = doneAll(); delete m[sel]; try{ localStorage.setItem(KEY_DONE, JSON.stringify({ days: m })); }catch(e){} render(); });
   $('lkDays').addEventListener('click', function(e){
     var b = e.target.closest('.lk-day'); if(!b) return;
-    sel = b.getAttribute('data-day'); chips(); head(); render();
+    sel = b.getAttribute('data-day'); redraw();
+    ensure(sel).then(redraw);
   });
 
-  chips(); head(); render();
-  setInterval(function(){ chips(); head(); render(); }, 30000);
+  redraw();
+  // 창고에서 오늘·어제·그제·3일 전 네 날짜를 한 번에 받아온다
+  Promise.all([dayAt(0), dayAt(1), dayAt(2), dayAt(3)].map(fetchDay)).then(redraw);
+  setInterval(function(){ if(!document.hidden) ensure(sel).then(redraw); }, 30000);
+  if(window.DiaTag && window.DiaTag.on) window.DiaTag.on(function(){ head(); });
 })();
 </script>
 
