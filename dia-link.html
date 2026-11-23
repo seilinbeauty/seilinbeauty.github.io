@@ -2313,9 +2313,18 @@
     return fetch(EXEC + '?' + q + '&_=' + Date.now(), { cache: 'no-store' }).then(function(r){ return r.json(); });
   }
   // 창고 서버에서 그날 참여 링크를 받아 둔다 (읽기는 운영 센터 비밀번호)
+  // link_list 는 시트 열 이름(샵이름·구분·게시물주소·등록시각)으로 돌려주므로 화면용 이름으로 맞춘다
+  function norm(it){
+    return {
+      row: it.row, date: it['날짜'] || it.date || '', no: it['번호'] || it.no || '',
+      shop: it['샵이름'] || it.shop || '', kind: it['구분'] || it.kind || '',
+      url: it['게시물주소'] || it.url || '', t: (it['등록시각'] ? String(it['등록시각']).slice(11, 16) : (it.t || '')),
+      memo: (it['메모'] === undefined ? (it.memo || '') : it['메모'])
+    };
+  }
   function fetchDay(day){
     return api('mode=link_list&pw=' + encodeURIComponent(STAFF_PW) + '&date=' + day).then(function(d){
-      if(d && d.ok && d.items){ dayItems[day] = d.items; dayTs[day] = Date.now(); }
+      if(d && d.ok && d.items){ dayItems[day] = d.items.map(norm); dayTs[day] = Date.now(); }
       return dayItems[day] || [];
     }).catch(function(){ return dayItems[day] || []; });
   }

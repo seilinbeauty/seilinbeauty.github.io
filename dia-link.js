@@ -46,6 +46,15 @@
   // 오늘 내 링크(서버) — 창고에서 받아 둔 목록
   var items = [];
   function load(){ return items; }
+  // link_list 는 시트 열 이름으로 돌려주므로 화면용 이름으로 맞춘다
+  function norm(it){
+    return {
+      row: it.row, date: it['날짜'] || it.date || '', no: it['번호'] || it.no || '',
+      shop: it['샵이름'] || it.shop || '', kind: it['구분'] || it.kind || '',
+      url: it['게시물주소'] || it.url || '', t: (it['등록시각'] ? String(it['등록시각']).slice(11, 16) : (it.t || '')),
+      memo: (it['메모'] === undefined ? (it.memo || '') : it['메모'])
+    };
+  }
   function fetchMine(){
     var nick = me(), pin = pinOf(nick);
     if(!nick){ items = []; return Promise.resolve(false); }
@@ -53,7 +62,7 @@
     return api(qs({ mode:'link_list', shop:nick, pin:pin, date:today() }))
       .then(function(d){
         if(d && d.ok && d.items && d.items.length !== undefined){
-          items = d.items.filter(function(it){ return it.shop === nick; });
+          items = d.items.map(norm).filter(function(it){ return it.shop === nick; });
           return true;
         }
         items = []; return false;
