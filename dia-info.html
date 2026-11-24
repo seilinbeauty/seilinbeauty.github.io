@@ -4328,33 +4328,90 @@ document.addEventListener('DOMContentLoaded', function(){
       del.addEventListener("click", function(){
         if(!window.confirm((nm || "이 카드") + " 카드를 뷰티수강에서 삭제할까요?")) return;
         del.disabled = true; del.textContent = "삭제 중";
-        var ids = findCloudIds(it.insta, it.name);
-        var chain = Promise.resolve();
-        ids.forEach(function(cid){
-          chain = chain.then(function(){ return fetch(EXEC + "?mode=course_del&pw=" + encodeURIComponent(KEY) + "&id=" + encodeURIComponent(cid), {cache: "no-store"}).then(function(r){ return r.json(); }); });
+        var cid = safeCid(it.insta, it.name, it._fbId);
+        fbCourseSave({
+          id: cid, shop: it.shop || nm || it.insta, name: it.name || nm, insta: it.insta || "",
+          region: it.region || "", cat: it.cat || "", insta_url: it.insta_url || "",
+          naver_url: it.naver_url || "", home_url: it.home_url || "", benefit: it.benefit || "",
+          intro: "__DELETED__"
+        }).then(function(){
+          if(editTarget && editTarget.insta === it.insta) clearForm();
+          load();
+          say("삭제했습니다.", true);
+        }).catch(function(){
+          del.disabled = false; del.textContent = "삭제"; say("삭제에 실패했습니다.", false);
         });
-        chain.then(function(lastD){
-          if(it.base){
-            var q = "?mode=course_add&pw=" + encodeURIComponent(KEY) + "&insta=" + encodeURIComponent(it.insta || "") + "&name=" + encodeURIComponent(it.name || "") + "&intro=__DELETED__";
-            return fetch(EXEC + q, {cache: "no-store"}).then(function(r){ return r.json(); });
-          }
-          return lastD;
-        }).then(function(d){
-          if(d && d.ok){ if(editTarget && editTarget.insta === it.insta) clearForm(); render(d.items || []); say("삭제했습니다.", true); }
-          else { del.disabled = false; del.textContent = "삭제"; say("삭제에 실패했습니다.", false); }
-        }).catch(function(){ del.disabled = false; del.textContent = "삭제"; say("삭제에 실패했습니다.", false); });
       });
       btns.appendChild(edt); btns.appendChild(del);
       row.appendChild(btns);
       box.appendChild(row);
     });
   }
+  var FB_BASE = "https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/";
+  var FB_KEY = "AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY";
+  function fStr(x){ return { stringValue: String(x || "") }; }
+  function fDoc(coll, id){ return "projects/seilindia/databases/(default)/documents/" + coll + "/" + encodeURIComponent(id); }
+  function safeCid(insta, name, fbId){
+    if(fbId) return fbId;
+    var s = String(insta || name || "").trim().toLowerCase().replace(/\//g, "|");
+    return s || ("c_" + Date.now().toString(36));
+  }
+  function fbCourseSave(obj){
+    var cid = obj.id;
+    var chkId = "stf_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    var body = {
+      writes: [
+        { update: { name: fDoc("checks", chkId), fields: { op: fStr("staff"), id: fStr(cid), pw: fStr(KEY) } }, currentDocument: { exists: false } },
+        { update: {
+            name: fDoc("courses", cid),
+            fields: {
+              id: fStr(cid), shop: fStr(obj.shop || obj.name || obj.insta), name: fStr(obj.name),
+              insta: fStr(obj.insta), region: fStr(obj.region), cat: fStr(obj.cat),
+              insta_url: fStr(obj.insta_url), naver_url: fStr(obj.naver_url), home_url: fStr(obj.home_url),
+              benefit: fStr(obj.benefit), intro: fStr(obj.intro), chk: fStr(chkId)
+            }
+          },
+          updateTransforms: [{ fieldPath: "updatedAt", setToServerValue: "REQUEST_TIME" }]
+        }
+      ]
+    };
+    return fetch(FB_BASE + "documents:commit?key=" + FB_KEY, {
+      method: "POST", cache: "no-store", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
+    }).then(function(r){
+      if(!r.ok) throw new Error("fb " + r.status);
+      return r.json();
+    }).then(function(){
+      fetch(FB_BASE + "documents/checks/" + encodeURIComponent(chkId) + "?key=" + FB_KEY, { method: "DELETE" }).catch(function(){});
+    });
+  }
   function load(){
     if(!window.fetch){ render([]); return; }
-    fetch(EXEC + "?mode=course_list&_=" + Date.now(), {cache: "no-store"})
-      .then(function(r){ return r.json(); })
-      .then(function(d){ render((d && d.ok && d.items) ? d.items : []); })
-      .catch(function(){ render([]); });
+    Promise.all([
+      fetch(FB_BASE + "documents/courses?pageSize=100&key=" + FB_KEY, {cache: "no-store"}).then(function(r){ return r.json(); })
+        .then(function(d){
+          return (d && d.documents ? d.documents : []).map(function(doc){
+            var f = doc.fields || {}, o = {};
+            for(var k in f){ if(f[k].stringValue !== undefined) o[k] = f[k].stringValue; }
+            o._fbId = String(doc.name || "").split("/").pop();
+            return o;
+          });
+        }).catch(function(){ return []; }),
+      fetch(EXEC + "?mode=course_list&_=" + Date.now(), {cache: "no-store"}).then(function(r){ return r.json(); })
+        .then(function(d){ return (d && d.ok && d.items) ? d.items : []; }).catch(function(){ return []; })
+    ]).then(function(res){
+      var fbRows = res[0], shRows = res[1], merged = [], seen = {};
+      fbRows.forEach(function(it){
+        var k = String(it.insta || it.name || "").trim().toLowerCase();
+        if(k) seen[k] = true;
+        merged.push(it);
+      });
+      shRows.forEach(function(it){
+        var k = String(it.insta || it.name || "").trim().toLowerCase();
+        if(k && seen[k]) return;
+        merged.push(it);
+      });
+      render(merged);
+    }).catch(function(){ render([]); });
   }
   function parseBio(raw){
     var text = String(raw || "").trim();
@@ -4459,34 +4516,28 @@ document.addEventListener('DOMContentLoaded', function(){
     var name = $("oc-name") ? $("oc-name").value.trim() : "";
     if(!insta && !name){ say("인스타 아이디나 상호명 중 하나는 넣어 주세요.", false); return; }
     저장.disabled = true; say("저장하는 중…", true);
-    var ids = findCloudIds(insta, name);
-    if(editTarget && editTarget.insta && editTarget.insta.toLowerCase() !== insta.toLowerCase()){
-      findCloudIds(editTarget.insta, editTarget.name).forEach(function(x){ if(ids.indexOf(x) < 0) ids.push(x); });
-    }
-    var chain = Promise.resolve();
-    ids.forEach(function(cid){
-      chain = chain.then(function(){ return fetch(EXEC + "?mode=course_del&pw=" + encodeURIComponent(KEY) + "&id=" + encodeURIComponent(cid), {cache: "no-store"}).then(function(r){ return r.json(); }); });
+    var cid = safeCid(insta, name, editTarget && editTarget._fbId);
+    fbCourseSave({
+      id: cid,
+      shop: (editTarget && editTarget.shop) || name || insta,
+      name: name,
+      insta: insta,
+      region: $("oc-region") ? $("oc-region").value.trim() : "",
+      cat: $("oc-cat") ? $("oc-cat").value : "",
+      insta_url: urlFix(아이디url ? 아이디url.value : ""),
+      naver_url: urlFix($("oc-naver") ? $("oc-naver").value : ""),
+      home_url: urlFix($("oc-home") ? $("oc-home").value : ""),
+      benefit: $("oc-benefit") ? $("oc-benefit").value.trim() : "",
+      intro: $("oc-intro") ? $("oc-intro").value.trim() : ""
+    }).then(function(){
+      저장.disabled = false;
+      clearForm();
+      load();
+      say("저장했습니다. 뷰티수강 페이지에 바로 반영됩니다.", true);
+    }).catch(function(){
+      저장.disabled = false;
+      say("저장에 실패했습니다. 잠시 후 다시 시도해 주세요.", false);
     });
-    var q = "?mode=course_add&pw=" + encodeURIComponent(KEY)
-      + "&insta=" + encodeURIComponent(insta)
-      + "&name=" + encodeURIComponent(name)
-      + "&region=" + encodeURIComponent($("oc-region") ? $("oc-region").value.trim() : "")
-      + "&cat=" + encodeURIComponent($("oc-cat") ? $("oc-cat").value : "")
-      + "&insta_url=" + encodeURIComponent(urlFix(아이디url ? 아이디url.value : ""))
-      + "&naver_url=" + encodeURIComponent(urlFix($("oc-naver") ? $("oc-naver").value : ""))
-      + "&home_url=" + encodeURIComponent(urlFix($("oc-home") ? $("oc-home").value : ""))
-      + "&benefit=" + encodeURIComponent($("oc-benefit") ? $("oc-benefit").value.trim() : "")
-      + "&intro=" + encodeURIComponent($("oc-intro") ? $("oc-intro").value.trim() : "");
-    chain.then(function(){ return fetch(EXEC + q, {cache: "no-store"}).then(function(r){ return r.json(); }); })
-      .then(function(d){
-        저장.disabled = false;
-        if(d && d.ok){
-          clearForm();
-          render(d.items || []);
-          say("저장했습니다. 뷰티수강 페이지에 바로 반영됩니다.", true);
-        } else { say("저장에 실패했습니다. 잠시 후 다시 시도해 주세요.", false); }
-      })
-      .catch(function(){ 저장.disabled = false; say("저장에 실패했습니다. 잠시 후 다시 시도해 주세요.", false); });
   });
   window.diaCourseReload = load;
   load();
