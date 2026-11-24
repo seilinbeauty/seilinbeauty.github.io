@@ -2321,9 +2321,21 @@
       memo: (it['메모'] === undefined ? (it.memo || '') : it['메모'])
     };
   }
+  var CACHE_KEY = 'dia_link_cache_v1';
+  function saveCache(){
+    try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), days: dayItems })); }catch(e){}
+  }
+  function loadCache(){
+    try{
+      var c = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
+      if(c && c.days && Date.now() - (c.ts || 0) < 3600000){
+        Object.keys(c.days).forEach(function(k){ if(Array.isArray(c.days[k])) dayItems[k] = c.days[k]; });
+      }
+    }catch(e){}
+  }
   function fetchDay(day){
     return api('mode=link_list&pw=' + encodeURIComponent(STAFF_PW) + '&date=' + day).then(function(d){
-      if(d && d.ok && d.items){ dayItems[day] = d.items.map(norm); dayTs[day] = Date.now(); }
+      if(d && d.ok && d.items){ dayItems[day] = d.items.map(norm); dayTs[day] = Date.now(); saveCache(); }
       return dayItems[day] || [];
     }).catch(function(){ return dayItems[day] || []; });
   }
@@ -2435,9 +2447,13 @@
     ensure(sel).then(redraw);
   });
 
+  loadCache();
   redraw();
-  // 창고에서 오늘·어제·그제·3일 전 네 날짜를 한 번에 받아온다
-  Promise.all([dayAt(0), dayAt(1), dayAt(2), dayAt(3)].map(fetchDay)).then(redraw);
+  // 오늘 목록부터 먼저 받아 바로 그리고, 지난 3일은 뒤에서 따로 받아 칩 숫자만 채운다
+  fetchDay(dayAt(0)).then(function(){ redraw(); });
+  [dayAt(1), dayAt(2), dayAt(3)].forEach(function(d){
+    fetchDay(d).then(function(){ chips(); if(sel === d) render(); });
+  });
   setInterval(function(){ if(!document.hidden) ensure(sel).then(redraw); }, 60000);
   if(window.DiaTag && window.DiaTag.on) window.DiaTag.on(function(){ head(); });
 })();
