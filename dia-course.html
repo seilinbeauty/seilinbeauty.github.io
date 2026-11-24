@@ -2162,29 +2162,53 @@
           <div class="crs-title">뷰티수강 원장님</div>
           <div class="crs-sub">실력도 매출도 한 단계 끌어올리는 현역 원장님들의 실전 뷰티 클래스 ✨<br>마음에 드는 시술 사진을 누르면 원장님 인스타로 바로 이어집니다.</div>
         </div>
-        <div class="crs-tools" id="crsTools">
+        <div class="crs-loc-row">
+          <button type="button" class="crs-loc" id="btnLoc">
+            <span id="locTxt">전체 지역</span><span class="crs-loc-caret" aria-hidden="true">⌄</span>
+          </button>
+          <span class="crs-loc-hint">우리 동네 원장님 찾기</span>
+        </div>
+        <div class="crs-locchips" id="crsLocChips" style="display:none;">
+          <button type="button" class="crs-locchip is-on" data-region="전체">전체</button>
+          <button type="button" class="crs-locchip" data-region="서울">서울</button>
+          <button type="button" class="crs-locchip" data-region="경기·인천">경기·인천</button>
+          <button type="button" class="crs-locchip" data-region="부산">부산</button>
+        </div>
+        <div class="crs-searchbar">
           <div class="crs-search" id="crsSearchWrap">
             <span aria-hidden="true">🔍</span>
-            <input type="search" id="crsSearch" placeholder="원장님 이름 · 지역 · 종목으로 찾기" autocomplete="off">
+            <input type="search" id="crsSearch" placeholder="어떤 수강을 찾으시나요?" autocomplete="off">
           </div>
+          <button type="button" class="crs-ai" id="btnQuizOpen">✨ AI 추천</button>
+        </div>
+        <div class="crs-tabs" id="crsTabs">
+          <button type="button" class="crs-tab is-on" data-cat="전체" data-ico="🏠">전체</button>
+          <button type="button" class="crs-tab" data-cat="속눈썹펌" data-ico="🌙">속눈썹펌</button>
+          <button type="button" class="crs-tab" data-cat="속눈썹연장" data-ico="✨">속눈썹연장</button>
+          <button type="button" class="crs-tab" data-cat="네일" data-ico="💅">네일</button>
+          <button type="button" class="crs-tab" data-cat="반영구" data-ico="🖊️">반영구</button>
+          <button type="button" class="crs-tab crs-tab-oneday" id="btnOneday" data-on="0" data-ico="🌿">원데이</button>
+        </div>
+        <div class="crs-promo">
+          <div class="crs-promo-txt">
+            <span class="crs-promo-badge">다이아 회원 단독</span>
+            <strong>수강 회차 추가 혜택</strong>
+            <span class="crs-promo-sub">다이아 품앗이 회원 원장님께만 드리는 수강 혜택</span>
+          </div>
+          <a class="crs-promo-go" href="dia.html">혜택 보기</a>
+        </div>
+        <div class="crs-sec-head">
+          <strong>지금 많이 보는 뷰티수강</strong>
+          <span class="crs-sec-sub">사진을 누르면 원장님 인스타로 이어집니다</span>
+        </div>
+        <div class="crs-tools" id="crsTools">
           <div class="crs-sort-row">
             <button type="button" class="crs-sort is-on" data-sort="default">추천순</button>
             <button type="button" class="crs-sort" data-sort="near">📍 가까운 순</button>
             <button type="button" class="crs-sort" data-sort="popular">🔥 인기 탑 순</button>
           </div>
-          <div class="crs-feat-row">
-            <button type="button" class="crs-feat crs-feat-quiz" id="btnQuizOpen">✨ 질문 후 맞춤 추천 수강</button>
-            <button type="button" class="crs-feat crs-feat-oneday" id="btnOneday" data-on="0">🌿 원데이 클래스</button>
-          </div>
         </div>
         <div class="crs-banner" id="crsBanner" style="display:none;"></div>
-        <div class="crs-tabs" id="crsTabs">
-          <button type="button" class="crs-tab is-on" data-cat="전체">전체</button>
-          <button type="button" class="crs-tab" data-cat="속눈썹펌">속눈썹펌</button>
-          <button type="button" class="crs-tab" data-cat="속눈썹연장">속눈썹연장</button>
-          <button type="button" class="crs-tab" data-cat="네일">네일</button>
-          <button type="button" class="crs-tab" data-cat="반영구">반영구</button>
-        </div>
         <div class="crs-quiz-bg" id="crsQuizBg" style="display:none;">
           <div class="crs-quiz-box" role="dialog" aria-label="맞춤 추천 수강 질문">
             <div class="crs-quiz-head">
@@ -2470,7 +2494,7 @@
     defaultOrder = Array.prototype.slice.call(grid.querySelectorAll('.crs-card'));
   });
 
-  var state = { cat: '전체', sort: 'default', oneday: false, quiz: null, q: '' };
+  var state = { cat: '전체', sort: 'default', oneday: false, quiz: null, q: '', region: '전체' };
   var clickMap = null;
   var userLoc = null;
 
@@ -2558,6 +2582,11 @@
         if(cs.indexOf(state.cat) < 0) ok = false;
       }
       if(state.oneday && c.getAttribute('data-oneday') !== '1') ok = false;
+      if(state.region && state.region !== '전체'){
+        var rg = c.getAttribute('data-region') || '';
+        if(!rg) rg = c.textContent.indexOf('경기') >= 0 || c.textContent.indexOf('인천') >= 0 ? '경기·인천' : (c.textContent.indexOf('부산') >= 0 ? '부산' : (c.textContent.indexOf('서울') >= 0 ? '서울' : ''));
+        if(rg !== state.region) ok = false;
+      }
       if(state.q){
         var hay = ((c.dataset.nick || '') + ' ' + c.textContent).toLowerCase();
         if(hay.indexOf(state.q) < 0) ok = false;
@@ -2605,7 +2634,10 @@
     tabs.addEventListener('click', function(e){
       var btn = e.target.closest('.crs-tab');
       if(!btn) return;
-      state.cat = btn.getAttribute('data-cat');
+      if(btn.id === 'btnOneday') return;
+      var catVal = btn.getAttribute('data-cat');
+      if(!catVal) return;
+      state.cat = catVal;
       tabs.querySelectorAll('.crs-tab').forEach(function(b){ b.classList.toggle('is-on', b === btn); });
       apply();
     });
@@ -2660,6 +2692,26 @@
       state.quiz = null;
       btnOneday.classList.toggle('is-on', state.oneday);
       btnOneday.setAttribute('data-on', state.oneday ? '1' : '0');
+      apply();
+    });
+  }
+
+  var btnLoc = document.getElementById('btnLoc');
+  var locChips = document.getElementById('crsLocChips');
+  var locTxt = document.getElementById('locTxt');
+  if(btnLoc && locChips){
+    btnLoc.addEventListener('click', function(){
+      locChips.style.display = (locChips.style.display === 'flex') ? 'none' : 'flex';
+    });
+  }
+  if(locChips){
+    locChips.addEventListener('click', function(e){
+      var chip = e.target.closest('.crs-locchip');
+      if(!chip) return;
+      state.region = chip.getAttribute('data-region') || '전체';
+      locChips.querySelectorAll('.crs-locchip').forEach(function(b){ b.classList.toggle('is-on', b === chip); });
+      if(locTxt) locTxt.textContent = state.region === '전체' ? '전체 지역' : state.region;
+      locChips.style.display = 'none';
       apply();
     });
   }
@@ -3101,6 +3153,52 @@ document.addEventListener('click', function(e){
   .crs-grid{gap:14px;}
   .crs-act{height:36px;}
   .crs-card{border-radius:14px;}
+}
+</style>
+
+<style>
+/* 뷰티수강 — 숨고 앱형 화면 (2026-11-24) */
+.crs-loc-row{display:flex;align-items:center;gap:8px;margin:2px 0 12px;}
+.crs-loc{display:inline-flex;align-items:center;gap:5px;padding:4px 2px;border:0;background:transparent;font-size:19px;font-weight:800;color:#191f28;font-family:inherit;cursor:pointer;}
+.crs-loc-caret{font-size:15px;color:#8b95a1;}
+.crs-loc-hint{font-size:12px;color:#adb5bd;}
+.crs-locchips{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 12px;}
+.crs-locchip{padding:8px 14px;border-radius:999px;border:1px solid #e5e8eb;background:#fff;color:#4e5968;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer;}
+.crs-locchip.is-on{background:#191f28;border-color:#191f28;color:#fff;}
+.crs-searchbar{display:flex;gap:8px;align-items:center;margin-bottom:14px;}
+.crs-search{flex:1;display:flex;align-items:center;gap:8px;margin:0;padding:13px 16px;border-radius:12px;border:1px solid #eef0f2;background:#f2f4f6;}
+.crs-search input{flex:1;min-width:0;border:0;background:transparent;font-size:14px;color:#191f28;font-family:inherit;outline:none;}
+.crs-ai{flex:0 0 auto;padding:13px 14px;border-radius:12px;border:1px solid #e3ddff;background:#f4f1ff;color:#5f3dc4;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;white-space:nowrap;}
+.crs-tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin-bottom:16px;}
+.crs-tab{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 2px;border:0;background:transparent;color:#4e5968;font-size:11.5px;font-weight:700;font-family:inherit;cursor:pointer;border-radius:12px;text-align:center;}
+.crs-tab::before{content:attr(data-ico);display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:14px;background:#f4f1ff;font-size:21px;line-height:1;}
+.crs-tab:nth-child(2)::before{background:#eef4ff;}
+.crs-tab:nth-child(3)::before{background:#fff2f6;}
+.crs-tab:nth-child(4)::before{background:#fff6e9;}
+.crs-tab:nth-child(5)::before{background:#eefaf2;}
+.crs-tab:nth-child(6)::before{background:#f2fbf5;}
+.crs-tab.is-on{color:#191f28;}
+.crs-tab.is-on::before{background:#191f28;box-shadow:0 4px 12px rgba(25,31,40,.22);}
+.crs-tab.crs-tab-oneday.is-on::before{background:#1d6b42;box-shadow:0 4px 12px rgba(29,107,66,.25);}
+.crs-promo{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;padding:18px 18px;border-radius:16px;background:linear-gradient(135deg,#1f1147,#3b1d78);color:#fff;}
+.crs-promo-txt{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.crs-promo-badge{font-size:11px;font-weight:800;color:#c8b6ff;letter-spacing:.3px;}
+.crs-promo-txt strong{font-size:16px;font-weight:800;letter-spacing:-.3px;}
+.crs-promo-sub{font-size:11.5px;color:#cdc2f0;line-height:1.4;word-break:keep-all;}
+.crs-promo-go{flex:0 0 auto;padding:9px 14px;border-radius:999px;background:#fff;color:#3b1d78;font-size:12px;font-weight:800;text-decoration:none;white-space:nowrap;}
+.crs-sec-head{display:flex;flex-direction:column;gap:3px;margin:0 0 10px;}
+.crs-sec-head strong{font-size:17px;font-weight:800;color:#191f28;letter-spacing:-.3px;}
+.crs-sec-sub{font-size:11.5px;color:#8b95a1;}
+.crs-sort-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.crs-sort{padding:8px 14px;border-radius:999px;border:1px solid #e5e8eb;background:#fff;color:#4e5968;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer;}
+.crs-sort.is-on{background:#191f28;border-color:#191f28;color:#fff;}
+@media (max-width:700px){
+  .crs-tabs{grid-template-columns:repeat(6,minmax(0,1fr));gap:0;}
+  .crs-tab{font-size:10.5px;}
+  .crs-tab::before{width:42px;height:42px;font-size:19px;border-radius:13px;}
+  .crs-loc{font-size:18px;}
+  .crs-promo{padding:16px;}
+  .crs-promo-txt strong{font-size:15px;}
 }
 </style>
 </body>
