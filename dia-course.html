@@ -2192,7 +2192,6 @@
         <div class="crs-promo">
           <div class="crs-promo-txt">
             <span class="crs-promo-badge">다이아 회원 단독</span>
-            <strong>수강 회차 추가 혜택</strong>
             <span class="crs-promo-sub">다이아 품앗이 회원 원장님께만 드리는 수강 혜택</span>
           </div>
           <button type="button" class="crs-promo-go" id="btnPromoGo">혜택 보기</button>
@@ -2268,7 +2267,7 @@
           <div class="crs-photos"><a class="crs-ph" href="https://www.instagram.com/haute_ob/" data-insta="haute_ob" target="_blank" rel="noopener"><img src="course-photos/haute_ob_1.jpg" alt="서울/haute_ob/속눈썹 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/haute_ob/" data-insta="haute_ob" target="_blank" rel="noopener"><img src="course-photos/haute_ob_2.jpg" alt="서울/haute_ob/속눈썹 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/haute_ob/" data-insta="haute_ob" target="_blank" rel="noopener"><img src="course-photos/haute_ob_3.jpg" alt="서울/haute_ob/속눈썹 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/haute_ob/" data-insta="haute_ob" target="_blank" rel="noopener"><img src="course-photos/haute_ob_4.jpg" alt="서울/haute_ob/속눈썹 작품 사진" loading="lazy"></a></div>
         </article>
         <article class="crs-card" data-nick="youux153" data-lat="37.3616" data-lng="126.9352" data-region="경기·인천" data-oneday="0" data-cats="속눈썹펌,속눈썹연장" data-benefit="1">
-          <div class="crs-ribbon"></div>
+          <div class="crs-ribbon">다이아 회원 단독 수강 혜택</div>
           <div class="crs-head">
             <div class="crs-av"><img src="avatars/youux153.jpg" alt="군포/youux153/속눈썹" loading="lazy"></div>
             <div class="crs-me">
@@ -2423,7 +2422,7 @@
           <div class="crs-photos"><a class="crs-ph" href="https://www.instagram.com/m.beautylab_/" data-insta="m.beautylab_" target="_blank" rel="noopener"><img src="course-photos/m.beautylab__1.jpg" alt="용산/m_beauty_ink/반영구 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/m.beautylab_/" data-insta="m.beautylab_" target="_blank" rel="noopener"><img src="course-photos/m.beautylab__2.jpg" alt="용산/m_beauty_ink/반영구 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/m.beautylab_/" data-insta="m.beautylab_" target="_blank" rel="noopener"><img src="course-photos/m.beautylab__3.jpg" alt="용산/m_beauty_ink/반영구 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/m.beautylab_/" data-insta="m.beautylab_" target="_blank" rel="noopener"><img src="course-photos/m.beautylab__4.jpg" alt="용산/m_beauty_ink/반영구 작품 사진" loading="lazy"></a></div>
         </article>
         <article class="crs-card" data-nick="_ella_beauty._" data-lat="35.1419" data-lng="129.1087" data-region="부산" data-oneday="1" data-cats="반영구" data-benefit="1">
-          <div class="crs-ribbon"></div>
+          <div class="crs-ribbon">다이아 회원 단독 수강 혜택</div>
           <div class="crs-head">
             <div class="crs-av"><img src="avatars/ella_beauty._.jpg" alt="부산/_ella_beauty._/토탈" loading="lazy"></div>
             <div class="crs-me">
@@ -2818,7 +2817,6 @@
 .crs-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
 @media (max-width:700px){.crs-grid{grid-template-columns:1fr;}}
 .crs-card{border:1px solid #f2e2e8;border-radius:12px;background:#fffdfd;padding:12px;box-shadow:0 1px 3px rgba(180,140,155,.06);overflow:hidden;}
-.crs-ribbon:empty{display:none;}
 .crs-ribbon{margin:-12px -12px 10px;padding:7px 10px;background:#C94A6A;color:#fff;font-size:11.5px;font-weight:800;letter-spacing:-0.2px;text-align:center;line-height:1.35;word-break:keep-all;}
 .crs-head{display:flex;align-items:center;gap:9px;}
 .crs-av{width:42px;height:42px;flex:0 0 auto;border-radius:50%;overflow:hidden;border:1px solid #f0d6df;background:#fdeef3;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#b35172;}
@@ -2988,6 +2986,7 @@ document.addEventListener('click', function(e){
     if(insta) card.setAttribute('data-insta', insta);
     if(benefit){
       var rib = el('div', 'crs-ribbon');
+      rib.textContent = '다이아 회원 단독 수강 혜택';
       card.appendChild(rib);
     }
     var head = el('div', 'crs-head');
