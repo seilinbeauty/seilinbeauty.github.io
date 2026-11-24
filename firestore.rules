@@ -20,14 +20,11 @@ service cloud.firestore {
       return request.time.hours() < 12;
     }
 
-    // ── 문서 번호 만들기: 닉네임에 든 '/'는 문서 경로에 쓸 수 없어 '|'로 바꾼다 (dia-fb.js 와 같은 규칙)
-    function safeId(shop) {
-      return shop.replace('/', '|');
-    }
-
     // ── 본인 4자리 암호 확인
+    //    닉네임에 든 '/'는 문서 경로에 쓸 수 없어 '|'로 바꾼다 (dia-fb.js 의 safeId 와 같은 규칙)
     function pinOk(shop, pin) {
-      let p = /databases/$(database)/documents/pins/$(safeId(shop));
+      let sid = shop.replace('/', '|');
+      let p = /databases/$(database)/documents/pins/$(sid);
       return exists(p) && get(p).data.pin == pin;
     }
 
