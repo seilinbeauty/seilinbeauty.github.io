@@ -110,6 +110,7 @@
     n = Math.round(Number(n) || 0);
     if(n <= 0) return Promise.resolve(false);
     return commit([{ update: { name: name('stats', kstDay()), fields: {} },
+                     updateMask: { fieldPaths: [] },
                      updateTransforms: [{ fieldPath: 'reads', increment: { integerValue: String(n) } }] }])
       .then(function(){ return true; }, function(){ return false; });
   }
