@@ -2185,6 +2185,8 @@
   .lk-count b { color: #e23b6f; font-size: 26px; font-weight: 900; line-height: 1; }
   .lk-count.loading #lkUnit { display: none; }
   .lk-count.loading b { font-size: 14px; font-weight: 700; color: #a67a8a; }
+  .lk-spin { display: inline-block; width: 13px; height: 13px; margin-right: 6px; border-radius: 50%; border: 2px solid #ffd6e4; border-top-color: #e23b6f; animation: lk-spin .7s linear infinite; vertical-align: -2px; }
+  @keyframes lk-spin { to { transform: rotate(360deg); } }
   .lk-form { margin-top: 16px; padding: 18px; border-radius: 18px; background: #fff; border: 2px solid #f2e5ea; }
   .lk-form h3 { margin: 0 0 12px; font-size: 18px; font-weight: 900; color: #222; text-align: center; }
   .lk-row { margin-top: 12px; }
@@ -2258,7 +2260,7 @@
     </div>
     <div class="lk-state">
       <span class="lk-badge" id="lkBadge">참여 중</span>
-      <div class="lk-count loading" id="lkCountBox"><span id="lkCountL">오늘</span> <b id="lkCount">불러오는 중…</b><span id="lkUnit">개</span></div>
+      <div class="lk-count loading" id="lkCountBox"><span id="lkCountL">오늘</span> <b id="lkCount"><span class="lk-spin"></span>불러오는 중입니다</b><span id="lkUnit">개</span></div>
     </div>
   </div>
 
@@ -2326,6 +2328,14 @@
     }catch(e){}
   }
   var dayOk = {};
+  var firstAt = Date.now(), MIN_LOAD = 800;
+  function endLoading(){
+    var box = $('lkCountBox');
+    if(!box || !box.classList.contains('loading')) return;
+    var wait = MIN_LOAD - (Date.now() - firstAt);
+    if(wait <= 0){ box.classList.remove('loading'); $('lkCount').textContent = load().length; return; }
+    setTimeout(function(){ if(!box.classList.contains('loading')) return; box.classList.remove('loading'); $('lkCount').textContent = load().length; }, wait);
+  }
   function fetchDay(day){
     return api('mode=link_list&pw=' + encodeURIComponent(STAFF_PW) + '&date=' + day).then(function(d){
       dayOk[day] = true;
@@ -2396,8 +2406,8 @@
   }
   function render(){
     var items = load(), nick = me(), done = doneSet();
-    if(items.length || dayOk[sel]){ $('lkCountBox').classList.remove('loading'); }
-    $('lkCount').textContent = items.length;
+    if(items.length || dayOk[sel]){ endLoading(); }
+    if(!$('lkCountBox').classList.contains('loading')) $('lkCount').textContent = items.length;
     var others = items.filter(function(it){ return !(nick && it.shop === nick); });
     var cnt = others.filter(function(it){ return done.indexOf(it.url) > -1; }).length;
     $('lkProg').innerHTML = items.length ? (sel === today() ? '오늘' : '이날') + ' 다녀온 게시물 <b>' + cnt + '</b> / ' + others.length + '개' : '';
@@ -2439,7 +2449,7 @@
   $('lkDays').addEventListener('click', function(e){
     var b = e.target.closest('.lk-day'); if(!b) return;
     sel = b.getAttribute('data-day'); redraw();
-    if(!load().length && !dayOk[sel]) $('lkCountBox').classList.add('loading');
+    if(!load().length && !dayOk[sel]){ firstAt = Date.now(); $('lkCountBox').classList.add('loading'); }
     ensure(sel).then(redraw);
   });
 
