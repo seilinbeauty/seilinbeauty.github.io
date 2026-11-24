@@ -2548,7 +2548,16 @@
           setBadge(c, '내 위치 약 ' + d.toFixed(1) + 'km', 'is-near');
         });
       }
-    } else if(state.sort === 'popular'){
+    } else {
+    // 추천순: 다이아 회원 단독 수강 혜택 원장님을 항상 맨 앞에
+    list.sort(function(a, b){
+      var ba = a.getAttribute('data-benefit') === '1' ? 0 : 1;
+      var bb = b.getAttribute('data-benefit') === '1' ? 0 : 1;
+      if(ba !== bb) return ba - bb;
+      return defaultOrder.indexOf(a) - defaultOrder.indexOf(b);
+    });
+  }
+  if(state.sort === 'popular'){
       list.sort(function(a, b){
         var ca = (clickMap && clickMap[a.dataset.nick]) ? clickMap[a.dataset.nick] : 0;
         var cb = (clickMap && clickMap[b.dataset.nick]) ? clickMap[b.dataset.nick] : 0;
@@ -3128,7 +3137,7 @@ document.addEventListener('click', function(e){
 @media (max-width:700px){.crs-grid{grid-template-columns:1fr;gap:22px;}}
 .crs-card{display:flex;flex-direction:column;padding:0 0 4px;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible;}
 .crs-card.is-benefit{padding:14px 12px 12px;border:1.5px solid #f3d5de;border-radius:16px;background:#fffafb;box-shadow:none;}
-.crs-ribbon{order:-1;margin:0 0 10px;padding:0;background:transparent;color:#c2547a;font-size:11.5px;font-weight:800;}
+.crs-ribbon{order:-1;align-self:flex-start;margin:0 0 10px;padding:5px 11px;border-radius:999px;background:#fff0f4;border:1px solid #f3d5de;color:#c2547a;font-size:11.5px;font-weight:800;letter-spacing:-.2px;}
 .crs-head{order:0;display:flex;align-items:center;gap:9px;padding:0;margin:0 0 2px;}
 .crs-av{width:34px;height:34px;border-radius:50%;overflow:hidden;flex:0 0 auto;background:#f2f4f6;}
 .crs-av img{width:100%;height:100%;object-fit:cover;display:block;}
