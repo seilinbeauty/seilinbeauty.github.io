@@ -31,7 +31,7 @@
     return f;
   }
   function docName(coll, id){
-    return 'projects/seilindia/databases/(default)/documents/' + coll + '/' + encodeURIComponent(id);
+    return 'projects/seilindia/databases/(default)/documents/' + coll + '/' + String(id);
   }
   function serverTime(path){ return { fieldPath: path, setToServerValue: 'REQUEST_TIME' }; }
   function safeId(x){ return String(x === undefined || x === null ? '' : x).trim().split('/').join('|'); }

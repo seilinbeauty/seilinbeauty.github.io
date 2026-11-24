@@ -26,7 +26,7 @@
   }
   // 닉네임에 든 '/'는 문서 번호에 쓸 수 없어 '|'로 바꾼다 (firestore.rules 의 safeId 와 같은 규칙)
   function safeId(shop){ return String(shop || '').split('/').join('|'); }
-  function name(coll, id){ return 'projects/seilindia/databases/(default)/documents/' + coll + '/' + encodeURIComponent(id); }
+  function name(coll, id){ return 'projects/seilindia/databases/(default)/documents/' + coll + '/' + String(id); }
 
   // 파이어스토어 호출 (POST 기본, GET·DELETE 는 방식만 바꿈)
   function req(path, body, method){

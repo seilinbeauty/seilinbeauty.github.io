@@ -4350,7 +4350,7 @@ document.addEventListener('DOMContentLoaded', function(){
   var FB_BASE = "https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/";
   var FB_KEY = "AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY";
   function fStr(x){ return { stringValue: String(x || "") }; }
-  function fDoc(coll, id){ return "projects/seilindia/databases/(default)/documents/" + coll + "/" + encodeURIComponent(id); }
+  function fDoc(coll, id){ return "projects/seilindia/databases/(default)/documents/" + coll + "/" + String(id); }
   function safeCid(insta, name, fbId){
     if(fbId) return fbId;
     var s = String(insta || name || "").trim().toLowerCase().replace(/\//g, "|");
@@ -4581,7 +4581,7 @@ document.addEventListener('DOMContentLoaded', function(){
             var listEl = document.getElementById('reqList');
             var badgeEl = document.getElementById('opsReqBadge');
             function str(x){ return { stringValue: String(x || '') }; }
-            function docName(coll, id){ return 'projects/seilindia/databases/(default)/documents/' + coll + '/' + encodeURIComponent(id); }
+            function docName(coll, id){ return 'projects/seilindia/databases/(default)/documents/' + coll + '/' + String(id); }
             function decode(doc){
               if(!doc || !doc.fields) return null;
               var o = {}, f = doc.fields;

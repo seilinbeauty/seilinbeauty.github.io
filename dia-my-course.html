@@ -183,7 +183,7 @@ body{background:#fdf7f9;color:var(--tx);font-family:-apple-system,BlinkMacSystem
     }catch(e){ return null; }
   }
   function str(x){ return { stringValue: String(x || '') }; }
-  function docName(coll, id){ return 'projects/seilindia/databases/(default)/documents/' + coll + '/' + encodeURIComponent(id); }
+  function docName(coll, id){ return 'projects/seilindia/databases/(default)/documents/' + coll + '/' + String(id); }
   function decode(doc){
     if(!doc || !doc.fields) return null;
     var o = {}, f = doc.fields;
