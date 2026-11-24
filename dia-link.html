@@ -2337,13 +2337,9 @@
     }catch(e){}
   }
   var dayOk = {};
-  var firstAt = Date.now(), MIN_LOAD = 800;
   function endLoading(){
     var box = $('lkBox');
-    if(!box || !box.classList.contains('loading')) return;
-    var wait = MIN_LOAD - (Date.now() - firstAt);
-    if(wait <= 0){ box.classList.remove('loading'); return; }
-    setTimeout(function(){ box.classList.remove('loading'); }, wait);
+    if(box) box.classList.remove('loading');
   }
   // 읽기는 파이어베이스 파이어스토어에서, 연결이 안 되면 창고(구글 앱스크립트)에서 받아 온다
   var daySrc = {};
@@ -2491,7 +2487,7 @@
   $('lkDays').addEventListener('click', function(e){
     var b = e.target.closest('.lk-day'); if(!b) return;
     sel = b.getAttribute('data-day'); redraw();
-    if(!load().length && !dayOk[sel]){ firstAt = Date.now(); $('lkBox').classList.add('loading'); }
+    if(!load().length && !dayOk[sel]){ $('lkBox').classList.add('loading'); }
     ensure(sel).then(redraw);
   });
 
