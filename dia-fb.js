@@ -210,7 +210,7 @@
           delDoc('links', o.id)
         ]);
       });
-    }).then(function(){ return { ok: true }; }, function(e){ return { ok: false, error: errOf(e) }; });
+    }).then(function(){ tidy('checks', (mem[o.id] || {}).chkDel); return { ok: true }; }, function(e){ return { ok: false, error: errOf(e) }; });
   }
 
   // 지우기 (스태프 — 운영 센터 비밀번호)
@@ -222,7 +222,7 @@
           delDoc('links', o.id)
         ]);
       });
-    }).then(function(){ return { ok: true }; }, function(e){ return { ok: false, error: errOf(e) }; });
+    }).then(function(){ tidy('checks', (mem[o.id] || {}).chkDel); return { ok: true }; }, function(e){ return { ok: false, error: errOf(e) }; });
   }
 
   // 처음 들어온 회원이면 암호 문서를 만들어 둔다 (이미 있으면 그대로 둔다)
