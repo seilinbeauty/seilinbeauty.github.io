@@ -225,6 +225,19 @@
     }] }).then(function(){ return true; }, function(){ return false; });
   }
 
+  // ── 대화방 지우기 (메시지를 먼저 지우고 방을 마지막에)
+  function deleteRoom(id){
+    return msgs(id).then(function(rows){
+      var writes = (rows || []).map(function(m){
+        return { delete: docName('chats/' + id + '/msgs', m.id) };
+      });
+      var go = writes.length ? req('documents:commit', { writes: writes }) : Promise.resolve();
+      return go.then(function(){
+        return req('documents/chats/' + encodeURIComponent(id), undefined, 'DELETE');
+      });
+    }).then(function(){ return true; }, function(){ return false; });
+  }
+
   // ── 고객 이름 남기기
   function setCustName(id, name){
     name = String(name || '').trim().slice(0, NAME_MAX);
@@ -242,6 +255,7 @@
   var K_READ = 'dia_chat_read';
   function 읽음맵(){ try{ return JSON.parse(localStorage.getItem(K_READ) || '{}') || {}; }catch(e){ return {}; } }
   function 읽음기록(id){ var m = 읽음맵(); m[id] = Date.now(); try{ localStorage.setItem(K_READ, JSON.stringify(m)); }catch(e){} }
+  function 읽음지우기(id){ var m = 읽음맵(); if(m[id]){ delete m[id]; try{ localStorage.setItem(K_READ, JSON.stringify(m)); }catch(e){} } }
   function 읽었나(id, lastAt){
     var t = 읽음맵()[id];
     if(!t) return false;
@@ -287,7 +301,7 @@
 
   window.DiaChat = {
     roomId: roomId, room: room, roomsOfCust: roomsOfCust, roomsOfOwner: roomsOfOwner,
-    msgs: msgs, ensureRoom: ensureRoom, send: send, markRead: markRead,
+    msgs: msgs, ensureRoom: ensureRoom, send: send, markRead: markRead, deleteRoom: deleteRoom,
     setCustName: setCustName, member: member, custId: custId, normId: normId,
     savedName: savedName, saveName: saveName, kst: kst, kstDay: kstDay, safeId: safeId
   };
@@ -521,6 +535,26 @@
       if(un > 0 && 읽었나(r.id, r.lastAt)) un = 0;
       if(un > 0) right.appendChild(el('span', 'ch-n', un > 99 ? '99+' : String(un)));
       item.appendChild(av); item.appendChild(body); item.appendChild(right);
+      var del = el('span', 'ch-del', '✕');
+      del.setAttribute('role', 'button');
+      del.title = '대화 삭제';
+      del.style.cssText = 'margin-left:6px;color:#c9a7b4;font-size:12px;font-weight:900;line-height:1;padding:6px 4px;cursor:pointer;';
+      del.addEventListener('click', function(ev){
+        ev.preventDefault(); ev.stopPropagation();
+        if(!window.confirm('이 대화를 삭제할까요? 양쪽 목록에서 사라지고 되돌릴 수 없습니다.')) return;
+        del.textContent = '…';
+        deleteRoom(r.id).then(function(ok){
+          if(!ok){
+            del.textContent = '✕';
+            window.alert('삭제하지 못했습니다. 잠시 뒤 다시 해 주세요.');
+            return;
+          }
+          읽음지우기(r.id);
+          if(S.id === r.id){ S.id = ''; S.sig = ''; if(location.hash) location.hash = ''; else showList(); }
+          refreshList();
+        });
+      });
+      right.appendChild(del);
       item.addEventListener('click', function(){
         S.owner = r.owner; S.nick = r.nick || r.owner;
         location.hash = 'r=' + encodeURIComponent(r.id);

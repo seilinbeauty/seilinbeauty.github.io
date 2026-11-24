@@ -156,7 +156,8 @@ service cloud.firestore {
                     && request.resource.data.createdAt == resource.data.createdAt
                     && request.resource.data.owner == resource.data.owner
                     && request.resource.data.cust == resource.data.cust;
-      allow delete: if false;
+      // 지우기 — 원장님·고객 모두 자기 목록에서 지울 수 있다(방 하나가 양쪽에서 사라진다)
+      allow delete: if true;
 
       match /msgs/{mid} {
         allow read: if true;
@@ -169,7 +170,8 @@ service cloud.firestore {
                       && request.resource.data.at is timestamp
                       && request.resource.data.at == request.time
                       && exists(/databases/$(database)/documents/chats/$(rid));
-        allow update, delete: if false;
+        allow update: if false;
+        allow delete: if true;   // 방을 지울 때 메시지도 같이 지운다
       }
     }
 
