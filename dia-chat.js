@@ -518,7 +518,9 @@
     backEl.onclick = null;
     room(id).then(function(r){
       S.room = r;
-      if(r && r.cust === S.cust) S.side = 'c';
+      var 내방 = !!(S.me && r && S.me.aliases.indexOf(normId(r.owner)) > -1);
+      if(내방) S.side = 'i';
+      else if(r && r.cust === S.cust) S.side = 'c';
       else if(r) S.side = 'i';
       else S.side = sideHint || (S.me ? 'i' : 'c');
       S.owner = (r && r.owner) || (id.indexOf('_') > -1 ? id.slice(0, id.lastIndexOf('_')) : '');
