@@ -332,9 +332,10 @@ body{background:#fdf7f9;color:var(--tx);font-family:-apple-system,BlinkMacSystem
     var bn = $('mcBanner');
     if(reqDoc && reqDoc.status === 'pending'){
       bn.className = 'mc-banner is-new';
-      bn.innerHTML = '<strong>⏳ 현재 검토 중입니다.</strong> 운영자 승인 후 뷰티수강 페이지에 반영됩니다. 내용을 바꿔 다시 보낼 수도 있어요.';
-      $('btnHide').hidden = !foundAny;
-      $('btnSave').textContent = '검토 요청 다시 보내기';
+      bn.innerHTML = '<strong>⏳ 현재 검토 중입니다.</strong> 운영자 승인 후 뷰티수강 페이지에 반영됩니다.';
+      $('btnHide').hidden = true;
+      $('btnSave').textContent = '검토 중';
+      $('btnSave').disabled = true;
     } else if(reqDoc && reqDoc.status === 'rejected'){
       bn.className = 'mc-banner is-new';
       bn.innerHTML = '<strong>이전 요청이 반려되었습니다.</strong> 내용을 수정한 뒤 다시 검토 요청을 보내 주세요.';
@@ -476,12 +477,12 @@ body{background:#fdf7f9;color:var(--tx);font-family:-apple-system,BlinkMacSystem
       if(window.DiaPin) window.DiaPin.remember(me.nick, pin);
       rememberedPin = pin;
       $('mcPinBox').hidden = true;
-      $('btnSave').disabled = false;
-      $('btnHide').disabled = false;
+      $('btnSave').disabled = true;
+      $('btnHide').hidden = true;
       var bn = $('mcBanner');
       bn.className = 'mc-banner is-new';
       bn.innerHTML = '<strong>⏳ 현재 검토 중입니다.</strong> 운영자 승인 후 뷰티수강 페이지에 반영됩니다.';
-      $('btnSave').textContent = '검토 요청 다시 보내기';
+      $('btnSave').textContent = '검토 중';
       say(isHide ? '내리기 요청을 보냈습니다. 검토 승인 후 반영됩니다.' : '검토 요청을 보냈습니다! 승인 후 뷰티수강에 반영됩니다.', true);
     }).catch(function(e){
       $('btnSave').disabled = false;
