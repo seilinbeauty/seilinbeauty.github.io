@@ -236,21 +236,36 @@
   function saveName(n){ try{ localStorage.setItem(K_NAME, String(n || '')); }catch(e){} }
 
   // ── 시간 표기 (한국 시간)
-  function kst(iso){
+  function kstParts(iso){
     var t = Date.parse(iso || '');
-    if(!t) return '';
+    if(!t) return null;
     var d = new Date(t + 9 * 3600 * 1000);
-    var today = new Date(Date.now() + 9 * 3600 * 1000);
-    var sameDay = d.getUTCFullYear() === today.getUTCFullYear() && d.getUTCMonth() === today.getUTCMonth() && d.getUTCDate() === today.getUTCDate();
-    var hm = ('0' + d.getUTCHours()).slice(-2) + ':' + ('0' + d.getUTCMinutes()).slice(-2);
-    return sameDay ? hm : (d.getUTCMonth() + 1) + '/' + d.getUTCDate() + ' ' + hm;
+    return { y: d.getUTCFullYear(), m: d.getUTCMonth(), d: d.getUTCDate(), h: d.getUTCHours(), mi: d.getUTCMinutes() };
+  }
+  function kst(iso){
+    var p = kstParts(iso);
+    if(!p) return '';
+    var hm = ('0' + p.h).slice(-2) + ':' + ('0' + p.mi).slice(-2);
+    var now = kstParts(new Date().toISOString());
+    var sameDay = now && p.y === now.y && p.m === now.m && p.d === now.d;
+    return sameDay ? hm : (p.m + 1) + '/' + p.d + ' ' + hm;
+  }
+  // 날짜 구분선에 쓰는 날 이름 (오늘 / 어제 / 11월 24일)
+  function kstDay(iso){
+    var p = kstParts(iso);
+    if(!p) return '';
+    var now = kstParts(new Date().toISOString());
+    if(now && p.y === now.y && p.m === now.m && p.d === now.d) return '오늘';
+    var yd = new Date(Date.now() + 9 * 3600 * 1000 - 86400000);
+    if(p.y === yd.getUTCFullYear() && p.m === yd.getUTCMonth() && p.d === yd.getUTCDate()) return '어제';
+    return (p.m + 1) + '월 ' + p.d + '일';
   }
 
   window.DiaChat = {
     roomId: roomId, room: room, roomsOfCust: roomsOfCust, roomsOfOwner: roomsOfOwner,
     msgs: msgs, ensureRoom: ensureRoom, send: send, markRead: markRead,
     setCustName: setCustName, member: member, custId: custId, normId: normId,
-    savedName: savedName, saveName: saveName, kst: kst, safeId: safeId
+    savedName: savedName, saveName: saveName, kst: kst, kstDay: kstDay, safeId: safeId
   };
 
   // ══════════════════════════════════════
@@ -555,7 +570,7 @@
     }
     var prev = '';
     rows.forEach(function(m){
-      var day = String(kst(m.at)).split(' ')[0];
+      var day = kstDay(m.at);
       if(day !== prev){
         prev = day;
         msgsBox.appendChild(el('div', 'ch-day', day));
