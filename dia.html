@@ -2164,7 +2164,13 @@
         <button type="button" id="mcLoginBtn" class="mc-hero-login">내 품앗이</button>
         <a href="dia-course.html" id="mcCourseBtn">뷰티수강</a>
       </div>
-      <a id="mcHeroClock" class="mc-hero-clock" hidden href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" title="오픈채팅방 바로 가기"><span class="book-cd" id="diaCd">--</span></a>
+      <div class="mc-hero-right">
+        <a id="mcChatBtn" class="mc-chat" href="dia-chat.html" hidden>
+          <span class="mc-chat-ico">💬</span><span>수강채팅</span>
+          <span class="mc-chat-n" id="mcChatBadge" hidden>0</span>
+        </a>
+        <a id="mcHeroClock" class="mc-hero-clock" hidden href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" title="오픈채팅방 바로 가기"><span class="book-cd" id="diaCd">--</span></a>
+      </div>
       <div class="mc-login-box" id="mcLoginBox" hidden style="margin:8px auto 0;max-width:440px;text-align:center;">
         <div style="display:flex;gap:6px;">
           <input id="mcLoginIn" type="search" placeholder="회원 검색 (닉네임·인스타·초성)" autocomplete="off" style="flex:1;min-width:0;height:34px;border:1px solid #ecdce2;border-radius:9px;padding:0 10px;font-size:12.5px;background:#fff;text-align:center;">
@@ -2375,7 +2381,8 @@
               .mc-news-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10.5px;color:#9e8890;}
               .mc-news-link{color:#c2456a;font-weight:800;text-decoration:none;}
               .mc-empty{margin-top:8px;font-size:12px;color:#b9a9af;}
-              .mc-hero-clock{position:absolute;top:12px;right:16px;z-index:2;display:inline-flex;margin:0;text-align:center;cursor:pointer;text-decoration:none;}
+              .mc-hero-right{position:absolute;top:12px;right:16px;z-index:2;display:inline-flex;align-items:center;gap:6px;}
+              .mc-hero-clock{position:static;display:inline-flex;margin:0;text-align:center;cursor:pointer;text-decoration:none;}
               .mc-hero-clock:hover .book-cd,.mc-hero-clock:active .book-cd{box-shadow:0 2px 10px rgba(198,69,106,.28);filter:brightness(1.04);}
               .mc-hero-clock[hidden]{display:none !important;}
               .mc-hero-clock .book-cd{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-sizing:border-box;width:auto;max-width:100%;font-size:11px;line-height:1.25;padding:6px 11px;border-radius:12px;font-weight:800;white-space:nowrap;text-align:center;}
@@ -2410,14 +2417,11 @@
               @media (max-width:600px){.mycard{padding:12px 13px 13px;}.mycard-s{font-size:9px;}.mc-k b{font-size:14px;}.mc-hero-login{padding:8px 14px;font-size:12px;}}
               /* PC: 남은 시간 배지가 우측 버튼 위로 겹치지 않게 흐름 안에 둔다 */
               @media (min-width:881px){
-                .dia-hero .mc-hero-clock{position:static;margin:0 0 0 auto;align-self:center;}
+                .dia-hero .mc-hero-right{position:static;margin:0 0 0 auto;align-self:center;}
+                .dia-hero .mc-hero-clock{position:static;margin:0;align-self:center;}
                 .dia-hero-in:has(#mcHeroClock:not([hidden])) .pr-card{padding-right:0 !important;}
               }
             </style>
-            <a id="mcChatBtn" class="mc-chat" href="dia-chat.html" hidden>
-              <span class="mc-chat-ico">💬</span><span>수강채팅</span>
-              <span class="mc-chat-n" id="mcChatBadge" hidden>0</span>
-            </a>
             <div class="mc-fortune-wrap" style="margin-top:0;padding-top:0;border-top:0;">
               <button type="button" class="mc-game-toggle" id="mcGameToggle">😘 원장님들 화이팅! <span id="mcGameArrow">▴</span></button>
               <div class="mc-game-body" id="mcGameBody">
@@ -6307,5 +6311,5 @@
   }catch(e){}
 })();
 </script>
-<script src="dia-tag.js?v=2" defer></script><script src="dia-fb.js?v=4" defer></script><script src="dia-pin.js?v=2" defer></script><script src="dia-pin-gate.js?v=2" defer></script><script src="dia-link.js?v=14" defer></script><script src="dia-chat.js?v=5" defer></script><script src="dia-ask.js?v=1" defer></script></body>
+<script src="dia-tag.js?v=2" defer></script><script src="dia-fb.js?v=4" defer></script><script src="dia-pin.js?v=2" defer></script><script src="dia-pin-gate.js?v=2" defer></script><script src="dia-link.js?v=14" defer></script><script src="dia-chat.js?v=6" defer></script><script src="dia-ask.js?v=1" defer></script></body>
 </html>

@@ -279,17 +279,15 @@
     var st = document.createElement('style');
     st.id = 'ch-badge-css';
     st.textContent =
-      /* 마이페이지 버튼 (참여 마감 배지 옆 작은 알약 버튼) */
-      '.mc-chat{display:inline-flex;align-items:center;gap:4px;margin:0;padding:4px 9px;border-radius:999px;' +
-      'border:1px solid #f0d7e0;background:#fff;color:#b3476a;font-size:11px;font-weight:800;text-decoration:none;white-space:nowrap;line-height:1.2;}' +
+      /* 마이페이지 버튼 (참여 마감까지 시계 옆 작은 버튼) */
+      '.mc-chat{display:inline-flex;align-items:center;gap:4px;margin:0;padding:7px 10px;border-radius:12px;' +
+      'border:1px solid #f0d7e0;background:#fff;color:#b3476a;font-size:11.5px;font-weight:800;text-decoration:none;white-space:nowrap;line-height:1.2;box-shadow:0 2px 6px rgba(198,69,106,.08);}' +
       '.mc-chat[hidden]{display:none;}' +
       '.mc-chat:active{background:#fdeef3;}' +
-      '.mc-chat .mc-chat-ico{font-size:12px;line-height:1;}' +
+      '.mc-chat .mc-chat-ico{font-size:13px;line-height:1;}' +
       '.mc-chat .mc-chat-n{margin-left:1px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#e1789a;color:#fff;' +
       'font-size:10px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;}' +
       '.mc-chat .mc-chat-n[hidden]{display:none;}' +
-      '.dl-h{flex-wrap:wrap;gap:6px !important;}' +
-      '.dl-h-r{display:inline-flex;align-items:center;gap:5px;margin-left:auto;}' +
       /* 카드의 채팅 버튼 (인스타그램 버튼과 같은 모양, 분홍 채움) */
       '.crs-ig.crs-chat{background:#e1789a;border-color:#e1789a;color:#fff;position:relative;display:inline-flex;align-items:center;gap:3px;cursor:pointer;}' +
       '.crs-ig.crs-chat:active{background:#d55576;}' +
@@ -315,24 +313,6 @@
       if(n > 0){ b.textContent = n > 99 ? '99+' : String(n); b.hidden = false; }
       else b.hidden = true;
     }
-    function placeChatBtn(){
-      var badge = document.getElementById('dlBadge');
-      if(!badge || !badge.parentNode) return;
-      if(badge.parentNode.classList && badge.parentNode.classList.contains('dl-h-r')){
-        if(btn.parentNode !== badge.parentNode) badge.parentNode.insertBefore(btn, badge);
-        return;
-      }
-      var head = badge.parentNode;
-      var grp = document.createElement('span');
-      grp.className = 'dl-h-r';
-      head.appendChild(grp);
-      grp.appendChild(btn);
-      grp.appendChild(badge);
-    }
-    var linkBox = document.getElementById('diaLinkBox');
-    if(linkBox && window.MutationObserver){
-      new MutationObserver(function(){ placeChatBtn(); }).observe(linkBox, { childList: true, subtree: true });
-    }
     function check(){
       var me = member();
       if(!me){
@@ -340,12 +320,10 @@
         return;
       }
       if(!on){ on = true; btn.hidden = false; }
-      placeChatBtn();
       if(document.hidden) return;
       roomsOfOwner(me.aliases).then(tally, function(){});
     }
     pageBadgeStyle();
-    placeChatBtn();
     check();
     timer = setInterval(check, 15000);
     document.addEventListener('visibilitychange', function(){ if(!document.hidden) check(); });
