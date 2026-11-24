@@ -91,7 +91,7 @@
     '.dl-tag{margin-top:6px;display:flex;align-items:center;gap:6px;font-size:12px;color:#7a6a70;flex-wrap:wrap;}',
     '.dl-tag b{font-size:13.5px;color:#33262a;}',
     '.dl-mini{padding:2px 8px;border-radius:8px;border:1px solid #f0c8d5;background:#fff8fa;color:#b3476a;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;}',
-    '.dl-kinds{margin-top:9px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;}',
+    '.dl-kinds{margin-top:9px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;}',
     '.dl-kind{height:34px;border-radius:9px;border:1px solid #f0dce3;background:#fff;font-size:12.5px;font-weight:800;color:#6a5a60;cursor:pointer;font-family:inherit;padding:0 2px;}',
     '.dl-kind.on{border-color:#ff5d8f;background:#ff5d8f;color:#fff;}',
     '.dl-f{margin-top:6px;display:flex;gap:6px;}',
@@ -111,7 +111,7 @@
     '.dl-mi-q{flex:1 1 auto;font-size:12px;font-weight:800;color:#d23b5e;}',
     '.dl-ma{display:flex;gap:4px;margin-left:auto;}',
     '.dl-mi.edit{display:block;}',
-    '.dl-mk{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;}',
+    '.dl-mk{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;}',
     '.dl-mk-b{height:30px;border-radius:8px;border:1px solid #f0dce3;background:#fff;font-size:11.5px;font-weight:800;color:#6a5a60;cursor:pointer;font-family:inherit;padding:0 2px;}',
     '.dl-mk-b.on{border-color:#ff5d8f;background:#ff5d8f;color:#fff;}',
     '.dl-mu{margin-top:6px;width:100%;height:34px;padding:0 10px;border:1px solid #e6a6bb;border-radius:8px;font-size:13px;font-family:inherit;outline:none;}',
@@ -150,8 +150,6 @@
         '<div class="dl-kinds" id="dlKinds">' +
           '<button type="button" class="dl-kind" data-k="🤍">🤍 일반</button>' +
           '<button type="button" class="dl-kind" data-k="릴스">릴스</button>' +
-          '<button type="button" class="dl-kind" data-k="벤">벤</button>' +
-          '<button type="button" class="dl-kind" data-k="릴스 벤">릴스 벤</button>' +
         '</div>' +
         '<form class="dl-f" id="dlForm" autocomplete="off"><input id="dlUrl" inputmode="url" placeholder="게시물 주소 붙여 넣기"><button type="submit">남기기</button></form>' +
         '<div class="dl-msg" id="dlMsg"></div>' +
@@ -224,7 +222,7 @@
 
   // 오늘 내가 남긴 링크: 고치기·지우기 (서버 행 번호 row 로 구분)
   var editKey = null, delKey = null, editKind = '', mineSig = '';
-  var KINDS = [['🤍', '🤍 일반'], ['릴스', '릴스'], ['벤', '벤'], ['릴스 벤', '릴스 벤']];
+  var KINDS = [['🤍', '🤍 일반'], ['릴스', '릴스']];
   function mineList(){
     var nick = me();
     return load().filter(function(it){ return it.shop === nick; });

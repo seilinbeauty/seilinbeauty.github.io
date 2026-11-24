@@ -2263,23 +2263,13 @@
   <div class="lk-prog" id="lkProg"></div>
 
   <div class="lk-sec">
-    <div class="lk-sec-h">🤍 일반 <em id="cNormal"></em><span>해시태그로도 찾을 수 있어요</span></div>
+    <div class="lk-sec-h">🤍 일반 <em id="cNormal"></em></div>
     <div class="lk-list" id="lkNormal"></div>
   </div>
 
   <div class="lk-sec">
-    <div class="lk-sec-h">🎬 릴스 <em id="cReel"></em><span>해시태그로도 찾을 수 있어요</span></div>
+    <div class="lk-sec-h">🎬 릴스 <em id="cReel"></em></div>
     <div class="lk-list" id="lkReel"></div>
-  </div>
-
-  <div class="lk-sec ban">
-    <div class="lk-sec-h">🚫 벤 <em id="cBan"></em><span>해시태그로 안 나와요 · 꼭 링크로 들어가 주세요</span></div>
-    <div class="lk-list" id="lkBan"></div>
-  </div>
-
-  <div class="lk-sec ban">
-    <div class="lk-sec-h">🚫 릴스 벤 <em id="cReelBan"></em><span>해시태그로 안 나와요 · 꼭 링크로 들어가 주세요</span></div>
-    <div class="lk-list" id="lkReelBan"></div>
   </div>
 
   <div class="lk-tools-row">
@@ -2406,7 +2396,7 @@
     var others = items.filter(function(it){ return !(nick && it.shop === nick); });
     var cnt = others.filter(function(it){ return done.indexOf(it.url) > -1; }).length;
     $('lkProg').innerHTML = items.length ? (sel === today() ? '오늘' : '이날') + ' 다녀온 게시물 <b>' + cnt + '</b> / ' + others.length + '개' : '';
-    [['벤', 'lkBan', 'cBan'], ['릴스 벤', 'lkReelBan', 'cReelBan'], ['릴스', 'lkReel', 'cReel'], ['🤍', 'lkNormal', 'cNormal']].forEach(function(g){
+    [['릴스', 'lkReel', 'cReel'], ['🤍', 'lkNormal', 'cNormal']].forEach(function(g){
       var list = items.filter(function(it){ return it.kind === g[0]; });
       $(g[2]).textContent = list.length ? list.length + '개' : '';
       $(g[1]).innerHTML = list.length ? list.map(function(it){ return row(it, nick, done); }).join('') : '<div class="lk-empty">아직 없어요.</div>';
