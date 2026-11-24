@@ -104,6 +104,22 @@
     return req('documents/' + coll + '/' + encodeURIComponent(id), null, 'DELETE').then(function(){ return true; }, function(){ return false; });
   }
 
+  // ── 읽기 사용량 집계 (운영 센터 카드) — 그날 문서 수만큼 더한다
+  function kstDay(){ return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10); }
+  function bump(n){
+    n = Math.round(Number(n) || 0);
+    if(n <= 0) return Promise.resolve(false);
+    return commit([{ update: { name: name('stats', kstDay()), fields: {} },
+                     updateTransforms: [{ fieldPath: 'reads', increment: { integerValue: String(n) } }] }])
+      .then(function(){ return true; }, function(){ return false; });
+  }
+  function stat(day){
+    return req('documents/stats/' + encodeURIComponent(day), null, 'GET').then(function(doc){
+      var v = doc && doc.fields && doc.fields.reads && doc.fields.reads.integerValue;
+      return parseInt(v || 0, 10) || 0;
+    }, function(){ return 0; });
+  }
+
   // 그날 목록 읽기
   function day(date){
     return req('documents:runQuery', { structuredQuery: {
@@ -130,6 +146,7 @@
         });
       });
       out.sort(function(a, b){ return (a.at - b.at) || (a.id < b.id ? -1 : 1); });
+      bump(out.length); // 운영 센터 사용량 카드에 오늘 읽은 문서 수를 더한다
       return out;
     });
   }
@@ -255,7 +272,7 @@
 
   window.DiaFB = {
     day: day, add: add, edit: edit, del: del, staffDel: staffDel,
-    ensurePin: ensurePin, setPin: setPin, safeId: safeId,
+    ensurePin: ensurePin, setPin: setPin, safeId: safeId, stat: stat, kstDay: kstDay,
     linkId: linkId, keyOf: keyOf, STAFF_PW: STAFF_PW
   };
 })();

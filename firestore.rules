@@ -115,6 +115,20 @@ service cloud.firestore {
       allow delete: if true;
     }
 
+    // ── 파이어베이스 읽기 사용량 집계 (운영 센터 카드용) — 사이트가 직접 더한다
+    match /stats/{day} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['reads'])
+                    && request.resource.data.reads is int
+                    && request.resource.data.reads >= 0
+                    && request.resource.data.reads <= 2000;
+      allow update: if request.resource.data.keys().hasOnly(['reads'])
+                    && request.resource.data.reads is int
+                    && request.resource.data.reads > resource.data.reads
+                    && (request.resource.data.reads - resource.data.reads) <= 2000;
+      allow delete: if false;
+    }
+
     // ── 그 밖의 모든 경로는 막는다
     match /{document=**} {
       allow read, write: if false;
