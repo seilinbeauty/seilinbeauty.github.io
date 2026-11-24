@@ -3219,12 +3219,22 @@ document.addEventListener('click', function(e){
 .crs-sort{padding:8px 14px;border-radius:999px;border:1px solid #e5e8eb;background:#fff;color:#4e5968;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer;}
 .crs-sort.is-on{background:#191f28;border-color:#191f28;color:#fff;}
 @media (max-width:700px){
+  .crs-searchbar{gap:6px;}
+  .crs-search{padding:12px 12px;gap:6px;}
+  .crs-search input{font-size:13.5px;}
+  .crs-ai{padding:12px 10px;border-radius:10px;font-size:12px;}
   .crs-tabs{grid-template-columns:repeat(6,minmax(0,1fr));gap:0;}
   .crs-tab{font-size:10.5px;}
   .crs-tab::before{width:42px;height:42px;font-size:19px;border-radius:13px;}
   .crs-loc{font-size:18px;}
   .crs-promo{padding:16px;}
   .crs-promo-txt strong{font-size:15px;}
+}
+@media (max-width:360px){
+  .crs-searchbar{gap:5px;}
+  .crs-search{padding:11px 10px;}
+  .crs-search input{font-size:13px;}
+  .crs-ai{padding:11px 8px;font-size:11px;}
 }
 </style>
 
