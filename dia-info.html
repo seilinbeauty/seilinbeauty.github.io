@@ -5109,9 +5109,10 @@ document.addEventListener('DOMContentLoaded', function(){
 <script>
 // [창고 다이렉트 실시간 연동 - 운영 센터]
 (function(){
-  var WH_URL = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec?key=UpSPqZHyuXkR8k71iPJFWr3y9o2sCPjq&limit=500';
-  fetch(WH_URL).then(function(r){ return r.json(); }).then(function(res){
-    if(!res || !res.ok || !Array.isArray(res.rows)) return;
+  var PARSE_URL = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec?key=UpSPqZHyuXkR8k71iPJFWr3y9o2sCPjq&mode=dia_parse&days=14';
+  fetch(PARSE_URL, {cache:'no-store'}).then(function(r){ return r.json(); }).then(function(res){
+    // 창고가 카톡 원문을 직접 해석해 둔 결과(days)만 받는다
+    if(!res || !res.ok || !res.days) return;
     var now = new Date(Date.now() + 9 * 3600 * 1000);
     var asof = document.getElementById('ops-asof');
     var mmdd = ('0'+(now.getUTCMonth()+1)).slice(-2) + '-' + ('0'+now.getUTCDate()).slice(-2);
@@ -5119,29 +5120,8 @@ document.addEventListener('DOMContentLoaded', function(){
     if(asof){
       asof.innerHTML = '데이터 최신화 <strong style="font-weight:800;color:#c2456a;">' + mmdd + ' ' + hhmm + '</strong> 창고 실시간 연동';
     }
-    // 창고 rows로 날짜별 참여/완료/지각 집계
-    var byDate = {};
-    res.rows.forEach(function(row){
-      var sender = String(row.sender || '').trim();
-      var msg = String(row.message || '').trim();
-      var recv = String(row.recv || '');
-      if(!sender || sender.indexOf('오픈채팅봇') >= 0 || sender.indexOf('방장봇') >= 0 || sender === 'STAFF') return;
-      var dPart = recv.slice(0, 10);
-      var hh = parseInt(recv.slice(11, 13), 10);
-      if(!dPart || isNaN(hh)) return;
-      var isComp = (msg.indexOf('완료') >= 0 && msg.indexOf('참여') < 0 && msg.indexOf('참녀') < 0);
-      var isJoin = (msg.indexOf('참여') >= 0 || msg.indexOf('참녀') >= 0);
-      if(!byDate[dPart]) byDate[dPart] = {joins:{}, comps:{}, late:{}};
-      if(isJoin && hh >= 9) byDate[dPart].joins[sender] = true;
-      else if(isComp && hh >= 21) byDate[dPart].comps[sender] = true;
-      else if(isComp && hh < 9){
-        // 자정~09시 인증은 전날 지각
-        var dt = new Date(dPart + 'T00:00:00Z');
-        var prev = new Date(dt.getTime() - 86400000).toISOString().slice(0, 10);
-        if(!byDate[prev]) byDate[prev] = {joins:{}, comps:{}, late:{}};
-        byDate[prev].late[sender] = true;
-      }
-    });
+    // 날짜별 참여/완료/지각은 창고 해석 결과 그대로
+    var byDate = res.days;
     // 일별 요약 표 행 업데이트
     var grids = document.querySelectorAll('div[style*="grid-template-columns:1.4fr 1fr 1fr 1fr 1fr"]');
     grids.forEach(function(g){
