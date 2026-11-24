@@ -3246,7 +3246,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, .plx-main::-webkit-scrollbar {
 
 <style>
 /* 하단 탭바 (숨고 스타일) — 2026-11-24 */
-.dia-tabbar{position:fixed;left:0;right:0;bottom:0;z-index:9990;display:grid;grid-template-columns:repeat(5,1fr);
+.dia-tabbar{position:fixed;left:0;right:0;bottom:0;z-index:9990;display:grid;grid-template-columns:repeat(2,1fr);
   background:rgba(255,255,255,.97);backdrop-filter:blur(8px);border-top:1px solid #eef0f2;
   padding:6px 2px calc(6px + env(safe-area-inset-bottom,0px));}
 .dia-tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0 2px;text-decoration:none;
@@ -3259,10 +3259,7 @@ body{padding-bottom:76px !important;}
 @media (max-width:700px){body{padding-bottom:84px !important;}}
 </style>
 <nav class="dia-tabbar" aria-label="하단 메뉴">
-  <a href="dia.html"><span class="tb-ico">🏠</span>홈</a>
   <a href="dia-course.html" class="is-on"><span class="tb-ico">🎓</span>수강찾기</a>
-  <a href="dia-link.html"><span class="tb-ico">🔗</span>참여링크</a>
-  <a href="dia-guide.html"><span class="tb-ico">📋</span>공지</a>
   <a href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener"><span class="tb-ico">💬</span>채팅</a>
 </nav>
 </body>
