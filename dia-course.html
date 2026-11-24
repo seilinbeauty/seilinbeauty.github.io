@@ -3239,6 +3239,12 @@ document.addEventListener('click', function(e){
 </style>
 
 <style>
+/* 스크롤바 숨김 — 2026-11-24 */
+html, body, .plx-main { scrollbar-width: none; -ms-overflow-style: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar, .plx-main::-webkit-scrollbar { width: 0; height: 0; display: none; }
+</style>
+
+<style>
 /* 하단 탭바 (숨고 스타일) — 2026-11-24 */
 .dia-tabbar{position:fixed;left:0;right:0;bottom:0;z-index:9990;display:grid;grid-template-columns:repeat(5,1fr);
   background:rgba(255,255,255,.97);backdrop-filter:blur(8px);border-top:1px solid #eef0f2;
