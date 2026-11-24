@@ -2460,6 +2460,17 @@
     return arr;
   }
   shuffle(benefitCards);
+  if(benefitCards.length > 1){
+    try{
+      var prevTop = sessionStorage.getItem('crs_prev_ben_top') || '';
+      var curTop = benefitCards[0].getAttribute('data-nick') || '';
+      if(prevTop && curTop === prevTop){
+        var swapIdx = 1 + Math.floor(Math.random() * (benefitCards.length - 1));
+        var t0 = benefitCards[0]; benefitCards[0] = benefitCards[swapIdx]; benefitCards[swapIdx] = t0;
+      }
+      sessionStorage.setItem('crs_prev_ben_top', benefitCards[0].getAttribute('data-nick') || '');
+    }catch(e){}
+  }
   shuffle(normalCards);
   var defaultOrder = benefitCards.concat(normalCards);
   defaultOrder.forEach(function(c){ grid.appendChild(c); });
@@ -3018,6 +3029,14 @@ document.addEventListener('click', function(e){
     var card = el('article', 'crs-card' + (benefit ? ' is-benefit' : ''));
     card.setAttribute('data-cats', cats || '기타');
     card.setAttribute('data-benefit', benefit ? '1' : '0');
+    card.setAttribute('data-nick', (prevCard && prevCard.getAttribute('data-nick')) || name || insta || '');
+    if(region || (prevCard && prevCard.getAttribute('data-region'))) card.setAttribute('data-region', region || prevCard.getAttribute('data-region'));
+    if(prevCard){
+      ['data-lat','data-lng','data-oneday'].forEach(function(ak){
+        var av = prevCard.getAttribute(ak);
+        if(av !== null) card.setAttribute(ak, av);
+      });
+    }
     if(insta) card.setAttribute('data-insta', insta);
     if(benefit){
       var rib = el('div', 'crs-ribbon');
@@ -3125,7 +3144,19 @@ document.addEventListener('click', function(e){
       }
       return a;
     }
-    sh(b); sh(n);
+    sh(b);
+    if(b.length > 1){
+      try{
+        var pTop = sessionStorage.getItem('crs_prev_ben_top') || '';
+        var cTop = b[0].getAttribute('data-nick') || '';
+        if(pTop && cTop === pTop){
+          var sIdx = 1 + Math.floor(Math.random() * (b.length - 1));
+          var bt = b[0]; b[0] = b[sIdx]; b[sIdx] = bt;
+        }
+        sessionStorage.setItem('crs_prev_ben_top', b[0].getAttribute('data-nick') || '');
+      }catch(e){}
+    }
+    sh(n);
     b.concat(n).forEach(function(c){ grid.appendChild(c); });
     try{ document.dispatchEvent(new Event('crs:reordered')); }catch(e){}
   }
