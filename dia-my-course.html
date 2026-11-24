@@ -410,40 +410,69 @@ body{background:#fdf7f9;color:var(--tx);font-family:-apple-system,BlinkMacSystem
     $('btnHide').disabled = true;
     say(isHide ? '내리는 중…' : '저장하는 중…', true);
 
-    var chkId = 'crs_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    var fieldsObj = {
-      id: str(docId),
-      shop: str(me.nick),
-      status: str('pending'),
-      action: str(isHide ? 'hide' : 'save'),
-      name: str(name || me.nick),
-      insta: str(insta),
-      region: str($('fRegion').value.trim()),
-      cat: str($('fCat').value),
-      insta_url: str(urlFix($('fIgUrl').value)),
-      naver_url: str(urlFix($('fNaver').value)),
-      home_url: str(urlFix($('fHome').value)),
-      benefit: str($('fBenefit').value.trim()),
-      intro: str(isHide ? '__DELETED__' : $('fIntro').value.trim()),
-      chk: str(chkId)
-    };
-
-    fbReq('documents:commit', {
-      writes: [
-        {
-          update: {
-            name: docName('checks', chkId),
-            fields: { op: str('course'), id: str(docId), shop: str(me.nick), pin: str(pin) }
+    var sid = safeId(me.nick);
+    function sendCourseReq(){
+      var chkId = 'crs_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      var fieldsObj = {
+        id: str(docId),
+        shop: str(me.nick),
+        status: str('pending'),
+        action: str(isHide ? 'hide' : 'save'),
+        name: str(name || me.nick),
+        insta: str(insta),
+        region: str($('fRegion').value.trim()),
+        cat: str($('fCat').value),
+        insta_url: str(urlFix($('fIgUrl').value)),
+        naver_url: str(urlFix($('fNaver').value)),
+        home_url: str(urlFix($('fHome').value)),
+        benefit: str($('fBenefit').value.trim()),
+        intro: str(isHide ? '__DELETED__' : $('fIntro').value.trim()),
+        chk: str(chkId)
+      };
+      return fbReq('documents:commit', {
+        writes: [
+          {
+            update: {
+              name: docName('checks', chkId),
+              fields: { op: str('course'), id: str(docId), shop: str(me.nick), pin: str(pin) }
+            },
+            currentDocument: { exists: false }
           },
+          {
+            update: { name: docName('course_requests', docId), fields: fieldsObj },
+            updateTransforms: [{ fieldPath: 'updatedAt', setToServerValue: 'REQUEST_TIME' }]
+          }
+        ]
+      }).then(function(){
+        fbReq('documents/checks/' + encodeURIComponent(chkId), undefined, 'DELETE').catch(function(){});
+      });
+    }
+
+    function ensurePinDoc(){
+      return fbReq('documents:commit', {
+        writes: [{
+          update: { name: docName('pins', sid), fields: { pin: str(pin) } },
           currentDocument: { exists: false }
-        },
-        {
-          update: { name: docName('course_requests', docId), fields: fieldsObj },
-          updateTransforms: [{ fieldPath: 'updatedAt', setToServerValue: 'REQUEST_TIME' }]
+        }]
+      }).catch(function(e){
+        if(e && e.status === 409) return true;
+        throw e;
+      });
+    }
+
+    var verify = window.DiaPin ? window.DiaPin.check(me.nick, pin) : Promise.resolve({ ok: true });
+    verify.then(function(res){
+      if(!res || !res.ok){
+        if(res && res.reason === '틀림') throw { status: 403 };
+        throw new Error('auth_err');
+      }
+      return sendCourseReq().catch(function(e){
+        if(e && e.status === 403){
+          return ensurePinDoc().then(function(){ return sendCourseReq(); });
         }
-      ]
+        throw e;
+      });
     }).then(function(){
-      fbReq('documents/checks/' + encodeURIComponent(chkId), undefined, 'DELETE').catch(function(){});
       if(window.DiaPin) window.DiaPin.remember(me.nick, pin);
       rememberedPin = pin;
       $('mcPinBox').hidden = true;
