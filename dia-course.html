@@ -2461,6 +2461,10 @@
   shuffle(normalCards);
   var defaultOrder = benefitCards.concat(normalCards);
   defaultOrder.forEach(function(c){ grid.appendChild(c); });
+  // 창고에서 카드를 다시 불러와 순서를 새로 섞으면, 정렬 기준 순서도 그 순서로 맞춘다
+  document.addEventListener('crs:reordered', function(){
+    defaultOrder = Array.prototype.slice.call(grid.querySelectorAll('.crs-card'));
+  });
 
   var state = { cat: '전체', sort: 'default', oneday: false, quiz: null };
   var clickMap = null;
@@ -2989,7 +2993,16 @@ document.addEventListener('click', function(e){
     var all = Array.prototype.slice.call(grid.querySelectorAll('.crs-card'));
     var b = all.filter(function(c){ return c.getAttribute('data-benefit') === '1'; });
     var n = all.filter(function(c){ return c.getAttribute('data-benefit') !== '1'; });
+    function sh(a){
+      for(var i = a.length - 1; i > 0; i--){
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+      }
+      return a;
+    }
+    sh(b); sh(n);
     b.concat(n).forEach(function(c){ grid.appendChild(c); });
+    try{ document.dispatchEvent(new Event('crs:reordered')); }catch(e){}
   }
   var tabs = document.getElementById('crsTabs');
   if(tabs) tabs.addEventListener('click', function(){ setTimeout(applyTab, 0); });
