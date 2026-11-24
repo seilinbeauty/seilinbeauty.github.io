@@ -4563,6 +4563,9 @@ document.addEventListener('DOMContentLoaded', function(){
             .req-btn-no{background:#f3ecef;color:#6e5b62;}
             .req-btn:disabled{opacity:.5;cursor:default;}
             .req-empty{padding:36px 16px;text-align:center;color:#9a8a90;font-size:13px;background:#fff;border:1px dashed #eedbe2;border-radius:14px;}
+            .req-diff{background:#fff1f3;border-left:3px solid #e11d48;padding:4px 8px;border-radius:6px;margin:4px 0;color:#be123c;font-weight:700;}
+            .req-old{text-decoration:line-through;color:#b88692;font-weight:500;margin-right:4px;}
+            .req-new{color:#e11d48;font-weight:800;}
             </style>
             <div class="req-head">
               <div>
@@ -4602,8 +4605,20 @@ document.addEventListener('DOMContentLoaded', function(){
               });
             }
             function loadReqs(){
-              fb('documents/course_requests?pageSize=100', undefined, 'GET').then(function(d){
+              Promise.all([
+                fb('documents/course_requests?pageSize=100', undefined, 'GET'),
+                fb('documents/courses?pageSize=100', undefined, 'GET').catch(function(){ return { documents: [] }; })
+              ]).then(function(res){
+                var d = res[0], cd = res[1];
                 var rows = (d && d.documents ? d.documents : []).map(decode).filter(Boolean);
+                var curList = (cd && cd.documents ? cd.documents : []).map(decode).filter(Boolean);
+                var curMap = {};
+                curList.forEach(function(c){
+                  if(c.id) curMap['id:' + c.id] = c;
+                  if(c._id) curMap['id:' + c._id] = c;
+                  if(c.insta) curMap['ig:' + String(c.insta).toLowerCase()] = c;
+                  if(c.shop) curMap['sh:' + String(c.shop)] = c;
+                });
                 rows.sort(function(a, b){
                   if(a.status === 'pending' && b.status !== 'pending') return -1;
                   if(a.status !== 'pending' && b.status === 'pending') return 1;
@@ -4617,21 +4632,45 @@ document.addEventListener('DOMContentLoaded', function(){
                 if(!listEl) return;
                 if(!rows.length){ listEl.innerHTML = '<div class="req-empty">들어온 수강 검토 요청이 없습니다.</div>'; return; }
                 listEl.innerHTML = '';
+                var FIELDS = [
+                  ['name', '상호명'], ['insta', '인스타'], ['region', '지역'], ['cat', '수강 분야'],
+                  ['benefit', '다이아 혜택'], ['intro', '소개'],
+                  ['insta_url', '인스타 링크'], ['naver_url', '네이버 지도'], ['home_url', '홈페이지']
+                ];
                 rows.forEach(function(r){
+                  var cur = curMap['id:' + (r.id || r._id)] || (r.insta && curMap['ig:' + String(r.insta).toLowerCase()]) || (r.shop && curMap['sh:' + String(r.shop)]) || null;
+                  if(cur && cur.intro === '__DELETED__') cur = null;
                   var card = document.createElement('div');
                   card.className = 'req-card';
-                  var stLabel = r.status === 'pending' ? (r.action === 'hide' ? '내리기 대기' : '검토 대기') : (r.status === 'approved' ? '승인됨' : '반려됨');
+                  var stLabel = r.status === 'pending' ? (r.action === 'hide' ? '내리기 대기' : (cur ? '수정 검토 대기' : '신규 등록 대기')) : (r.status === 'approved' ? '승인됨' : '반려됨');
                   var stCls = r.status === 'pending' ? '' : (r.status === 'approved' ? ' is-ok' : ' is-no');
-                  card.innerHTML =
-                    '<div class="req-top"><div class="req-who">' + esc(r.name || r.shop) + ' <small style="font-weight:700;color:#a9808d;">(' + esc(r.shop) + (r.insta ? ' · @' + esc(r.insta) : '') + ')</small></div>' +
-                    '<span class="req-tag' + stCls + '">' + stLabel + '</span></div>' +
-                    '<div class="req-meta">' +
-                    (r.action === 'hide' ? '<b>요청:</b> 뷰티수강 목록에서 내리기' :
+                  var bodyHtml = '';
+                  if(r.action === 'hide'){
+                    bodyHtml = '<div class="req-diff"><b>요청:</b> 뷰티수강 목록에서 내리기</div>';
+                  } else if(cur && r.status === 'pending'){
+                    var diffs = [], same = [];
+                    FIELDS.forEach(function(fp){
+                      var k = fp[0], lb = fp[1];
+                      var ov = String(cur[k] || '').trim(), nv = String(r[k] || '').trim();
+                      if(ov !== nv){
+                        diffs.push('<div class="req-diff"><b>' + lb + ' 변경:</b> ' + (ov ? '<span class="req-old">' + esc(ov) + '</span> → ' : '') + '<span class="req-new">' + esc(nv || '(비움)') + '</span></div>');
+                      } else if(nv){
+                        same.push('<b>' + lb + ':</b> ' + esc(nv));
+                      }
+                    });
+                    bodyHtml = (diffs.length ? diffs.join('') : '<div style="color:#9a8a90;">변경된 항목이 없습니다.</div>') +
+                      (same.length ? '<div style="margin-top:6px;color:#8a7b81;">' + same.join('<br>') + '</div>' : '');
+                  } else {
+                    bodyHtml =
                       '<b>지역·분야:</b> ' + esc(r.region || '-') + ' · ' + esc(r.cat || '-') + '<br>' +
                       (r.benefit ? '<b>다이아 혜택:</b> ' + esc(r.benefit) + '<br>' : '') +
                       '<b>소개:</b> ' + esc(r.intro || '-') + '<br>' +
-                      '<b>링크:</b> ' + [r.insta_url, r.naver_url, r.home_url].filter(Boolean).map(esc).join(' / ')
-                    ) + '</div>';
+                      '<b>링크:</b> ' + ([r.insta_url, r.naver_url, r.home_url].filter(Boolean).map(esc).join(' / ') || '-');
+                  }
+                  card.innerHTML =
+                    '<div class="req-top"><div class="req-who">' + esc(r.name || r.shop) + ' <small style="font-weight:700;color:#a9808d;">(' + esc(r.shop) + (r.insta ? ' · @' + esc(r.insta) : '') + ')</small></div>' +
+                    '<span class="req-tag' + stCls + '">' + stLabel + '</span></div>' +
+                    '<div class="req-meta">' + bodyHtml + '</div>';
                   if(r.status === 'pending'){
                     var acts = document.createElement('div'); acts.className = 'req-acts';
                     var okBtn = document.createElement('button'); okBtn.className = 'req-btn req-btn-ok'; okBtn.textContent = '승인하고 바로 반영';
