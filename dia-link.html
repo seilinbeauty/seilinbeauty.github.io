@@ -2439,11 +2439,8 @@
 
   loadCache();
   redraw();
-  // 오늘 목록부터 먼저 받아 바로 그리고, 지난 3일은 뒤에서 따로 받아 칩 숫자만 채운다
+  // 오늘 것만 먼저 받아 바로 그린다. 지난 날짜는 칩을 눌렀을 때만 받아온다.
   fetchDay(dayAt(0)).then(function(){ redraw(); });
-  [dayAt(1), dayAt(2), dayAt(3)].forEach(function(d){
-    fetchDay(d).then(function(){ chips(); if(sel === d) render(); });
-  });
   setInterval(function(){ if(!document.hidden) ensure(sel).then(redraw); }, 60000);
   if(window.DiaTag && window.DiaTag.on) window.DiaTag.on(function(){ head(); });
 })();
