@@ -1,0 +1,26 @@
+User-agent: *
+Allow: /
+Disallow: /parking.html
+Disallow: /dia-info.html
+Disallow: /messenger.html
+Disallow: /cd-test.html
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Yeti
+Allow: /
+
+Sitemap: https://seilinbeauty.github.io/sitemap.xml
