@@ -2293,6 +2293,7 @@
 </div>
 
 <script src="dia-tag.js?v=2"></script>
+<script src="dia-fb.js?v=1"></script>
 <script>
 (function(){
   var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
@@ -2326,7 +2327,12 @@
     try{
       var c = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
       if(c && c.days && Date.now() - (c.ts || 0) < 3600000){
-        Object.keys(c.days).forEach(function(k){ if(Array.isArray(c.days[k])) dayItems[k] = c.days[k]; });
+        Object.keys(c.days).forEach(function(k){
+          if(!Array.isArray(c.days[k])) return;
+          // 예전(창고) 목록은 줄 번호가 숫자라 파이어베이스 문서 번호와 다르다 — 문서 번호가 있는 것만 쓴다
+          var keep = c.days[k].filter(function(it){ return it && typeof it.row === 'string' && it.row.indexOf('_') > 0; });
+          if(keep.length) dayItems[k] = keep;
+        });
       }
     }catch(e){}
   }
@@ -2339,12 +2345,37 @@
     if(wait <= 0){ box.classList.remove('loading'); return; }
     setTimeout(function(){ box.classList.remove('loading'); }, wait);
   }
-  function fetchDay(day){
+  // 읽기는 파이어베이스 파이어스토어에서, 연결이 안 되면 창고(구글 앱스크립트)에서 받아 온다
+  var daySrc = {};
+  function whDay(day){
     return api('mode=link_list&pw=' + encodeURIComponent(STAFF_PW) + '&date=' + day).then(function(d){
-      dayOk[day] = true;
+      dayOk[day] = true; daySrc[day] = 'wh';
       if(d && d.ok && d.items){ dayItems[day] = d.items.map(norm); dayTs[day] = Date.now(); saveCache(); }
       return dayItems[day] || [];
     }).catch(function(){ return dayItems[day] || []; });
+  }
+  var pined = false;
+  // 파이어베이스가 그날 것이 하나도 없으면, 창고에 남아 있는지 한 번만 조용히 확인한다 (화면이 비어 보이지 않게)
+  function pine(day){
+    if(pined || !window.fetch) return;
+    pined = true;
+    api('mode=link_list&pw=' + encodeURIComponent(STAFF_PW) + '&date=' + day).then(function(d){
+      if(d && d.ok && d.items && d.items.length){
+        dayOk[day] = true; daySrc[day] = 'wh';
+        dayItems[day] = d.items.map(norm); dayTs[day] = Date.now(); saveCache(); redraw();
+      }
+    }).catch(function(){});
+  }
+  function fetchDay(day){
+    if(window.DiaFB){
+      return window.DiaFB.day(day).then(function(list){
+        dayOk[day] = true; daySrc[day] = 'fb';
+        dayItems[day] = (list || []).map(norm); dayTs[day] = Date.now(); saveCache();
+        if(!dayItems[day].length) pine(day);
+        return dayItems[day];
+      }, function(){ return whDay(day); });
+    }
+    return whDay(day);
   }
   function ensure(day){
     if(Date.now() - (dayTs[day] || 0) < TTL) return Promise.resolve(dayItems[day] || []);
@@ -2425,11 +2456,19 @@
   function delRow(row, btn){
     if(!confirm('이 링크를 지울까요?\n되돌릴 수 없어요.')) return;
     if(btn){ btn.disabled = true; }
+    var done = function(){ dayTs[sel] = 0; return fetchDay(sel).then(redraw); };
+    var fail = function(m){ if(btn){ btn.disabled = false; } alert(m); };
+    if(window.DiaFB && daySrc[sel] !== 'wh'){
+      window.DiaFB.staffDel({ id: row }).then(function(r){
+        if(r && r.ok) return done();
+        fail(r && r.error === 'notfound' ? '이미 지워진 링크예요.' : '지우지 못했어요. 잠시 뒤 다시 해 주세요.');
+      }, function(){ fail('연결이 잠깐 안 돼요. 잠시 뒤 다시 해 주세요.'); });
+      return;
+    }
     api('mode=link_del&pw=' + encodeURIComponent(STAFF_PW) + '&row=' + encodeURIComponent(row)).then(function(d){
-      if(d && d.ok){ dayTs[sel] = 0; return fetchDay(sel).then(redraw); }
-      if(btn){ btn.disabled = false; }
-      alert(d && d.error === 'notfound' ? '이미 지워진 링크예요.' : '지우지 못했어요. 잠시 뒤 다시 해 주세요.');
-    }).catch(function(){ if(btn){ btn.disabled = false; } alert('연결이 잠깐 안 돼요. 잠시 뒤 다시 해 주세요.'); });
+      if(d && d.ok) return done();
+      fail(d && d.error === 'notfound' ? '이미 지워진 링크예요.' : '지우지 못했어요. 잠시 뒤 다시 해 주세요.');
+    }).catch(function(){ fail('연결이 잠깐 안 돼요. 잠시 뒤 다시 해 주세요.'); });
   }
   document.addEventListener('click', function(e){
     var del = e.target.closest('.lk-del[data-row]');

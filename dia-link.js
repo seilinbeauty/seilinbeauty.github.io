@@ -1,11 +1,10 @@
 /* 다이아 “내 품앗이”: 오늘 내 링크 남기기
    - “내 품앗이”에서 본인을 고르면(로그인) 닉네임이 자동으로 들어갑니다.
-   - PREVIEW=false: 창고 서버와 연결. 본인 4자리 암호(pin)로 인증합니다.
-     · 목록: mode=link_list&shop=닉네임&pin=암호&date=오늘
-     · 남기기: mode=link_add&shop=닉네임&pin=암호&kind=구분&url=주소
-     · 고치기: mode=link_add&shop=닉네임&pin=암호&row=행&kind=구분&url=주소
-     · 지우기: mode=link_del&shop=닉네임&pin=암호&row=행
-     · 서버가 closed(09:00~21:00 밖) · dup_url(같은 날 같은 주소)을 돌려주면 그대로 안내한다.
+   - 2026-11-24부터 읽기·쓰기를 파이어베이스 파이어스토어로 합니다(dia-fb.js).
+     · 목록: links 모음에서 오늘 문서만 받아 온다
+     · 남기기·고치기·지우기: 본인 4자리 암호 확인(보안 규칙)을 거친다
+     · closed(09:00~21:00 밖) · dup_url(같은 날 같은 주소) · bad_pin(암호 다름)은 그대로 안내한다.
+   - 파이어베이스 연결이 안 되면 예전처럼 창고(구글 앱스크립트)로 대신 갑니다.
    - 목록 화면: dia-link.html (같은 창고 서버를 봅니다) */
 (function(){
   var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
@@ -56,9 +55,10 @@
       memo: (it['메모'] === undefined ? (it.memo || '') : it['메모'])
     };
   }
-  function fetchMine(){
-    var nick = me(), pin = pinOf(nick);
-    if(!nick){ items = []; return Promise.resolve(false); }
+  // 어디서 읽었는지 — 'fb'(파이어베이스) / 'wh'(창고). 읽은 곳으로 써야 줄이 맞는다.
+  var src = 'fb';
+  function whMine(nick, pin){
+    src = 'wh';
     if(!pin){ items = []; return Promise.resolve(false); }
     return api(qs({ mode:'link_list', shop:nick, pin:pin, date:today() }))
       .then(function(d){
@@ -69,6 +69,56 @@
         items = []; return false;
       })
       .catch(function(){ return false; });
+  }
+  function fetchMine(){
+    var nick = me(), pin = pinOf(nick);
+    if(!nick){ items = []; return Promise.resolve(false); }
+    if(window.DiaFB){
+      if(pin) window.DiaFB.ensurePin(nick, pin); // 처음 남기는 회원이면 암호 문서를 만들어 둔다
+      return window.DiaFB.day(today()).then(function(list){
+        src = 'fb';
+        items = (list || []).map(norm).filter(function(it){ return it.shop === nick; });
+        return true;
+      }, function(){ return whMine(nick, pin); });
+    }
+    return whMine(nick, pin);
+  }
+  // 오늘 내 차례 번호(번호) — 화면에는 안 보이고 문서에만 남는다
+  function nextNo(nick){
+    var mx = 0;
+    items.forEach(function(it){ var n = parseInt(it.no, 10); if(it.shop === nick && n > mx) mx = n; });
+    return mx + 1;
+  }
+  // 쓰기 — 파이어베이스가 안 되면 창고로 대신한다
+  function whAdd(nick, pin, kind, url){ return api(qs({ mode:'link_add', shop:nick, pin:pin, kind:kind, url:url })); }
+  function sendAdd(nick, pin, kind, url){
+    if(!window.DiaFB || src === 'wh') return whAdd(nick, pin, kind, url);
+    return window.DiaFB.add({ date:today(), shop:nick, pin:pin, kind:kind, url:url, no:nextNo(nick) })
+      .then(function(r){
+        if(r && r.ok) return r;
+        if(r && r.error === 'net') return whAdd(nick, pin, kind, url);
+        return r;
+      });
+  }
+  function whEdit(nick, pin, it, kind, url){ return api(qs({ mode:'link_add', shop:nick, pin:pin, row:it.row, kind:kind, url:url })); }
+  function sendEdit(nick, pin, it, kind, url){
+    if(!window.DiaFB || src === 'wh') return whEdit(nick, pin, it, kind, url);
+    return window.DiaFB.edit({ id:it.row, date:it.date || today(), shop:nick, pin:pin, kind:kind, url:url, no:it.no || nextNo(nick) })
+      .then(function(r){
+        if(r && r.ok) return r;
+        if(r && r.error === 'net') return whEdit(nick, pin, it, kind, url);
+        return r;
+      });
+  }
+  function whDel(nick, pin, it){ return api(qs({ mode:'link_del', shop:nick, pin:pin, row:it.row })); }
+  function sendDel(nick, pin, it){
+    if(!window.DiaFB || src === 'wh') return whDel(nick, pin, it);
+    return window.DiaFB.del({ id:it.row, shop:nick, pin:pin })
+      .then(function(r){
+        if(r && r.ok) return r;
+        if(r && r.error === 'net') return whDel(nick, pin, it);
+        return r;
+      });
   }
 
   var css = document.createElement('style');
@@ -181,7 +231,7 @@
       if(!window.DiaPin || !window.DiaPin.okPin(pin)){ msg.textContent = '암호 확인이 필요해요. 위의 로그아웃을 누르고 “내 품앗이”에서 다시 들어와 주세요.'; return; }
       busy = true; msg.className = 'dl-msg'; msg.textContent = '확인 중…';
       btn.disabled = true;
-      api(qs({ mode:'link_add', shop:nick, pin:pin, kind:kind, url:url })).then(function(d){
+      sendAdd(nick, pin, kind, url).then(function(d){
         busy = false; btn.disabled = false;
         if(d && d.ok){
           document.getElementById('dlUrl').value = '';
@@ -271,7 +321,7 @@
     function say(t, ok){ if(!msg) return; msg.className = 'dl-msg ' + (ok ? 'ok' : 'err'); msg.innerHTML = t; }
     if(e.target.closest('.dl-del-ok')){
       if(!window.DiaPin || !window.DiaPin.okPin(pin)){ say('암호 확인이 필요해요. 로그아웃 후 다시 들어와 주세요.'); return; }
-      api(qs({ mode:'link_del', shop:nick, pin:pin, row:it.row })).then(function(d){
+      sendDel(nick, pin, it).then(function(d){
         if(d && d.ok){ delKey = null; say('<b>지웠어요.</b>', true); return fetchMine().then(function(){ paintMine(true); }); }
         rowBusy(row, false);
         say(d && d.error === 'bad_pin' ? '암호가 바뀌었어요. 로그아웃 후 다시 들어와 주세요.'
@@ -287,7 +337,7 @@
       if(!window.DiaPin || !window.DiaPin.okPin(pin)){ err.textContent = '암호 확인이 필요해요. 로그아웃 후 다시 들어와 주세요.'; return; }
       err.textContent = '저장 중…';
       rowBusy(row, true);
-      api(qs({ mode:'link_add', shop:nick, pin:pin, row:it.row, kind:editKind || it.kind, url:url })).then(function(d){
+      sendEdit(nick, pin, it, editKind || it.kind, url).then(function(d){
         if(d && d.ok){ editKey = null; say('<b>고쳤어요!</b>', true); return fetchMine().then(function(){ paintMine(true); }); }
         rowBusy(row, false);
         err.textContent = d && d.error === 'bad_pin' ? '암호가 바뀌었어요. 로그아웃 후 다시 들어와 주세요.'

@@ -26,7 +26,11 @@
     if(LIVE){
       return call('mode=auth&user=' + encodeURIComponent(nick) + '&pw=' + encodeURIComponent(pin))
         .then(function(d){
-          if(d && d.ok) return { ok: true, first: !!(d.first || d.set) };
+          if(d && d.ok){
+            // 파이어베이스로 옮긴 뒤: 암호 문서(pins)도 있게 맞춰 둔다(이미 있으면 그대로)
+            if(window.DiaFB && window.DiaFB.ensurePin) window.DiaFB.ensurePin(nick, pin);
+            return { ok: true, first: !!(d.first || d.set) };
+          }
           if(d && d.error === 'wrong') return { ok: false, reason: '틀림' };
           return { ok: false, reason: '연결' };
         })

@@ -71,6 +71,8 @@
         td2.querySelector('.pin-err').textContent = r.reason === '형식' ? '숫자 4자리만 돼요.' : '저장하지 못했어요. 잠시 뒤 다시 해 주세요.';
         return;
       }
+      // 파이어베이스로 옮긴 뒤: 암호 문서(pins)도 같이 바꾸거나 지운다
+      if(window.DiaFB && window.DiaFB.setPin) window.DiaFB.setPin(n2, v);
       td2.removeAttribute('data-nick'); reload();
     });
   });

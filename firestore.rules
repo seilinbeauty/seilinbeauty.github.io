@@ -1,0 +1,118 @@
+// 세이린뷰티 — 다이아 '참여 링크' 파이어베이스 파이어스토어 보안 규칙 (2026-11-24 커비)
+// 무료 Spark 요금제: 함수(Cloud Functions)·유료 백엔드 없이 이 규칙만으로 읽기·쓰기를 처리합니다.
+// 호스팅은 지금처럼 GitHub Pages 를 쓰고, 파이어스토어는 데이터 저장·조회에만 씁니다.
+//
+//  · links  : 그날 참여 링크. 누구나 읽기 / 쓰기는 아래 확인을 거쳐야 함
+//  · pins   : 회원 4자리 암호. 읽기 금지 — 규칙 안에서만 봅니다(화면에 절대 안 나옴)
+//  · checks : 암호 확인용 문서. 링크 쓰기와 같은 묶음으로 만들고, 끝나면 바로 지웁니다. 읽기 금지
+//  · pinchk : 스태프가 암호를 바꾸거나 비울 때 쓰는 확인용 문서. 읽기 금지
+//
+//  남기는 시간: 한국 낮 09:00 ~ 밤 21:00 = 세계표준시(UTC) 00:00 ~ 12:00
+//  같은 날 같은 게시물 주소는 문서 번호(links/날짜_주소해시)가 같아서 저절로 막힙니다.
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── 남기는 시간 (한국 09:00~21:00 = UTC 00:00~12:00)
+    function openNow() {
+      return request.time.hours() < 12;
+    }
+
+    // ── 본인 4자리 암호 확인
+    function pinOk(shop, pin) {
+      return exists(/databases/$(database)/documents/pins/$(shop))
+          && get(/databases/$(database)/documents/pins/$(shop)).data.pin == pin;
+    }
+
+    // ── 확인용 문서(checks)가 같은 묶음으로 만들어졌는지 확인
+    function chkOk(cid, id, shop) {
+      return getAfter(/databases/$(database)/documents/checks/$(cid)).data.id == id
+          && getAfter(/databases/$(database)/documents/checks/$(cid)).data.shop == shop
+          && (getAfter(/databases/$(database)/documents/checks/$(cid)).data.op == 'write'
+              || getAfter(/databases/$(database)/documents/checks/$(cid)).data.op == 'del');
+    }
+    function chkStaff(cid, id) {
+      return getAfter(/databases/$(database)/documents/checks/$(cid)).data.id == id
+          && getAfter(/databases/$(database)/documents/checks/$(cid)).data.op == 'staff';
+    }
+
+    // ── 링크 문서 모양 (지시받지 않은 칸이 붙는 것을 막는다)
+    function itemOk(d, lid) {
+      return d.keys().hasAll(['id','date','shop','kind','url','no','memo','chk','chkDel','createdAt'])
+          && d.keys().hasOnly(['id','date','shop','kind','url','no','memo','chk','chkDel','createdAt'])
+          && d.id is string && d.id == lid
+          && d.date is string && d.date.size() == 10
+          && d.shop is string && d.shop.size() > 0 && d.shop.size() <= 60
+          && (d.kind == '🤍' || d.kind == '릴스')
+          && d.url is string && d.url.matches("^https://(www[.])?instagram[.]com/(p|reel|tv)/[A-Za-z0-9_-]+/$")
+          && d.no is int && d.no >= 0
+          && d.memo is string && d.memo.size() <= 300
+          && d.chk is string && d.chkDel is string
+          && d.createdAt is timestamp;
+    }
+
+    // ── 그날 참여 링크
+    match /links/{lid} {
+      allow read: if true;
+
+      // 남기기
+      allow create: if openNow()
+                    && itemOk(request.resource.data, lid)
+                    && request.resource.data.createdAt == request.time
+                    && chkOk(request.resource.data.chk, lid, request.resource.data.shop);
+
+      // 고치기 (구분만 바꾸는 경우 — 주소가 바뀌면 번호가 바뀌므로 새로 만들고 옛것을 지운다)
+      allow update: if openNow()
+                    && itemOk(request.resource.data, lid)
+                    && request.resource.data.createdAt == resource.data.createdAt
+                    && request.resource.data.shop == resource.data.shop
+                    && request.resource.data.date == resource.data.date
+                    && request.resource.data.chkDel == resource.data.chkDel
+                    && chkOk(request.resource.data.chk, lid, resource.data.shop);
+
+      // 지우기 — 본인 암호(남기는 시간 안) 또는 스태프(시간 상관없음)
+      allow delete: if (openNow() && chkOk(resource.data.chkDel, lid, resource.data.shop))
+                    || chkStaff(resource.data.chkDel, lid);
+    }
+
+    // ── 회원 4자리 암호 — 화면에서 읽을 수 없다. 처음 한 번만 만들고, 바꾸기는 스태프만
+    match /pins/{shop} {
+      allow read: if false;
+      allow create: if request.resource.data.keys().hasOnly(['pin'])
+                    && request.resource.data.pin is string
+                    && request.resource.data.pin.matches("[0-9]{4}");
+      allow update, delete: if getAfter(/databases/$(database)/documents/pinchk/$(shop)).data.op == 'pinset';
+    }
+
+    // ── 암호 확인용 문서 — 만들 때 암호를 대조하고, 링크 쓰기와 함께 쓰이며, 끝나면 지운다
+    match /checks/{cid} {
+      allow read: if false;
+      allow create: if ( (request.resource.data.op == 'write' || request.resource.data.op == 'del')
+                         && request.resource.data.keys().hasOnly(['op','id','shop','pin'])
+                         && pinOk(request.resource.data.shop, request.resource.data.pin) )
+                    || ( request.resource.data.op == 'staff'
+                         && request.resource.data.keys().hasOnly(['op','id','pw'])
+                         && request.resource.data.pw == '0423' );
+      allow update: if false;
+      allow delete: if true;
+    }
+
+    // ── 스태프 암호 바꾸기·비우기 표시 (운영 센터 비밀번호 확인용)
+    match /pinchk/{shop} {
+      allow read: if false;
+      allow create: if request.resource.data.keys().hasOnly(['op','pin','pw'])
+                    && request.resource.data.op == 'pinset'
+                    && request.resource.data.pw == '0423'
+                    && request.resource.data.pin.matches("^([0-9]{4})?$");
+      allow update: if false;
+      allow delete: if true;
+    }
+
+    // ── 그 밖의 모든 경로는 막는다
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
