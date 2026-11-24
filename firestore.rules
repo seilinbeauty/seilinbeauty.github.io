@@ -91,7 +91,7 @@ service cloud.firestore {
     // ── 암호 확인용 문서 — 만들 때 암호를 대조하고, 링크 쓰기와 함께 쓰이며, 끝나면 지운다
     match /checks/{cid} {
       allow read: if false;
-      allow create: if ( (request.resource.data.op == 'write' || request.resource.data.op == 'del')
+      allow create: if ( (request.resource.data.op == 'write' || request.resource.data.op == 'del' || request.resource.data.op == 'course')
                          && request.resource.data.keys().hasOnly(['op','id','shop','pin'])
                          && pinOk(request.resource.data.shop, request.resource.data.pin) )
                     || ( request.resource.data.op == 'staff'
@@ -173,6 +173,76 @@ service cloud.firestore {
         allow update: if false;
         allow delete: if true;   // 방을 지울 때 메시지도 같이 지운다
       }
+    }
+
+    // ── 원장님 본인 뷰티수강 등록·수정 요청 (4자리 암호로 본인 확인 후 검토 대기 저장)
+    //    승인·반려 및 실제 라이브 반영(courses)은 운영센터(op == 'staff')만 가능
+    function chkCourse(cid, docId, shop) {
+      return getAfter(/databases/$(database)/documents/checks/$(cid)).data.id == docId
+          && getAfter(/databases/$(database)/documents/checks/$(cid)).data.shop == shop
+          && getAfter(/databases/$(database)/documents/checks/$(cid)).data.op == 'course';
+    }
+    function courseReqOk(d, cid) {
+      return d.keys().hasAll(['id','shop','status','action','name','insta','region','cat','insta_url','naver_url','home_url','benefit','intro','chk','updatedAt'])
+          && d.keys().hasOnly(['id','shop','status','action','name','insta','region','cat','insta_url','naver_url','home_url','benefit','intro','chk','updatedAt'])
+          && d.id is string && d.id == cid
+          && d.shop is string && d.shop.size() > 0 && d.shop.size() <= 80
+          && (d.status == 'pending' || d.status == 'approved' || d.status == 'rejected')
+          && (d.action == 'save' || d.action == 'hide')
+          && d.name is string && d.name.size() <= 80
+          && d.insta is string && d.insta.size() <= 60
+          && d.region is string && d.region.size() <= 40
+          && d.cat is string && d.cat.size() <= 60
+          && d.insta_url is string && d.insta_url.size() <= 200
+          && d.naver_url is string && d.naver_url.size() <= 300
+          && d.home_url is string && d.home_url.size() <= 300
+          && d.benefit is string && d.benefit.size() <= 200
+          && d.intro is string && d.intro.size() <= 400
+          && d.chk is string
+          && d.updatedAt is timestamp;
+    }
+    match /course_requests/{cid} {
+      allow read: if true;
+      allow create: if courseReqOk(request.resource.data, cid)
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.updatedAt == request.time
+                    && chkCourse(request.resource.data.chk, cid, request.resource.data.shop);
+      allow update: if courseReqOk(request.resource.data, cid)
+                    && request.resource.data.updatedAt == request.time
+                    && (
+                      (request.resource.data.status == 'pending'
+                       && request.resource.data.shop == resource.data.shop
+                       && chkCourse(request.resource.data.chk, cid, resource.data.shop))
+                      ||
+                      ((request.resource.data.status == 'approved' || request.resource.data.status == 'rejected')
+                       && chkStaff(request.resource.data.chk, cid))
+                    );
+      allow delete: if false;
+    }
+
+    function courseOk(d, cid) {
+      return d.keys().hasAll(['id','shop','name','insta','region','cat','insta_url','naver_url','home_url','benefit','intro','chk','updatedAt'])
+          && d.keys().hasOnly(['id','shop','name','insta','region','cat','insta_url','naver_url','home_url','benefit','intro','chk','updatedAt'])
+          && d.id is string && d.id == cid
+          && d.shop is string && d.shop.size() > 0 && d.shop.size() <= 80
+          && d.name is string && d.name.size() <= 80
+          && d.insta is string && d.insta.size() <= 60
+          && d.region is string && d.region.size() <= 40
+          && d.cat is string && d.cat.size() <= 60
+          && d.insta_url is string && d.insta_url.size() <= 200
+          && d.naver_url is string && d.naver_url.size() <= 300
+          && d.home_url is string && d.home_url.size() <= 300
+          && d.benefit is string && d.benefit.size() <= 200
+          && d.intro is string && d.intro.size() <= 400
+          && d.chk is string
+          && d.updatedAt is timestamp;
+    }
+    match /courses/{cid} {
+      allow read: if true;
+      allow create, update: if courseOk(request.resource.data, cid)
+                            && request.resource.data.updatedAt == request.time
+                            && chkStaff(request.resource.data.chk, cid);
+      allow delete: if false;
     }
 
     // ── 그 밖의 모든 경로는 막는다

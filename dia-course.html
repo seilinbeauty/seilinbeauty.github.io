@@ -3176,6 +3176,49 @@ document.addEventListener('click', function(e){
       if(changed){ reorder(); applyTab(); }
     })
     .catch(function(){});
+
+  // 파이어스토어 승인된 뷰티수강(courses) 실시간 반영
+  var FB_COURSES = 'https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/courses?pageSize=100&key=AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY';
+  fetch(FB_COURSES, {cache: 'no-store'})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var docs = (d && d.documents) ? d.documents : [];
+      if(!docs.length) return;
+      var items = docs.map(function(doc){
+        var f = doc.fields || {}, o = {};
+        for(var k in f){ if(f[k].stringValue !== undefined) o[k] = f[k].stringValue; }
+        return o;
+      });
+      var cardMap = {};
+      var exist = grid.querySelectorAll('.crs-card');
+      for(var i = 0; i < exist.length; i++){
+        var ins = exist[i].getAttribute('data-insta');
+        if(!ins){ var inner = exist[i].querySelector('[data-insta]'); if(inner) ins = inner.getAttribute('data-insta'); }
+        if(ins) cardMap[String(ins).toLowerCase()] = exist[i];
+        var nm = exist[i].querySelector('.crs-nick');
+        if(nm && nm.textContent) cardMap[String(nm.textContent).trim().toLowerCase()] = exist[i];
+      }
+      var changed = 0;
+      items.forEach(function(it){
+        var k = String(it.insta || it.name || '').trim().toLowerCase();
+        if(!k) return;
+        var oldCard = cardMap[k];
+        if(it.intro === '__DELETED__'){
+          if(oldCard && oldCard.parentNode){ oldCard.parentNode.removeChild(oldCard); changed++; }
+          return;
+        }
+        var rep = makeCard(it, oldCard || null);
+        if(oldCard && oldCard.parentNode){
+          oldCard.parentNode.replaceChild(rep, oldCard);
+        } else {
+          grid.appendChild(rep);
+        }
+        cardMap[k] = rep;
+        changed++;
+      });
+      if(changed){ reorder(); applyTab(); }
+    })
+    .catch(function(){});
 })();
 </script>
 <style>

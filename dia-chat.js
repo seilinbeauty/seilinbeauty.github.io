@@ -338,6 +338,7 @@
   // 마이페이지 '뷰티수강 채팅' 버튼 — 로그인했을 때만 보이고, 안 읽은 문의 수를 배지로
   function mountMyCard(){
     var btn = document.getElementById('mcChatBtn');
+    var myCourseBtn = document.getElementById('mcCourseEditBtn');
     if(!btn) return;
     var on = false, timer = null;
     function tally(rows){
@@ -351,10 +352,10 @@
     function check(){
       var me = member();
       if(!me){
-        if(on){ on = false; btn.hidden = true; }
+        if(on){ on = false; btn.hidden = true; if(myCourseBtn) myCourseBtn.hidden = true; }
         return;
       }
-      if(!on){ on = true; btn.hidden = false; }
+      if(!on){ on = true; btn.hidden = false; if(myCourseBtn) myCourseBtn.hidden = false; }
       if(document.hidden) return;
       roomsOfOwner(me.aliases).then(tally, function(){});
     }

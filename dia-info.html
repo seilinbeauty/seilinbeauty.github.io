@@ -2282,11 +2282,14 @@ document.addEventListener('DOMContentLoaded', function(){
         var 회원칸 = document.getElementById('ops-members');
         var 게임칸 = document.getElementById('ops-games');
         var 수강칸 = document.getElementById('ops-course');
+        var 검토칸 = document.getElementById('ops-course-req');
         if(통계칸) 통계칸.style.display = (대상 === 'ops-stats') ? '' : 'none';
         if(회원칸) 회원칸.style.display = (대상 === 'ops-members') ? '' : 'none';
         if(게임칸) 게임칸.style.display = (대상 === 'ops-games') ? '' : 'none';
         if(수강칸) 수강칸.style.display = (대상 === 'ops-course') ? '' : 'none';
+        if(검토칸) 검토칸.style.display = (대상 === 'ops-course-req') ? '' : 'none';
         if(대상 === 'ops-course' && typeof window.diaCourseReload === 'function') window.diaCourseReload();
+        if(대상 === 'ops-course-req' && typeof window.diaCourseReqReload === 'function') window.diaCourseReqReload();
       });
     })(메뉴탭[ni]);
   }
@@ -2685,6 +2688,7 @@ document.addEventListener('DOMContentLoaded', function(){
               <button type="button" class="ops-nav-item" data-nav="ops-stats" data-on="1">통계</button>
               <button type="button" class="ops-nav-item" data-nav="ops-members">회원 목록</button>
               <button type="button" class="ops-nav-item" data-nav="ops-course">🎓 뷰티수강</button>
+              <button type="button" class="ops-nav-item" data-nav="ops-course-req">⏳ 수강 검토 <span id="opsReqBadge" style="display:none;margin-left:3px;padding:1px 6px;border-radius:999px;background:#d55576;color:#fff;font-size:11px;font-weight:800;">0</span></button>
               <button type="button" class="ops-nav-item" data-nav="ops-games">미니게임</button>
           </div>
           <div id="ops-stats">
@@ -4487,6 +4491,158 @@ document.addEventListener('DOMContentLoaded', function(){
   window.diaCourseReload = load;
   load();
 })();
+          </script>
+          <div id="ops-course-req" style="display:none;">
+            <style>
+            .req-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:0 0 12px;}
+            .req-t{font-size:15px;font-weight:900;color:#3c2b31;}
+            .req-s{font-size:12px;color:#9a8a90;margin-top:2px;}
+            .req-list{display:flex;flex-direction:column;gap:10px;}
+            .req-card{background:#fff;border:1px solid #f0e2e7;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;}
+            .req-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+            .req-who{font-size:14px;font-weight:900;color:#231b1f;}
+            .req-tag{font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:#fdeef3;color:#c2456a;}
+            .req-tag.is-ok{background:#edf7f0;color:#2f7d4c;}
+            .req-tag.is-no{background:#f3f3f4;color:#888;}
+            .req-meta{font-size:12px;color:#6e5b62;line-height:1.6;word-break:break-word;}
+            .req-meta b{color:#3c2b31;}
+            .req-acts{display:flex;gap:8px;margin-top:4px;}
+            .req-btn{padding:8px 14px;border-radius:9px;border:0;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;}
+            .req-btn-ok{background:#d55576;color:#fff;}
+            .req-btn-no{background:#f3ecef;color:#6e5b62;}
+            .req-btn:disabled{opacity:.5;cursor:default;}
+            .req-empty{padding:36px 16px;text-align:center;color:#9a8a90;font-size:13px;background:#fff;border:1px dashed #eedbe2;border-radius:14px;}
+            </style>
+            <div class="req-head">
+              <div>
+                <div class="req-t">⏳ 뷰티수강 등록·수정 검토</div>
+                <div class="req-s">원장님이 '내 수강'에서 보낸 수정·신규 요청을 승인하면 뷰티수강 페이지에 바로 반영됩니다.</div>
+              </div>
+              <button type="button" class="req-btn req-btn-no" id="reqRefresh">새로고침</button>
+            </div>
+            <div id="reqList" class="req-list"><div class="req-empty">불러오는 중…</div></div>
+          </div>
+          <script>
+          (function(){
+            var FB = 'https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/';
+            var KEY = 'AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY';
+            var PW = '0423';
+            var listEl = document.getElementById('reqList');
+            var badgeEl = document.getElementById('opsReqBadge');
+            function str(x){ return { stringValue: String(x || '') }; }
+            function docName(coll, id){ return 'projects/seilindia/databases/(default)/documents/' + coll + '/' + encodeURIComponent(id); }
+            function decode(doc){
+              if(!doc || !doc.fields) return null;
+              var o = {}, f = doc.fields;
+              for(var k in f){
+                if(f[k].stringValue !== undefined) o[k] = f[k].stringValue;
+                else if(f[k].timestampValue !== undefined) o[k] = f[k].timestampValue;
+              }
+              o._id = String(doc.name || '').split('/').pop();
+              return o;
+            }
+            function esc(s){ return String(s||'').replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+            function fb(path, body, method){
+              var opt = { method: method || 'POST', cache: 'no-store' };
+              if(body !== undefined){ opt.headers = { 'Content-Type': 'application/json' }; opt.body = JSON.stringify(body); }
+              return fetch(FB + path + (path.indexOf('?') > -1 ? '&' : '?') + 'key=' + KEY, opt).then(function(r){
+                if(!r.ok) throw new Error('fb ' + r.status);
+                return r.json();
+              });
+            }
+            function loadReqs(){
+              fb('documents/course_requests?pageSize=100', undefined, 'GET').then(function(d){
+                var rows = (d && d.documents ? d.documents : []).map(decode).filter(Boolean);
+                rows.sort(function(a, b){
+                  if(a.status === 'pending' && b.status !== 'pending') return -1;
+                  if(a.status !== 'pending' && b.status === 'pending') return 1;
+                  return String(b.updatedAt || '').localeCompare(String(a.updatedAt || ''));
+                });
+                var pend = rows.filter(function(r){ return r.status === 'pending'; }).length;
+                if(badgeEl){
+                  badgeEl.textContent = String(pend);
+                  badgeEl.style.display = pend > 0 ? 'inline-block' : 'none';
+                }
+                if(!listEl) return;
+                if(!rows.length){ listEl.innerHTML = '<div class="req-empty">들어온 수강 검토 요청이 없습니다.</div>'; return; }
+                listEl.innerHTML = '';
+                rows.forEach(function(r){
+                  var card = document.createElement('div');
+                  card.className = 'req-card';
+                  var stLabel = r.status === 'pending' ? (r.action === 'hide' ? '내리기 대기' : '검토 대기') : (r.status === 'approved' ? '승인됨' : '반려됨');
+                  var stCls = r.status === 'pending' ? '' : (r.status === 'approved' ? ' is-ok' : ' is-no');
+                  card.innerHTML =
+                    '<div class="req-top"><div class="req-who">' + esc(r.name || r.shop) + ' <small style="font-weight:700;color:#a9808d;">(' + esc(r.shop) + (r.insta ? ' · @' + esc(r.insta) : '') + ')</small></div>' +
+                    '<span class="req-tag' + stCls + '">' + stLabel + '</span></div>' +
+                    '<div class="req-meta">' +
+                    (r.action === 'hide' ? '<b>요청:</b> 뷰티수강 목록에서 내리기' :
+                      '<b>지역·분야:</b> ' + esc(r.region || '-') + ' · ' + esc(r.cat || '-') + '<br>' +
+                      (r.benefit ? '<b>다이아 혜택:</b> ' + esc(r.benefit) + '<br>' : '') +
+                      '<b>소개:</b> ' + esc(r.intro || '-') + '<br>' +
+                      '<b>링크:</b> ' + [r.insta_url, r.naver_url, r.home_url].filter(Boolean).map(esc).join(' / ')
+                    ) + '</div>';
+                  if(r.status === 'pending'){
+                    var acts = document.createElement('div'); acts.className = 'req-acts';
+                    var okBtn = document.createElement('button'); okBtn.className = 'req-btn req-btn-ok'; okBtn.textContent = '승인하고 바로 반영';
+                    var noBtn = document.createElement('button'); noBtn.className = 'req-btn req-btn-no'; noBtn.textContent = '반려';
+                    okBtn.addEventListener('click', function(){ decide(r, 'approved', okBtn, noBtn); });
+                    noBtn.addEventListener('click', function(){ decide(r, 'rejected', okBtn, noBtn); });
+                    acts.appendChild(okBtn); acts.appendChild(noBtn);
+                    card.appendChild(acts);
+                  }
+                  listEl.appendChild(card);
+                });
+              }).catch(function(){ if(listEl) listEl.innerHTML = '<div class="req-empty">불러오지 못했습니다.</div>'; });
+            }
+            function decide(r, nextStatus, b1, b2){
+              b1.disabled = true; b2.disabled = true;
+              var cid = r.id || r._id;
+              var chkId = 'stf_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+              var writes = [
+                {
+                  update: { name: docName('checks', chkId), fields: { op: str('staff'), id: str(cid), pw: str(PW) } },
+                  currentDocument: { exists: false }
+                },
+                {
+                  update: {
+                    name: docName('course_requests', cid),
+                    fields: {
+                      id: str(cid), shop: str(r.shop), status: str(nextStatus), action: str(r.action || 'save'),
+                      name: str(r.name), insta: str(r.insta), region: str(r.region), cat: str(r.cat),
+                      insta_url: str(r.insta_url), naver_url: str(r.naver_url), home_url: str(r.home_url),
+                      benefit: str(r.benefit), intro: str(r.intro), chk: str(chkId)
+                    }
+                  },
+                  updateTransforms: [{ fieldPath: 'updatedAt', setToServerValue: 'REQUEST_TIME' }]
+                }
+              ];
+              if(nextStatus === 'approved'){
+                writes.push({
+                  update: {
+                    name: docName('courses', cid),
+                    fields: {
+                      id: str(cid), shop: str(r.shop), name: str(r.name), insta: str(r.insta),
+                      region: str(r.region), cat: str(r.cat), insta_url: str(r.insta_url),
+                      naver_url: str(r.naver_url), home_url: str(r.home_url), benefit: str(r.benefit),
+                      intro: str(r.action === 'hide' ? '__DELETED__' : r.intro), chk: str(chkId)
+                    }
+                  },
+                  updateTransforms: [{ fieldPath: 'updatedAt', setToServerValue: 'REQUEST_TIME' }]
+                });
+              }
+              fb('documents:commit', { writes: writes }).then(function(){
+                fb('documents/checks/' + encodeURIComponent(chkId), undefined, 'DELETE').catch(function(){});
+                loadReqs();
+              }).catch(function(){
+                b1.disabled = false; b2.disabled = false;
+                alert('처리에 실패했습니다. 잠시 뒤 다시 눌러 주세요.');
+              });
+            }
+            var rf = document.getElementById('reqRefresh');
+            if(rf) rf.addEventListener('click', loadReqs);
+            window.diaCourseReqReload = loadReqs;
+            loadReqs();
+          })();
           </script>
           <div id="ops-games" style="display:none;">
           <style>
