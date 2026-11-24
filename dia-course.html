@@ -2501,17 +2501,21 @@
     clearBadges();
     var list = defaultOrder.slice();
     if(state.sort === 'near'){
-      var baseLat = userLoc ? userLoc.lat : 37.5324;
-      var baseLng = userLoc ? userLoc.lng : 126.8469;
-      list.sort(function(a, b){
-        var da = distKm(baseLat, baseLng, parseFloat(a.dataset.lat), parseFloat(a.dataset.lng));
-        var db = distKm(baseLat, baseLng, parseFloat(b.dataset.lat), parseFloat(b.dataset.lng));
-        return da - db;
-      });
-      list.forEach(function(c){
-        var d = distKm(baseLat, baseLng, parseFloat(c.dataset.lat), parseFloat(c.dataset.lng));
-        setBadge(c, (userLoc ? '내 위치 ' : '까치산역 기준 ') + '약 ' + d.toFixed(1) + 'km', 'is-near');
-      });
+      if(!userLoc){
+        showBanner('<span>📍 <b>가까운 순</b>은 위치 권한을 허용해 주세요. 브라우저 오른쪽 위 자물쇠에서 위치를 허용하면 바로 정렬됩니다.</span><button type="button" class="crs-banner-x" id="btnBannerReset">닫기</button>');
+      } else {
+        var baseLat = userLoc.lat;
+        var baseLng = userLoc.lng;
+        list.sort(function(a, b){
+          var da = distKm(baseLat, baseLng, parseFloat(a.dataset.lat), parseFloat(a.dataset.lng));
+          var db = distKm(baseLat, baseLng, parseFloat(b.dataset.lat), parseFloat(b.dataset.lng));
+          return da - db;
+        });
+        list.forEach(function(c){
+          var d = distKm(baseLat, baseLng, parseFloat(c.dataset.lat), parseFloat(c.dataset.lng));
+          setBadge(c, '내 위치 약 ' + d.toFixed(1) + 'km', 'is-near');
+        });
+      }
     } else if(state.sort === 'popular'){
       list.sort(function(a, b){
         var ca = (clickMap && clickMap[a.dataset.nick]) ? clickMap[a.dataset.nick] : 0;
@@ -2603,12 +2607,19 @@
       var s = sb.getAttribute('data-sort');
       tools.querySelectorAll('.crs-sort').forEach(function(b){ b.classList.toggle('is-on', b === sb); });
       state.sort = s;
-      if(s === 'near' && !userLoc && navigator.geolocation){
-        navigator.geolocation.getCurrentPosition(function(pos){
-          userLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      if(s === 'near'){
+        if(navigator.geolocation){
+          navigator.geolocation.getCurrentPosition(function(pos){
+            userLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            apply();
+          }, function(){
+            userLoc = null;
+            apply();
+          }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 });
           apply();
-        }, function(){ apply(); }, { timeout: 4000 });
-        apply();
+        } else {
+          apply();
+        }
       } else if(s === 'popular' && !clickMap){
         fetch(EXEC + '?mode=clickstats').then(function(r){ return r.json(); }).then(function(d){
           clickMap = {};
