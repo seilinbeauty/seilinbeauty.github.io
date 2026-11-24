@@ -103,9 +103,12 @@
     var bases = [];
     if(insta) bases.push(insta);
     if(nick) bases.push(nick);
-    // '서울/haute_ob/속눈썹' 처럼 지역이 붙은 닉네임이면 가운데 샵 이름도 열쇠 후보로 둔다
+    // '서울/haute_ob/속눈썹' 처럼 지역·업종이 붙은 닉네임이면 가운데 아이디 모양(영문·숫자)만 열쇠 후보로 더한다
     if(nick.indexOf('/') > -1){
-      nick.split('/').forEach(function(p){ if(p && p.trim()) bases.push(p.trim()); });
+      nick.split('/').forEach(function(p){
+        p = (p || '').trim();
+        if(/^[A-Za-z0-9._-]{3,}$/.test(p)) bases.push(p);
+      });
     }
     var seen = {}, aliases = [];
     bases.forEach(function(b){
