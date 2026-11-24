@@ -2170,7 +2170,7 @@
           </div>
           <div class="crs-feat-row">
             <button type="button" class="crs-feat crs-feat-quiz" id="btnQuizOpen">✨ 질문 후 맞춤 추천 수강</button>
-            <button type="button" class="crs-feat crs-feat-oneday" id="btnOneday" data-on="0">🌿 원데이 클래스 (30만원 이하)</button>
+            <button type="button" class="crs-feat crs-feat-oneday" id="btnOneday" data-on="0">🌿 원데이 클래스</button>
           </div>
         </div>
         <div class="crs-banner" id="crsBanner" style="display:none;"></div>
@@ -2567,7 +2567,7 @@
     });
 
     if(state.oneday){
-      showBanner('<span>🌿 <b>원데이 클래스 (1일 체험 30만원 이하 모음집)</b> · 원데이 운영 샵 ' + shown + '곳 (세부 금액은 각 원장님 문의)</span><button type="button" class="crs-banner-x" id="btnBannerReset">해제</button>');
+      showBanner('<span>🌿 <b>원데이 클래스 (1일 체험 모음집)</b> · 원데이 운영 샵 ' + shown + '곳 (세부 금액은 각 원장님 문의)</span><button type="button" class="crs-banner-x" id="btnBannerReset">해제</button>');
     } else if(state.quiz){
       showBanner('<span>✨ <b>맞춤 추천 결과</b> · 조건에 맞는 원장님 ' + shown + '곳을 추렸어요.</span><button type="button" class="crs-banner-x" id="btnBannerReset">초기화</button>');
     } else {
