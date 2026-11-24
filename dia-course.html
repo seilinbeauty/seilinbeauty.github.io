@@ -2612,7 +2612,7 @@
       } else if(s === 'popular' && !clickMap){
         fetch(EXEC + '?mode=clickstats').then(function(r){ return r.json(); }).then(function(d){
           clickMap = {};
-          var rows = (d && (d.items || d.rows || d.stats)) || [];
+          var rows = (d && (d.instructors || d.items || d.rows || d.stats)) || [];
           if(Array.isArray(rows)){
             rows.forEach(function(it){
               var k = it.nick || it.target || it.name || '';
