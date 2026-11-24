@@ -3124,37 +3124,38 @@ document.addEventListener('click', function(e){
 <script src="dia-ask.js?v=1" defer></script><script src="dia-click.js?v=1" defer></script>
 <style>
 /* 뷰티수강 — 숨고 스타일 카드 (2026-11-24) */
-.crs-grid{gap:16px;}
-.crs-card{display:flex;flex-direction:column;padding:0;border:1px solid #eef0f2;border-radius:16px;background:#fff;box-shadow:0 2px 10px rgba(20,20,20,.05);overflow:hidden;}
-.crs-card.is-benefit{border:1.5px solid #e0819a;box-shadow:0 6px 18px rgba(201,74,106,.14);}
-.crs-photos{order:-1;display:grid;grid-template-columns:1fr 1fr;gap:2px;margin:0;}
-.crs-ph{aspect-ratio:1/1;border-radius:0;}
-.crs-ph:first-child{grid-column:1 / -1;aspect-ratio:16/9;}
+.crs-grid{gap:18px;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;}
+@media (max-width:700px){.crs-grid{grid-template-columns:1fr;gap:22px;}}
+.crs-card{display:flex;flex-direction:column;padding:0 0 4px;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible;}
+.crs-card.is-benefit{padding:14px 12px 12px;border:1.5px solid #f3d5de;border-radius:16px;background:#fffafb;box-shadow:none;}
+.crs-ribbon{order:-1;margin:0 0 10px;padding:0;background:transparent;color:#c2547a;font-size:11.5px;font-weight:800;}
+.crs-head{order:0;display:flex;align-items:center;gap:9px;padding:0;margin:0 0 2px;}
+.crs-av{width:34px;height:34px;border-radius:50%;overflow:hidden;flex:0 0 auto;background:#f2f4f6;}
+.crs-av img{width:100%;height:100%;object-fit:cover;display:block;}
+.crs-me{min-width:0;flex:1;}
+.crs-nick{font-size:15.5px;font-weight:800;color:#191f28;letter-spacing:-.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.crs-tags{font-size:12px;color:#8b95a1;margin-top:1px;}
+.crs-links{margin-left:auto;display:none;}
+.crs-course{order:1;margin:6px 0 0;padding:0;border:0;background:transparent;font-size:13px;font-weight:600;color:#4e5968;line-height:1.45;word-break:keep-all;}
+.crs-kind{display:none;}
+.crs-benefit{order:2;margin:10px 0 0;padding:9px 12px;border-radius:10px;background:#fff3f6;border:1px solid #f8dde5;}
+.crs-photos{order:3;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;margin:12px 0 0;border-radius:12px;overflow:hidden;}
+.crs-ph{aspect-ratio:1/1;border-radius:0;overflow:hidden;background:#f2f4f6;}
+.crs-ph img{width:100%;height:100%;object-fit:cover;display:block;}
 .crs-photos .crs-ph-empty{grid-column:1 / -1;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#9aa0a6;background:#f5f6f7;}
-.crs-ribbon{order:-2;margin:0;padding:8px 14px;}
-.crs-head{padding:12px 14px 0;}
-.crs-av{width:34px;height:34px;font-size:13px;}
-.crs-nick{font-size:15px;font-weight:800;color:#191f28;}
-.crs-tags{font-size:12px;color:#8b95a1;}
-.crs-course{margin:8px 14px 0;padding:0;border:0;background:transparent;font-size:13px;font-weight:600;color:#4e5968;}
-.crs-kind{background:#f2f4f6;border-color:#e5e8eb;color:#4e5968;}
-.crs-benefit{margin:10px 14px 0;}
-.crs-actions{margin:12px 14px 14px;gap:6px;}
-.crs-act{height:38px;border-radius:10px;font-size:12.5px;font-weight:700;background:#f2f4f6;border:1px solid #e5e8eb;color:#4e5968;}
-.crs-act.crs-act-ig{background:#fff0f3;border-color:#f6d7df;color:#c2547a;}
-.crs-act.crs-act-map{background:#f2fbf6;border-color:#cdebd9;color:#1c7a4a;}
-.crs-links{margin-left:auto;}
-.crs-ig{padding:6px 11px;border-radius:8px;background:#f2f4f6;border:1px solid #e5e8eb;color:#4e5968;font-size:11.5px;font-weight:700;}
-.crs-dy-badge{margin-top:6px;}
-.crs-search{display:flex;align-items:center;gap:8px;margin:0 0 10px;padding:12px 14px;border-radius:14px;border:1px solid #e5e8eb;background:#f9fafb;}
-.crs-search input{flex:1;min-width:0;border:0;background:transparent;font-size:13.5px;color:#191f28;font-family:inherit;outline:none;}
-.crs-search input::placeholder{color:#adb5bd;}
+.crs-actions{order:4;display:flex;gap:6px;margin:10px 0 0;}
+.crs-actions.cols-2{display:flex;}
+.crs-act{flex:1;height:42px;border-radius:10px;font-size:13px;font-weight:700;background:#f2f4f6;border:1px solid #eef0f2;color:#4e5968;display:flex;align-items:center;justify-content:center;white-space:nowrap;}
+.crs-act.crs-act-ig{background:#f2f4f6;border-color:#eef0f2;color:#191f28;font-weight:800;}
+.crs-act.crs-act-map,.crs-act.crs-act-home{background:#fff;border-color:#e5e8eb;color:#8b95a1;flex:0 0 74px;}
+.crs-act.crs-act-off{opacity:.4;}
+.crs-ig{display:none;}
+.crs-dy-badge{order:5;}
 @media (max-width:700px){
-  .crs-grid{gap:14px;}
-  .crs-act{height:36px;}
-  .crs-card{border-radius:14px;}
+  .crs-act{height:44px;font-size:13px;}
 }
 </style>
+
 
 <style>
 /* 뷰티수강 — 숨고 앱형 화면 (2026-11-24) */
