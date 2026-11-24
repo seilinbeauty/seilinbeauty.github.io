@@ -325,7 +325,7 @@
     }
     pageBadgeStyle();
     check();
-    timer = setInterval(check, 15000);
+    timer = setInterval(check, 3000);
     document.addEventListener('visibilitychange', function(){ if(!document.hidden) check(); });
     window.addEventListener('pageshow', check);
   }
@@ -385,7 +385,7 @@
       }, function(){});
     }
     badges();
-    setInterval(badges, 20000);
+    setInterval(badges, 4000);
     document.addEventListener('visibilitychange', function(){ if(!document.hidden) badges(); });
   }
 
@@ -407,7 +407,7 @@
       }, function(){});
     }
     tally();
-    setInterval(tally, 20000);
+    setInterval(tally, 4000);
     document.addEventListener('visibilitychange', function(){ if(!document.hidden) tally(); });
   }
 
@@ -461,7 +461,7 @@
     var p = S.me ? roomsOfOwner(S.me.aliases) : roomsOfCust(S.cust);
     p.then(function(rows){
       drawList(rows);
-      startPoll(15000, function(){ refreshList(); });
+      startPoll(3000, function(){ refreshList(); });
     }, function(){
       listBox.innerHTML = '';
       listBox.appendChild(el('div', 'ch-empty', failMsg()));
@@ -545,7 +545,7 @@
       backEl.onclick = function(ev){ ev.preventDefault(); backToList(); };
       form.hidden = false;
       loadMsgs(true);
-      startPoll(5000, function(){ loadMsgs(false); });
+      startPoll(2000, function(){ loadMsgs(false); });
     }, function(){
       msgsBox.innerHTML = '';
       msgsBox.appendChild(el('div', 'ch-empty', failMsg()));
