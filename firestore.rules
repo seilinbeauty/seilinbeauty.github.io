@@ -126,6 +126,53 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ── 뷰티수강 채팅 — 방(대화방) 모양과 메시지 모양
+    //    방번호 = 원장님 열쇠 + '_' + 고객 기기번호 (dia-chat.js 의 roomId 와 같음)
+    function chatRoomOk(d, rid) {
+      return d.keys().hasAll(['roomId','owner','nick','cust','custName','last','lastAt','lastFrom','unreadC','unreadI','createdAt'])
+          && d.keys().hasOnly(['roomId','owner','nick','cust','custName','last','lastAt','lastFrom','unreadC','unreadI','createdAt'])
+          && d.roomId is string && d.roomId == rid
+          && d.owner is string && d.owner.size() > 0 && d.owner.size() <= 80
+          && d.nick is string && d.nick.size() <= 80
+          && d.cust is string && d.cust.size() >= 8 && d.cust.size() <= 60
+          && d.custName is string && d.custName.size() <= 40
+          && d.last is string && d.last.size() <= 300
+          && d.lastFrom is string && (d.lastFrom == 'c' || d.lastFrom == 'i')
+          && d.unreadC is int && d.unreadC >= 0 && d.unreadC <= 9999
+          && d.unreadI is int && d.unreadI >= 0 && d.unreadI <= 9999
+          && d.lastAt is timestamp && d.createdAt is timestamp;
+    }
+
+    // ── 뷰티수강 채팅 (수강찾기 카드 ↔ 원장님 마이페이지)
+    match /chats/{rid} {
+      allow read: if true;
+
+      // 방 만들기 — 고객이 카드에서 처음 말을 걸 때 한 번
+      allow create: if chatRoomOk(request.resource.data, rid)
+                    && request.resource.data.createdAt == request.time;
+
+      // 방 요약 고치기 (마지막 메시지·안 읽은 수·고객 이름) — 주인과 고객 번호는 못 바꿈
+      allow update: if chatRoomOk(request.resource.data, rid)
+                    && request.resource.data.createdAt == resource.data.createdAt
+                    && request.resource.data.owner == resource.data.owner
+                    && request.resource.data.cust == resource.data.cust;
+      allow delete: if false;
+
+      match /msgs/{mid} {
+        allow read: if true;
+        allow create: if request.resource.data.keys().hasOnly(['from','text','at'])
+                      && request.resource.data.from is string
+                      && (request.resource.data.from == 'c' || request.resource.data.from == 'i')
+                      && request.resource.data.text is string
+                      && request.resource.data.text.size() > 0
+                      && request.resource.data.text.size() <= 900
+                      && request.resource.data.at is timestamp
+                      && request.resource.data.at == request.time
+                      && exists(/databases/$(database)/documents/chats/$(rid));
+        allow update, delete: if false;
+      }
+    }
+
     // ── 그 밖의 모든 경로는 막는다
     match /{document=**} {
       allow read, write: if false;
