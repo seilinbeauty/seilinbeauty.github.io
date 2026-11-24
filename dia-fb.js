@@ -171,6 +171,9 @@
 
   // 남기기
   function add(o){
+    return pinRetry(o.shop, o.pin, function(){ return add1(o); });
+  }
+  function add1(o){
     var id = linkId(o.date, o.url), chk = rid('c');
     return commit([
       createDoc('checks', chk, { op: 'write', id: id, shop: o.shop, pin: String(o.pin) }),
@@ -187,6 +190,9 @@
 
   // 고치기 — 주소가 그대로면 구분만 바꾸고, 주소가 바뀌면 번호가 바뀌므로 새로 만들고 옛것을 지운다
   function edit(o){
+    return pinRetry(o.shop, o.pin, function(){ return edit1(o); });
+  }
+  function edit1(o){
     var nid = linkId(o.date, o.url);
     if(nid === o.id){
       var chk = rid('c');
@@ -220,6 +226,9 @@
 
   // 지우기 (본인)
   function del(o){
+    return pinRetry(o.shop, o.pin, function(){ return del1(o); });
+  }
+  function del1(o){
     return meta(o.id).then(function(m){
       return tidy('checks', m.chkDel).then(function(){
         return commit([
@@ -242,12 +251,23 @@
     }).then(function(){ tidy('checks', (mem[o.id] || {}).chkDel); return { ok: true }; }, function(e){ return { ok: false, error: errOf(e) }; });
   }
 
-  // 처음 들어온 회원이면 암호 문서를 만들어 둔다 (이미 있으면 그대로 둔다)
+  // 처음 들어온 회원이면 암호 문서를 만들어 둔다 (이미 있으면 그대로 둔다) — 같은 화면에서 한 번만 시도
+  var pinDone = {};
   function ensurePin(shop, pin){
     if(!shop || !/^[0-9]{4}$/.test(String(pin || ''))) return Promise.resolve(false);
-    return commit([createDoc('pins', safeId(shop), { pin: String(pin) })]).then(function(){ return true; }, function(e){
+    var k = safeId(shop) + '|' + pin;
+    if(pinDone[k]) return Promise.resolve(true);
+    return commit([createDoc('pins', safeId(shop), { pin: String(pin) })]).then(function(){ pinDone[k] = 1; return true; }, function(e){
       var m = String((e.body && e.body.error && e.body.error.message) || '').toLowerCase();
-      return !!(e && (e.status === 409 || m.indexOf('already exists') > -1));
+      if(e && (e.status === 409 || m.indexOf('already exists') > -1)){ pinDone[k] = 1; return true; }
+      return false;
+    });
+  }
+  // 암호 문서가 아직 없어서 막힌 경우 한 번 더: 암호 문서를 만들고 다시 시도한다
+  function pinRetry(shop, pin, again){
+    return again().then(function(r){
+      if(!r || r.ok || r.error !== 'bad_pin') return r;
+      return ensurePin(shop, pin).then(function(){ return again(); });
     });
   }
 
