@@ -318,17 +318,16 @@
     function placeChatBtn(){
       var badge = document.getElementById('dlBadge');
       if(!badge || !badge.parentNode) return;
-      var head = badge.parentNode;
-      var grp = head.querySelector('.dl-h-r');
-      if(!grp){
-        grp = document.createElement('span');
-        grp.className = 'dl-h-r';
-        head.appendChild(grp);
-        grp.appendChild(btn);
-        grp.appendChild(badge);
-      } else if(btn.parentNode !== grp){
-        grp.insertBefore(btn, grp.firstChild);
+      if(badge.parentNode.classList && badge.parentNode.classList.contains('dl-h-r')){
+        if(btn.parentNode !== badge.parentNode) badge.parentNode.insertBefore(btn, badge);
+        return;
       }
+      var head = badge.parentNode;
+      var grp = document.createElement('span');
+      grp.className = 'dl-h-r';
+      head.appendChild(grp);
+      grp.appendChild(btn);
+      grp.appendChild(badge);
     }
     var linkBox = document.getElementById('diaLinkBox');
     if(linkBox && window.MutationObserver){
