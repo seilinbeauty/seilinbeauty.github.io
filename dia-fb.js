@@ -24,6 +24,8 @@
     }
     return f;
   }
+  // 닉네임에 든 '/'는 문서 번호에 쓸 수 없어 '|'로 바꾼다 (firestore.rules 의 safeId 와 같은 규칙)
+  function safeId(shop){ return String(shop || '').split('/').join('|'); }
   function name(coll, id){ return 'projects/seilindia/databases/(default)/documents/' + coll + '/' + encodeURIComponent(id); }
 
   // 파이어스토어 호출 (POST 기본, GET·DELETE 는 방식만 바꿈)
@@ -226,7 +228,7 @@
   // 처음 들어온 회원이면 암호 문서를 만들어 둔다 (이미 있으면 그대로 둔다)
   function ensurePin(shop, pin){
     if(!shop || !/^[0-9]{4}$/.test(String(pin || ''))) return Promise.resolve(false);
-    return commit([createDoc('pins', shop, { pin: String(pin) })]).then(function(){ return true; }, function(e){
+    return commit([createDoc('pins', safeId(shop), { pin: String(pin) })]).then(function(){ return true; }, function(e){
       var m = String((e.body && e.body.error && e.body.error.message) || '').toLowerCase();
       return !!(e && (e.status === 409 || m.indexOf('already exists') > -1));
     });
@@ -236,24 +238,24 @@
   function setPin(shop, pin){
     if(!shop) return Promise.resolve(false);
     var v = String(pin === undefined || pin === null ? '' : pin);
-    var chk = { op: 'pinset', pin: v, pw: STAFF_PW };
+    var chk = { op: 'pinset', pin: v, pw: STAFF_PW }, sid = safeId(shop);
     if(!v){
-      return req('documents/pinchk/' + encodeURIComponent(shop), null, 'DELETE').then(function(){
-        return commit([ createDoc('pinchk', shop, chk), delDoc('pins', shop) ]);
-      }).then(function(){ tidy('pinchk', shop); return true; }, function(){ return false; });
+      return req('documents/pinchk/' + encodeURIComponent(sid), null, 'DELETE').then(function(){
+        return commit([ createDoc('pinchk', sid, chk), delDoc('pins', sid) ]);
+      }).then(function(){ tidy('pinchk', sid); return true; }, function(){ return false; });
     }
     if(!/^[0-9]{4}$/.test(v)) return Promise.resolve(false);
-    return req('documents/pinchk/' + encodeURIComponent(shop), null, 'DELETE').then(function(){
-      return commit([ createDoc('pinchk', shop, chk), patchDoc('pins', shop, { pin: v }, ['pin']) ]);
-    }).then(function(){ tidy('pinchk', shop); return true; }, function(){
+    return req('documents/pinchk/' + encodeURIComponent(sid), null, 'DELETE').then(function(){
+      return commit([ createDoc('pinchk', sid, chk), patchDoc('pins', sid, { pin: v }, ['pin']) ]);
+    }).then(function(){ tidy('pinchk', sid); return true; }, function(){
       // 아직 암호 문서가 없는 회원이면 새로 만든다
-      return commit([ createDoc('pinchk', shop, chk), createDoc('pins', shop, { pin: v }) ]).then(function(){ tidy('pinchk', shop); return true; }, function(){ return false; });
+      return commit([ createDoc('pinchk', sid, chk), createDoc('pins', sid, { pin: v }) ]).then(function(){ tidy('pinchk', sid); return true; }, function(){ return false; });
     });
   }
 
   window.DiaFB = {
     day: day, add: add, edit: edit, del: del, staffDel: staffDel,
-    ensurePin: ensurePin, setPin: setPin,
+    ensurePin: ensurePin, setPin: setPin, safeId: safeId,
     linkId: linkId, keyOf: keyOf, STAFF_PW: STAFF_PW
   };
 })();

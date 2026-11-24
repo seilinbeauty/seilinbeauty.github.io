@@ -20,10 +20,15 @@ service cloud.firestore {
       return request.time.hours() < 12;
     }
 
+    // ── 문서 번호 만들기: 닉네임에 든 '/'는 문서 경로에 쓸 수 없어 '|'로 바꾼다 (dia-fb.js 와 같은 규칙)
+    function safeId(shop) {
+      return shop.replace('/', '|');
+    }
+
     // ── 본인 4자리 암호 확인
     function pinOk(shop, pin) {
-      return exists(/databases/$(database)/documents/pins/$(shop))
-          && get(/databases/$(database)/documents/pins/$(shop)).data.pin == pin;
+      let p = /databases/$(database)/documents/pins/$(safeId(shop));
+      return exists(p) && get(p).data.pin == pin;
     }
 
     // ── 확인용 문서(checks)가 같은 묶음으로 만들어졌는지 확인
@@ -78,12 +83,12 @@ service cloud.firestore {
     }
 
     // ── 회원 4자리 암호 — 화면에서 읽을 수 없다. 처음 한 번만 만들고, 바꾸기는 스태프만
-    match /pins/{shop} {
+    match /pins/{safe} {
       allow read: if false;
       allow create: if request.resource.data.keys().hasOnly(['pin'])
                     && request.resource.data.pin is string
                     && request.resource.data.pin.matches("[0-9]{4}");
-      allow update, delete: if getAfter(/databases/$(database)/documents/pinchk/$(shop)).data.op == 'pinset';
+      allow update, delete: if getAfter(/databases/$(database)/documents/pinchk/$(safe)).data.op == 'pinset';
     }
 
     // ── 암호 확인용 문서 — 만들 때 암호를 대조하고, 링크 쓰기와 함께 쓰이며, 끝나면 지운다
@@ -100,7 +105,7 @@ service cloud.firestore {
     }
 
     // ── 스태프 암호 바꾸기·비우기 표시 (운영 센터 비밀번호 확인용)
-    match /pinchk/{shop} {
+    match /pinchk/{safe} {
       allow read: if false;
       allow create: if request.resource.data.keys().hasOnly(['op','pin','pw'])
                     && request.resource.data.op == 'pinset'
