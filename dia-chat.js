@@ -238,6 +238,27 @@
   function savedName(){ try{ return localStorage.getItem(K_NAME) || ''; }catch(e){ return ''; } }
   function saveName(n){ try{ localStorage.setItem(K_NAME, String(n || '')); }catch(e){} }
 
+  // ── 읽은 방 기록 — 화면에서는 바로 사라지고, 파이어스토어에는 15초마다 0으로 저장
+  var K_READ = 'dia_chat_read';
+  function 읽음맵(){ try{ return JSON.parse(localStorage.getItem(K_READ) || '{}') || {}; }catch(e){ return {}; } }
+  function 읽음기록(id){ var m = 읽음맵(); m[id] = Date.now(); try{ localStorage.setItem(K_READ, JSON.stringify(m)); }catch(e){} }
+  function 읽었나(id, lastAt){
+    var t = 읽음맵()[id];
+    if(!t) return false;
+    var lt = lastAt ? Date.parse(lastAt) : 0;
+    return !(lt > t);
+  }
+  var 읽음대기 = {};
+  function 읽음대기에(id, side){ 읽음대기[id] = side; }
+  function 읽음대기비우기(){
+    var ids = Object.keys(읽음대기);
+    if(!ids.length) return;
+    ids.forEach(function(id){ var s = 읽음대기[id]; delete 읽음대기[id]; markRead(id, s); });
+  }
+  setInterval(읽음대기비우기, 15000);
+  window.addEventListener('pagehide', 읽음대기비우기);
+  window.addEventListener('beforeunload', 읽음대기비우기);
+
   // ── 시간 표기 (한국 시간)
   function kstParts(iso){
     var t = Date.parse(iso || '');
@@ -307,7 +328,7 @@
     var on = false, timer = null;
     function tally(rows){
       var n = 0;
-      (rows || []).forEach(function(r){ n += (r.unreadI || 0); });
+      (rows || []).forEach(function(r){ if(!읽었나(r.id, r.lastAt)) n += (r.unreadI || 0); });
       var b = document.getElementById('mcChatBadge');
       if(!b) return;
       if(n > 0){ b.textContent = n > 99 ? '99+' : String(n); b.hidden = false; }
@@ -325,7 +346,7 @@
     }
     pageBadgeStyle();
     check();
-    timer = setInterval(check, 3000);
+    timer = setInterval(check, 15000);
     document.addEventListener('visibilitychange', function(){ if(!document.hidden) check(); });
     window.addEventListener('pageshow', check);
   }
@@ -371,7 +392,7 @@
       if(document.hidden) return;
       roomsOfCust(custId()).then(function(rows){
         var map = {};
-        (rows || []).forEach(function(r){ if(r.unreadC > 0) map[r.owner] = (map[r.owner] || 0) + r.unreadC; });
+        (rows || []).forEach(function(r){ if(r.unreadC > 0 && !읽었나(r.id, r.lastAt)) map[r.owner] = (map[r.owner] || 0) + r.unreadC; });
         Array.prototype.forEach.call(grid.querySelectorAll('.crs-card'), function(card){
           var a = card.querySelector('.crs-chat');
           if(!a) return;
@@ -398,7 +419,7 @@
       if(document.hidden) return;
       roomsOfCust(custId()).then(function(rows){
         var n = 0;
-        (rows || []).forEach(function(r){ n += (r.unreadC || 0); });
+        (rows || []).forEach(function(r){ if(!읽었나(r.id, r.lastAt)) n += (r.unreadC || 0); });
         var b = tab.querySelector('.tb-n');
         if(n > 0){
           if(!b){ b = document.createElement('span'); b.className = 'tb-n'; tab.appendChild(b); }
@@ -461,7 +482,7 @@
     var p = S.me ? roomsOfOwner(S.me.aliases) : roomsOfCust(S.cust);
     p.then(function(rows){
       drawList(rows);
-      startPoll(3000, function(){ refreshList(); });
+      startPoll(15000, function(){ refreshList(); });
     }, function(){
       listBox.innerHTML = '';
       listBox.appendChild(el('div', 'ch-empty', failMsg()));
@@ -497,6 +518,7 @@
       var right = el('span', 'ch-right');
       right.appendChild(el('span', 'ch-time', kst(r.lastAt)));
       var un = S.me ? (r.unreadI || 0) : (r.unreadC || 0);
+      if(un > 0 && 읽었나(r.id, r.lastAt)) un = 0;
       if(un > 0) right.appendChild(el('span', 'ch-n', un > 99 ? '99+' : String(un)));
       item.appendChild(av); item.appendChild(body); item.appendChild(right);
       item.addEventListener('click', function(){
@@ -545,7 +567,7 @@
       backEl.onclick = function(ev){ ev.preventDefault(); backToList(); };
       form.hidden = false;
       loadMsgs(true);
-      startPoll(2000, function(){ loadMsgs(false); });
+      startPoll(3000, function(){ loadMsgs(false); });
     }, function(){
       msgsBox.innerHTML = '';
       msgsBox.appendChild(el('div', 'ch-empty', failMsg()));
@@ -564,7 +586,8 @@
       if(!first && sig === S.sig) return;
       S.sig = sig;
       drawMsgs(rows, first);
-      markRead(id, S.side);
+      읽음기록(id);
+      읽음대기에(id, S.side);
     }, function(){});
   }
   function drawMsgs(rows, first){
