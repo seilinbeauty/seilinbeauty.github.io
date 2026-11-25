@@ -2631,7 +2631,13 @@
       var ok = true;
       if(state.cat !== '전체'){
         var cs = (c.getAttribute('data-cats') || '').split(',');
-        if(cs.indexOf(state.cat) < 0) ok = false;
+        var hasCat = cs.indexOf(state.cat) >= 0;
+        if(!hasCat && cs.indexOf('속눈썹') >= 0){
+          var txt = c.textContent || '';
+          if(state.cat === '속눈썹펌' && (txt.indexOf('속눈썹펌') >= 0 || txt.indexOf('속펌') >= 0 || txt.indexOf('연장') < 0)) hasCat = true;
+          if(state.cat === '속눈썹연장' && (txt.indexOf('속눈썹연장') >= 0 || txt.indexOf('연장') >= 0)) hasCat = true;
+        }
+        if(!hasCat) ok = false;
       }
       if(state.oneday && c.getAttribute('data-oneday') !== '1') ok = false;
       if(state.region && state.region !== '전체'){
