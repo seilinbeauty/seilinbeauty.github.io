@@ -30,16 +30,4 @@
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
-  <url>
-    <loc>https://seilinbeauty.github.io/dia-board.html</loc>
-    <lastmod>2026-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://seilinbeauty.github.io/dia-files.html</loc>
-    <lastmod>2026-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
 </urlset>
