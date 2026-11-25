@@ -1,21 +1,17 @@
-# 세이린뷰티 (SEILIN BEAUTY)
+# 세이린뷰티 (SEILIN BEAUTY) · 다이아 커뮤니티
 
-> 서울 강서구 화곡동(까치산역) 소재 속눈썹펌 전문샵 및 1:1 창업 전문 아카데미. 서울사이버대학교 뷰티학과 산학협력 공식 인증 기관.
-
-## 기본 정보
-- **상호**: 세이린뷰티
-- **대표 원장**: 주세인
-- **본점 위치**: 서울특별시 강서구 초록마을로37길 13, 1층 (까치산역 1번 출구 도보 5분)
-- **지점**: 세이린뷰티 까치산역점 (까치산역 도보 2분)
-- **공식 인스타그램**: https://www.instagram.com/seilin_beauty/
-- **공식 웹사이트**: https://seilinbeauty.github.io/
-
-## 주요 서비스 및 교육
-- 속눈썹펌 시술 (본점 · 까치산역점)
-- 속눈썹펌 창업 & 1:1 단독 밀착 직강 클래스 (대표 원장 직접 지도, 실전 기술 마스터 및 샵 오픈 세팅 지원)
+> 서울 강서구 까치산역 인근 속눈썹펌 전문샵 및 1:1 창업·원데이 아카데미 '세이린뷰티'와 전국 뷰티 원장님들의 상생 커뮤니티 '다이아' 공식 포털입니다.
 
 ## 주요 페이지
-- [세이린뷰티 아카데미 공식 홈](https://seilinbeauty.github.io/): 아카데미 소개, 커리큘럼, 수강 후기, 지점 안내
-- [다이아(DIA) 뷰티 커뮤니티](https://seilinbeauty.github.io/dia.html): 뷰티 원장님들의 상생 품앗이 커뮤니티 포털
-- [뷰티수강 원장님 안내](https://seilinbeauty.github.io/dia-course.html): 다이아 커뮤니티 참여 수강 원장님 목록 및 혜택
-- [다이아 커뮤니티 가이드](https://seilinbeauty.github.io/dia-guide.html): 참여 방법 및 운영 안내
+- [세이린뷰티 아카데미](https://seilinbeauty.github.io/): 서울 강서구 까치산역 속눈썹펌 1:1 창업반 · 원데이 클래스 · 실무 커리큘럼 안내 및 수강 상담 신청
+- [다이아 커뮤니티](https://seilinbeauty.github.io/dia.html): 속눈썹펌·네일아트·피부관리·왁싱 등 전국 뷰티 원장님 품앗이 · 인스타 활성화 커뮤니티 포털
+- [뷰티수강 원장님 모음](https://seilinbeauty.github.io/dia-course.html): 전국 뷰티샵 수강 · 원데이 · 학원 · 아카데미 과정 비교 및 지역/종목별 검색
+- [다이아 품앗이 가이드](https://seilinbeauty.github.io/dia-guide.html): 다이아 커뮤니티 참여 방법 및 운영 규정 안내
+
+## 세이린뷰티 매장 및 아카데미 정보
+- 상호: 세이린뷰티 (SEILIN BEAUTY)
+- 대표: 주세인 원장
+- 위치: 서울특별시 강서구 화곡동 / 까치산역 인근
+- 전문 분야: 속눈썹펌 시술, 속눈썹펌 1:1 창업 전문 클래스, 원데이 클래스, 브로우리프트
+- 공식 인스타그램: https://www.instagram.com/seilin_beauty/
+- 공식 네이버 블로그: https://blog.naver.com/sei_lin
