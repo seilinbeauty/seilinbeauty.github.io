@@ -15,9 +15,9 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ── 남기는 시간 (한국 09:00~21:00 = UTC 00:00~12:00)
+    // ── 남기는 시간 제한 해제 (24시간 상시 가능)
     function openNow() {
-      return request.time.hours() < 12;
+      return true;
     }
 
     // ── 본인 4자리 암호 확인

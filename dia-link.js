@@ -14,7 +14,7 @@
 
   function kst(){ return new Date(Date.now() + 9 * 3600 * 1000); }
   function today(){ return kst().toISOString().slice(0, 10); }
-  function isOpen(){ var d = kst(), m = d.getUTCHours() * 60 + d.getUTCMinutes(); return m >= 9 * 60 && m < 21 * 60; }
+  function isOpen(){ return true; }
   function tagText(){
     if(window.DiaTag) return window.DiaTag.today(); // 운영 센터에서 바꾼 모양
     var d = kst(); return '#' + String(d.getUTCMonth() + 1).padStart(2, '0') + String(d.getUTCDate()).padStart(2, '0') + '_행운을부탁해';
@@ -265,7 +265,7 @@
   function refresh(){
     var b = document.getElementById('dlBadge'); if(!b) return;
     var open = isOpen();
-    b.textContent = open ? '참여 중 (~21:00)' : '참여 마감';
+    b.textContent = open ? '참여 중' : '참여 마감';
     b.className = 'dl-badge' + (open ? '' : ' off');
     document.getElementById('dlTag').textContent = tagText();
     paintMine(false);
