@@ -285,6 +285,36 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ── 아카데미 수강 상담 신청함 (index.html → 운영센터 확인)
+    match /consults/{cid} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['id','name','phone','course','memo','status','createdAt'])
+                    && request.resource.data.keys().hasOnly(['id','name','phone','course','memo','status','createdAt'])
+                    && request.resource.data.id is string && request.resource.data.id == cid
+                    && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 40
+                    && request.resource.data.phone is string && request.resource.data.phone.size() > 0 && request.resource.data.phone.size() <= 40
+                    && request.resource.data.course is string && request.resource.data.course.size() <= 60
+                    && request.resource.data.memo is string && request.resource.data.memo.size() <= 400
+                    && request.resource.data.status == 'open'
+                    && request.resource.data.createdAt == request.time;
+      allow update: if request.resource.data.keys().hasAll(['id','name','phone','course','memo','status','chk','createdAt','updatedAt'])
+                    && request.resource.data.keys().hasOnly(['id','name','phone','course','memo','status','chk','createdAt','updatedAt'])
+                    && (request.resource.data.status == 'open' || request.resource.data.status == 'done')
+                    && request.resource.data.updatedAt == request.time
+                    && chkStaff(request.resource.data.chk, cid);
+      allow delete: if false;
+    }
+
+    // ── 일일 방문·접속 통계 (dia / aca / crs)
+    match /analytics/{day} {
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(['dia','aca','crs'])
+                            && (!('dia' in request.resource.data) || request.resource.data.dia is int)
+                            && (!('aca' in request.resource.data) || request.resource.data.aca is int)
+                            && (!('crs' in request.resource.data) || request.resource.data.crs is int);
+      allow delete: if false;
+    }
+
     // ── 그 밖의 모든 경로는 막는다
     match /{document=**} {
       allow read, write: if false;

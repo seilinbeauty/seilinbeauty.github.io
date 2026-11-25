@@ -395,12 +395,104 @@
     });
   }
 
+  // ── 아카데미 수강 상담 신청함 (consults/{cid})
+  function addConsult(o){
+    var cid = rid('cs_');
+    var w = createDoc('consults', cid, {
+      id: cid,
+      name: String((o && o.name) || '').slice(0, 40),
+      phone: String((o && o.phone) || '').slice(0, 40),
+      course: String((o && o.course) || '').slice(0, 60),
+      memo: String((o && o.memo) || '').slice(0, 400),
+      status: 'open'
+    }, true);
+    return commit([w]).then(function(){ return { ok: true, id: cid }; }, function(e){ return { ok: false, error: errOf(e) }; });
+  }
+  function listConsults(){
+    return req('documents/consults?pageSize=100', null, 'GET').then(function(d){
+      var out = [];
+      ((d && d.documents) || []).forEach(function(doc){
+        var f = doc.fields || {};
+        out.push({
+          id: (f.id && f.id.stringValue) || String(doc.name || '').split('/').pop(),
+          name: (f.name && f.name.stringValue) || '',
+          phone: (f.phone && f.phone.stringValue) || '',
+          course: (f.course && f.course.stringValue) || '',
+          memo: (f.memo && f.memo.stringValue) || '',
+          status: (f.status && f.status.stringValue) || 'open',
+          createdAt: (f.createdAt && f.createdAt.timestampValue) || '',
+          ts: Date.parse((f.createdAt && f.createdAt.timestampValue) || '') || 0
+        });
+      });
+      out.sort(function(a, b){ return b.ts - a.ts; });
+      return out;
+    }, function(){ return []; });
+  }
+  function doneConsult(item){
+    if(!item || !item.id) return Promise.resolve({ ok: false });
+    var cid = rid('cs_');
+    var chk = createDoc('checks', cid, { op: 'staff', id: item.id, pw: STAFF_PW });
+    var w = {
+      update: {
+        name: name('consults', item.id),
+        fields: {
+          id: str(item.id),
+          name: str(item.name || ''),
+          phone: str(item.phone || ''),
+          course: str(item.course || ''),
+          memo: str(item.memo || ''),
+          status: str(item.status === 'done' ? 'open' : 'done'),
+          chk: str(cid),
+          createdAt: { timestampValue: item.createdAt || new Date().toISOString() }
+        }
+      },
+      updateTransforms: [{ fieldPath: 'updatedAt', setToServerValue: 'REQUEST_TIME' }],
+      currentDocument: { exists: true }
+    };
+    return commit([chk, w]).then(function(){
+      tidy('checks', cid);
+      return { ok: true };
+    }, function(e){
+      tidy('checks', cid);
+      return { ok: false, error: errOf(e) };
+    });
+  }
+
+  // ── 일일 방문 통계 (analytics/{YYYY-MM-DD})
+  function hitVisit(site){
+    var fld = (site === 'aca' || site === 'dia' || site === 'crs') ? site : 'dia';
+    if(/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || navigator.webdriver === true) return Promise.resolve(false);
+    try{ if(localStorage.getItem('dia_no_track') === '1') return Promise.resolve(false); }catch(e){}
+    return commit([{
+      update: { name: name('analytics', kstDay()), fields: {} },
+      updateMask: { fieldPaths: [] },
+      updateTransforms: [{ fieldPath: fld, increment: { integerValue: '1' } }]
+    }]).then(function(){ return true; }, function(){ return false; });
+  }
+  function getAnalytics(){
+    return req('documents/analytics?pageSize=30', null, 'GET').then(function(d){
+      var out = {};
+      ((d && d.documents) || []).forEach(function(doc){
+        var id = String(doc.name || '').split('/').pop();
+        var f = doc.fields || {};
+        out[id] = {
+          dia: parseInt((f.dia && f.dia.integerValue) || 0, 10) || 0,
+          aca: parseInt((f.aca && f.aca.integerValue) || 0, 10) || 0,
+          crs: parseInt((f.crs && f.crs.integerValue) || 0, 10) || 0
+        };
+      });
+      return out;
+    }, function(){ return {}; });
+  }
+
   window.DiaFB = {
     day: day, add: add, edit: edit, del: del, staffDel: staffDel,
     ensurePin: ensurePin, setPin: setPin, safeId: safeId, stat: stat, kstDay: kstDay,
     linkId: linkId, keyOf: keyOf, STAFF_PW: STAFF_PW,
     getMeta: getMeta, saveMeta: saveMeta,
     getClicks: getClicks, hitClick: hitClick,
-    addSuggestion: addSuggestion, listSuggestions: listSuggestions, doneSuggestion: doneSuggestion
+    addSuggestion: addSuggestion, listSuggestions: listSuggestions, doneSuggestion: doneSuggestion,
+    addConsult: addConsult, listConsults: listConsults, doneConsult: doneConsult,
+    hitVisit: hitVisit, getAnalytics: getAnalytics
   };
 })();
