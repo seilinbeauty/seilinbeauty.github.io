@@ -47,6 +47,7 @@
       return;
     }
     if(isOff() || !window.fetch) return;
+    if(window.DiaFB && DiaFB.hitClick){ try{ DiaFB.hitClick(insta); }catch(e){} }
     var url = EXEC + '?mode=click&insta=' + encodeURIComponent(insta) + '&target=' + target + '&u=' + encodeURIComponent(deviceId());
     fetch(url, {mode: 'no-cors', keepalive: true, cache: 'no-store'}).catch(function(){});
   }

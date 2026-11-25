@@ -291,9 +291,116 @@
     });
   }
 
+  // ── 운영 데이터 묶음 (meta/members, meta/invites)
+  function getMeta(mid){
+    return req('documents/meta/' + encodeURIComponent(mid), null, 'GET').then(function(doc){
+      var s = doc && doc.fields && doc.fields.data && doc.fields.data.stringValue;
+      if(!s) return null;
+      try{ return JSON.parse(s); }catch(e){ return null; }
+    }, function(){ return null; });
+  }
+  function saveMeta(mid, obj){
+    var cid = rid('m_');
+    var chk = createDoc('checks', cid, { op: 'staff', id: mid, pw: STAFF_PW });
+    var w = {
+      update: { name: name('meta', mid), fields: fields({ data: JSON.stringify(obj), chk: cid }) },
+      updateTransforms: [{ fieldPath: 'updatedAt', setToServerValue: 'REQUEST_TIME' }]
+    };
+    return commit([chk, w]).then(function(){
+      tidy('checks', cid);
+      return { ok: true };
+    }, function(e){
+      tidy('checks', cid);
+      return { ok: false, error: errOf(e) };
+    });
+  }
+
+  // ── 뷰티수강 클릭 통계 (clicks/{insta})
+  function getClicks(){
+    return req('documents/clicks?pageSize=200', null, 'GET').then(function(d){
+      var map = {};
+      ((d && d.documents) || []).forEach(function(doc){
+        var id = String(doc.name || '').split('/').pop();
+        var v = doc.fields && doc.fields.count && doc.fields.count.integerValue;
+        if(id) map[id] = parseInt(v || 0, 10) || 0;
+      });
+      return map;
+    }, function(){ return {}; });
+  }
+  function hitClick(insta){
+    var id = safeId(String(insta || '').replace(/^@+/, '').trim());
+    if(!id) return Promise.resolve(false);
+    return commit([{
+      update: { name: name('clicks', id), fields: {} },
+      updateMask: { fieldPaths: [] },
+      updateTransforms: [{ fieldPath: 'count', increment: { integerValue: '1' } }]
+    }]).then(function(){ return true; }, function(){ return false; });
+  }
+
+  // ── 기능 제안 / 건의함 (suggestions/{sid})
+  function addSuggestion(from, text){
+    var sid = rid('sg_');
+    var w = createDoc('suggestions', sid, {
+      id: sid,
+      text: String(text || '').slice(0, 500),
+      from: String(from || '익명').slice(0, 60),
+      status: 'open'
+    }, true);
+    return commit([w]).then(function(){ return { ok: true, id: sid }; }, function(e){ return { ok: false, error: errOf(e) }; });
+  }
+  function listSuggestions(){
+    return req('documents/suggestions?pageSize=100', null, 'GET').then(function(d){
+      var out = [];
+      ((d && d.documents) || []).forEach(function(doc){
+        var f = doc.fields || {};
+        var st = f.status && f.status.stringValue || 'open';
+        if(st === 'done') return;
+        out.push({
+          id: (f.id && f.id.stringValue) || String(doc.name || '').split('/').pop(),
+          from: (f.from && f.from.stringValue) || '익명',
+          text: (f.text && f.text.stringValue) || '',
+          createdAt: (f.createdAt && f.createdAt.timestampValue) || '',
+          ts: Date.parse((f.createdAt && f.createdAt.timestampValue) || '') || 0
+        });
+      });
+      out.sort(function(a, b){ return b.ts - a.ts; });
+      return out;
+    }, function(){ return []; });
+  }
+  function doneSuggestion(item){
+    if(!item || !item.id) return Promise.resolve({ ok: false });
+    var cid = rid('sg_');
+    var chk = createDoc('checks', cid, { op: 'staff', id: item.id, pw: STAFF_PW });
+    var w = {
+      update: {
+        name: name('suggestions', item.id),
+        fields: {
+          id: str(item.id),
+          text: str(item.text || ''),
+          from: str(item.from || '익명'),
+          status: str('done'),
+          chk: str(cid),
+          createdAt: { timestampValue: item.createdAt || new Date().toISOString() }
+        }
+      },
+      updateTransforms: [{ fieldPath: 'updatedAt', setToServerValue: 'REQUEST_TIME' }],
+      currentDocument: { exists: true }
+    };
+    return commit([chk, w]).then(function(){
+      tidy('checks', cid);
+      return { ok: true };
+    }, function(e){
+      tidy('checks', cid);
+      return { ok: false, error: errOf(e) };
+    });
+  }
+
   window.DiaFB = {
     day: day, add: add, edit: edit, del: del, staffDel: staffDel,
     ensurePin: ensurePin, setPin: setPin, safeId: safeId, stat: stat, kstDay: kstDay,
-    linkId: linkId, keyOf: keyOf, STAFF_PW: STAFF_PW
+    linkId: linkId, keyOf: keyOf, STAFF_PW: STAFF_PW,
+    getMeta: getMeta, saveMeta: saveMeta,
+    getClicks: getClicks, hitClick: hitClick,
+    addSuggestion: addSuggestion, listSuggestions: listSuggestions, doneSuggestion: doneSuggestion
   };
 })();

@@ -245,6 +245,46 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ── 운영 데이터 묶음 (meta/members: 명부·봉사·휴식, meta/invites: 지인 초대 추적)
+    match /meta/{mid} {
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(['data','chk','updatedAt'])
+                            && request.resource.data.data is string
+                            && request.resource.data.updatedAt == request.time
+                            && chkStaff(request.resource.data.chk, mid);
+      allow delete: if false;
+    }
+
+    // ── 뷰티수강 클릭 통계 (인기 탑 순 즉시 로딩)
+    match /clicks/{cid} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['count'])
+                    && request.resource.data.count is int
+                    && request.resource.data.count == 1;
+      allow update: if request.resource.data.keys().hasOnly(['count'])
+                    && request.resource.data.count is int
+                    && request.resource.data.count == resource.data.count + 1;
+      allow delete: if false;
+    }
+
+    // ── 기능 제안 / 건의함
+    match /suggestions/{sid} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['id','text','from','status','createdAt'])
+                    && request.resource.data.keys().hasOnly(['id','text','from','status','createdAt'])
+                    && request.resource.data.id is string && request.resource.data.id == sid
+                    && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 500
+                    && request.resource.data.from is string && request.resource.data.from.size() <= 60
+                    && request.resource.data.status == 'open'
+                    && request.resource.data.createdAt == request.time;
+      allow update: if request.resource.data.keys().hasAll(['id','text','from','status','chk','createdAt','updatedAt'])
+                    && request.resource.data.keys().hasOnly(['id','text','from','status','chk','createdAt','updatedAt'])
+                    && (request.resource.data.status == 'open' || request.resource.data.status == 'done')
+                    && request.resource.data.updatedAt == request.time
+                    && chkStaff(request.resource.data.chk, sid);
+      allow delete: if false;
+    }
+
     // ── 그 밖의 모든 경로는 막는다
     match /{document=**} {
       allow read, write: if false;

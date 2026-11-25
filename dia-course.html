@@ -2506,22 +2506,34 @@
   function prefetchClicks(){
     if(clickLoading) return;
     clickLoading = true;
-    fetch(EXEC + '?mode=clickstats').then(function(r){ return r.json(); }).then(function(d){
-      clickLoading = false;
-      var map = {};
-      var rows = (d && (d.instructors || d.items || d.rows || d.stats)) || [];
-      if(Array.isArray(rows)){
-        rows.forEach(function(it){
-          var k = it.nick || it.target || it.name || '';
-          var v = Number(it.total || it.count || it.clicks || 0);
-          if(k) map[k] = (map[k] || 0) + v;
-        });
-      } else if(d && d.byNick){
-        map = d.byNick;
+    var p = (window.DiaFB && DiaFB.getClicks)
+      ? DiaFB.getClicks().then(function(m){ if(m && Object.keys(m).length) return m; return null; })
+      : Promise.resolve(null);
+    p.then(function(fbMap){
+      if(fbMap){
+        clickLoading = false;
+        clickMap = fbMap;
+        try{ sessionStorage.setItem('crs_click_map', JSON.stringify(clickMap)); }catch(e){}
+        if(state.sort === 'popular') apply();
+        return;
       }
-      clickMap = map;
-      try{ sessionStorage.setItem('crs_click_map', JSON.stringify(clickMap)); }catch(e){}
-      if(state.sort === 'popular') apply();
+      return fetch(EXEC + '?mode=clickstats').then(function(r){ return r.json(); }).then(function(d){
+        clickLoading = false;
+        var map = {};
+        var rows = (d && (d.instructors || d.items || d.rows || d.stats)) || [];
+        if(Array.isArray(rows)){
+          rows.forEach(function(it){
+            var k = it.nick || it.target || it.name || '';
+            var v = Number(it.total || it.count || it.clicks || 0);
+            if(k) map[k] = (map[k] || 0) + v;
+          });
+        } else if(d && d.byNick){
+          map = d.byNick;
+        }
+        clickMap = map;
+        try{ sessionStorage.setItem('crs_click_map', JSON.stringify(clickMap)); }catch(e){}
+        if(state.sort === 'popular') apply();
+      });
     }).catch(function(){
       clickLoading = false;
       if(!clickMap) clickMap = {};
@@ -2599,15 +2611,21 @@
       return defaultOrder.indexOf(a) - defaultOrder.indexOf(b);
     });
   }
+  function clickOf(c){
+      if(!clickMap || !c) return 0;
+      var nk = c.dataset.nick || '';
+      var ig = (c.dataset.insta || '').replace(/^@+/, '');
+      return clickMap[nk] || clickMap[ig] || 0;
+    }
   if(state.sort === 'popular'){
       list.sort(function(a, b){
-        var ca = (clickMap && clickMap[a.dataset.nick]) ? clickMap[a.dataset.nick] : 0;
-        var cb = (clickMap && clickMap[b.dataset.nick]) ? clickMap[b.dataset.nick] : 0;
+        var ca = clickOf(a);
+        var cb = clickOf(b);
         if(cb !== ca) return cb - ca;
         return defaultOrder.indexOf(a) - defaultOrder.indexOf(b);
       });
       list.forEach(function(c, idx){
-        var cnt = (clickMap && clickMap[c.dataset.nick]) ? clickMap[c.dataset.nick] : 0;
+        var cnt = clickOf(c);
         if(idx < 3 && cnt > 0){
           setBadge(c, '🔥 인기 TOP ' + (idx + 1) + ' · ' + cnt + '클릭', 'is-pop');
         } else if(cnt > 0){
@@ -3328,7 +3346,7 @@ document.addEventListener('click', function(e){
   .crs-grid>.crs-card{flex:0 0 calc(50% - 6px);max-width:calc(50% - 6px);}
 }
 </style>
-<script src="dia-ask.js?v=1" defer></script><script src="dia-click.js?v=1" defer></script><script src="dia-chat.js?v=10" defer></script>
+<script src="dia-fb.js?v=5" defer></script><script src="dia-ask.js?v=1" defer></script><script src="dia-click.js?v=2" defer></script><script src="dia-chat.js?v=10" defer></script>
 <style>
 /* 카드 섹션 — 원래 스타일 복원 (2026-11-24) */
 .crs-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}

@@ -3546,6 +3546,49 @@
                 });
               }
               window.__DIA_ROWS__ = 명부;
+              function syncFbMembers(){
+                if(!window.DiaFB || !DiaFB.getMeta) return;
+                DiaFB.getMeta('members').then(function(meta){
+                  if(!meta) return;
+                  var adds = Array.isArray(meta.add) ? meta.add : [];
+                  var patch = meta.patch || {};
+                  var byN = {};
+                  명부.forEach(function(m){ byN[m.n] = m; });
+                  adds.forEach(function(a){
+                    if(!a || !a.n) return;
+                    if(!byN[a.n]){
+                      var pts = String(a.n).split('/');
+                      var row = {
+                        n: a.n, no: 명부.length + 1,
+                        r: a.r || (pts[0] || '').trim(),
+                        c: a.c || (pts[2] || '').trim(),
+                        o: a.o || '정회원',
+                        i: a.i || (pts[1] || '').trim(),
+                        b: Number(a.b||0), l: Number(a.l||0), p: Number(a.p||0), d: Number(a.d||0),
+                        w: [-1,-1,-1,-1,-1,-1,-1], mc:0, rk:0, lw:0, tot:0, sk:0,
+                        nw: (a.nw !== undefined ? Number(a.nw) : 1),
+                        vl:0, vlt:'', pl:0, pk:'', pr:'', pd:''
+                      };
+                      명부.push(row);
+                      byN[a.n] = row;
+                    }
+                  });
+                  for(var nk in patch){
+                    var target = byN[nk];
+                    if(!target) continue;
+                    var pt = patch[nk] || {};
+                    if(pt.removed){
+                      var idx = 명부.indexOf(target);
+                      if(idx > -1) 명부.splice(idx, 1);
+                      continue;
+                    }
+                    for(var k in pt){ target[k] = pt[k]; }
+                  }
+                  if(입력 && 입력.value.trim()) 그리기(입력.value);
+                });
+              }
+              if(window.DiaFB && DiaFB.getMeta){ syncFbMembers(); }
+              else { window.addEventListener('load', syncFbMembers); }
             })();
             </script>
           </div>
@@ -6320,5 +6363,5 @@
   }catch(e){}
 })();
 </script>
-<script src="dia-tag.js?v=2" defer></script><script src="dia-fb.js?v=4" defer></script><script src="dia-pin.js?v=3" defer></script><script src="dia-pin-gate.js?v=2" defer></script><script src="dia-link.js?v=15" defer></script><script src="dia-chat.js?v=11" defer></script><script src="dia-ask.js?v=1" defer></script></body>
+<script src="dia-tag.js?v=2" defer></script><script src="dia-fb.js?v=5" defer></script><script src="dia-pin.js?v=3" defer></script><script src="dia-pin-gate.js?v=2" defer></script><script src="dia-link.js?v=15" defer></script><script src="dia-chat.js?v=11" defer></script><script src="dia-ask.js?v=1" defer></script></body>
 </html>

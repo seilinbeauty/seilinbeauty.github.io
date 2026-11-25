@@ -2424,8 +2424,10 @@ document.addEventListener('DOMContentLoaded', function(){
       var o1 = document.createElement('option'); o1.value = nk; o1.textContent = nk; fSel.appendChild(o1);
       var o2 = document.createElement('option'); o2.value = nk; o2.textContent = nk; tSel.appendChild(o2);
     });
+    var invCache = null;
     function loadDel(){ try{ return JSON.parse(localStorage.getItem(INV_DEL_KEY) || '[]'); }catch(e){ return []; } }
     function loadInv(){
+      if(invCache !== null) return invCache;
       var cur = [];
       try{ cur = JSON.parse(localStorage.getItem(INV_KEY) || '[]'); }catch(e){ cur = []; }
       var dels = loadDel();
@@ -2437,7 +2439,23 @@ document.addEventListener('DOMContentLoaded', function(){
       });
       return cur;
     }
-    function saveInv(arr){ localStorage.setItem(INV_KEY, JSON.stringify(arr)); }
+    function saveInv(arr){
+      invCache = arr;
+      try{ localStorage.setItem(INV_KEY, JSON.stringify(arr)); }catch(e){}
+      if(window.DiaFB && DiaFB.saveMeta) DiaFB.saveMeta('invites', arr);
+    }
+    function syncInvFb(){
+      if(!window.DiaFB || !DiaFB.getMeta) return;
+      DiaFB.getMeta('invites').then(function(fbArr){
+        if(Array.isArray(fbArr)){
+          invCache = fbArr;
+          try{ localStorage.setItem(INV_KEY, JSON.stringify(fbArr)); }catch(e){}
+          if(!panel.hidden) renderInv();
+        }
+      });
+    }
+    if(window.DiaFB && DiaFB.getMeta) syncInvFb();
+    else window.addEventListener('load', syncInvFb);
     function getMemberRow(nk){
       var rows = window.__DIA_ROWS__ || [];
       for(var i = 0; i < rows.length; i++){ if(rows[i].n === nk) return rows[i]; }
@@ -2483,6 +2501,104 @@ document.addEventListener('DOMContentLoaded', function(){
       var a = loadInv();
       a.push({from: fSel.value, to: tSel.value, at: new Date().toISOString().slice(0,10)});
       saveInv(a); renderInv();
+    });
+  })();
+  (function initFbMemberAdmin(){
+    var btn = document.getElementById('memFbBtn');
+    var panel = document.getElementById('memFbPanel');
+    var addForm = document.getElementById('memAddForm');
+    var addIn = document.getElementById('memAddNick');
+    var patchForm = document.getElementById('memPatchForm');
+    var pSel = document.getElementById('memPatchNick');
+    var rSel = document.getElementById('memPatchRole');
+    var dSel = document.getElementById('memPatchDuty');
+    var msg = document.getElementById('memFbMsg');
+    if(!btn || !panel || !addForm || !patchForm) return;
+    var trs = document.querySelectorAll('#mem-body tr[data-nick]');
+    for(var i = 0; i < trs.length; i++){
+      var nk = trs[i].getAttribute('data-nick');
+      if(nk){
+        var o = document.createElement('option'); o.value = nk; o.textContent = nk; pSel.appendChild(o);
+      }
+    }
+    var fbMeta = { add: [], patch: {} };
+    function applyToTable(){
+      var tb = document.getElementById('mem-body');
+      if(!tb) return;
+      (fbMeta.add || []).forEach(function(a){
+        if(!a || !a.n) return;
+        if(tb.querySelector('tr[data-nick="' + a.n.replace(/"/g, '\\"') + '"]')) return;
+        var pts = String(a.n).split('/');
+        var reg = a.r || (pts[0] || '').trim() || '미상';
+        var cat = a.c || (pts[2] || '').trim() || '미상';
+        var tr = document.createElement('tr');
+        tr.setAttribute('data-nick', a.n);
+        tr.setAttribute('data-cat', cat);
+        tr.setAttribute('data-reg', reg);
+        tr.setAttribute('data-role', a.o || '정회원');
+        var no = tb.querySelectorAll('tr').length + 1;
+        tr.innerHTML = '<td class="c-no">' + no + '</td><td class="c-nick">' + a.n + '<span class="bdg bdg-sprout">🌱 새싹</span></td><td><span class="c-role" style="color:#8a7b81;background:#f7f5f6;">' + (a.o || '정회원') + '</span></td><td>' + cat + '</td><td>' + reg + '</td><td class="c-pass">-</td><td class="c-visit">-</td>';
+        tb.appendChild(tr);
+        var opt = document.createElement('option'); opt.value = a.n; opt.textContent = a.n; pSel.appendChild(opt);
+      });
+      var pt = fbMeta.patch || {};
+      for(var nk in pt){
+        var row = tb.querySelector('tr[data-nick="' + nk.replace(/"/g, '\\"') + '"]');
+        if(!row) continue;
+        var x = pt[nk] || {};
+        if(x.removed){ row.style.display = 'none'; row.setAttribute('data-removed', '1'); continue; }
+        if(x.o){
+          row.setAttribute('data-role', x.o);
+          var rb = row.querySelector('.c-role'); if(rb) rb.textContent = x.o;
+        }
+        if(x.d !== undefined){
+          var nc = row.querySelector('.c-nick');
+          if(nc){
+            var db = nc.querySelector('.bdg-duty');
+            if(Number(x.d) > 0){
+              if(!db){ db = document.createElement('span'); db.className = 'bdg bdg-duty'; nc.appendChild(db); }
+              db.textContent = '봉사 ' + x.d + '일';
+            } else if(db){ db.remove(); }
+          }
+        }
+      }
+    }
+    function sync(){
+      if(!window.DiaFB || !DiaFB.getMeta) return;
+      DiaFB.getMeta('members').then(function(m){
+        if(m){ fbMeta = { add: m.add || [], patch: m.patch || {} }; applyToTable(); }
+      });
+    }
+    if(window.DiaFB && DiaFB.getMeta) sync();
+    else window.addEventListener('load', sync);
+    btn.addEventListener('click', function(){ panel.hidden = !panel.hidden; });
+    addForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var nk = (addIn.value || '').trim();
+      if(!nk || !window.DiaFB) return;
+      msg.textContent = '저장 중…';
+      var pts = nk.split('/');
+      fbMeta.add = (fbMeta.add || []).filter(function(x){ return x.n !== nk; });
+      fbMeta.add.push({ n: nk, r: (pts[0]||'').trim(), i: (pts[1]||'').trim(), c: (pts[2]||'').trim(), o: '정회원', nw: 1 });
+      DiaFB.saveMeta('members', fbMeta).then(function(res){
+        if(res && res.ok){ msg.textContent = '✅ "' + nk + '" 추가 및 실시간 반영 완료'; addIn.value = ''; applyToTable(); }
+        else { msg.textContent = '❌ 저장 실패'; }
+      });
+    });
+    patchForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var nk = pSel.value;
+      if(!nk || !window.DiaFB) return;
+      var cur = fbMeta.patch[nk] || {};
+      if(rSel.value === '퇴장') cur.removed = true;
+      else if(rSel.value){ delete cur.removed; cur.o = rSel.value; }
+      if(dSel.value !== '') cur.d = Number(dSel.value);
+      fbMeta.patch[nk] = cur;
+      msg.textContent = '적용 중…';
+      DiaFB.saveMeta('members', fbMeta).then(function(res){
+        if(res && res.ok){ msg.textContent = '✅ "' + nk + '" 변경 완료'; applyToTable(); }
+        else { msg.textContent = '❌ 저장 실패'; }
+      });
     });
   })();
   var 만료타이머 = null;
@@ -2565,9 +2681,10 @@ document.addEventListener('DOMContentLoaded', function(){
     var 연락 = (연락칸 && 연락칸.value ? 연락칸.value : '').trim();
     제안보내기.disabled = true;
     if(msg){ msg.style.color = '#a9778a'; msg.textContent = '보내는 중…'; }
-    fetch(EXEC_URL + '?mode=suggest&name=' + encodeURIComponent(이름) + '&contact=' + encodeURIComponent(연락) + '&text=' + encodeURIComponent(내용), {cache: 'no-store'})
-      .then(function(r){ return r.json(); })
-      .then(function(d){
+    var pSug = (window.DiaFB && DiaFB.addSuggestion)
+      ? DiaFB.addSuggestion((이름 || '익명') + (연락 ? ' (' + 연락 + ')' : ''), 내용)
+      : fetch(EXEC_URL + '?mode=suggest&name=' + encodeURIComponent(이름) + '&contact=' + encodeURIComponent(연락) + '&text=' + encodeURIComponent(내용), {cache: 'no-store'}).then(function(r){ return r.json(); });
+    pSug.then(function(d){
         제안보내기.disabled = false;
         if (d && d.ok) {
           if(msg){ msg.style.color = '#3f8f63'; msg.textContent = '제안이 접수되었습니다. 감사합니다.'; }
@@ -2602,9 +2719,15 @@ document.addEventListener('DOMContentLoaded', function(){
     }
     if (!window.fetch) { 빈칸('아직 접수된 제안이 없습니다.'); return; }
     box.textContent = '불러오는 중…';
-    fetch(EXEC_URL + '?mode=suggestlist&pw=' + encodeURIComponent(KEY), {cache: 'no-store'})
-      .then(function(r){ return r.json(); })
-      .then(function(d){
+    var pList = (window.DiaFB && DiaFB.listSuggestions)
+      ? DiaFB.listSuggestions().then(function(arr){
+          return { ok: true, rows: arr.map(function(x){
+            var dt = x.createdAt ? new Date(Date.parse(x.createdAt) + 9*3600*1000).toISOString().slice(0,16).replace('T',' ') : '';
+            return { id: x.id, createdAt: x.createdAt, '날짜': dt, '이름': x.from, '연락': '', '내용': x.text, from: x.from, text: x.text };
+          }) };
+        })
+      : fetch(EXEC_URL + '?mode=suggestlist&pw=' + encodeURIComponent(KEY), {cache: 'no-store'}).then(function(r){ return r.json(); });
+    pList.then(function(d){
         var rows = (d && d.ok) ? d.rows : null;
         if (!rows || !rows.length) { 빈칸('아직 접수된 제안이 없습니다.'); return; }
         box.innerHTML = '';
@@ -2639,11 +2762,12 @@ document.addEventListener('DOMContentLoaded', function(){
               단추.disabled = true;
               단추.style.opacity = '.55';
               단추.textContent = '삭제 중';
-              fetch(EXEC_URL + '?mode=suggestdel&pw=' + encodeURIComponent(KEY)
+              var pDel = (행.id && window.DiaFB && DiaFB.doneSuggestion)
+                ? DiaFB.doneSuggestion(행)
+                : fetch(EXEC_URL + '?mode=suggestdel&pw=' + encodeURIComponent(KEY)
                     + '&ts=' + encodeURIComponent(String(행['ts'] || ''))
-                    + '&text=' + encodeURIComponent(String(행['내용'] || '')), {cache: 'no-store'})
-                .then(function(x){ return x.json(); })
-                .then(function(dd){
+                    + '&text=' + encodeURIComponent(String(행['내용'] || '')), {cache: 'no-store'}).then(function(x){ return x.json(); });
+              pDel.then(function(dd){
                   if (dd && dd.ok) {
                     if (줄.parentNode) 줄.parentNode.removeChild(줄);
                     테두리정리();
@@ -4096,7 +4220,35 @@ document.addEventListener('DOMContentLoaded', function(){
               <select id="mem-cat"><option value="전체">전체</option><option value="SMP">SMP</option><option value="네일">네일</option><option value="네일/속눈썹">네일/속눈썹</option><option value="미상">미상</option><option value="바디/피부">바디/피부</option><option value="반영구">반영구</option><option value="뷰티">뷰티</option><option value="브로우">브로우</option><option value="속눈썹">속눈썹</option><option value="속눈썹/반영구">속눈썹/반영구</option><option value="속눈썹/연장">속눈썹/연장</option><option value="속눈썹/토탈">속눈썹/토탈</option><option value="속눈썹/피부">속눈썹/피부</option><option value="속눈썹펌">속눈썹펌</option><option value="스튜디오">스튜디오</option><option value="에스테틱/피부">에스테틱/피부</option><option value="왁싱">왁싱</option><option value="총괄운영">총괄운영</option><option value="토탈뷰티">토탈뷰티</option></select>
               <select id="mem-reg"><option value="전체">전체</option><option value="강원">강원</option><option value="경기">경기</option><option value="광주">광주</option><option value="군포">군포</option><option value="대구">대구</option><option value="대전">대전</option><option value="미상">미상</option><option value="본부">본부</option><option value="부산">부산</option><option value="서울">서울</option><option value="수원">수원</option><option value="시흥">시흥</option><option value="안산">안산</option><option value="용산">용산</option><option value="울산">울산</option><option value="인천">인천</option><option value="일산">일산</option><option value="전남">전남</option><option value="전북">전북</option><option value="전주">전주</option><option value="천안">천안</option><option value="춘천">춘천</option><option value="충남">충남</option><option value="호주">호주</option></select>
               <button type="button" class="inv-toggle" id="invToggleBtn">🤝 지인 초대 추적</button>
+              <button type="button" class="inv-toggle" id="memFbBtn">⚡ 회원·봉사 관리</button>
             </div>
+          </div>
+          <div class="inv-panel" id="memFbPanel" hidden>
+            <div style="font-size:12.5px;font-weight:800;color:#9e3856;margin-bottom:8px;">⚡ 실시간 회원 추가 · 봉사/휴식 변경 (파이어베이스 즉시 반영)</div>
+            <form class="inv-form" id="memAddForm" style="margin-bottom:8px;">
+              <input id="memAddNick" type="text" placeholder="신규 닉네임 (예: 서울/shop/속눈썹)" style="flex:2 1 200px;height:34px;border:1px solid #e6d4db;border-radius:8px;padding:0 10px;font-size:12px;">
+              <button type="submit">+ 회원 추가</button>
+            </form>
+            <form class="inv-form" id="memPatchForm">
+              <select id="memPatchNick"></select>
+              <select id="memPatchRole" style="flex:0 1 100px;">
+                <option value="">상태 유지</option>
+                <option value="정회원">정회원</option>
+                <option value="휴식">휴식</option>
+                <option value="퇴장">퇴장 제외</option>
+              </select>
+              <select id="memPatchDuty" style="flex:0 1 100px;">
+                <option value="">봉사 유지</option>
+                <option value="0">봉사 0일</option>
+                <option value="1">봉사 1일</option>
+                <option value="2">봉사 2일</option>
+                <option value="3">봉사 3일</option>
+                <option value="4">봉사 4일</option>
+                <option value="5">봉사 5일</option>
+              </select>
+              <button type="submit">적용</button>
+            </form>
+            <div id="memFbMsg" style="font-size:11.5px;color:#8a7b81;margin-top:6px;"></div>
           </div>
           <div class="inv-panel" id="invPanel" hidden>
             <div style="font-size:12.5px;font-weight:800;color:#9e3856;margin-bottom:8px;">🤝 지인 초대 설정 · 2주 연속 참여 추적 (달성 시 완료패스 지급)</div>
@@ -5430,6 +5582,6 @@ document.addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 
-<script src="dia-tag.js?v=2" defer></script><script src="dia-tag-admin.js?v=3" defer></script><script src="dia-fb.js?v=4" defer></script><script src="dia-pin.js?v=2" defer></script><script src="dia-pin-admin.js?v=3" defer></script><script src="dia-fbstat.js?v=1" defer></script><!-- 운영 센터 '#️⃣ 해시태그' 탭, 회원 목록 '암호' 칸 -->
+<script src="dia-tag.js?v=2" defer></script><script src="dia-tag-admin.js?v=3" defer></script><script src="dia-fb.js?v=5" defer></script><script src="dia-pin.js?v=2" defer></script><script src="dia-pin-admin.js?v=3" defer></script><script src="dia-fbstat.js?v=1" defer></script><!-- 운영 센터 '#️⃣ 해시태그' 탭, 회원 목록 '암호' 칸 -->
 <script src="dia-click-admin.js?v=1" defer></script></body>
 </html>
