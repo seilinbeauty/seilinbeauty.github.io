@@ -2498,6 +2498,37 @@
 
   var state = { cat: '전체', sort: 'default', oneday: false, quiz: null, q: '', region: '전체' };
   var clickMap = null;
+  var clickLoading = false;
+  try{
+    var savedClicks = sessionStorage.getItem('crs_click_map');
+    if(savedClicks) clickMap = JSON.parse(savedClicks);
+  }catch(e){}
+  function prefetchClicks(){
+    if(clickLoading) return;
+    clickLoading = true;
+    fetch(EXEC + '?mode=clickstats').then(function(r){ return r.json(); }).then(function(d){
+      clickLoading = false;
+      var map = {};
+      var rows = (d && (d.instructors || d.items || d.rows || d.stats)) || [];
+      if(Array.isArray(rows)){
+        rows.forEach(function(it){
+          var k = it.nick || it.target || it.name || '';
+          var v = Number(it.total || it.count || it.clicks || 0);
+          if(k) map[k] = (map[k] || 0) + v;
+        });
+      } else if(d && d.byNick){
+        map = d.byNick;
+      }
+      clickMap = map;
+      try{ sessionStorage.setItem('crs_click_map', JSON.stringify(clickMap)); }catch(e){}
+      if(state.sort === 'popular') apply();
+    }).catch(function(){
+      clickLoading = false;
+      if(!clickMap) clickMap = {};
+      if(state.sort === 'popular') apply();
+    });
+  }
+  prefetchClicks();
   var userLoc = null;
   var locLoading = false;
   try{
@@ -2691,21 +2722,9 @@
         } else {
           apply();
         }
-      } else if(s === 'popular' && !clickMap){
-        fetch(EXEC + '?mode=clickstats').then(function(r){ return r.json(); }).then(function(d){
-          clickMap = {};
-          var rows = (d && (d.instructors || d.items || d.rows || d.stats)) || [];
-          if(Array.isArray(rows)){
-            rows.forEach(function(it){
-              var k = it.nick || it.target || it.name || '';
-              var v = Number(it.total || it.count || it.clicks || 0);
-              if(k) clickMap[k] = (clickMap[k] || 0) + v;
-            });
-          } else if(d && d.byNick){
-            clickMap = d.byNick;
-          }
-          apply();
-        }).catch(function(){ clickMap = {}; apply(); });
+      } else if(s === 'popular'){
+        if(!clickMap) prefetchClicks();
+        apply();
       } else {
         apply();
       }
