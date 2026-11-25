@@ -3182,13 +3182,22 @@ document.addEventListener('click', function(e){
     var on = document.querySelector('.crs-tab.is-on');
     return on ? on.getAttribute('data-cat') : '전체';
   }
+  function matchCat(card, cat){
+    if(!cat || cat === '전체') return true;
+    var cs = (card.getAttribute('data-cats') || '').split(',');
+    if(cs.indexOf(cat) >= 0) return true;
+    if(cs.indexOf('속눈썹') >= 0){
+      var txt = card.textContent || '';
+      if(cat === '속눈썹펌' && (txt.indexOf('속눈썹펌') >= 0 || txt.indexOf('속펌') >= 0 || txt.indexOf('연장') < 0)) return true;
+      if(cat === '속눈썹연장' && (txt.indexOf('속눈썹연장') >= 0 || txt.indexOf('연장') >= 0)) return true;
+    }
+    return false;
+  }
   function applyTab(){
     var cat = currentTab();
     var cards = grid.querySelectorAll('.crs-card');
     for(var i = 0; i < cards.length; i++){
-      if(cat === '전체'){ cards[i].style.display = ''; continue; }
-      var cs = (cards[i].getAttribute('data-cats') || '').split(',');
-      cards[i].style.display = cs.indexOf(cat) >= 0 ? '' : 'none';
+      cards[i].style.display = matchCat(cards[i], cat) ? '' : 'none';
     }
   }
   function reorder(){
