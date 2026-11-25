@@ -167,7 +167,7 @@
     '.dl-mu{margin-top:6px;width:100%;height:34px;padding:0 10px;border:1px solid #e6a6bb;border-radius:8px;font-size:13px;font-family:inherit;outline:none;}',
     '.dl-mi.edit .dl-ma{margin-top:6px;justify-content:flex-end;}',
     '.dl-me-err{font-size:11.5px;font-weight:700;color:#d23b5e;}',
-    '.dl-foot{margin-top:9px;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;}',
+    '.dl-foot{margin-top:9px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;}',
     '.dl-list{font-size:12.5px;font-weight:800;color:#c2456a;text-decoration:none;}',
     '@media (max-width:420px){.dl-kinds,.dl-mk{grid-template-columns:repeat(2,minmax(0,1fr));}}'
   ].join('');
@@ -204,7 +204,7 @@
         '<form class="dl-f" id="dlForm" autocomplete="off"><input id="dlUrl" inputmode="url" placeholder="게시물 주소 붙여 넣기"><button type="submit">남기기</button></form>' +
         '<div class="dl-msg" id="dlMsg"></div>' +
         '<div class="dl-mine" id="dlMine"></div>' +
-        '<div class="dl-foot"><a class="dl-list" href="dia-link.html">오늘 참여 링크 보기 →</a>' + '</div>' +
+        '<div class="dl-foot"><a class="dl-list" href="dia-link.html">오늘 참여 링크 보기</a>' + '</div>' +
       '</div>';
     document.getElementById('dlKinds').addEventListener('click', function(e){
       var b = e.target.closest('.dl-kind'); if(!b) return;
