@@ -2499,6 +2499,11 @@
   var state = { cat: '전체', sort: 'default', oneday: false, quiz: null, q: '', region: '전체' };
   var clickMap = null;
   var userLoc = null;
+  var locLoading = false;
+  try{
+    var savedLoc = sessionStorage.getItem('crs_user_loc');
+    if(savedLoc) userLoc = JSON.parse(savedLoc);
+  }catch(e){}
 
   function setBadge(card, text, cls){
     var me = card.querySelector('.crs-me');
@@ -2536,7 +2541,11 @@
     var list = defaultOrder.slice();
     if(state.sort === 'near'){
       if(!userLoc){
-        showBanner('<span>📍 <b>가까운 순</b>은 위치 권한을 허용해 주세요. 브라우저 오른쪽 위 자물쇠에서 위치를 허용하면 바로 정렬됩니다.</span><button type="button" class="crs-banner-x" id="btnBannerReset">닫기</button>');
+        if(locLoading){
+          showBanner('<span>📍 내 주변 가까운 순으로 불러오는 중...</span>');
+        } else {
+          showBanner('<span>📍 <b>가까운 순</b>은 위치 권한을 허용해 주세요. 브라우저 오른쪽 위 자물쇠에서 위치를 허용하면 바로 정렬됩니다.</span><button type="button" class="crs-banner-x" id="btnBannerReset">닫기</button>');
+        }
       } else {
         var baseLat = userLoc.lat;
         var baseLng = userLoc.lng;
@@ -2584,6 +2593,7 @@
       });
     }
     list.forEach(function(c){ grid.appendChild(c); });
+    grid.scrollLeft = 0;
 
     var shown = 0;
     list.forEach(function(c){
@@ -2663,15 +2673,21 @@
       tools.querySelectorAll('.crs-sort').forEach(function(b){ b.classList.toggle('is-on', b === sb); });
       state.sort = s;
       if(s === 'near'){
-        if(navigator.geolocation){
+        if(userLoc){
+          apply();
+        } else if(navigator.geolocation){
+          locLoading = true;
+          apply();
           navigator.geolocation.getCurrentPosition(function(pos){
+            locLoading = false;
             userLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            try{ sessionStorage.setItem('crs_user_loc', JSON.stringify(userLoc)); }catch(e){}
             apply();
           }, function(){
+            locLoading = false;
             userLoc = null;
             apply();
-          }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 });
-          apply();
+          }, { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 });
         } else {
           apply();
         }
