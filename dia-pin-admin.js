@@ -36,6 +36,7 @@
       var td = tr.querySelector('td.c-pin');
       if(!td){ td = document.createElement('td'); td.className = 'c-pin'; tr.appendChild(td); }
       var v = pins ? pins[nick] : null;
+      if(v && /^\d{1,3}$/.test(String(v))) v = String(v).padStart(4, '0');
       var html = pins === null ? '<span class="no">' + (P.LIVE ? '불러오기 실패' : '연결 전') + '</span>' : (v ? '<b>' + v + '</b>' : '<span class="no">없음</span>');
       td.innerHTML = html + '<button type="button" class="pin-edit" data-nick="">바꾸기</button>';
       td.querySelector('.pin-edit').setAttribute('data-nick', nick);

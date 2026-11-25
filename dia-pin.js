@@ -27,6 +27,8 @@
       return call('mode=auth&user=' + encodeURIComponent(nick) + '&pw=' + encodeURIComponent(pin))
         .then(function(d){
           if(d && d.ok){
+            // 첫 등록 시 앞자리 0이 시트에서 잘리는 경우 방지
+            if((d.first || d.set) && /^0/.test(pin)) staffSet(nick, pin);
             // 파이어베이스로 옮긴 뒤: 암호 문서(pins)도 있게 맞춰 둔다(이미 있으면 그대로)
             if(window.DiaFB && window.DiaFB.ensurePin) window.DiaFB.ensurePin(nick, pin);
             return { ok: true, first: !!(d.first || d.set) };
