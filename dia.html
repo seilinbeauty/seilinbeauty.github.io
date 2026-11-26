@@ -2117,17 +2117,25 @@
 
     /* PC 화면 전용 레이아웃 최적화 (모바일 무영향) */
     @media (min-width: 881px) {
-      header.dia-header .header-inner { max-width: 1200px; margin: 0 auto; padding-left: 20px; padding-right: 20px; }
-      .dia-hero-in { max-width: 1200px; padding: 24px 20px 20px; }
+      body.dia-page { background: #f5f6f7; }
+      header.dia-header .header-inner { max-width: 1200px; margin: 0 auto; padding-left: 0; padding-right: 0; }
+      header.dia-header { padding-left: 20px; padding-right: 20px; }
+      body.dia-page .dia-hero { background: #f5f6f7 !important; border-bottom: 0 !important; padding: 20px 20px 0 !important; }
+      body.dia-page .dia-hero-in,
+      body.dia-page .dia-hero-in:has(#mcHeroStatus:not([hidden])) {
+        max-width: 1200px; margin: 0 auto; padding: 20px 24px !important;
+        background: #fff; border: 1px solid #ede4e7; border-radius: 14px;
+        box-shadow: 0 2px 10px rgba(180, 130, 145, .05); box-sizing: border-box;
+      }
       .dia-hero .quick-links { max-width: 420px; gap: 8px; }
       .dia-hero .quick-links > * { min-height: 38px; padding: 8px 14px; font-size: 13px; }
-      .plx-section { padding: 24px 20px 64px; }
-      .plx-inner { max-width: 1200px; grid-template-columns: 220px minmax(0, 1fr); gap: 20px;
-        background: transparent; border: 0; border-radius: 0; overflow: visible; align-items: start; }
+      body.dia-page .plx-section { padding: 16px 20px 64px !important; }
+      body.dia-page .plx-inner { max-width: 1200px; grid-template-columns: 220px minmax(0, 1fr); gap: 20px;
+        background: transparent; border: 0 !important; border-radius: 0 !important; overflow: visible; align-items: start; }
       .plx-nav { position: sticky; top: 82px; border: 1px solid #ede4e7; border-right: 1px solid #ede4e7;
         border-radius: 14px; background: #fff; padding: 16px 0; box-shadow: 0 2px 10px rgba(180, 130, 145, .05); }
-      .plx-main { background: #fff; border: 1px solid #ede4e7; border-radius: 14px;
-        padding: 24px 28px 32px; box-shadow: 0 2px 10px rgba(180, 130, 145, .05); }
+      body.dia-page .plx-main { background: #fff; border: 1px solid #ede4e7; border-radius: 14px;
+        padding: 24px 28px 32px !important; box-shadow: 0 2px 10px rgba(180, 130, 145, .05); }
       .pc-dash-row { display: grid; grid-template-columns: 1fr 1.25fr; gap: 16px; align-items: stretch; margin-bottom: 18px; }
       .pc-dash-row > .fb-card, .pc-dash-row > .rank-card { margin: 0 !important; height: 100%; box-sizing: border-box; }
       .home-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
