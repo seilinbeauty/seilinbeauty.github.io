@@ -2416,23 +2416,6 @@
               }
               .mc-fortune-btn:active{background:#fdeef3;}
               /* PC 전용: 게임 버튼 6개 유지 + 오른쪽에 공지·알림 패널 (모바일은 기존 그대로) */
-              .mc-notice-panel{display:none;}
-              @media (min-width:881px){
-                .mc-pc-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;}
-                .mc-pc-row .mc-fortune-btns{grid-template-columns:repeat(2,minmax(0,1fr));}
-                .mc-notice-panel{display:block;border:1px solid #f0d7e0;border-radius:12px;background:#fffafc;
-                  padding:9px 11px 8px;min-width:0;box-sizing:border-box;}
-                .mc-np-hd{font-size:11.5px;font-weight:800;color:#b35172;margin-bottom:5px;display:flex;align-items:center;gap:4px;justify-content:flex-start;text-align:left;}
-                .mc-np-new{color:#e1789a;font-size:10px;line-height:1;}
-                .mc-np-list{min-width:0;text-align:left;}
-                .mc-np-row{display:flex;align-items:center;gap:6px;padding:5px 0;font-size:11.5px;color:#4a3941;text-decoration:none;border-bottom:1px dotted #efd9e2;justify-content:flex-start;text-align:left;}
-                .mc-np-row:last-child{border-bottom:0;}
-                .mc-np-row:active{color:#c2456a;}
-                .mc-np-row b{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;}
-                .mc-np-row span{flex:0 0 auto;font-size:10.5px;color:#a98d97;}
-                .mc-np-empty{font-size:11px;color:#b9a9af;padding:2px 0;}
-                .mc-np-more{display:inline-block;margin-top:5px;font-size:11px;font-weight:800;color:#c2456a;text-decoration:none;}
-              }
               .mc-fortune-box{margin-top:8px;padding:11px 12px;border-radius:10px;background:linear-gradient(135deg,#fff5f8,#fdf9fb);
                 border:1px solid #f3dce4;font-size:12.5px;font-weight:700;color:#4a353c;line-height:1.55;word-break:keep-all;}
               .mc-fortune-tag{display:inline-block;font-size:10.5px;font-weight:800;color:#c2456a;margin-bottom:4px;}
@@ -2531,7 +2514,6 @@
             <div class="mc-fortune-wrap" style="margin-top:0;padding-top:0;border-top:0;">
               <button type="button" class="mc-game-toggle" id="mcGameToggle">😘 원장님들 화이팅! <span id="mcGameArrow">▴</span></button>
               <div class="mc-game-body" id="mcGameBody">
-              <div class="mc-pc-row">
               <div class="mc-fortune-btns">
                 <button type="button" class="mc-fortune-btn" id="mcFortuneBtn">🍀 오늘의 운세</button>
                 <button type="button" class="mc-fortune-btn" id="mcSajuBtn">🔮 사주 보기</button>
@@ -2540,38 +2522,8 @@
                 <button type="button" class="mc-fortune-btn" id="mcReactBtn">⚡ 반응속도</button>
                 <button type="button" class="mc-fortune-btn" id="mcLottoBtn">🎱 로또 추첨</button>
               </div>
-              <div class="mc-notice-panel" id="mcNoticePanel">
-                <div class="mc-np-hd">📣 공지 / 알림<span class="mc-np-new" id="mcNpNew" hidden>●</span></div>
-                <div class="mc-np-list" id="mcNpList"><div class="mc-np-empty">새 소식이 없습니다</div></div>
-                <a class="mc-np-more" href="dia-board-notice.html">더보기 →</a>
-              </div>
-              </div>
               <script src="dia-board.js?v=1"></script>
-              <script>
-              (function(){
-                /* PC 오른쪽 공지 / 알림 — dia-board.js 의 목록(최신순) 5줄. 목록을 못 읽으면 '새 소식이 없습니다'. */
-                var list = document.getElementById('mcNpList');
-                var dot = document.getElementById('mcNpNew');
-                if(!list) return;
-                var K = 'dia_notice_seen_v1';
-                function esc(x){ return String(x === undefined || x === null ? '' : x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-                if(!window.DiaBoard || !DiaBoard.list || !DiaBoard.list.length){
-                  list.innerHTML = '<div class="mc-np-empty">새 소식이 없습니다</div>';
-                  return;
-                }
-                var rows = DiaBoard.list.slice(0, 5).map(function(n){
-                  return '<a class="mc-np-row" href="' + esc(n.href) + '"><b>' + esc(n.title) + '</b><span>' + esc(n.date) + '</span></a>';
-                }).join('');
-                list.innerHTML = rows;
-                try{
-                  var titles = DiaBoard.list.map(function(n){ return n.title; });
-                  var seen = JSON.parse(localStorage.getItem(K) || '[]');
-                  var fresh = titles.some(function(x){ return seen.indexOf(x) < 0; });
-                  if(fresh && dot) dot.hidden = false;
-                  localStorage.setItem(K, JSON.stringify(titles));
-                }catch(e){}
-              })();
-              </script>
+
               <form class="mc-saju-form" id="mcSajuForm" hidden autocomplete="off">
                 <input id="mcBirth" type="tel" maxlength="10" placeholder="양력 생년월일 8자리 (예: 19960307)">
                 <button type="submit">보기</button>
