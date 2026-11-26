@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>모바일 미리보기</title>
+<style>
+  html,body{margin:0;padding:0;background:#e9e4e6;font-family:sans-serif;}
+  .wrap{display:flex;justify-content:center;padding:12px;}
+  iframe{width:390px;height:844px;border:0;background:#fff;box-shadow:0 6px 24px rgba(0,0,0,.18);}
+</style>
+</head>
+<body>
+<div class="wrap"><iframe id="f" src="dia-board-notice.html"></iframe></div>
+<script>
+(function(){
+  var m = /[?&]p=([^&]+)/.exec(location.search);
+  if (m) document.getElementById('f').src = decodeURIComponent(m[1]);
+})();
+</script>
+</body>
+</html>
