@@ -2190,11 +2190,12 @@
       .pc-dash-row > .fb-card, .pc-dash-row > .rank-card { margin: 0 !important; height: 100%; box-sizing: border-box; }
       .home-panels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
       .home-panel.wide { grid-column: auto; }
-      .home-panel { display: flex; flex-direction: column; min-width: 0; height: 430px; box-sizing: border-box; }
+      .home-panel { display: flex; flex-direction: column; min-width: 0; height: 430px; box-sizing: border-box; overflow: hidden; }
       .home-panel .panel-head { flex-wrap: wrap; gap: 4px 8px; }
       .home-panel .reg-select { min-width: 96px; }
+      .home-panel .reg-pane.is-on { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
       .home-panel .reg-scroll, .home-panel .sum-scroll { flex: 1 1 auto; min-height: 0; max-height: none; }
-      body.dia-page .plx-section > .board-content { max-width: 1200px; margin: 0 auto; padding: 0 20px 0 240px; }
+      body.dia-page .plx-section > .board-content { max-width: 1200px; margin: 18px auto 0; padding: 0 0 0 240px; box-sizing: border-box; }
     }
 
   </style>
