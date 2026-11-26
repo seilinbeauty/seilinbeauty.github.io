@@ -2127,6 +2127,11 @@
         max-width: 1240px !important; margin: 0 auto !important; padding: 20px 20px 0 !important; box-sizing: border-box;
         display: grid !important; grid-template-columns: 220px minmax(0, 1fr); gap: 20px;
       }
+      /* PC: 맨 위 카드를 본문 카드 안 원장님들 화이팅 섹션 바로 위에 놓을 때 */
+      body.dia-page .plx-main > .dia-hero-in {
+        grid-column: auto !important; width: 100% !important; max-width: none !important;
+        margin: 0 0 12px !important;
+      }
       body.dia-page .dia-hero > .dia-hero-in,
       body.dia-page .dia-hero > .dia-hero-in:has(#mcHeroStatus:not([hidden])) {
         grid-column: 2 !important; width: auto !important; max-width: none !important; margin: 0 !important;
@@ -2220,6 +2225,25 @@
     /* PC 홈 머리글 우측 3버튼(문의하기·입장하기·운영 센터) 숨김 — 2026-11-26 지시. 휴대폰 머리글(.nav-mobile-links)은 그대로 */
     @media (min-width: 881px) { header.dia-header .nav-links { display: none !important; } }
   </style>
+<script>
+/* 창고 값 대신 파이어스토어 동기화 값(meta/warehouse)을 먼저 쓴다 — 없거나 실패하면 창고를 그대로 부른다 (2026-11-26) */
+window.창고읽기 = function(url){
+  function 창고(){ return fetch(url, {cache: 'no-store'}).then(function(r){ return r.json(); }); }
+  return new Promise(function(res){
+    var 대기 = 0, 끝 = false;
+    function fin(v){ if(!끝){ 끝 = true; res(v); } }
+    function 시도(){
+      if(window.DiaFB && DiaFB.parseSource){
+        DiaFB.parseSource(url).then(fin, function(){ 창고().then(fin, function(){ fin({ok: false}); }); });
+        return;
+      }
+      if(대기++ < 8){ setTimeout(시도, 250); return; }
+      창고().then(fin, function(){ fin({ok: false}); });
+    }
+    시도();
+  });
+};
+</script>
 </head>
 <body class="dia-page">
   <header class="dia-header">
@@ -2713,7 +2737,7 @@
               // [창고 다이렉트 실시간 연동] 사용량/재빌드와 무관하게 카톡 창고에서 오늘/어제 참여·완료 직접 반영
               (function(){
                 var PARSE_URL = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec?key=UpSPqZHyuXkR8k71iPJFWr3y9o2sCPjq&mode=dia_parse&days=3';
-                fetch(PARSE_URL, {cache:'no-store'}).then(function(r){ return r.json(); }).then(function(res){
+                창고읽기(PARSE_URL).then(function(res){
                   // 창고가 카톡 원문을 직접 해석해 둔 결과(days)만 받는다 — 화면에서 원문을 다시 해석하지 않는다
                   if(!res || !res.ok || !res.days) return;
                   var now = new Date(Date.now() + 9 * 3600 * 1000);
@@ -2783,6 +2807,20 @@
 
               var 라벨 = "이번 주";
               var 기준 = "2026-11-23 마감";
+              // 창고 → 파이어스토어 동기화 값(meta/warehouse)의 기준 날짜로 바꾼다 (2026-11-26)
+              (function(){
+                var 대기 = 0;
+                function 읽기(){
+                  if(!(window.DiaFB && DiaFB.getWarehouse)){
+                    if(대기++ < 20) setTimeout(읽기, 300);
+                    return;
+                  }
+                  DiaFB.getWarehouse().then(function(w){
+                    if(w && w.label) 기준 = w.label;
+                  }, function(){});
+                }
+                읽기();
+              })();
               function 요일줄(w, m){
                 if(!w) return '';
                 var 참여 = 0, h = '<div class="mc-days">';
@@ -3901,7 +3939,7 @@
             + '</div><div class="fb-nm">' + esc(o.nm) + cat + '</div>' + tm + '</div>';
         }
         var URL = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec?key=UpSPqZHyuXkR8k71iPJFWr3y9o2sCPjq&mode=dia_parse&days=14';
-        fetch(URL, {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(res){
+        창고읽기(URL).then(function(res){
           if(!res || !res.ok || !res.days || !res.order) throw new Error('parse');
           var now = new Date(Date.now() + 9 * 3600 * 1000);
           var yes = ymd(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1)));
@@ -6737,7 +6775,7 @@
   }catch(e){}
 })();
 </script>
-<script src="dia-tag.js?v=2" defer></script><script src="dia-fb.js?v=12" defer></script><script src="dia-pin.js?v=3" defer></script><script src="dia-pin-gate.js?v=2" defer></script><script src="dia-link.js?v=18" defer></script><script src="dia-chat.js?v=11" defer></script><script src="dia-ask.js?v=2" defer></script>
+<script src="dia-tag.js?v=2" defer></script><script src="dia-fb.js?v=12" defer></script><script src="dia-pin.js?v=3" defer></script><script src="dia-pin-gate.js?v=2" defer></script><script src="dia-link.js?v=18" defer></script><script src="dia-chat.js?v=11" defer></script><script src="dia-ask.js?v=2" defer></script><script src="dia-notice-bar.js?v=1" defer></script>
 <!--nav-fold-js-->
 <script>
 /* 공지사항 접이식 메뉴 — 페이지 내 CSS 충돌과 무관하게 인라인 스타일로 확실히 여닫는다 */
@@ -6762,6 +6800,29 @@
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+})();
+</script>
+
+<script>
+/* PC에서만: 맨 위 카드를 본문 카드 안 '원장님들 화이팅' 섹션 바로 위로 옮긴다. 휴대폰은 그대로. */
+(function(){
+  var mq = window.matchMedia ? window.matchMedia('(min-width: 881px)') : null;
+  var box = document.querySelector('.dia-hero .dia-hero-in');
+  var main = document.querySelector('.plx-main');
+  var fortune = document.querySelector('.mc-fortune-wrap');
+  if(!box || !main || !fortune) return;
+  var home = box.parentNode, next = box.nextSibling;
+  function place(){
+    var pc = !!(mq && mq.matches);
+    if(pc){
+      if(box.parentNode !== main){ main.insertBefore(box, fortune); box.classList.add('in-main'); }
+    } else if(box.parentNode !== home){
+      home.insertBefore(box, next); box.classList.remove('in-main');
+    }
+  }
+  place();
+  if(mq && mq.addEventListener) mq.addEventListener('change', place);
+  else if(mq && mq.addListener) mq.addListener(place);
 })();
 </script>
 </body>
