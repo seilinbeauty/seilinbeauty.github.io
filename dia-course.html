@@ -3065,6 +3065,8 @@ document.addEventListener('click', function(e){
       var m = 회원().trim();
       if(관리자(m)) return;
       var ts = Number(get('dia_visit_ts')) || 0;
+      // 같은 기기·같은 날 30분 안에 또 열면 서버로 다시 보내지 않는다 (서버 중복 기준과 같음)
+      if(get('dia_visit') === today && ts && (Date.now() - ts) < 1800000) return;
       var url = EXEC + '?mode=visit&d=' + today + '&site=' + SITE + '&u=' + encodeURIComponent(기기()) + (m ? '&m=' + encodeURIComponent(m) : '') + '&_=' + Date.now();
       fetch(url, {cache: 'no-store'})
         .then(function(r){ return r.json(); })
@@ -3080,6 +3082,9 @@ document.addEventListener('click', function(e){
     function 살아있음(){
       if(관리자(회원().trim())) return;
       if(document.visibilityState && document.visibilityState !== 'visible') return;
+      var hb = Number(get('dia_hb_ts')) || 0;
+      if(hb && (Date.now() - hb) < 45000) return;
+      set('dia_hb_ts', String(Date.now()));
       fetch(EXEC + '?mode=hb&site=' + SITE + '&u=' + encodeURIComponent(기기()) + '&_=' + Date.now(), {cache: 'no-store'}).catch(function(){});
     }
     window.diaVisitSync = 보내기;
