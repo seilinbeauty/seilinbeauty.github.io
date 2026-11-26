@@ -3775,26 +3775,27 @@
         .fb-t{font-size:13.5px;font-weight:800;color:#3c2b31;letter-spacing:-.2px;}
         .fb-d{margin-left:auto;font-size:10.5px;font-weight:700;color:#b35172;background:#fdf1f5;
           padding:2px 8px;border-radius:999px;}
-        .fb-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-auto-rows:76px;gap:8px;min-height:160px;}
-        .fb-box{border:1px solid #f6e4ea;border-radius:12px;background:#fff9fb;padding:10px 10px 9px;
-          text-align:center;cursor:pointer;transition:.15s;box-sizing:border-box;height:100%;
-          display:flex;flex-direction:column;justify-content:center;overflow:hidden;}
+        .fb-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-auto-rows:auto;gap:8px;}
+        .fb-box{border:1px solid #f6e4ea;border-radius:12px;background:#fff9fb;padding:10px 8px 9px;
+          text-align:center;cursor:pointer;transition:.15s;box-sizing:border-box;height:100%;min-height:80px;
+          display:flex;flex-direction:column;justify-content:center;overflow:visible;}
         .fb-box:active{background:#fdeef3;}
         .fb-box[data-insta]{cursor:pointer;}
         .fb-box.is-empty{background:#fcfafb;border-color:#f2ebee;cursor:default;}
         .fb-k{font-size:11px;font-weight:800;color:#c2476a;}
         .fb-box.is-empty .fb-k{color:#a8969c;}
-        .fb-nm{margin-top:5px;font-size:13.5px;font-weight:900;color:#33262a;overflow:hidden;
-          text-overflow:ellipsis;white-space:nowrap;}
-        .fb-cat{font-size:10.5px;font-weight:600;color:#a98d97;margin-left:4px;}
+        .fb-nm{margin-top:5px;font-size:12.5px;font-weight:900;color:#33262a;line-height:1.25;
+          overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+        .fb-cat{display:none;}
         .fb-tm{margin-top:2px;font-size:11px;font-weight:700;color:#9a858d;}
         #firstBadgeCard{padding-top:10px;}
         .fb-wait{margin-top:6px;font-size:11.5px;font-weight:700;color:#b9a9af;}
         @media(min-width:881px){
           .fb-card{padding:16px 18px;}
           .fb-t{font-size:15.5px;}
-          .fb-nm{font-size:15px;}
-          .fb-grid{grid-auto-rows:84px;min-height:176px;}
+          .fb-box{min-height:88px;}
+          .fb-nm{font-size:15px;white-space:normal;word-break:break-all;overflow:visible;text-overflow:clip;}
+          .fb-cat{display:inline;font-size:10.5px;font-weight:600;color:#a98d97;margin-left:4px;}
         }
       </style>
       <div class="pc-dash-row">
