@@ -1652,6 +1652,21 @@
     }
     /* 작은 휴대폰(400 이하): 위 공통 버튼 설정보다 뒤에 둬야 적용됨 — 로고 잘림 방지 */
     @media (max-width: 400px) { .nav-mobile-link { padding: 0 6px; } }
+  
+    /* 아카데미 운영 기준 · 신뢰 근거 섹션 */
+    .eeat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 28px; }
+    .eeat-card { background: #fff; border: 1px solid #f0e2e7; border-radius: 16px; padding: 22px 20px; box-shadow: 0 4px 16px rgba(180, 120, 140, 0.06); }
+    .eeat-badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.02em; color: #b84a6f; background: #fdf0f4; border: 1px solid #f5d3df; border-radius: 999px; padding: 4px 10px; margin-bottom: 10px; }
+    .eeat-head { font-size: 16px; font-weight: 700; color: #2d2429; margin-bottom: 6px; line-height: 1.4; }
+    .eeat-body { font-size: 13.5px; color: #63555c; line-height: 1.65; word-break: keep-all; }
+    .eeat-meta { margin-top: 10px; font-size: 12px; color: #9a7b86; font-weight: 500; }
+    @media (max-width: 768px) {
+      .eeat-grid { grid-template-columns: 1fr; gap: 12px; margin-top: 20px; }
+      .eeat-card { padding: 18px 16px; }
+      .eeat-head { font-size: 15px; }
+      .eeat-body { font-size: 13px; }
+    }
+
   </style>
 
   <!-- Google tag (gtag.js) - GA4 세이린뷰티 아카데미 -->
@@ -2426,6 +2441,46 @@
 
       <div class="review-dots-wrap">
         <span class="review-dots">·····</span>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- 아카데미 운영 기준 · 신뢰 근거 -->
+  <section class="section" id="authority">
+    <div class="container">
+      <span class="section-tag">운영 기준</span>
+      <h2 class="section-title">누가, 어떤 기준으로 가르치는가</h2>
+      <p class="section-desc">실제 매장 운영 경험부터 산학협력·마케팅 저서까지,<br class="mo-only"> 확인 가능한 근거로 운영합니다.</p>
+
+      <div class="eeat-grid">
+        <div class="eeat-card">
+          <span class="eeat-badge">직영 2개 지점 운영</span>
+          <div class="eeat-head">주세인 대표 원장 · 1:1 밀착 코칭</div>
+          <div class="eeat-body">화곡 본점·2호점을 직접 운영하며 쌓은 시술·재방문·객단가 노하우를 수강생에게 그대로 전달합니다.</div>
+          <div class="eeat-meta">까치산역 본점 · 실제 모델 실습 기반 커리큘럼</div>
+        </div>
+
+        <div class="eeat-card">
+          <span class="eeat-badge">저서 《팔리는 심리》</span>
+          <div class="eeat-head">시술을 넘어 브랜딩·마케팅까지 교육</div>
+          <div class="eeat-body">기술만 배우고 끝나는 것이 아니라, 네이버 플레이스·블로그·인스타 유입과 상담 전환 구조까지 함께 설계합니다.</div>
+          <div class="eeat-meta">수강생 전용 브랜딩·마케팅 실전 가이드 제공</div>
+        </div>
+
+        <div class="eeat-card">
+          <span class="eeat-badge">서울사이버대 공식 MOU</span>
+          <div class="eeat-head">뷰티학과 산학협력 · 창업 배출 레퍼런스</div>
+          <div class="eeat-body">대학 산학협력 기관으로서 표준화된 교육 커리큘럼과 실제 수강 원장님들의 오픈·창업 사례를 보유하고 있습니다.</div>
+          <div class="eeat-meta">전국 뷰티 원장님 커뮤니티 '다이아' 운영</div>
+        </div>
+
+        <div class="eeat-card">
+          <span class="eeat-badge">1:1 정원제 · 위치 공개</span>
+          <div class="eeat-head">실제 사업자 · 매장 주소 · 수강 후기 공개</div>
+          <div class="eeat-body">대표자·매장 주소·수강생 오픈 샵 사진과 후기를 가감 없이 공개하며, 모든 과정은 1:1 정원제로 운영됩니다.</div>
+          <div class="eeat-meta">서울 강서구 초록마을로37길 13, 1층 · 세이린뷰티</div>
+        </div>
       </div>
     </div>
   </section>
