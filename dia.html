@@ -3673,6 +3673,7 @@
                       if(idx > -1) 명부.splice(idx, 1);
                       continue;
                     }
+                    if(pt.nn){ target.n = pt.nn; byN[pt.nn] = target; }   // 운영센터에서 고친 닉네임 반영
                     for(var k in pt){ target[k] = pt[k]; }
                   }
                   if(입력 && 입력.value.trim()) 그리기(입력.value);
