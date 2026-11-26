@@ -4044,26 +4044,45 @@ window.창고읽기 = function(url){
               while(d && d >= firstDay && isOk(m.n, d)){ n++; if(n >= 14) break; d = shift(d, -1); }
               return n;
             }
-            var rows = window.__DIA_ROWS__ || [], best = null, bestN = 0;
+            var rows = window.__DIA_ROWS__ || [], list = [];
             for(var i = 0; i < rows.length; i++){
               var m = rows[i];
               if(!m || !m.n || Number(m.l)) continue;
               if(String(m.o || '').indexOf('휴식') > -1 || String(m.o || '').indexOf('퇴장') > -1) continue;
               var n = streak(m);
-              if(n > bestN || (n === bestN && best && String(m.n).localeCompare(String(best.n), 'ko') < 0)){ best = m; bestN = n; }
+              if(n >= 1) list.push({ m: m, n: n });
             }
             var el = document.getElementById('fbStreak');
             if(!el) return;
-            if(!best || bestN < 1){
+            if(!list.length){
               el.parentNode.className = 'fb-box is-empty';
               el.className = 'fb-wait';
               el.textContent = '기록 없음';
               return;
             }
-            el.parentNode.className = 'fb-box';
-            el.parentNode.innerHTML = '<div class="fb-k">🔥 연속 참여</div>'
-              + '<div class="fb-nm">' + esc(showName(best)) + (best.c ? '<span class="fb-cat">' + esc(best.c) + '</span>' : '') + '</div>'
-              + '<div class="fb-tm">' + bestN + '일 연속</div>';
+            /* 연속 참여자가 여럿이면 한 명씩 번갈아(슬라이드) 보여 준다 */
+            list.sort(function(a, b){
+              if(b.n !== a.n) return b.n - a.n;
+              return String(a.m.n).localeCompare(String(b.m.n), 'ko');
+            });
+            var box0 = el.parentNode, idx = 0, 잡음 = null;
+            box0.className = 'fb-box';
+            if(box0.getAttribute('data-slide') === 'on' && window.__diaStreakTimer){ clearInterval(window.__diaStreakTimer); }
+            box0.setAttribute('data-slide', 'on');
+            function draw(){
+              var it = list[idx % list.length], mm = it.m;
+              box0.innerHTML = '<div class="fb-k">🔥 연속 참여' + (list.length > 1 ? ' <span class="fb-cnt">' + ((idx % list.length) + 1) + '/' + list.length + '</span>' : '') + '</div>'
+                + '<div class="fb-nm">' + esc(showName(mm)) + (mm.c ? '<span class="fb-cat">' + esc(mm.c) + '</span>' : '') + '</div>'
+                + '<div class="fb-tm">' + it.n + '일 연속</div>';
+            }
+            draw();
+            if(list.length > 1){
+              window.__diaStreakTimer = setInterval(function(){
+                if(document.hidden) return;
+                idx = (idx + 1) % list.length;
+                draw();
+              }, 4000);
+            }
           })
           .catch(function(){
             var el = document.getElementById('fbStreak');
