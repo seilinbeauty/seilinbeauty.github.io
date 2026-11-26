@@ -4071,7 +4071,7 @@ window.창고읽기 = function(url){
             box0.setAttribute('data-slide', 'on');
             function draw(){
               var it = list[idx % list.length], mm = it.m;
-              box0.innerHTML = '<div class="fb-k">🔥 연속 참여' + (list.length > 1 ? ' <span class="fb-cnt">' + ((idx % list.length) + 1) + '/' + list.length + '</span>' : '') + '</div>'
+              box0.innerHTML = '<div class="fb-k">🔥 연속 참여</div>'
                 + '<div class="fb-nm">' + esc(showName(mm)) + (mm.c ? '<span class="fb-cat">' + esc(mm.c) + '</span>' : '') + '</div>'
                 + '<div class="fb-tm">' + it.n + '일 연속</div>';
             }
