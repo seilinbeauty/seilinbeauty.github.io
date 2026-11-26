@@ -2121,7 +2121,16 @@
       body.dia-page { background: #f5f6f7; }
       header.dia-header .header-inner { max-width: 1200px; margin: 0 auto; padding-left: 0; padding-right: 0; }
       header.dia-header { padding-left: 20px; padding-right: 20px; }
-      body.dia-page .dia-hero { background: #f5f6f7 !important; border-bottom: 0 !important; padding: 20px 20px 0 !important; }
+      /* PC: 맨 위 카드를 본문 카드와 같은 칸에 놓아 좌우 끝을 맞춘다 — 카테고리 위는 비움 */
+      body.dia-page .dia-hero {
+        background: #f5f6f7 !important; border-bottom: 0 !important;
+        max-width: 1240px !important; margin: 0 auto !important; padding: 20px 20px 0 !important; box-sizing: border-box;
+        display: grid !important; grid-template-columns: 220px minmax(0, 1fr); gap: 20px;
+      }
+      body.dia-page .dia-hero > .dia-hero-in,
+      body.dia-page .dia-hero > .dia-hero-in:has(#mcHeroStatus:not([hidden])) {
+        grid-column: 2 !important; width: auto !important; max-width: none !important; margin: 0 !important;
+      }
       body.dia-page .dia-hero-in,
       body.dia-page .dia-hero-in:has(#mcHeroStatus:not([hidden])) {
         max-width: 1200px; margin: 0 auto; padding: 18px 24px !important;
