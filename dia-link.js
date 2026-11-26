@@ -34,7 +34,7 @@
   function pinOf(nick){ return window.DiaPin && nick ? window.DiaPin.remembered(nick) : ''; }
   function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
   function clean(u){
-    var m = String(u || '').trim().match(/https?:\/\/(www\.)?instagram\.com\/(p|reel|reels|tv)\/[A-Za-z0-9_-]+/i);
+    var m = String(u || '').trim().match(/https?:\/\/(www\.)?instagram\.com\/(p|reel|reels|tv|share)(\/(p|reel|reels|tv))?\/[A-Za-z0-9_-]+/i);
     return m ? m[0].replace(/^http:/i, 'https:').replace(/\/reels\//i, '/reel/') + '/' : '';
   }
   function qs(o){

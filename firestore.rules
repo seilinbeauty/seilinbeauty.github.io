@@ -48,7 +48,7 @@ service cloud.firestore {
           && d.date is string && d.date.size() == 10
           && d.shop is string && d.shop.size() > 0 && d.shop.size() <= 60
           && (d.kind == '🤍' || d.kind == '릴스')
-          && d.url is string && d.url.matches("^https://(www[.])?instagram[.]com/(p|reel|tv)/[A-Za-z0-9_-]+/$")
+          && d.url is string && d.url.matches("^https://(www[.])?instagram[.]com/(p|reel|tv|share(/(p|reel|tv))?)/[A-Za-z0-9_-]+/$")
           && d.no is int && d.no >= 0
           && d.memo is string && d.memo.size() <= 300
           && d.chk is string && d.chkDel is string
