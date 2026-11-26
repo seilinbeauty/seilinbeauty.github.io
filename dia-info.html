@@ -3564,7 +3564,7 @@ document.addEventListener('DOMContentLoaded', function(){
           if(입력.form && 입력.form.requestSubmit){ 입력.form.requestSubmit(); }
           else if(입력.form){ 입력.form.dispatchEvent(new Event('submit', {bubbles:true, cancelable:true})); }
         });
-        var 업종 = ['속눈썹','속눈썹펌','반영구','네일','네일아트','토탈','왁싱','바디','피부','피부관리','붙임머리'];
+        var 업종 = ['속눈썹','속눈썹펌','반영구','네일','네일아트','토탈', '토탈뷰티','왁싱','바디','피부','피부관리','붙임머리'];
         function 샵명(nick){
           var p = String(nick||'').split('/').filter(Boolean);
           if(!p.length) return String(nick||'');
