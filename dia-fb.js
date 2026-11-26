@@ -566,6 +566,98 @@
     }, function(){ return []; });
   }
 
+
+  // ── 지인 초대 2주(14일) 연속 참여 완료 — 완료패스 1장 자동 지급 + STAFF 채팅 알림 (2026-11-26 커비)
+  //    · 지급: 운영 데이터 묶음(meta/members)의 patch[초대한 닉네임].b(완료패스 보유)를 1 올린다.
+  //      dia.html 이 patch 값을 명부에 그대로 덮어쓰므로 원장님 '마이페이지 → 완료패스'에 바로 반영된다.
+  //    · 알림: 사이트 채팅 chats/{원장님열쇠}_staffnotice 방에 STAFF 명의 메시지 1건.
+  //      원장님이 커뮤니티 홈에서 로그인하면 채팅 목록에 'STAFF' 방으로 보인다(안 읽은 수 1).
+  //      ※ 채팅 화면에서 'i'는 원장님 본인 쪽이라, 원장님에게 '받은 메시지'로 보이려면 'c' 쪽으로 넣는다.
+  //    · 한 초대 건당 1회: 메시지 문서 번호를 초대 건으로 고정(pg_…)하고 '없을 때만 만들기'로 잠근다.
+  //      지급(meta 갱신)과 메시지 만들기를 한 번의 쓰기로 묶어, 한쪽만 되는 일이 없게 한다.
+  var STAFF_CUST = 'staffnotice';
+  var STAFF_ROOM_NAME = 'STAFF';
+  function normId(x){ return String(x === undefined || x === null ? '' : x).replace(/^@+/, '').trim().toLowerCase(); }
+  function inviteMsgId(a, b){ var k = String(a) + '\n' + String(b); return 'pg_' + fnv(k, 2166136261) + fnv(k + '#2', 2445677089); }
+
+  // STAFF 알림방이 없으면 만든다 (있으면 그대로)
+  function ensureStaffRoom(rid, owner, nick){
+    return req('documents/chats/' + encodeURIComponent(rid), null, 'GET').then(function(){ return true; }, function(e){
+      if(e && e.status !== 404) return false;
+      var w = {
+        update: { name: name('chats', rid), fields: fields({
+          roomId: rid, owner: owner, nick: String(nick || '').slice(0, 80), cust: STAFF_CUST,
+          custName: STAFF_ROOM_NAME, last: '', lastFrom: 'c', unreadC: 0, unreadI: 0
+        }) },
+        currentDocument: { exists: false },
+        updateTransforms: [{ fieldPath: 'createdAt', setToServerValue: 'REQUEST_TIME' },
+                           { fieldPath: 'lastAt', setToServerValue: 'REQUEST_TIME' }]
+      };
+      return commit([w]).then(function(){ return true; }, function(e2){
+        var m = String((e2.body && e2.body.error && e2.body.error.message) || '').toLowerCase();
+        if(e2 && (e2.status === 409 || m.indexOf('already exists') > -1)) return true;
+        return false;
+      });
+    });
+  }
+
+  // 완료패스 1장 지급 + STAFF 채팅 1건 (한 초대 건당 1회)
+  function grantInvitePass(o){
+    o = o || {};
+    var inviter = String(o.inviter || '').trim();
+    var invitee = String(o.invitee || '').trim();
+    var owner = normId(o.ownerKey || inviter);
+    var text = String(o.text || '').slice(0, 300);
+    if(!inviter || !invitee || !owner || !text) return Promise.resolve({ ok: false, error: 'bad' });
+    var roomId = safeId(owner) + '_' + STAFF_CUST;
+    var mid = inviteMsgId(inviter, invitee);
+    // 이미 보낸 초대 건이면 그때 시각을 돌려준다 (재조회해도 두 번 지급되지 않게)
+    return req('documents/chats/' + encodeURIComponent(roomId) + '/msgs/' + encodeURIComponent(mid), null, 'GET').then(function(doc){
+      var at = doc && doc.fields && doc.fields.at && doc.fields.at.timestampValue;
+      return { ok: false, already: true, at: at || '' };
+    }, function(e){
+      if(!e || e.status !== 404) return { ok: false, error: errOf(e) };
+      return ensureStaffRoom(roomId, owner, o.nick || inviter).then(function(roomOk){
+        if(!roomOk) return { ok: false, error: 'room' };
+        return getMeta('members').then(function(meta){
+          var m = (meta && typeof meta === 'object') ? meta : {};
+          var patch = (m.patch && typeof m.patch === 'object') ? m.patch : {};
+          var cur = (patch[inviter] && typeof patch[inviter] === 'object') ? patch[inviter] : {};
+          var base = (typeof cur.b === 'number' && isFinite(cur.b)) ? cur.b : Math.max(0, Math.round(Number(o.basePass) || 0));
+          var next = {}, k, k2;
+          for(k in patch){ next[k] = patch[k]; }
+          next[inviter] = {};
+          for(k2 in cur){ next[inviter][k2] = cur[k2]; }
+          next[inviter].b = base + 1;
+          var data = JSON.stringify({ add: (m.add || []), patch: next });
+          var cid = rid('g_');
+          var writes = [
+            createDoc('checks', cid, { op: 'staff', id: 'members', pw: STAFF_PW }),
+            { update: { name: name('meta', 'members'), fields: fields({ data: data, chk: cid }) },
+              updateTransforms: [{ fieldPath: 'updatedAt', setToServerValue: 'REQUEST_TIME' }] },
+            { update: { name: name('chats/' + roomId + '/msgs', mid), fields: fields({ from: 'c', text: text }) },
+              currentDocument: { exists: false },
+              updateTransforms: [{ fieldPath: 'at', setToServerValue: 'REQUEST_TIME' }] },
+            { update: { name: name('chats', roomId), fields: fields({ last: text.slice(0, 60), lastFrom: 'c' }) },
+              updateMask: { fieldPaths: ['last', 'lastFrom'] },
+              updateTransforms: [{ fieldPath: 'lastAt', setToServerValue: 'REQUEST_TIME' },
+                                 { fieldPath: 'unreadI', increment: { integerValue: '1' } }],
+              currentDocument: { exists: true } }
+          ];
+          return commit(writes).then(function(){
+            tidy('checks', cid);
+            return { ok: true, at: new Date().toISOString(), roomId: roomId, pass: base + 1 };
+          }, function(e2){
+            tidy('checks', cid);
+            var m2 = String((e2.body && e2.body.error && e2.body.error.message) || '').toLowerCase();
+            if(e2 && (e2.status === 409 || m2.indexOf('already exists') > -1)) return { ok: false, already: true, at: '' };
+            return { ok: false, error: errOf(e2) };
+          });
+        });
+      });
+    });
+  }
+
   window.DiaFB = {
     day: day, add: add, edit: edit, del: del, staffDel: staffDel,
     ensurePin: ensurePin, setPin: setPin, safeId: safeId, stat: stat, kstDay: kstDay,
@@ -576,6 +668,7 @@
     addConsult: addConsult, listConsults: listConsults, doneConsult: doneConsult,
     hitVisit: hitVisit, getAnalytics: getAnalytics,
     savePumasiLog: savePumasiLog, listPumasiLogs: listPumasiLogs,
-    saveDmLead: saveDmLead, listDmLeads: listDmLeads
+    saveDmLead: saveDmLead, listDmLeads: listDmLeads,
+    grantInvitePass: grantInvitePass
   };
 })();

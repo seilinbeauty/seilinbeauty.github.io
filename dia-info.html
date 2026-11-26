@@ -2426,6 +2426,8 @@ document.addEventListener('DOMContentLoaded', function(){
       {from: '서울/nudiwaxing/왁싱', to: '서울/nuzzik_beauty /토탈', at: '2026-11-25'},
       {from: '서울/nudiwaxing/왁싱', to: '서울/noble.wxaing/왁싱', at: '2026-11-25'}
     ];
+    var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
+    var KEY = 'UpSPqZHyuXkR8k71iPJFWr3y9o2sCPjq';
     var trs = document.querySelectorAll('#mem-body tr[data-nick]');
     var nicks = [];
     for(var i = 0; i < trs.length; i++){
@@ -2437,17 +2439,22 @@ document.addEventListener('DOMContentLoaded', function(){
       var o2 = document.createElement('option'); o2.value = nk; o2.textContent = nk; tSel.appendChild(o2);
     });
     var invCache = null;
+    var days = null;
+    var span = null;
+
+    /* ---------- 등록 목록 (localStorage + 파이어베이스 meta/invites) ---------- */
     function loadDel(){ try{ return JSON.parse(localStorage.getItem(INV_DEL_KEY) || '[]'); }catch(e){ return []; } }
     function loadInv(){
       if(invCache !== null) return invCache;
       var cur = [];
       try{ cur = JSON.parse(localStorage.getItem(INV_KEY) || '[]'); }catch(e){ cur = []; }
+      if(!Array.isArray(cur)) cur = [];
       var dels = loadDel();
       DEFAULT_INV.forEach(function(d){
         var k = d.from + '->' + d.to;
         if(dels.indexOf(k) >= 0) return;
         var exists = cur.some(function(x){ return x.from === d.from && x.to === d.to; });
-        if(!exists) cur.push(d);
+        if(!exists) cur.push({ from: d.from, to: d.to, at: d.at });
       });
       return cur;
     }
@@ -2460,105 +2467,235 @@ document.addEventListener('DOMContentLoaded', function(){
       if(!window.DiaFB || !DiaFB.getMeta) return;
       DiaFB.getMeta('invites').then(function(fbArr){
         if(Array.isArray(fbArr)){
+          // 지운 초대가 기본값으로 되살아나지 않도록, 한 번 저장된 목록은 그대로 쓴다
           invCache = fbArr;
           try{ localStorage.setItem(INV_KEY, JSON.stringify(fbArr)); }catch(e){}
           if(!panel.hidden) renderInv();
         }
-      });
+      }, function(){});
     }
     if(window.DiaFB && DiaFB.getMeta) syncInvFb();
     else window.addEventListener('load', syncInvFb);
-    var PARSE_URL = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec?key=UpSPqZHyuXkR8k71iPJFWr3y9o2sCPjq&mode=dia_parse&days=14';
-    var parseDaysCache = null;
-    var membersMapCache = null;
+
+    /* ---------- 날짜·판정 ---------- */
+    function kstToday(){ return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10); }
+    function dayNum(ymd){ var t = Date.parse(String(ymd || '') + 'T00:00:00Z'); return isNaN(t) ? 0 : t; }
+    function ymdAdd(ymd, n){ var t = dayNum(ymd); return t ? new Date(t + n * 86400000).toISOString().slice(0, 10) : ''; }
+    function clean(x){ return String(x === undefined || x === null ? '' : x).replace(/\s+/g, ' ').trim(); }
+    function noSpace(x){ return String(x === undefined || x === null ? '' : x).replace(/\s+/g, ''); }
+    function parseUrl(from, to){
+      return EXEC + '?key=' + KEY + '&mode=dia_parse&from=' + from + '&to=' + to;
+    }
+    // 진행 판정에 필요한 날짜만큼 창고 해석 결과를 받아 둔다 (초대 등록일 ~ 오늘)
+    function loadDays(arr){
+      var today = kstToday();
+      var from = today;
+      (arr || []).forEach(function(it){
+        var a = String((it && it.at) || '').slice(0, 10);
+        if(a && dayNum(a) && a < from) from = a;
+      });
+      var oldest = ymdAdd(today, -30);
+      if(!dayNum(from) || from > today) from = today;
+      if(from < oldest) from = oldest;
+      if(days && span && span.from <= from && span.to >= today) return Promise.resolve(days);
+      return fetch(parseUrl(from, today), {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(res){
+        if(!res || !res.ok || !res.days) throw new Error('parse');
+        days = days || {};
+        for(var k in res.days){ if(res.days[k]) days[k] = res.days[k]; }
+        span = {from: from, to: today};
+        return days;
+      });
+    }
+    // 그날 그 사람 상태 — '정시'·'패스'만 정상 참여. '지각'·'미완료'는 봉사라 참여로 치지 않는다.
+    function statusOf(nick, ymd){
+      var d = days && days[ymd];
+      if(!d) return '';
+      var a = d.shops || [], want = clean(nick), ws = noSpace(nick);
+      for(var i = 0; i < a.length; i++){
+        var s = a[i] || {};
+        if(clean(s.sender) === want || noSpace(s.sender) === ws) return String(s.status || '');
+      }
+      return 'none';
+    }
+    function judge(nick, ymd, today){
+      var st = statusOf(nick, ymd);
+      if(st === '') return 'unknown';                 // 창고에 그날 자료가 없음
+      if(st === '정시' || st === '패스') return 'ok';  // 정상 참여
+      if(ymd === today) return 'wait';                // 오늘은 아직 밤 인증 전일 수 있다
+      return 'no';                                    // 미완료·지각(봉사)·기록 없음 = 미참여
+    }
+    // 14일 창 — 도중에 미참여(봉사 포함)일이 있으면 그 다음 날을 1일차로 다시 센다
+    function plan(it, today){
+      var start = String((it && it.at) || '').slice(0, 10);
+      if(!dayNum(start) || start > today) start = today;
+      var runStart = start, guard = 0, d = start;
+      while(dayNum(d) < dayNum(today) && guard++ < 60){
+        if(judge(it.to, d, today) === 'no') runStart = ymdAdd(d, 1);
+        d = ymdAdd(d, 1);
+      }
+      var boxes = [], seq = 0, todayNo = 0, todaySt = '';
+      for(var i = 0; i < 14; i++){
+        var cur = ymdAdd(runStart, i);
+        var j = (dayNum(cur) > dayNum(today)) ? 'future' : judge(it.to, cur, today);
+        if(j === 'ok') seq++;
+        if(cur === today){ todayNo = i + 1; todaySt = j; }
+        boxes.push({d: cur, j: j});
+      }
+      var end = ymdAdd(runStart, 13);
+      return {start: start, runStart: runStart, end: end, boxes: boxes, seq: seq,
+              todayNo: todayNo, todaySt: todaySt,
+              done: seq >= 14 && dayNum(end) <= dayNum(today)};
+    }
+    function cumCount(nick, start, today){
+      var n = 0, d = start, guard = 0;
+      while(dayNum(d) <= dayNum(today) && guard++ < 120){
+        if(judge(nick, d, today) === 'ok') n++;
+        d = ymdAdd(d, 1);
+      }
+      return n;
+    }
+    function basePassOf(nick){
+      var rows = document.querySelectorAll('#mem-body tr[data-nick]');
+      for(var i = 0; i < rows.length; i++){
+        if(rows[i].getAttribute('data-nick') !== nick) continue;
+        var cell = rows[i].querySelector('.c-pass');
+        var m = /(\d+)/.exec(cell ? cell.textContent : '');
+        return m ? Number(m[1]) : 0;
+      }
+      return 0;
+    }
+    function ownerKeyOf(nick){
+      var parts = String(nick || '').split('/');
+      for(var i = 1; i < parts.length; i++){
+        var p = parts[i].trim();
+        if(/^[A-Za-z0-9._-]{3,}$/.test(p)) return p.toLowerCase();
+      }
+      return String(nick || '').replace(/^@+/, '').trim().toLowerCase();
+    }
+
+    /* ---------- 완료패스 자동 지급 + STAFF 채팅 알림 ---------- */
+    function msgText(inviter, invitee){
+      return '완료패스 1장 올라갔습니다. ' + inviter + ' 원장님 초대로 ' + invitee
+        + ' 원장님이 14일 연속 참여 달성 — 완료패스는 ' + inviter + ' 원장님 명의로 지급되었습니다.';
+    }
+    function stamp(iso){
+      var t = Date.parse(iso || '');
+      if(!t) return {day: '', hm: ''};
+      var d = new Date(t + 9 * 3600 * 1000);
+      return {day: d.toISOString().slice(0, 10), hm: ('0' + d.getUTCHours()).slice(-2) + ':' + ('0' + d.getUTCMinutes()).slice(-2)};
+    }
+    function grantOne(it, p){
+      var inviter = clean(it.from), invitee = clean(it.to);
+      if(!inviter || !invitee) return Promise.resolve(null);
+      if(!window.DiaFB || !DiaFB.grantInvitePass) return Promise.resolve(null);
+      return DiaFB.grantInvitePass({
+        inviter: inviter, invitee: invitee, nick: inviter,
+        ownerKey: ownerKeyOf(inviter), basePass: basePassOf(inviter),
+        text: msgText(inviter, invitee)
+      }).then(function(res){
+        if(!res) return null;
+        if(res.ok || res.already){
+          var s = stamp(res.at || new Date().toISOString());
+          it.passAt = it.passAt || s.day || kstToday();
+          it.passStart = it.passStart || p.runStart;
+          it.passEnd = it.passEnd || p.end;
+          it.chatAt = it.chatAt || ((s.day ? s.day.slice(5) + ' ' : '') + s.hm).trim();
+          it.chatTo = it.chatTo || inviter;
+          saveInv(loadInv());
+        }
+        return res;
+      }, function(){ return null; });
+    }
+    var autoAt = 0;
+    function autoSettle(force){
+      if(!window.DiaFB) return;
+      if(!force && autoAt && (Date.now() - autoAt) < 120000) return;
+      autoAt = Date.now();
+      var arr = loadInv();
+      var todo = arr.filter(function(it){
+        return it && it.from && it.to && !it.passAt && String(it.to).indexOf('입장 대기') < 0;
+      });
+      if(!todo.length) return;
+      loadDays(arr).then(function(){
+        var today = kstToday(), jobs = [];
+        todo.forEach(function(it){
+          var p = plan(it, today);
+          if(p.done) jobs.push(grantOne(it, p));
+        });
+        return Promise.all(jobs);
+      }).then(function(res){
+        if(res && res.length) renderInv();
+      }, function(){});
+    }
     function fetchInvLive(){
-      if(!parseDaysCache){
-        fetch(PARSE_URL, {cache:'no-store'}).then(function(r){ return r.json(); }).then(function(res){
-          if(res && res.ok && res.days){
-            parseDaysCache = res.days;
-            if(!panel.hidden) renderInv();
-          }
-        }).catch(function(){});
-      }
-      if(!membersMapCache){
-        fetch('pumasi/members-86.json?v=' + Date.now(), {cache:'no-store'}).then(function(r){ return r.json(); }).then(function(arr){
-          if(Array.isArray(arr)){
-            var mp = {};
-            arr.forEach(function(x){ if(x && x.n) mp[x.n.trim()] = x; });
-            membersMapCache = mp;
-            if(!panel.hidden) renderInv();
-          }
-        }).catch(function(){});
-      }
+      loadDays(loadInv()).then(function(){
+        if(!panel.hidden) renderInv();
+        autoSettle(true);
+      }, function(){});
     }
-    function ymdAdd(ymd, addDays){
-      var t = Date.parse(ymd + 'T00:00:00Z');
-      if(!t) return '';
-      return new Date(t + addDays * 86400000).toISOString().slice(0, 10);
-    }
-    function todayKst(){
-      var now = new Date(Date.now() + 9 * 3600 * 1000);
-      return now.toISOString().slice(0, 10);
-    }
-    function didJoinDay(nick, ymd){
-      var nk = String(nick || '').trim();
-      if(parseDaysCache && parseDaysCache[ymd]){
-        var d = parseDaysCache[ymd];
-        if((d.joins && (d.joins[nick] || d.joins[nk])) || (d.comps && (d.comps[nick] || d.comps[nk]))) return true;
-      }
-      var m = membersMapCache && (membersMapCache[nick] || membersMapCache[nk]);
-      if(m && Array.isArray(m.w)){
-        var now = new Date(Date.now() + 9 * 3600 * 1000);
-        var monMs = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - (now.getUTCDay() + 6) % 7);
-        var dMs = Date.parse(ymd + 'T00:00:00Z');
-        var diff = Math.round((dMs - monMs) / 86400000);
-        if(diff >= 0 && diff < 7 && m.w[diff] === 1) return true;
-      }
-      return false;
-    }
+
+    /* ---------- 화면 ---------- */
     function renderInv(){
       var arr = loadInv();
       if(!arr.length){ list.innerHTML = '<div style="font-size:12px;color:#8a7b81;">등록된 지인 초대 추적이 없습니다.</div>'; return; }
-      var today = todayKst();
+      var today = kstToday();
       var h = '';
       arr.forEach(function(it, idx){
         var isWait = String(it.to || '').indexOf('입장 대기') >= 0;
-        var start = it.at || today;
-        var end = ymdAdd(start, 13);
-        var dots = '';
-        var joinDays = 0;
-        var elapsed = 0;
-        for(var d = 0; d < 14; d++){
-          var cur = ymdAdd(start, d);
-          var isPastOrToday = (cur <= today);
-          if(isPastOrToday) elapsed++;
-          var ok = !isWait && didJoinDay(it.to, cur);
-          if(ok) joinDays++;
-          var bg = ok ? '#d95b80' : (cur === today ? '#ffe4ec' : (isPastOrToday ? '#f0e6ea' : '#f7f4f5'));
-          var bd = cur === today ? '1px solid #d95b80' : '1px solid transparent';
-          var title = cur.slice(5) + (ok ? ' 참여 완료' : (isPastOrToday ? ' 미참여' : ' 예정'));
-          dots += '<span title="' + title + '" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;font-size:9px;font-weight:800;background:' + bg + ';border:' + bd + ';color:' + (ok ? '#fff' : '#9c8b92') + ';">' + (d + 1) + '</span>';
+        var p = plan(it, today);
+        var winStart = p.runStart, end = p.end, boxes = p.boxes;
+        if(it.passStart){                       // 지급된 건은 달성한 14일 창을 그대로 남긴다
+          winStart = String(it.passStart);
+          end = ymdAdd(winStart, 13);
+          boxes = [];
+          for(var b = 0; b < 14; b++) boxes.push({d: ymdAdd(winStart, b), j: 'ok'});
         }
-        var todayOk = !isWait && didJoinDay(it.to, today);
-        var m = membersMapCache && (membersMapCache[it.to] || membersMapCache[String(it.to || '').trim()]);
-        var tot = m ? (m.tot || 0) : joinDays;
+        var cum = isWait ? 0 : cumCount(it.to, p.start, today);
+        var dots = '';
+        boxes.forEach(function(x, i){
+          var ok = (x.j === 'ok');
+          var bg = ok ? '#d95b80'
+                 : (x.j === 'wait' ? '#ffe4ec'
+                 : (x.j === 'no' ? '#f0e6ea' : '#f7f4f5'));
+          var bd = (x.d === today) ? '1px solid #d95b80' : '1px solid transparent';
+          var t = x.d.slice(5) + ' ' + (ok ? '정상 참여'
+                 : (x.j === 'wait' ? '오늘 인증 전'
+                 : (x.j === 'no' ? '미참여(봉사 포함)' : (x.j === 'future' ? '예정' : '자료 없음'))));
+          dots += '<span title="' + t + '" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;font-size:9px;font-weight:800;background:' + bg + ';border:' + bd + ';color:' + (ok ? '#fff' : '#9c8b92') + ';">' + (i + 1) + '</span>';
+        });
         var stTxt, cls = 'inv-badge';
         if(isWait){
           stTxt = '입장 대기';
-        } else if(joinDays >= 14){
-          stTxt = '🎉 2주(14일) 완료 · 완료패스 지급 대상';
+        } else if(it.passAt){
+          stTxt = '🎉 14일 연속 완성 · 완료패스 지급 완료 (' + it.passAt + ')';
+          cls = 'inv-badge ok';
+        } else if(p.done){
+          stTxt = '🎉 14일 연속 완성 · 완료패스 지급 처리 중';
           cls = 'inv-badge ok';
         } else {
-          stTxt = elapsed + '일차/14일 · 참여 ' + joinDays + '일' + (todayOk ? ' · 오늘 ✅' : ' · 오늘 미참');
-          if(joinDays > 0) cls = 'inv-badge ok';
+          stTxt = (p.todayNo ? p.todayNo + '일차' : '시작 전') + ' / 14일 · 연속 ' + p.seq + '일';
+          if(p.todaySt === 'ok') stTxt += ' · 오늘 ✅';
+          else if(p.todaySt === 'wait') stTxt += ' · 오늘 인증 전';
+          if(p.runStart !== p.start) stTxt += ' · ' + p.runStart.slice(5) + '부터 다시 셈';
+          if(p.seq > 0) cls = 'inv-badge ok';
+        }
+        var chat = '';
+        if(!isWait && (it.passAt || it.chatAt)){
+          if(it.chatAt){
+            chat = '<span style="color:#218748;font-weight:800;">💬 채팅 알림 발송 완료</span>'
+                 + '<span style="color:#a0969b;"> · ' + it.chatAt + (it.chatTo ? ' · ' + it.chatTo : '') + '</span>';
+          } else {
+            chat = '<span style="color:#b07a1e;font-weight:800;">💬 채팅 알림 발송 대기</span>';
+          }
         }
         h += '<div class="inv-item" style="flex-direction:column;align-items:stretch;gap:6px;">'
           + '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">'
-          + '<div><b>' + it.from + '</b> ➔ <b>' + it.to + '</b> <span style="font-size:10.5px;color:#a0969b;">(' + start + ' ~ ' + end + ' · 누적 ' + tot + '회)</span></div>'
+          + '<div><b>' + it.from + '</b> ➔ <b>' + it.to + '</b> <span style="font-size:10.5px;color:#a0969b;">(' + winStart + ' ~ ' + end + ' · 누적 ' + cum + '회)</span></div>'
           + '<div style="display:flex;align-items:center;gap:6px;"><span class="' + cls + '">' + stTxt + '</span>'
           + '<button type="button" class="inv-del" data-idx="' + idx + '">삭제</button></div>'
           + '</div>'
           + (isWait ? '' : '<div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;">' + dots + '</div>')
+          + (chat ? '<div style="font-size:11px;line-height:1.5;">' + chat + '</div>' : '')
           + '</div>';
       });
       list.innerHTML = h;
@@ -2569,7 +2706,7 @@ document.addEventListener('DOMContentLoaded', function(){
           var rem = a.splice(Number(this.getAttribute('data-idx')), 1)[0];
           if(rem){
             var ds = loadDel(); ds.push(rem.from + '->' + rem.to);
-            localStorage.setItem(INV_DEL_KEY, JSON.stringify(ds));
+            try{ localStorage.setItem(INV_DEL_KEY, JSON.stringify(ds)); }catch(e){}
           }
           saveInv(a); renderInv();
         });
@@ -2580,9 +2717,12 @@ document.addEventListener('DOMContentLoaded', function(){
       e.preventDefault();
       if(!fSel.value || !tSel.value || fSel.value === tSel.value) return;
       var a = loadInv();
-      a.push({from: fSel.value, to: tSel.value, at: new Date().toISOString().slice(0,10)});
+      a.push({from: fSel.value, to: tSel.value, at: kstToday()});
       saveInv(a); renderInv();
     });
+    // 운영 센터를 열 때 한 번 자동으로 확인한다(14일을 채운 초대 건이 있으면 지급·알림까지)
+    window.__invAutoSettle = function(){ autoSettle(true); };
+    window.__invDebug = {plan: plan, judge: judge, days: function(v){ if(v){ days = v; span = {from: '0000-01-01', to: '9999-12-31'}; } return days; }};
   })();
   (function initFbMemberAdmin(){
     var btn = document.getElementById('memFbBtn');
@@ -2631,6 +2771,10 @@ document.addEventListener('DOMContentLoaded', function(){
         if(x.o){
           row.setAttribute('data-role', x.o);
           var rb = row.querySelector('.c-role'); if(rb) rb.textContent = x.o;
+        }
+        if(x.b !== undefined){
+          var pc = row.querySelector('.c-pass');
+          if(pc) pc.textContent = (Number(x.b) > 0 ? Number(x.b) + '장' : '-');
         }
         if(x.d !== undefined){
           var nc = row.querySelector('.c-nick');
@@ -2714,6 +2858,7 @@ document.addEventListener('DOMContentLoaded', function(){
     if (typeof 랭킹맞춤 === 'function') 랭킹맞춤();
     if (typeof 높이맞춤 === 'function') 높이맞춤();
     제안목록();
+    if(window.__invAutoSettle) window.__invAutoSettle();
     접속현황갱신();
     if(!prTimer) prTimer = setInterval(접속현황갱신, 5000);
   }
@@ -2884,13 +3029,6 @@ document.addEventListener('DOMContentLoaded', function(){
           <h2 class="section-title" style="margin:0;padding:0;text-align:left;">운영 센터</h2>
         </div>
         <button type="button" id="ops-lock" style="margin-left:auto;padding:7px 13px;border:1px solid #ecd8df;border-radius:999px;background:#fff;color:#a9778a;font-size:12px;font-weight:800;font-family:inherit;cursor:pointer;">🔒 잠그기</button>
-      </div>
-      <div style="margin:18px 0 14px;border:1px solid #f0e2e7;border-radius:16px;background:#fff;box-shadow:0 8px 22px rgba(198,69,106,.06);padding:16px 18px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;">
-          <div style="font-size:14px;font-weight:800;color:#333;">&#128140; 아카데미 수강 상담 신청</div>
-          <div style="font-size:11.5px;color:#a0969b;">실시간 접수</div>
-        </div>
-        <div id="ops-cs-list" style="font-size:12.5px;color:#9a8f94;line-height:1.6;">불러오는 중…</div>
       </div>
       <div style="margin:18px 0 24px;border:1px solid #f0e2e7;border-radius:16px;background:#fff;box-shadow:0 8px 22px rgba(198,69,106,.06);padding:16px 18px;">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;">
@@ -5674,47 +5812,11 @@ document.addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 
-<script src="dia-tag.js?v=2" defer></script><script src="dia-tag-admin.js?v=3" defer></script><script src="dia-fb.js?v=7" defer></script><script src="dia-pin.js?v=2" defer></script><script src="dia-pin-admin.js?v=3" defer></script><script src="dia-fbstat.js?v=1" defer></script><!-- 운영 센터 '#️⃣ 해시태그' 탭, 회원 목록 '암호' 칸 -->
+<script src="dia-tag.js?v=2" defer></script><script src="dia-tag-admin.js?v=3" defer></script><script src="dia-fb.js?v=8" defer></script><script src="dia-pin.js?v=2" defer></script><script src="dia-pin-admin.js?v=3" defer></script><script src="dia-fbstat.js?v=1" defer></script><!-- 운영 센터 '#️⃣ 해시태그' 탭, 회원 목록 '암호' 칸 -->
 <script>
 (function(){
   function loadConsultsAndAnalytics(){
     if(!window.DiaFB) return;
-    var csBox = document.getElementById('ops-cs-list');
-    if(csBox && DiaFB.listConsults){
-      DiaFB.listConsults().then(function(arr){
-        if(!arr || !arr.length){ csBox.innerHTML = '<div style="font-size:12.5px;color:#9a8f94;">아직 접수된 상담 신청이 없습니다.</div>'; return; }
-        csBox.innerHTML = '';
-        arr.forEach(function(it, idx){
-          var row = document.createElement('div');
-          row.style.cssText = 'padding:10px 0;' + (idx === 0 ? '' : 'border-top:1px solid #f6edf0;');
-          var dt = it.createdAt ? new Date(Date.parse(it.createdAt) + 9*3600*1000).toISOString().slice(5,16).replace('T',' ') : '';
-          var top = document.createElement('div');
-          top.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;';
-          var info = document.createElement('div');
-          info.style.cssText = 'font-size:12.5px;font-weight:800;color:#333;';
-          info.textContent = it.name + ' · ' + it.phone + (it.course ? ' (' + it.course + ')' : '');
-          var btn = document.createElement('button');
-          btn.type = 'button';
-          var isDone = it.status === 'done';
-          btn.textContent = isDone ? '연락 완료' : '미확인 · 완료처리';
-          btn.style.cssText = 'padding:3px 10px;border-radius:999px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;border:1px solid ' + (isDone ? '#cde7d6;background:#eefaf2;color:#267a45;' : '#f0cdd8;background:#fff;color:#c6506f;');
-          btn.addEventListener('click', function(){
-            btn.disabled = true;
-            DiaFB.doneConsult(it).then(function(r){
-              if(r && r.ok) loadConsultsAndAnalytics();
-              else btn.disabled = false;
-            });
-          });
-          top.appendChild(info); top.appendChild(btn);
-          row.appendChild(top);
-          var sub = document.createElement('div');
-          sub.style.cssText = 'font-size:12px;color:#7a6a70;';
-          sub.textContent = (dt ? '[' + dt + '] ' : '') + (it.memo || '메모 없음');
-          row.appendChild(sub);
-          csBox.appendChild(row);
-        });
-      });
-    }
     var ab = document.getElementById('fb-analytics-bar');
     if(ab && DiaFB.getAnalytics && DiaFB.kstDay){
       DiaFB.getAnalytics().then(function(map){
