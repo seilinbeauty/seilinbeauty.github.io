@@ -596,8 +596,10 @@
         form.hidden = true;
         return;
       }
+      // 운영 알림방(STAFF 기록·완료패스 안내)은 수강 문의가 아니므로 이름을 따로 붙인다
+      var 알림방 = !!(r && (r.cust === 'staffnotice' || r.cust === 'passnotice'));
       titleEl.textContent = S.side === 'i' ? ((r && r.custName) || '고객') : (S.nick || '뷰티수강 채팅');
-      subEl.textContent = S.side === 'i' ? '수강 문의' : '원장님과의 대화';
+      subEl.textContent = S.side === 'i' ? (알림방 ? '운영 안내' : '수강 문의') : '원장님과의 대화';
       backEl.setAttribute('href', '#');
       backEl.onclick = function(ev){ ev.preventDefault(); backToList(); };
       form.hidden = false;
