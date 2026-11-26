@@ -2576,11 +2576,11 @@
                 function esc(x){ return String(x === undefined || x === null ? '' : x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
                 var HIDE = {'완료패스':1,'휴식':1,'가이드':1};
                 var src = (window.DiaBoard && DiaBoard.list ? DiaBoard.list : []).filter(function(n){ return !HIDE[n.kind]; });
-                var items = src.slice(0, 3);
+                var items = src.slice(0, 2);
                 var rows = items.map(function(n){
                   return '<a class="mc-np-row" href="' + esc(n.href) + '"><b>' + esc(n.title) + '</b><span>' + esc(n.date) + '</span></a>';
                 }).join('');
-                for(var p = items.length; p < 3; p++){
+                for(var p = items.length; p < 2; p++){
                   rows += '<div class="mc-np-row is-blank"><b>&nbsp;</b><span>&nbsp;</span></div>';
                 }
                 list.innerHTML = rows;
