@@ -3708,6 +3708,12 @@ window.창고읽기 = function(url){
                   lgBtn.textContent = '내 품앗이';
                   if(heroClock) heroClock.hidden = true;
                   배너반영(null);
+                  /* 로그아웃하면 기다리지 않고 바로 감춘다 (채팅·내 수강·활동 기록·링크 남기기) */
+                  ['mcChatBtn','mcCourseEditBtn','mcActBtn'].forEach(function(id){
+                    var e = document.getElementById(id); if(e) e.hidden = true;
+                  });
+                  var badgeEl = document.getElementById('mcChatBadge'); if(badgeEl) badgeEl.hidden = true;
+                  if(window.diaAuthChanged) try{ window.diaAuthChanged(); }catch(e){}
                 }
               }
               function 후보그리기(txt){

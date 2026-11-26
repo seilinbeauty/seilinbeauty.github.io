@@ -361,6 +361,11 @@
     }
     pageBadgeStyle();
     check();
+    window.diaAuthChanged = function(){
+      on = false; btn.hidden = true; if(myCourseBtn) myCourseBtn.hidden = true;
+      var b = document.getElementById('mcChatBadge'); if(b) b.hidden = true;
+      check();
+    };
     timer = setInterval(check, 15000);
     document.addEventListener('visibilitychange', function(){ if(!document.hidden) check(); });
     window.addEventListener('pageshow', check);
