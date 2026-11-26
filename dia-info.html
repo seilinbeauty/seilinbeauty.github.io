@@ -2818,6 +2818,49 @@ document.addEventListener('DOMContentLoaded', function(){
         </div>
         <div id="ops-sg-list" style="font-size:12.5px;color:#9a8f94;line-height:1.6;">불러오는 중…</div>
       </div>
+      <div style="margin:14px 0;border:1px solid #f0e2e7;border-radius:16px;background:#fff;box-shadow:0 8px 22px rgba(198,69,106,.06);padding:16px 18px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+          <div style="font-size:14px;font-weight:800;color:#333;">&#128197; 품앗이 일일 이력</div>
+          <div style="font-size:11.5px;color:#a0969b;">파이어베이스 실시간 저장 · 최근 30일</div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+          <input id="pl-day" type="date" style="padding:6px 9px;border:1px solid #ead8df;border-radius:8px;font-size:12px;font-family:inherit;">
+          <input id="pl-done" type="text" placeholder="완료자 (예: 6곳 7순번 전원)" style="flex:1 1 160px;padding:6px 9px;border:1px solid #ead8df;border-radius:8px;font-size:12px;font-family:inherit;">
+          <input id="pl-miss" type="text" placeholder="미인증" style="flex:1 1 110px;padding:6px 9px;border:1px solid #ead8df;border-radius:8px;font-size:12px;font-family:inherit;">
+          <input id="pl-bongsa" type="text" placeholder="봉사 대상" style="flex:1 1 120px;padding:6px 9px;border:1px solid #ead8df;border-radius:8px;font-size:12px;font-family:inherit;">
+          <input id="pl-memo" type="text" placeholder="메모" style="flex:1 1 120px;padding:6px 9px;border:1px solid #ead8df;border-radius:8px;font-size:12px;font-family:inherit;">
+          <button type="button" id="pl-save" style="padding:6px 12px;border:0;border-radius:8px;background:#c2456a;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">저장</button>
+        </div>
+        <div id="ops-pl-list" style="font-size:12.5px;color:#9a8f94;line-height:1.6;">불러오는 중…</div>
+      </div>
+      <div style="margin:14px 0;border:1px solid #f0e2e7;border-radius:16px;background:#fff;box-shadow:0 8px 22px rgba(198,69,106,.06);padding:16px 18px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+          <div style="font-size:14px;font-weight:800;color:#333;">&#128140; 인스타 DM 현황판</div>
+          <div style="font-size:11.5px;color:#a0969b;">로디 · 세컨드 계정</div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+          <input id="dm-handle" type="text" placeholder="@인스타아이디" style="flex:1 1 140px;padding:6px 9px;border:1px solid #ead8df;border-radius:8px;font-size:12px;font-family:inherit;">
+          <select id="dm-acct" style="padding:6px 9px;border:1px solid #ead8df;border-radius:8px;font-size:12px;font-family:inherit;">
+            <option value="@seilin_beauty.pr">@seilin_beauty.pr</option>
+            <option value="@seilin_beauty.dia">@seilin_beauty.dia</option>
+          </select>
+          <input id="dm-memo" type="text" placeholder="메모 (원장님 지역/업종 등)" style="flex:1 1 160px;padding:6px 9px;border:1px solid #ead8df;border-radius:8px;font-size:12px;font-family:inherit;">
+          <button type="button" id="dm-add" style="padding:6px 12px;border:0;border-radius:8px;background:#c2456a;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">추가</button>
+        </div>
+        <div id="ops-dm-list" style="font-size:12.5px;color:#9a8f94;line-height:1.6;">불러오는 중…</div>
+      </div>
+      <div style="margin:14px 0 24px;border:1px solid #f0e2e7;border-radius:16px;background:#fff;box-shadow:0 8px 22px rgba(198,69,106,.06);padding:16px 18px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+          <div style="font-size:14px;font-weight:800;color:#333;">&#11088; 아카데미 후기 관리</div>
+          <div style="font-size:11.5px;color:#a0969b;">저장 즉시 아카데미 홈 반영</div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+          <input id="rv-author" type="text" placeholder="원장님 / 지점명" style="flex:1 1 140px;padding:6px 9px;border:1px solid #ead8df;border-radius:8px;font-size:12px;font-family:inherit;">
+          <input id="rv-text" type="text" placeholder="수강 후기 내용" style="flex:2 1 240px;padding:6px 9px;border:1px solid #ead8df;border-radius:8px;font-size:12px;font-family:inherit;">
+          <button type="button" id="rv-add" style="padding:6px 12px;border:0;border-radius:8px;background:#c2456a;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">등록</button>
+        </div>
+        <div id="ops-rv-list" style="font-size:12.5px;color:#9a8f94;line-height:1.6;">불러오는 중…</div>
+      </div>
       <div class="board-layout">
         <aside class="board-nav">
           <div class="board-nav-title">카테고리</div>
@@ -5593,7 +5636,7 @@ document.addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 
-<script src="dia-tag.js?v=2" defer></script><script src="dia-tag-admin.js?v=3" defer></script><script src="dia-fb.js?v=6" defer></script><script src="dia-pin.js?v=2" defer></script><script src="dia-pin-admin.js?v=3" defer></script><script src="dia-fbstat.js?v=1" defer></script><!-- 운영 센터 '#️⃣ 해시태그' 탭, 회원 목록 '암호' 칸 -->
+<script src="dia-tag.js?v=2" defer></script><script src="dia-tag-admin.js?v=3" defer></script><script src="dia-fb.js?v=7" defer></script><script src="dia-pin.js?v=2" defer></script><script src="dia-pin-admin.js?v=3" defer></script><script src="dia-fbstat.js?v=1" defer></script><!-- 운영 센터 '#️⃣ 해시태그' 탭, 회원 목록 '암호' 칸 -->
 <script>
 (function(){
   function loadConsultsAndAnalytics(){
@@ -5647,6 +5690,127 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   }
   window.addEventListener('load', loadConsultsAndAnalytics);
+  function initExtraFB(){
+    if(!window.DiaFB) return;
+    var plDay = document.getElementById('pl-day');
+    if(plDay && !plDay.value && DiaFB.kstDay) plDay.value = DiaFB.kstDay();
+    function renderPL(){
+      var box = document.getElementById('ops-pl-list');
+      if(!box || !DiaFB.listPumasiLogs) return;
+      DiaFB.listPumasiLogs().then(function(arr){
+        if(!arr.length){ box.innerHTML = '<div style="font-size:12px;color:#9a8f94;">기록된 일일 이력이 없습니다.</div>'; return; }
+        box.innerHTML = '';
+        arr.forEach(function(it){
+          var d = document.createElement('div');
+          d.style.cssText = 'padding:7px 0;border-bottom:1px dashed #f2e4ea;font-size:12.5px;color:#4a353c;';
+          d.innerHTML = '<b></b> · 완료: <span></span> · 미인증: <span></span> · 봉사: <span></span> <span style="color:#8b7880"></span>';
+          var sp = d.querySelectorAll('span');
+          d.querySelector('b').textContent = it.day;
+          sp[0].textContent = it.done || '-';
+          sp[1].textContent = it.miss || '없음';
+          sp[2].textContent = it.bongsa || '없음';
+          sp[3].textContent = it.memo ? ('(' + it.memo + ')') : '';
+          box.appendChild(d);
+        });
+      });
+    }
+    var plSave = document.getElementById('pl-save');
+    if(plSave && DiaFB.savePumasiLog){
+      plSave.addEventListener('click', function(){
+        plSave.disabled = true;
+        DiaFB.savePumasiLog({
+          day: plDay.value,
+          done: document.getElementById('pl-done').value.trim(),
+          miss: document.getElementById('pl-miss').value.trim(),
+          bongsa: document.getElementById('pl-bongsa').value.trim(),
+          memo: document.getElementById('pl-memo').value.trim()
+        }).then(function(r){
+          plSave.disabled = false;
+          if(r && r.ok) renderPL();
+        });
+      });
+    }
+    function renderDM(){
+      var box = document.getElementById('ops-dm-list');
+      if(!box || !DiaFB.listDmLeads) return;
+      var lbl = { sent:'발송', replied:'답장', joined:'입장완료', skip:'보류' };
+      var nxt = { sent:'replied', replied:'joined', joined:'skip', skip:'sent' };
+      DiaFB.listDmLeads().then(function(arr){
+        if(!arr.length){ box.innerHTML = '<div style="font-size:12px;color:#9a8f94;">등록된 DM 대상이 없습니다.</div>'; return; }
+        box.innerHTML = '';
+        arr.forEach(function(it){
+          var d = document.createElement('div');
+          d.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed #f2e4ea;font-size:12.5px;color:#4a353c;flex-wrap:wrap;';
+          var left = document.createElement('span');
+          left.textContent = it.handle + ' (' + it.acct + ')' + (it.memo ? ' · ' + it.memo : '');
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = lbl[it.status] || it.status;
+          btn.style.cssText = 'padding:3px 9px;border-radius:999px;border:1px solid #ead2db;background:#fff8fa;color:#c2456a;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;';
+          btn.addEventListener('click', function(){
+            btn.disabled = true;
+            DiaFB.saveDmLead({ id: it.id, handle: it.handle, acct: it.acct, status: nxt[it.status] || 'sent', memo: it.memo }).then(function(){ renderDM(); });
+          });
+          d.appendChild(left); d.appendChild(btn); box.appendChild(d);
+        });
+      });
+    }
+    var dmAdd = document.getElementById('dm-add');
+    if(dmAdd && DiaFB.saveDmLead){
+      dmAdd.addEventListener('click', function(){
+        var h = document.getElementById('dm-handle').value.trim();
+        if(!h) return;
+        dmAdd.disabled = true;
+        DiaFB.saveDmLead({
+          handle: h,
+          acct: document.getElementById('dm-acct').value,
+          status: 'sent',
+          memo: document.getElementById('dm-memo').value.trim()
+        }).then(function(r){
+          dmAdd.disabled = false;
+          if(r && r.ok){ document.getElementById('dm-handle').value=''; document.getElementById('dm-memo').value=''; renderDM(); }
+        });
+      });
+    }
+    function renderRV(){
+      var box = document.getElementById('ops-rv-list');
+      if(!box || !DiaFB.listReviews) return;
+      DiaFB.listReviews().then(function(arr){
+        if(!arr.length){ box.innerHTML = '<div style="font-size:12px;color:#9a8f94;">추가 등록된 후기가 없습니다.</div>'; return; }
+        box.innerHTML = '';
+        arr.forEach(function(it){
+          var d = document.createElement('div');
+          d.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed #f2e4ea;font-size:12.5px;color:#4a353c;';
+          var left = document.createElement('span');
+          left.textContent = '[' + it.author + '] ' + it.text;
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = it.visible === '1' ? '노출중' : '숨김';
+          btn.style.cssText = 'flex-shrink:0;padding:3px 9px;border-radius:999px;border:1px solid #ead2db;background:' + (it.visible === '1' ? '#fdf1f5' : '#f4f4f5') + ';color:#c2456a;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;';
+          btn.addEventListener('click', function(){
+            btn.disabled = true;
+            DiaFB.saveReview({ id: it.id, author: it.author, text: it.text, visible: it.visible === '1' ? '0' : '1' }).then(function(){ renderRV(); });
+          });
+          d.appendChild(left); d.appendChild(btn); box.appendChild(d);
+        });
+      });
+    }
+    var rvAdd = document.getElementById('rv-add');
+    if(rvAdd && DiaFB.saveReview){
+      rvAdd.addEventListener('click', function(){
+        var a = document.getElementById('rv-author').value.trim();
+        var t = document.getElementById('rv-text').value.trim();
+        if(!a || !t) return;
+        rvAdd.disabled = true;
+        DiaFB.saveReview({ author: a, text: t, visible: '1' }).then(function(r){
+          rvAdd.disabled = false;
+          if(r && r.ok){ document.getElementById('rv-author').value=''; document.getElementById('rv-text').value=''; renderRV(); }
+        });
+      });
+    }
+    renderPL(); renderDM(); renderRV();
+  }
+  window.addEventListener('load', initExtraFB);
 })();
 </script>
 <script src="dia-click-admin.js?v=1" defer></script></body>

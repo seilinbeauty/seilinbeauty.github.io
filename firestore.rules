@@ -315,6 +315,50 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ── 품앗이 일일 이력 (pumasi_logs/{YYYY-MM-DD})
+    match /pumasi_logs/{day} {
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasAll(['day','done','miss','bongsa','memo','chk','updatedAt'])
+                            && request.resource.data.keys().hasOnly(['day','done','miss','bongsa','memo','chk','updatedAt'])
+                            && request.resource.data.day is string && request.resource.data.day == day
+                            && request.resource.data.done is string && request.resource.data.done.size() <= 1000
+                            && request.resource.data.miss is string && request.resource.data.miss.size() <= 500
+                            && request.resource.data.bongsa is string && request.resource.data.bongsa.size() <= 500
+                            && request.resource.data.memo is string && request.resource.data.memo.size() <= 400
+                            && request.resource.data.updatedAt == request.time
+                            && chkStaff(request.resource.data.chk, day);
+      allow delete: if false;
+    }
+
+    // ── 인스타 DM 현황판 (dm_leads/{lid})
+    match /dm_leads/{lid} {
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasAll(['id','handle','acct','status','memo','chk','updatedAt'])
+                            && request.resource.data.keys().hasOnly(['id','handle','acct','status','memo','chk','updatedAt'])
+                            && request.resource.data.id is string && request.resource.data.id == lid
+                            && request.resource.data.handle is string && request.resource.data.handle.size() > 0 && request.resource.data.handle.size() <= 60
+                            && request.resource.data.acct is string && request.resource.data.acct.size() <= 40
+                            && (request.resource.data.status == 'sent' || request.resource.data.status == 'replied' || request.resource.data.status == 'joined' || request.resource.data.status == 'skip')
+                            && request.resource.data.memo is string && request.resource.data.memo.size() <= 200
+                            && request.resource.data.updatedAt == request.time
+                            && chkStaff(request.resource.data.chk, lid);
+      allow delete: if false;
+    }
+
+    // ── 아카데미 후기 관리 (reviews/{rid})
+    match /reviews/{rid} {
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasAll(['id','author','text','visible','chk','updatedAt'])
+                            && request.resource.data.keys().hasOnly(['id','author','text','visible','chk','updatedAt'])
+                            && request.resource.data.id is string && request.resource.data.id == rid
+                            && request.resource.data.author is string && request.resource.data.author.size() > 0 && request.resource.data.author.size() <= 60
+                            && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 600
+                            && (request.resource.data.visible == '1' || request.resource.data.visible == '0')
+                            && request.resource.data.updatedAt == request.time
+                            && chkStaff(request.resource.data.chk, rid);
+      allow delete: if false;
+    }
+
     // ── 그 밖의 모든 경로는 막는다
     match /{document=**} {
       allow read, write: if false;

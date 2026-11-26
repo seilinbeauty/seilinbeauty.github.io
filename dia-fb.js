@@ -485,6 +485,126 @@
     }, function(){ return {}; });
   }
 
+  // ── 품앗이 일일 이력 (pumasi_logs/{YYYY-MM-DD})
+  function savePumasiLog(o){
+    var d = String((o && o.day) || kstDay()).slice(0, 10);
+    var cid = rid('pl_');
+    var chk = createDoc('checks', cid, { op: 'staff', id: d, pw: STAFF_PW });
+    var w = {
+      update: {
+        name: name('pumasi_logs', d),
+        fields: fields({
+          day: d,
+          done: String((o && o.done) || '').slice(0, 1000),
+          miss: String((o && o.miss) || '').slice(0, 500),
+          bongsa: String((o && o.bongsa) || '').slice(0, 500),
+          memo: String((o && o.memo) || '').slice(0, 400),
+          chk: cid
+        })
+      },
+      updateTransforms: [{ fieldPath: 'updatedAt', setToServerValue: 'REQUEST_TIME' }]
+    };
+    return commit([chk, w]).then(function(){ tidy('checks', cid); return { ok: true, day: d }; },
+      function(e){ tidy('checks', cid); return { ok: false, error: errOf(e) }; });
+  }
+  function listPumasiLogs(){
+    return req('documents/pumasi_logs?pageSize=30', null, 'GET').then(function(d){
+      var out = [];
+      ((d && d.documents) || []).forEach(function(doc){
+        var f = doc.fields || {};
+        out.push({
+          day: (f.day && f.day.stringValue) || String(doc.name || '').split('/').pop(),
+          done: (f.done && f.done.stringValue) || '',
+          miss: (f.miss && f.miss.stringValue) || '',
+          bongsa: (f.bongsa && f.bongsa.stringValue) || '',
+          memo: (f.memo && f.memo.stringValue) || ''
+        });
+      });
+      out.sort(function(a, b){ return a.day < b.day ? 1 : (a.day > b.day ? -1 : 0); });
+      return out;
+    }, function(){ return []; });
+  }
+
+  // ── 인스타 DM 현황판 (dm_leads/{lid})
+  function saveDmLead(o){
+    var id = String((o && o.id) || rid('dm_'));
+    var cid = rid('dc_');
+    var chk = createDoc('checks', cid, { op: 'staff', id: id, pw: STAFF_PW });
+    var w = {
+      update: {
+        name: name('dm_leads', id),
+        fields: fields({
+          id: id,
+          handle: String((o && o.handle) || '').slice(0, 60),
+          acct: String((o && o.acct) || '@seilin_beauty.pr').slice(0, 40),
+          status: String((o && o.status) || 'sent'),
+          memo: String((o && o.memo) || '').slice(0, 200),
+          chk: cid
+        })
+      },
+      updateTransforms: [{ fieldPath: 'updatedAt', setToServerValue: 'REQUEST_TIME' }]
+    };
+    return commit([chk, w]).then(function(){ tidy('checks', cid); return { ok: true, id: id }; },
+      function(e){ tidy('checks', cid); return { ok: false, error: errOf(e) }; });
+  }
+  function listDmLeads(){
+    return req('documents/dm_leads?pageSize=100', null, 'GET').then(function(d){
+      var out = [];
+      ((d && d.documents) || []).forEach(function(doc){
+        var f = doc.fields || {};
+        out.push({
+          id: (f.id && f.id.stringValue) || String(doc.name || '').split('/').pop(),
+          handle: (f.handle && f.handle.stringValue) || '',
+          acct: (f.acct && f.acct.stringValue) || '@seilin_beauty.pr',
+          status: (f.status && f.status.stringValue) || 'sent',
+          memo: (f.memo && f.memo.stringValue) || '',
+          ts: Date.parse((f.updatedAt && f.updatedAt.timestampValue) || '') || 0
+        });
+      });
+      out.sort(function(a, b){ return b.ts - a.ts; });
+      return out;
+    }, function(){ return []; });
+  }
+
+  // ── 아카데미 후기 관리 (reviews/{rid})
+  function saveReview(o){
+    var id = String((o && o.id) || rid('rv_'));
+    var cid = rid('rc_');
+    var chk = createDoc('checks', cid, { op: 'staff', id: id, pw: STAFF_PW });
+    var w = {
+      update: {
+        name: name('reviews', id),
+        fields: fields({
+          id: id,
+          author: String((o && o.author) || '').slice(0, 60),
+          text: String((o && o.text) || '').slice(0, 600),
+          visible: (o && o.visible === '0') ? '0' : '1',
+          chk: cid
+        })
+      },
+      updateTransforms: [{ fieldPath: 'updatedAt', setToServerValue: 'REQUEST_TIME' }]
+    };
+    return commit([chk, w]).then(function(){ tidy('checks', cid); return { ok: true, id: id }; },
+      function(e){ tidy('checks', cid); return { ok: false, error: errOf(e) }; });
+  }
+  function listReviews(){
+    return req('documents/reviews?pageSize=50', null, 'GET').then(function(d){
+      var out = [];
+      ((d && d.documents) || []).forEach(function(doc){
+        var f = doc.fields || {};
+        out.push({
+          id: (f.id && f.id.stringValue) || String(doc.name || '').split('/').pop(),
+          author: (f.author && f.author.stringValue) || '',
+          text: (f.text && f.text.stringValue) || '',
+          visible: (f.visible && f.visible.stringValue) || '1',
+          ts: Date.parse((f.updatedAt && f.updatedAt.timestampValue) || '') || 0
+        });
+      });
+      out.sort(function(a, b){ return b.ts - a.ts; });
+      return out;
+    }, function(){ return []; });
+  }
+
   window.DiaFB = {
     day: day, add: add, edit: edit, del: del, staffDel: staffDel,
     ensurePin: ensurePin, setPin: setPin, safeId: safeId, stat: stat, kstDay: kstDay,
@@ -493,6 +613,9 @@
     getClicks: getClicks, hitClick: hitClick,
     addSuggestion: addSuggestion, listSuggestions: listSuggestions, doneSuggestion: doneSuggestion,
     addConsult: addConsult, listConsults: listConsults, doneConsult: doneConsult,
-    hitVisit: hitVisit, getAnalytics: getAnalytics
+    hitVisit: hitVisit, getAnalytics: getAnalytics,
+    savePumasiLog: savePumasiLog, listPumasiLogs: listPumasiLogs,
+    saveDmLead: saveDmLead, listDmLeads: listDmLeads,
+    saveReview: saveReview, listReviews: listReviews
   };
 })();
