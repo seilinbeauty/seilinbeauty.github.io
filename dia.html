@@ -3784,61 +3784,40 @@
       </div>
       <script>
       (function(){
-        /* 참여 1등·스피드 인증 — 박아 둔 DATA 대신 창고(dia_parse&days=14)를 직접 읽어 어제 기록을 그린다.
-           어제 기록이 없으면 그 전날 기록을 쓰고, 날짜 표기는 그 기록의 날짜로. 응답이 없으면 '기록 없음'. */
+        /* 하루 전(어제) 기준: 화면에 실어 둔 최근 보름치 중 방문 시점의 '어제'를 그린다. */
+        var DATA = {"2026-11-24":{"d":"11/24(화) 기준","f":null,"s":null},"2026-11-23":{"d":"11/23(월) 기준","f":{"nm":"idreamiin","cat":"속눈썹","tm":"16:03","q":"인천/idreamiin/속눈썹","ig":"idreamiin"},"s":{"nm":"domely_beauty","cat":"속눈썹","tm":"21:01","q":"서울/domely_beauty/속눈썹","ig":"domely_beauty"}},"2026-11-22":{"d":"11/22(일) 기준","f":{"nm":"_eye.bari_","cat":"속눈썹","tm":"10:44","q":"대전/_eye.bari_/속눈썹","ig":"_eye.bari_"},"s":{"nm":"nail_jiand","cat":"네일","tm":"21:18","q":"서울/nail_jiand/네일","ig":"nail_jiand"}},"2026-11-21":{"d":"11/21(토) 기준","f":{"nm":"domely_beauty","cat":"속눈썹","tm":"10:08","q":"서울/domely_beauty/속눈썹","ig":"domely_beauty"},"s":{"nm":"domely_beauty","cat":"속눈썹","tm":"21:58","q":"서울/domely_beauty/속눈썹","ig":"domely_beauty"}},"2026-11-20":{"d":"11/20(금) 기준","f":{"nm":"andbeauty__","cat":"반영구","tm":"15:46","q":"전남/andbeauty__/반영구","ig":"andbeauty__"},"s":{"nm":"beu_ty_j","cat":"","tm":"21:03","q":"대전/beu_ty_j/토탈뷰티","ig":"beu_ty_j"}},"2026-11-19":{"d":"11/19(목) 기준","f":{"nm":"year.seoul","cat":"반영구","tm":"09:04","q":"서울/year.seoul/반영구","ig":"year.seoul"},"s":{"nm":"nailming_","cat":"네일","tm":"21:03","q":"대전/nailming_/네일","ig":"nailming_"}},"2026-11-18":{"d":"11/18(수) 기준","f":{"nm":"studio__yale","cat":"반영구","tm":"12:58","q":"서울/studio__yale/반영구","ig":"studio__yale"},"s":{"nm":"brow_luin","cat":"반영구","tm":"21:01","q":"춘천/brow_luin/반영구","ig":"brow_luin"}},"2026-11-17":{"d":"11/17(화) 기준","f":{"nm":"year.seoul","cat":"반영구","tm":"10:53","q":"서울/year.seoul/반영구","ig":"year.seoul"},"s":null},"2026-11-16":{"d":"11/16(월) 기준","f":{"nm":"domely_beauty","cat":"속눈썹","tm":"10:20","q":"서울/domely_beauty/속눈썹","ig":"domely_beauty"},"s":{"nm":"seilin_beauty.chu","cat":"","tm":"21:05","q":"서울/seilin_beauty.chu","ig":"seilin_beauty.chu"}},"2026-11-15":{"d":"11/15(일) 기준","f":null,"s":null},"2026-11-14":{"d":"11/14(토) 기준","f":null,"s":null},"2026-11-13":{"d":"11/13(금) 기준","f":null,"s":null},"2026-11-12":{"d":"11/12(목) 기준","f":null,"s":null},"2026-11-11":{"d":"11/11(수) 기준","f":null,"s":null},"2026-11-10":{"d":"11/10(화) 기준","f":null,"s":null},"2026-11-09":{"d":"11/9(월) 기준","f":null,"s":null},"2026-11-08":{"d":"11/8(일) 기준","f":null,"s":null},"2026-11-07":{"d":"11/7(토) 기준","f":null,"s":null},"2026-11-06":{"d":"11/6(금) 기준","f":null,"s":null}};
         var el = document.getElementById('firstBadgeCard');
         if(!el) return;
-        var grid = el.querySelector('.fb-grid');
-        var chip = el.querySelector('.fb-d');
+        var now = new Date(Date.now() + 9 * 3600 * 1000);
+        var y = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));
+        var k = y.getUTCFullYear() + '-' + ('0' + (y.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + y.getUTCDate()).slice(-2);
+        var rec = DATA[k];
+        if(!rec){
+          /* 화면에 실린 범위 밖이면 그 날짜 이전의 가장 최근 기록을 그대로 보여 준다(날짜 표기는 그 기록의 날짜). */
+          var keys = Object.keys(DATA).sort();
+          for(var i = keys.length - 1; i >= 0; i--){ if(keys[i] <= k){ rec = DATA[keys[i]]; break; } }
+        }
+        if(!rec) return;
         function esc(s){
-          return String(s === undefined || s === null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
-            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+          return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
-        function ymd(d){
-          return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2);
+        function slot(badge, title, one){
+          if(!one) return '<div class="fb-box is-empty"><div class="fb-k">' + badge + ' ' + title
+            + '</div><div class="fb-wait">기록 없음</div></div>';
+          var ig = one.ig ? ' data-insta="' + esc(one.ig) + '"' : '';
+          var cat = one.cat ? '<span class="fb-cat">' + esc(one.cat) + '</span>' : '';
+          var tm = one.tm ? '<div class="fb-tm">' + esc(one.tm) + '</div>' : '';
+          return '<div class="fb-box" data-q="' + esc(one.q) + '"' + ig + '><div class="fb-k">'
+            + badge + ' ' + title + '</div><div class="fb-nm">' + esc(one.nm) + cat
+            + '</div>' + tm + '</div>';
         }
-        var WM = ['일','월','화','수','목','금','토'];
-        function label(k){
-          var t = Date.parse(k + 'T00:00:00Z');
-          if(isNaN(t)) return '';
-          var d = new Date(t);
-          return Number(k.slice(5, 7)) + '/' + Number(k.slice(8, 10)) + '(' + WM[d.getUTCDay()] + ') 기준';
-        }
-        function one(x){
-          if(!x || !x.sender) return null;
-          var parts = String(x.sender).split('/');
-          var nm = parts.length >= 2 ? parts[1] : x.sender;
-          var cat = parts.length >= 3 ? parts[2] : '';
-          return { nm: nm, cat: cat, tm: x.time || '', q: x.sender, ig: String(nm).replace(/[^a-zA-Z0-9._]/g, '') };
-        }
-        function slot(badge, title, o){
-          if(!o) return '<div class="fb-box is-empty"><div class="fb-k">' + badge + ' ' + title + '</div><div class="fb-wait">기록 없음</div></div>';
-          var ig = o.ig ? ' data-insta="' + esc(o.ig) + '"' : '';
-          var cat = o.cat ? '<span class="fb-cat">' + esc(o.cat) + '</span>' : '';
-          var tm = o.tm ? '<div class="fb-tm">' + esc(o.tm) + '</div>' : '';
-          return '<div class="fb-box" data-q="' + esc(o.q) + '"' + ig + '><div class="fb-k">' + badge + ' ' + title
-            + '</div><div class="fb-nm">' + esc(o.nm) + cat + '</div>' + tm + '</div>';
-        }
-        var URL = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec?key=UpSPqZHyuXkR8k71iPJFWr3y9o2sCPjq&mode=dia_parse&days=14';
-        fetch(URL, {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(res){
-          if(!res || !res.ok || !res.days || !res.order) throw new Error('parse');
-          var now = new Date(Date.now() + 9 * 3600 * 1000);
-          var yes = ymd(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1)));
-          var k = yes, day = res.days[yes] || null;
-          if(!day || (!day.firstJoin && !day.fastAuth)){
-            var back = res.order.filter(function(x){ return x <= yes; }).sort().reverse();
-            day = null;
-            for(var i = 0; i < back.length; i++){
-              var d2 = res.days[back[i]];
-              if(d2 && (d2.firstJoin || d2.fastAuth)){ day = d2; k = back[i]; break; }
-            }
-          }
-          if(!day) return;   // 기록 없음 그대로
-          if(grid) grid.innerHTML = slot('🥇', '참여 1등', one(day.firstJoin || day.first)) + slot('⚡', '스피드 인증', one(day.fastAuth || day.fast));
-          if(chip) chip.textContent = label(k);
-          el.setAttribute('data-first', (day.firstJoin && day.firstJoin.sender) || (day.first && day.first.sender) || '');
-          el.setAttribute('data-fast', (day.fastAuth && day.fastAuth.sender) || (day.fast && day.fast.sender) || '');
-        }).catch(function(){});
+        var grid = el.querySelector('.fb-grid');
+        if(grid) grid.innerHTML = slot('🥇', '참여 1등', rec.f) + slot('⚡', '스피드 인증', rec.s);
+        var chip = el.querySelector('.fb-d');
+        if(chip) chip.textContent = rec.d;
+        el.setAttribute('data-first', rec.f ? rec.f.q : '');
+        el.setAttribute('data-fast', rec.s ? rec.s.q : '');
       })();
       </script>
       <script>
