@@ -12,9 +12,10 @@
   var HIDE = { '완료패스': 1, '휴식': 1, '가이드': 1 };
 
   var posts = [];       // 전체 글 (최신순)
-  var loaded = false;
+  var loaded = false;   // 한 번 읽었거나 읽기 실패로 결론냈으면 true (되풀이 요청 금지)
   var pLoad = null;
   var waiters = [];
+  var LIMIT = 12000;    // 12초 안에 응답이 없으면 읽기 실패로 본다
 
   function esc(s){
     return String(s === undefined || s === null ? '' : s)
@@ -57,7 +58,12 @@
     if (loaded && !force) return Promise.resolve(visible());
     if (pLoad && !force) return pLoad;
     var url = BASE + 'documents/' + COLL + '?pageSize=300&key=' + KEY;
-    pLoad = fetch(url, { cache: 'no-store' }).then(function(r){
+    var opt = { cache: 'no-store' };
+    var ctl = window.AbortController ? new AbortController() : null;
+    if (ctl) opt.signal = ctl.signal;
+    var timer = setTimeout(function(){ if (ctl){ try{ ctl.abort(); }catch(e){} } }, LIMIT);
+    pLoad = fetch(url, opt).then(function(r){
+      clearTimeout(timer);
       if (!r.ok) throw new Error('fb');
       return r.json();
     }).then(function(d){
@@ -70,12 +76,14 @@
       notify();
       return visible();
     }, function(){
+      clearTimeout(timer);
       pLoad = null;
       if (!loaded){
         try{
           var c = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]');
-          if (c && c.length){ posts = c; loaded = true; }
+          if (c && c.length) posts = c;
         }catch(e){}
+        loaded = true;   // 실패해도 다시 되풀이해 요청하지 않는다 (다음에 force 로 다시 읽음)
       }
       notify();
       return visible();
