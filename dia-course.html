@@ -3354,7 +3354,7 @@ document.addEventListener('click', function(e){
   .crs-grid>.crs-card{flex:0 0 calc(50% - 6px);max-width:calc(50% - 6px);}
 }
 </style>
-<script src="dia-fb.js?v=9" defer></script><script src="dia-ask.js?v=1" defer></script><script src="dia-click.js?v=2" defer></script><script src="dia-chat.js?v=10" defer></script>
+<script src="dia-fb.js?v=10" defer></script><script src="dia-ask.js?v=1" defer></script><script src="dia-click.js?v=2" defer></script><script src="dia-chat.js?v=10" defer></script>
 <script>window.addEventListener('load',function(){try{if(window.DiaFB&&DiaFB.hitVisit&&!sessionStorage.getItem('fb_vis_crs')){sessionStorage.setItem('fb_vis_crs','1');DiaFB.hitVisit('crs');}}catch(e){}});</script>
 <style>
 /* 카드 섹션 — 원래 스타일 복원 (2026-11-24) */
@@ -3463,5 +3463,18 @@ body{padding-bottom:76px !important;}
   <a href="dia-course.html" class="is-on"><span class="tb-ico">🎓</span>수강찾기</a>
   <a href="dia-chat.html"><span class="tb-ico">💬</span>채팅</a>
 </nav>
+<script>
+/* 강의별 조회수 집계 — 카드를 눌러 그 강의를 열 때 1회(같은 기기 30분 중복 제외).
+   이 페이지에는 조회수를 화면에 표시하지 않습니다. 값은 dia.html 인기 수강 카드와 운영센터에서만 봅니다. */
+(function(){
+  document.addEventListener('click', function(e){
+    var card = e.target && e.target.closest ? e.target.closest('.crs-card') : null;
+    if(!card) return;
+    var cid = card.getAttribute('data-nick') || '';
+    if(!cid || !window.DiaFB || !DiaFB.hitCourse) return;
+    DiaFB.hitCourse(cid);
+  }, true);
+})();
+</script>
 </body>
 </html>

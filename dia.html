@@ -3822,11 +3822,9 @@
         @media(min-width:881px){ .dash-big b{font-size:27px;} }
         .dash-big span{font-size:11.5px;color:#9a8a90;font-weight:700;}
         .dash-list{margin-top:8px;}
-        .dash-scroll{max-height:170px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
-        @media(min-width:881px){ .dash-scroll{max-height:198px;} }
-        .dash-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid #fbf3f5;}
+        .dash-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid #fbf3f5;text-decoration:none;}
         .dash-row:first-child{border-top:0;}
-        .dash-row.me{background:#fff5f8;border-radius:8px;padding-left:6px;padding-right:6px;}
+        .dash-a:active{background:#fff5f8;}
         .dash-i{flex:0 0 20px;text-align:center;font-size:11px;font-weight:900;color:#c9b3bb;}
         .dash-i.g{color:#c9a227;} .dash-i.s{color:#9aa0a8;} .dash-i.b{color:#b06b3c;}
         .dash-n{flex:1 1 auto;min-width:0;font-size:11.5px;font-weight:700;color:#4a3941;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -3834,7 +3832,15 @@
         .dash-n.g{color:#a8842a;} .dash-n.s{color:#848a92;} .dash-n.b{color:#9d5b30;}
         .dash-d{flex:0 0 auto;font-size:11px;font-weight:800;color:#b35172;}
         .dash-empty{padding:10px 0 2px;font-size:11.5px;color:#b9a9af;text-align:center;}
-        .dash-me{margin-top:9px;padding-top:8px;border-top:1px dashed #f2e4e9;font-size:11.5px;font-weight:800;color:#b35172;}
+        .crs-top{display:flex;align-items:center;gap:10px;margin-top:12px;padding:13px 12px;border:1px solid #f7eaef;
+          border-radius:12px;background:#fffafc;text-decoration:none;}
+        .crs-top:active{background:#fdeef3;}
+        .crs-top-i{flex:0 0 auto;font-size:11px;font-weight:900;color:#a8842a;background:#fff6dd;border-radius:999px;padding:3px 9px;}
+        .crs-top-n{flex:1 1 auto;min-width:0;font-size:14px;font-weight:900;color:#3c2b31;letter-spacing:-.2px;
+          overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+        @media(min-width:881px){ .crs-top-n{font-size:16.5px;} .crs-top{padding:17px 14px;} }
+        .crs-top-c{flex:0 0 auto;font-size:13px;font-weight:900;color:#c2456a;white-space:nowrap;}
+        @media(min-width:881px){ .crs-top-c{font-size:15px;} }
       </style>
       <div class="dash2" id="dash2">
         <div class="dash-card" id="streakCard">
@@ -3842,35 +3848,27 @@
           <div class="dash-big"><b id="stCnt">-</b><span>3일 이상 연속 원장님</span></div>
           <div class="dash-list" id="stTop"><div class="dash-empty">집계 준비 중</div></div>
         </div>
-        <div class="dash-card" id="rankDashCard">
-          <div class="dash-h"><span class="dash-t">🏆 랭킹</span><span class="dash-s">이번 주 월~오늘 · 봉사 제외</span></div>
-          <div class="dash-list dash-scroll" id="wkList"><div class="dash-empty">집계 준비 중</div></div>
-          <div class="dash-me" id="wkMe" hidden></div>
+        <div class="dash-card" id="crsTopCard">
+          <div class="dash-h"><span class="dash-t">🎓 인기 뷰티 수강</span><span class="dash-s">최근 7일 조회 기준</span></div>
+          <div class="dash-list" id="crsTop"><div class="dash-empty">집계 준비 중</div></div>
         </div>
       </div>
       <script>
       (function(){
-        /* 연속 참여 · 이번 주 랭킹 — 창고 파싱(dia_parse)의 일별 참여와 화면의 명부를 쓴다.
+        /* 연속 참여 — 창고 파싱(dia_parse)의 일별 참여와 화면 명부를 쓴다.
            봉사(미완료·지각)는 참여로 치지 않고, 휴식·퇴장 회원은 뺀다. 자료를 못 받으면 '집계 준비 중'. */
         var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
         var KEY = 'UpSPqZHyuXkR8k71iPJFWr3y9o2sCPjq';
         var stTop = document.getElementById('stTop');
         var stCnt = document.getElementById('stCnt');
-        var wkList = document.getElementById('wkList');
-        var wkMe = document.getElementById('wkMe');
-        if(!stTop || !wkList) return;
-
+        if(!stTop) return;
         function norm(x){ return String(x === undefined || x === null ? '' : x).replace(/\s+/g, ' ').trim(); }
         function squash(x){ return String(x === undefined || x === null ? '' : x).replace(/\s+/g, ''); }
         function esc(s){ return String(s === undefined || s === null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
         function ymd(d){ return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2); }
-        function shift(k, n){
-          var t = Date.parse(k + 'T00:00:00Z');
-          return isNaN(t) ? '' : ymd(new Date(t + n * 86400000));
-        }
+        function shift(k, n){ var t = Date.parse(k + 'T00:00:00Z'); return isNaN(t) ? '' : ymd(new Date(t + n * 86400000)); }
         function roster(){
-          var rows = window.__DIA_ROWS__ || [];
-          var out = [];
+          var rows = window.__DIA_ROWS__ || [], out = [];
           for(var i = 0; i < rows.length; i++){
             var m = rows[i];
             if(!m || !m.n) continue;
@@ -3881,117 +3879,63 @@
           }
           return out;
         }
-        function myNick(){
-          try{
-            if(window.DiaChat && DiaChat.member){
-              var me = DiaChat.member();
-              if(me && me.nick) return me.nick;
-            }
-            var raw = localStorage.getItem('dia_login_member') || '';
-            if(raw.charAt(0) === '{'){ var o = JSON.parse(raw); if(o && o.n) return String(o.n); }
-            if(raw) return raw;
-          }catch(e){}
-          return '';
-        }
-        function paintEmpty(){
-          stTop.innerHTML = '<div class="dash-empty">집계 준비 중</div>';
-          wkList.innerHTML = '<div class="dash-empty">집계 준비 중</div>';
-          if(stCnt) stCnt.textContent = '-';
-        }
-
         fetch(EXEC + '?key=' + KEY + '&mode=dia_parse&days=14', {cache: 'no-store'})
           .then(function(r){ return r.json(); })
           .then(function(res){
             if(!res || !res.ok || !res.days || !res.order) throw new Error('parse');
-            var days = res.days;
-            var today = res.today || res.order[res.order.length - 1];
-            var firstDay = res.order[0];
+            var today = res.today || res.order[res.order.length - 1], firstDay = res.order[0];
             var ok = {};
             res.order.forEach(function(d){
               var set = { byN: {}, byS: {} };
-              var list = (days[d] && days[d].shops) || [];
+              var list = (res.days[d] && res.days[d].shops) || [];
               for(var i = 0; i < list.length; i++){
-                var x = list[i] || {};
-                var s = String(x.status || '');
+                var x = list[i] || {}, s = String(x.status || '');
                 if(s !== '정시' && s !== '패스') continue;
-                set.byN[norm(x.sender)] = 1;
-                set.byS[squash(x.sender)] = 1;
+                set.byN[norm(x.sender)] = 1; set.byS[squash(x.sender)] = 1;
               }
               ok[d] = set;
             });
-            function isOk(nick, d){
-              var set = ok[d];
-              if(!set) return false;
-              return set.byN[norm(nick)] === 1 || set.byS[squash(nick)] === 1;
-            }
+            function isOk(nick, d){ var set = ok[d]; return !!set && (set.byN[norm(nick)] === 1 || set.byS[squash(nick)] === 1); }
             function streak(nick){
               var d = today, n = 0;
-              if(!isOk(nick, today)) d = shift(today, -1);
-              while(d && d >= firstDay && isOk(nick, d)){
-                n++;
-                if(n >= 14) break;
-                d = shift(d, -1);
-              }
+              if(!isOk(nick, today)) d = shift(today, -1);   // 오늘 아직 참여 전이면 어제까지로 센다
+              while(d && d >= firstDay && isOk(nick, d)){ n++; if(n >= 14) break; d = shift(d, -1); }
               return n;
             }
-            var dow = (new Date(today + 'T00:00:00Z').getUTCDay() + 6) % 7;   // 월=0
-            var monday = shift(today, -dow);
-            function weekCount(nick){
-              var c = 0, d = monday;
-              while(d && d <= today && d >= firstDay){
-                if(isOk(nick, d)) c++;
-                d = shift(d, 1);
-              }
-              return c;
-            }
-            function byCount(a, b){ return (b.c - a.c) || String(a.n).localeCompare(String(b.n), 'ko'); }
-            function rowHtml(x, rank, mine){
-              var cls = rank === 1 ? 'g' : (rank === 2 ? 's' : (rank === 3 ? 'b' : ''));
-              return '<div class="dash-row' + (mine ? ' me' : '') + '">'
-                + '<span class="dash-i ' + cls + '">' + rank + '</span>'
+            var list = roster().map(function(n){ return { n: n, c: streak(n) }; })
+                               .filter(function(x){ return x.c >= 1; })
+                               .sort(function(a, b){ return (b.c - a.c) || String(a.n).localeCompare(String(b.n), 'ko'); });
+            if(stCnt) stCnt.textContent = String(list.filter(function(x){ return x.c >= 3; }).length);
+            stTop.innerHTML = list.length ? list.slice(0, 3).map(function(x, i){
+              var cls = i === 0 ? 'g' : (i === 1 ? 's' : 'b');
+              return '<div class="dash-row"><span class="dash-i ' + cls + '">' + (i + 1) + '</span>'
                 + '<span class="dash-n ' + cls + '">' + esc(x.n) + '</span>'
                 + '<span class="dash-d">' + x.c + '일</span></div>';
-            }
-            var names = roster();
-            var streaks = names.map(function(n){ return { n: n, c: streak(n) }; })
-                               .filter(function(x){ return x.c >= 1; }).sort(byCount);
-            var weeks = names.map(function(n){ return { n: n, c: weekCount(n) }; })
-                             .filter(function(x){ return x.c >= 1; }).sort(byCount);
-
-            /* ① 연속 참여 */
-            var over3 = streaks.filter(function(x){ return x.c >= 3; }).length;
-            if(stCnt) stCnt.textContent = String(over3);
-            stTop.innerHTML = streaks.length ? streaks.slice(0, 3).map(function(x, i){
-              return rowHtml(x, i + 1, false);
             }).join('') : '<div class="dash-empty">아직 연속 참여 기록이 없습니다.</div>';
-
-            /* ② 이번 주 랭킹 — 10위까지, 10위 밖이면 내 순위를 아래 한 줄로 */
-            var me = norm(myNick());
-            var mine = -1, i;
-            if(me){
-              for(i = 0; i < names.length; i++){
-                if(norm(names[i]) === me || squash(names[i]) === squash(me)){ mine = i; break; }
-              }
-            }
-            var myDays = mine >= 0 ? weekCount(names[mine]) : 0;
-            var myRank = 0;
-            if(myDays > 0){
-              for(i = 0; i < names.length; i++){ if(weekCount(names[i]) > myDays) myRank++; }
-              myRank += 1;
-            }
-            wkList.innerHTML = weeks.length ? weeks.slice(0, 10).map(function(x, idx){
-              return rowHtml(x, idx + 1, myRank === idx + 1);
-            }).join('') : '<div class="dash-empty">이번 주 참여 기록이 아직 없습니다.</div>';
-            if(wkMe){
-              if(me && myRank > 10){
-                wkMe.hidden = false;
-                wkMe.textContent = '내 순위 ' + myRank + '위 · ' + myDays + '일';
-              } else {
-                wkMe.hidden = true;
-              }
-            }
           })
-          .catch(function(){ paintEmpty(); });
+          .catch(function(){ stTop.innerHTML = '<div class="dash-empty">집계 준비 중</div>'; if(stCnt) stCnt.textContent = '-'; });
+      })();
+      (function(){
+        /* 인기 뷰티 수강 — 최근 7일 course_views 합계 상위 3개. 값이 없으면 '집계 준비 중'. */
+        var box = document.getElementById('crsTop');
+        if(!box) return;
+        function esc(s){ return String(s === undefined || s === null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+        function run(){
+          if(!window.DiaFB || !DiaFB.getCourseViews) return;
+          DiaFB.getCourseViews(7).then(function(r){
+            var total = (r && r.total) || {};
+            var keys = Object.keys(total).filter(function(k){ return total[k] > 0; });
+            keys.sort(function(a, b){ return (total[b] - total[a]) || String(a).localeCompare(String(b), 'ko'); });
+            if(!keys.length){ box.innerHTML = '<div class="dash-empty">집계 준비 중</div>'; return; }
+            // 1위 한 개만 크게
+            var top = keys[0];
+            box.innerHTML = '<a class="crs-top" href="dia-course.html">'
+              + '<span class="crs-top-i">1위</span>'
+              + '<span class="crs-top-n">' + esc(top) + '</span>'
+              + '<span class="crs-top-c">' + total[top] + '회</span></a>';
+          }, function(){ box.innerHTML = '<div class="dash-empty">집계 준비 중</div>'; });
+        }
+        run();
       })();
       </script>
       <script>
@@ -6654,6 +6598,6 @@
   }catch(e){}
 })();
 </script>
-<script src="dia-tag.js?v=2" defer></script><script src="dia-fb.js?v=9" defer></script><script src="dia-pin.js?v=3" defer></script><script src="dia-pin-gate.js?v=2" defer></script><script src="dia-link.js?v=18" defer></script><script src="dia-chat.js?v=11" defer></script><script src="dia-ask.js?v=1" defer></script>
+<script src="dia-tag.js?v=2" defer></script><script src="dia-fb.js?v=10" defer></script><script src="dia-pin.js?v=3" defer></script><script src="dia-pin-gate.js?v=2" defer></script><script src="dia-link.js?v=18" defer></script><script src="dia-chat.js?v=11" defer></script><script src="dia-ask.js?v=1" defer></script>
 <script>window.addEventListener('load',function(){try{if(window.DiaFB&&DiaFB.hitVisit&&!sessionStorage.getItem('fb_vis_dia')){sessionStorage.setItem('fb_vis_dia','1');DiaFB.hitVisit('dia');}}catch(e){}});</script></body>
 </html>

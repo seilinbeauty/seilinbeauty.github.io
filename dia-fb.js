@@ -527,6 +527,60 @@
     }]).then(function(){ return true; }, function(){ return false; });
   }
 
+  // ── 강의별 조회수 (course_views/{YYYY-MM-DD} 의 views 맵)
+  //    dia-course.html 카드의 고유 값(data-nick)을 그대로 강의 구분으로 쓴다.
+  //    이름에 든 점(.)은 필드 경로에서 백틱으로 감싼다. 같은 기기가 30분 안에 같은 강의를 다시 열면 세지 않는다.
+  function cviewKey(cid){ return String(cid === undefined || cid === null ? '' : cid).trim().replace(/`/g, ''); }
+  function courseTrackOn(){
+    try{
+      if(sessionStorage.getItem('dia_course_track') === '1') return true;
+      if(/[?&]coursetrack=1/.test(location.search)){ sessionStorage.setItem('dia_course_track', '1'); return true; }
+    }catch(e){}
+    return false;
+  }
+  function hitCourse(cid){
+    var k = cviewKey(cid);
+    if(!k) return Promise.resolve(false);
+    if(!courseTrackOn()){
+      if(/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || navigator.webdriver === true) return Promise.resolve(false);
+      try{ if(localStorage.getItem('dia_no_track') === '1') return Promise.resolve(false); }catch(e){}
+    }
+    var ck = 'dia_cv_' + k;
+    try{
+      var last = Number(sessionStorage.getItem(ck) || 0);
+      if(last && (Date.now() - last) < 1800000) return Promise.resolve(false);   // 30분 안 중복
+      sessionStorage.setItem(ck, String(Date.now()));
+    }catch(e){}
+    return commit([{
+      update: { name: name('course_views', kstDay()), fields: {} },
+      updateMask: { fieldPaths: [] },
+      updateTransforms: [{ fieldPath: 'views.`' + k + '`', increment: { integerValue: '1' } }]
+    }]).then(function(){ return true; }, function(){ return false; });
+  }
+  // 최근 n일 course_views 합계 — { days: {날짜: {강의: 횟수} | null}, total: {강의: 합계} }
+  function getCourseViews(n){
+    n = Math.max(1, Math.min(14, Number(n) || 7));
+    var list = [], i;
+    for(i = 0; i < n; i++){ list.push(new Date(Date.now() + 9 * 3600 * 1000 - i * 86400000).toISOString().slice(0, 10)); }
+    return Promise.all(list.map(function(d){
+      return req('documents/course_views/' + encodeURIComponent(d), null, 'GET').then(function(doc){
+        var v = doc && doc.fields && doc.fields.views && doc.fields.views.mapValue;
+        var out = {};
+        if(v && v.fields){
+          for(var k in v.fields){ out[k] = parseInt((v.fields[k] && v.fields[k].integerValue) || 0, 10) || 0; }
+        }
+        return { day: d, views: (v ? out : null) };
+      }, function(){ return { day: d, views: null }; });
+    })).then(function(rows){
+      var byDay = {}, total = {};
+      rows.forEach(function(r){
+        byDay[r.day] = r.views;
+        if(r.views){ for(var k in r.views){ total[k] = (total[k] || 0) + r.views[k]; } }
+      });
+      return { days: byDay, total: total };
+    });
+  }
+
   // ── 품앗이 일일 이력 (pumasi_logs/{YYYY-MM-DD})
   function savePumasiLog(o){
     var d = String((o && o.day) || kstDay()).slice(0, 10);
@@ -709,6 +763,7 @@
     addSuggestion: addSuggestion, listSuggestions: listSuggestions, doneSuggestion: doneSuggestion,
     addConsult: addConsult, listConsults: listConsults, doneConsult: doneConsult,
     hitVisit: hitVisit, hitGame: hitGame, getAnalytics: getAnalytics, dayAnalytics: dayAnalytics,
+    hitCourse: hitCourse, getCourseViews: getCourseViews,
     savePumasiLog: savePumasiLog, listPumasiLogs: listPumasiLogs,
     saveDmLead: saveDmLead, listDmLeads: listDmLeads,
     grantInvitePass: grantInvitePass
