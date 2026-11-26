@@ -4,7 +4,7 @@
    - 기존 머리글 코드는 고치지 않고 이 파일이 스스로 붙입니다. */
 (function(){
   var DM = 'https://ig.me/m/seilin_beauty.pr';
-  var KAKAO = 'https://open.kakao.com/o/gQOf8yAf';
+  var KAKAO = 'https://open.kakao.com/o/soErbheg';
   var header = document.querySelector('header.dia-header');
   if(!header) return;
 
