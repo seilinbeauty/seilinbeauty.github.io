@@ -2188,8 +2188,12 @@
         padding: 24px 28px 32px !important; box-shadow: 0 2px 10px rgba(180, 130, 145, .05); }
       .pc-dash-row { display: grid; grid-template-columns: 1fr 1.25fr; gap: 16px; align-items: stretch; margin-bottom: 18px; }
       .pc-dash-row > .fb-card, .pc-dash-row > .rank-card { margin: 0 !important; height: 100%; box-sizing: border-box; }
-      .home-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-      .home-panel.wide { grid-column: 1 / -1; }
+      .home-panels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+      .home-panel.wide { grid-column: auto; }
+      .home-panel { display: flex; flex-direction: column; min-width: 0; height: 430px; box-sizing: border-box; }
+      .home-panel .panel-head { flex-wrap: wrap; gap: 4px 8px; }
+      .home-panel .reg-select { min-width: 96px; }
+      .home-panel .reg-scroll, .home-panel .sum-scroll { flex: 1 1 auto; min-height: 0; max-height: none; }
       body.dia-page .plx-section > .board-content { max-width: 1200px; margin: 0 auto; padding: 0 20px 0 240px; }
     }
 
