@@ -2415,12 +2415,11 @@
                 .mc-tarot-back svg{width:28px;height:28px;}
               }
               .mc-fortune-btn:active{background:#fdeef3;}
-              /* PC 전용: 게임 버튼 3개로 줄이고 오른쪽에 공지·알림 패널 (모바일은 기존 그대로) */
+              /* PC 전용: 게임 버튼 6개 유지 + 오른쪽에 공지·알림 패널 (모바일은 기존 그대로) */
               .mc-notice-panel{display:none;}
               @media (min-width:881px){
                 .mc-pc-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;}
                 .mc-pc-row .mc-fortune-btns{grid-template-columns:repeat(2,minmax(0,1fr));}
-                #mcSajuBtn,#mcReactBtn,#mcLottoBtn{display:none !important;}
                 .mc-notice-panel{display:block;border:1px solid #f0d7e0;border-radius:12px;background:#fffafc;
                   padding:9px 11px 8px;min-width:0;box-sizing:border-box;}
                 .mc-np-hd{font-size:11.5px;font-weight:800;color:#b35172;margin-bottom:5px;display:flex;align-items:center;gap:4px;}
