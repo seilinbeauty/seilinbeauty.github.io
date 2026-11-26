@@ -4,8 +4,7 @@
 (function(){
   if(!window.DiaTag) return;
   var nav = document.querySelector('.ops-nav');
-  var games = document.getElementById('ops-games');
-  if(!nav || !games) return;
+  if(!nav) return;
   var T = window.DiaTag;
 
   var btn = document.createElement('button');
@@ -97,7 +96,7 @@
   });
 
   // 탭 전환: 기존 탭 코드는 그대로 두고, 이 탭만 따로 켜고 끈다
-  var others = ['ops-stats', 'ops-members', 'ops-course', 'ops-games'];
+  var others = ['ops-stats', 'ops-members', 'ops-course'];
   btn.addEventListener('click', function(){
     [].forEach.call(nav.querySelectorAll('.ops-nav-item'), function(b){ b.setAttribute('data-on', b === btn ? '1' : '0'); });
     others.forEach(function(id){ var el = document.getElementById(id); if(el) el.style.display = 'none'; });
