@@ -18,10 +18,16 @@
         + '</a>';
     }).join('');
   }
+  // 홈 PC 패널에서는 안내 페이지(완료패스 공지·휴식 공지·다이아 품앗이 가이드)를 빼고 알림만 보여 준다.
+  var HIDE_IN_PANEL = { '완료패스': 1, '휴식': 1, '가이드': 1 };
+  function panelList(){
+    return NOTICES.filter(function(n){ return !HIDE_IN_PANEL[n.kind]; });
+  }
   // 여러 줄 목록 (홈 패널·공지사항 페이지 섹션)
   function renderList(el, max){
     if(!el) return;
-    var list = NOTICES.slice(0, max || NOTICES.length);
+    var src = panelList();
+    var list = src.slice(0, max || src.length);
     el.innerHTML = list.length ? rows(list) : '<div class="bd-empty">새 소식이 없습니다</div>';
   }
   // 게시판 페이지 (10줄씩 페이지 넘김)
