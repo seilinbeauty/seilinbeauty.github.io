@@ -2457,11 +2457,13 @@
               .dia-hero-in:has(#mcHeroStatus:not([hidden])) .quick-links{gap:6px;}
               .dia-hero-in:has(#mcHeroStatus:not([hidden])) .pr-card{margin-bottom:0;}
               #mcHeroStatus .mycard{margin-bottom:0;}
-              body.dia-page .plx-main{padding-top:6px !important;}
-              body.dia-page .plx-inner{border-top:0 !important;border-radius:0 0 10px 10px !important;}
-              body.dia-page .plx-section{padding-top:0 !important;}
-              body.dia-page .dia-hero{padding-bottom:0;border-bottom:0;}
-              body.dia-page .dia-hero-in{padding-bottom:0 !important;} 
+              @media (max-width:880px){
+                body.dia-page .plx-main{padding-top:6px !important;}
+                body.dia-page .plx-inner{border-top:0 !important;border-radius:0 0 10px 10px !important;}
+                body.dia-page .plx-section{padding-top:0 !important;}
+                body.dia-page .dia-hero{padding-bottom:0;border-bottom:0;}
+                body.dia-page .dia-hero-in{padding-bottom:0 !important;}
+              }
               body.dia-page #myCard{padding-top:9px;margin-bottom:10px;}
               body.dia-page:has(#mcHeroStatus:not([hidden])) .plx-clock{margin-top:-10px;}
               .plx-who{display:flex;align-items:center;gap:14px;min-width:0;}
