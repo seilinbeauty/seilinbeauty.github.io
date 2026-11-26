@@ -4209,11 +4209,16 @@ window.창고읽기 = function(url){
           });
           cand.sort(function(a, b){ return (b[0] - a[0]) || a[1].localeCompare(b[1]); });
           cand = cand.slice(0, n);
+          /* 동점(같은 참여 일수)은 같은 등수로 표시 */
+          var rks = [];
+          cand.forEach(function(c, i){
+            rks[i] = (i > 0 && c[0] === cand[i-1][0]) ? rks[i-1] : i + 1;
+          });
           if(!cand.length) return;
           var top = cand[0][0];
           var h = '<div class="rank-top"><div class="rank-t">이번 달 참여왕</div><div class="rank-pass">🎟️ 완료패스 <b>1등 3장</b> · <b>2등 2장</b> · <b>3등 1장</b> · 매월 1일 지급</div></div><div class="rank-list">';
           cand.forEach(function(it, idx){
-            var i = idx + 1, cnt = it[0], nm = it[1], full = String(it[2]).replace(/"/g,''), cat = it[3], ig = it[4] || '';
+            var i = rks[idx] || (idx + 1), cnt = it[0], nm = it[1], full = String(it[2]).replace(/"/g,''), cat = it[3], ig = it[4] || '';
             var igAttr = ig ? ' data-insta="' + ig.replace(/"/g,'') + '"' : '';
             var catHtml = cat ? '<span class="rank-cat">' + cat + '</span>' : '';
             var w = Math.max(6, Math.round(cnt * 100 / top));
