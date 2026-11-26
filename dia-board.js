@@ -1,58 +1,158 @@
-/* 공지 / 알림 게시판 목록 — 사이트 공용 (2026-11-26 커비)
-   · 새 공지를 올릴 때는 아래 NOTICES 맨 앞에 한 줄을 더하면 홈 PC 패널·공지사항 페이지·게시판 페이지에 함께 반영됩니다.
-   · date 가 '—' 인 것은 안내 페이지에 기준일 표기가 없어 비워 둔 것입니다(임의로 날짜를 만들지 않았습니다).
-   · 글쓰기·등록 기능은 없습니다(읽기 전용). */
+/* 알림장 게시판 — 운영 센터에서 쓴 글을 파이어스토어(board_posts)에서 읽어 옵니다. (2026-11-26 커비)
+   · 글쓰기·지우기는 운영 센터(비밀번호 0423)에서만 — dia-fb.js 의 addBoardPost · delBoardPost
+   · 문서 모양: board_posts/{id} = { id, title, body, date:'YYYY-MM-DD', createdAt, chk, chkDel }
+   · 목록은 최신순(createdAt 내림차순). 글이 없으면 '새 소식이 없습니다'.
+   · 완료패스·휴식·가이드 안내 3건은 알림장 목록에 넣지 않습니다(kind 로 걸러 냅니다).
+   · 홈 PC 패널(dia.html) · 공지사항 하단(dia-notice.html) · 게시판 페이지(dia-board-notice.html) · 운영 센터(dia-info.html)가 함께 씁니다. */
 (function(){
-  var NOTICES = [
-    { no: 3, title: '완료패스 공지', date: '2026-11-23', kind: '완료패스', href: 'dia-pass.html', desc: '완료패스 부여 기준과 사용·인증 방법' },
-    { no: 2, title: '휴식 공지', date: '—', kind: '휴식', href: 'dia-rest.html', desc: '휴식(💙) 신청과 유지 규칙' },
-    { no: 1, title: '다이아 품앗이 가이드', date: '—', kind: '가이드', href: 'dia-guide.html', desc: '품앗이 참여부터 인증, 봉사까지 전체 규칙' }
-  ];
-  function esc(s){ return String(s === undefined || s === null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  function rows(list){
-    return list.map(function(n){
-      return '<a class="bd-row" href="' + esc(n.href) + '">'
-        + '<span class="bd-no">' + n.no + '</span>'
-        + '<span class="bd-tt">' + esc(n.title) + '</span>'
-        + '<span class="bd-dt">' + esc(n.date) + '</span>'
-        + '</a>';
-    }).join('');
+  var BASE = 'https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/';
+  var KEY = 'AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY';
+  var COLL = 'board_posts';
+  var CACHE_KEY = 'dia_board_cache_v2';
+  var HIDE = { '완료패스': 1, '휴식': 1, '가이드': 1 };
+
+  var posts = [];       // 전체 글 (최신순)
+  var loaded = false;
+  var pLoad = null;
+  var waiters = [];
+
+  function esc(s){
+    return String(s === undefined || s === null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
-  // 홈 PC 패널에서는 안내 페이지(완료패스 공지·휴식 공지·다이아 품앗이 가이드)를 빼고 알림만 보여 준다.
-  var HIDE_IN_PANEL = { '완료패스': 1, '휴식': 1, '가이드': 1 };
-  function panelList(){
-    return NOTICES.filter(function(n){ return !HIDE_IN_PANEL[n.kind]; });
+  function sv(f, k){ return (f && f[k] && f[k].stringValue) || ''; }
+
+  function parseDoc(doc){
+    var f = doc.fields || {};
+    var id = sv(f, 'id') || String(doc.name || '').split('/').pop();
+    var createdAt = (f.createdAt && f.createdAt.timestampValue) || '';
+    return {
+      id: id,
+      title: sv(f, 'title'),
+      body: sv(f, 'body'),
+      date: sv(f, 'date'),
+      kind: sv(f, 'kind'),
+      chkDel: sv(f, 'chkDel'),
+      createdAt: createdAt,
+      ts: Date.parse(createdAt) || 0
+    };
   }
-  // 여러 줄 목록 (홈 패널·공지사항 페이지 섹션)
-  function renderList(el, max){
-    if(!el) return;
-    var src = panelList();
-    var list = src.slice(0, max || src.length);
-    el.innerHTML = list.length ? rows(list) : '<div class="bd-empty">새 소식이 없습니다</div>';
+  function newer(a, b){
+    if (b.ts !== a.ts) return b.ts - a.ts;
+    return a.id < b.id ? 1 : (a.id > b.id ? -1 : 0);
   }
-  // 게시판 페이지 (10줄씩 페이지 넘김)
+  // 알림장에 보이는 글 (완료패스·휴식·가이드 3건 제외)
+  function visible(){ return posts.filter(function(p){ return !HIDE[p.kind]; }); }
+
+  function notify(){
+    var now = visible();
+    var list = waiters.slice();
+    waiters = [];
+    for (var i = 0; i < list.length; i++){
+      try{ list[i](now); }catch(e){}
+    }
+  }
+
+  function load(force){
+    if (loaded && !force) return Promise.resolve(visible());
+    if (pLoad && !force) return pLoad;
+    var url = BASE + 'documents/' + COLL + '?pageSize=300&key=' + KEY;
+    pLoad = fetch(url, { cache: 'no-store' }).then(function(r){
+      if (!r.ok) throw new Error('fb');
+      return r.json();
+    }).then(function(d){
+      var arr = ((d && d.documents) || []).map(parseDoc);
+      arr.sort(newer);
+      posts = arr;
+      loaded = true;
+      pLoad = null;
+      try{ localStorage.setItem(CACHE_KEY, JSON.stringify(arr.slice(0, 300))); }catch(e){}
+      notify();
+      return visible();
+    }, function(){
+      pLoad = null;
+      if (!loaded){
+        try{
+          var c = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]');
+          if (c && c.length){ posts = c; loaded = true; }
+        }catch(e){}
+      }
+      notify();
+      return visible();
+    });
+    return pLoad;
+  }
+
+  // 글이 준비되면 cb(목록)을 부릅니다. 이미 읽었으면 바로.
+  function ready(cb){
+    if (loaded) { cb(visible()); return; }
+    waiters.push(cb);
+    load();
+  }
+
+  // 게시판 페이지 — 10줄씩, 줄을 누르면 내용이 그 자리에서 펼쳐집니다.
   function renderBoard(el, pager, page){
-    if(!el) return;
-    var size = 10, total = NOTICES.length;
+    if (!el) return;
+    if (!loaded){
+      el.innerHTML = '<div class="bd-empty">불러오는 중…</div>';
+      load().then(function(){ renderBoard(el, pager, page); });
+      return;
+    }
+    var src = visible();
+    var size = 10, total = src.length;
     var pages = Math.max(1, Math.ceil(total / size));
     page = Math.min(Math.max(1, page || 1), pages);
     var start = (page - 1) * size;
-    var list = NOTICES.slice(start, start + size);
-    el.innerHTML = list.length ? rows(list) : '<div class="bd-empty">아직 올라온 공지가 없습니다.</div>';
-    if(pager){
+    var list = src.slice(start, start + size);
+
+    if (!list.length){
+      el.innerHTML = '<div class="bd-empty">새 소식이 없습니다</div>';
+    } else {
+      el.innerHTML = list.map(function(p, i){
+        var no = total - (start + i);
+        var vid = 'bdBody_' + p.id.replace(/[^A-Za-z0-9_-]/g, '');
+        return '<div class="bd-item">'
+          + '<button type="button" class="bd-row" aria-expanded="false" data-body="' + vid + '">'
+          + '<span class="bd-no">' + no + '</span>'
+          + '<span class="bd-tt">' + esc(p.title) + '</span>'
+          + '<span class="bd-dt">' + esc(p.date) + '</span>'
+          + '</button>'
+          + '<div class="bd-body" id="' + vid + '" hidden><div class="bd-body-in">' + esc(p.body) + '</div></div>'
+          + '</div>';
+      }).join('');
+      var btns = el.querySelectorAll('.bd-row');
+      for (var i = 0; i < btns.length; i++){
+        btns[i].addEventListener('click', function(){
+          var body = document.getElementById(this.getAttribute('data-body'));
+          if (!body) return;
+          var open = !body.hidden;
+          body.hidden = open;
+          this.setAttribute('aria-expanded', open ? 'false' : 'true');
+        });
+      }
+    }
+
+    if (pager){
       var h = '';
-      for(var p = 1; p <= pages; p++){
+      for (var p = 1; p <= pages; p++){
         h += '<button type="button" class="bd-pg' + (p === page ? ' is-on' : '') + '" data-pg="' + p + '">' + p + '</button>';
       }
       pager.innerHTML = pages > 1 ? h : '';
-      var btns = pager.querySelectorAll('.bd-pg');
-      for(var i = 0; i < btns.length; i++){
-        btns[i].addEventListener('click', function(){
-          var map = { list: el, pager: pager };
-          renderBoard(map.list, map.pager, Number(this.getAttribute('data-pg')));
+      var pbtns = pager.querySelectorAll('.bd-pg');
+      for (var j = 0; j < pbtns.length; j++){
+        pbtns[j].addEventListener('click', function(){
+          renderBoard(el, pager, Number(this.getAttribute('data-pg')));
         });
       }
     }
   }
-  window.DiaBoard = { list: NOTICES, renderList: renderList, renderBoard: renderBoard, esc: esc };
+
+  window.DiaBoard = {
+    load: load,
+    ready: ready,
+    renderBoard: renderBoard,
+    esc: esc,
+    all: function(){ return posts.slice(); },
+    get list(){ return visible(); }
+  };
 })();

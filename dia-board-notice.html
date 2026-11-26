@@ -2199,10 +2199,14 @@
             .bd-wrap{border:1px solid #f3e3e9;border-radius:16px;background:#fff;overflow:hidden;}
             .bd-head{display:grid;grid-template-columns:52px 1fr 96px;gap:8px;padding:11px 16px;background:#fdf7f9;
               border-bottom:1px solid #f3e3e9;font-size:11.5px;font-weight:800;color:#a08a91;}
-            .bd-row{display:grid;grid-template-columns:52px 1fr 96px;gap:8px;padding:12px 16px;border-top:1px solid #faf1f4;
+            .bd-item{border-top:1px solid #faf1f4;}
+            .bd-item:first-of-type{border-top:0;}
+            .bd-row{display:grid;grid-template-columns:52px 1fr 96px;gap:8px;padding:12px 16px;width:100%;box-sizing:border-box;
+              border:0;background:transparent;font-family:inherit;cursor:pointer;text-align:left;
               text-decoration:none;color:#33262a;font-size:13px;align-items:center;}
-            .bd-row:first-of-type{border-top:0;}
             .bd-row:hover{background:#fffafc;}
+            .bd-body{padding:2px 16px 14px 60px;background:#fffafc;}
+            .bd-body-in{font-size:12.5px;line-height:1.75;color:#4a353c;white-space:pre-wrap;word-break:break-word;}
             .bd-no{color:#c3adb6;font-size:12px;}
             .bd-tt{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
             .bd-dt{color:#a98d97;font-size:11.5px;text-align:right;}
@@ -2217,6 +2221,7 @@
               .bd-no{display:none;}
               .bd-tt{font-size:12.5px;white-space:normal;word-break:keep-all;}
               .bd-dt{font-size:10.5px;text-align:left;grid-column:1 / -1;}
+              .bd-body{padding:0 13px 12px;}
             }
           </style>
           <div class="bd-wrap">
@@ -2224,7 +2229,7 @@
             <div id="bdList"><div class="bd-empty">불러오는 중…</div></div>
           </div>
           <div class="bd-pager" id="bdPager"></div>
-          <script src="dia-board.js?v=1"></script>
+          <script src="dia-board.js?v=2"></script>
           <script>
           (function(){
             function draw(){

@@ -2242,20 +2242,22 @@
             </style>
             <div class="nb-hd"><b>📣 공지 / 알림</b><span>최신순</span><a href="dia-board-notice.html">더보기 →</a></div>
             <div class="nb-wrap" id="nbList"><div class="nb-empty">불러오는 중…</div></div>
-            <script src="dia-board.js?v=1"></script>
+            <script src="dia-board.js?v=2"></script>
             <script>
             (function(){
               var box = document.getElementById('nbList');
               if(!box) return;
-              if(!window.DiaBoard || !DiaBoard.list || !DiaBoard.list.length){
-                box.innerHTML = '<div class="nb-empty">아직 올라온 공지가 없습니다.</div>';
-                return;
-              }
               function esc(x){ return String(x === undefined || x === null ? '' : x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-              box.innerHTML = DiaBoard.list.slice(0, 10).map(function(n){
-                return '<a class="nb-row" href="' + esc(n.href) + '"><span class="nb-no">' + n.no + '</span>'
-                  + '<span class="nb-tt">' + esc(n.title) + '</span><span class="nb-dt">' + esc(n.date) + '</span></a>';
-              }).join('');
+              function draw(src){
+                src = src || [];
+                if(!src.length){ box.innerHTML = '<div class="nb-empty">새 소식이 없습니다</div>'; return; }
+                box.innerHTML = src.slice(0, 10).map(function(p, i){
+                  return '<a class="nb-row" href="dia-board-notice.html"><span class="nb-no">' + (src.length - i) + '</span>'
+                    + '<span class="nb-tt">' + esc(p.title) + '</span><span class="nb-dt">' + esc(p.date) + '</span></a>';
+                }).join('');
+              }
+              if(!window.DiaBoard || !DiaBoard.ready){ draw([]); return; }
+              DiaBoard.ready(draw);
             })();
             </script>
           </div>

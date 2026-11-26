@@ -360,6 +360,29 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ── 알림장 게시판 (board_posts/{id}) — 누구나 읽기 / 글쓰기·지우기는 운영 센터(스태프)만 (2026-11-26)
+    //    글 한 건 = { id, title, body, date, createdAt, chk, chkDel }
+    //    chk    : 글을 올릴 때 만드는 스태프 확인용 문서 번호 (같은 묶음으로 만들고 바로 지움)
+    //    chkDel : 글을 지울 때 같은 번호로 확인용 문서를 다시 만들어 확인
+    function boardPostOk(d, pid) {
+      return d.keys().hasAll(['id','title','body','date','chk','chkDel','createdAt'])
+          && d.keys().hasOnly(['id','title','body','date','chk','chkDel','createdAt'])
+          && d.id is string && d.id == pid
+          && d.title is string && d.title.size() > 0 && d.title.size() <= 120
+          && d.body is string && d.body.size() > 0 && d.body.size() <= 5000
+          && d.date is string && d.date.size() == 10
+          && d.chk is string && d.chkDel is string
+          && d.createdAt is timestamp;
+    }
+    match /board_posts/{pid} {
+      allow read: if true;
+      allow create: if boardPostOk(request.resource.data, pid)
+                    && request.resource.data.createdAt == request.time
+                    && chkStaff(request.resource.data.chk, pid);
+      allow update: if false;
+      allow delete: if chkStaff(resource.data.chkDel, pid);
+    }
+
     // ── 그 밖의 모든 경로는 막는다
     match /{document=**} {
       allow read, write: if false;

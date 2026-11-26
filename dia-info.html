@@ -2287,12 +2287,15 @@ document.addEventListener('DOMContentLoaded', function(){
         var 회원칸 = document.getElementById('ops-members');
         var 수강칸 = document.getElementById('ops-course');
         var 검토칸 = document.getElementById('ops-course-req');
+        var 알림장칸 = document.getElementById('ops-notice');
         if(통계칸) 통계칸.style.display = (대상 === 'ops-stats') ? '' : 'none';
         if(회원칸) 회원칸.style.display = (대상 === 'ops-members') ? '' : 'none';
         if(수강칸) 수강칸.style.display = (대상 === 'ops-course') ? '' : 'none';
         if(검토칸) 검토칸.style.display = (대상 === 'ops-course-req') ? '' : 'none';
+        if(알림장칸) 알림장칸.style.display = (대상 === 'ops-notice') ? '' : 'none';
         if(대상 === 'ops-course' && typeof window.diaCourseReload === 'function') window.diaCourseReload();
         if(대상 === 'ops-course-req' && typeof window.diaCourseReqReload === 'function') window.diaCourseReqReload();
+        if(대상 === 'ops-notice' && typeof window.diaNoticeAdminReload === 'function') window.diaNoticeAdminReload();
       });
     })(메뉴탭[ni]);
   }
@@ -3151,7 +3154,7 @@ document.addEventListener('DOMContentLoaded', function(){
 @media (max-width:880px){.nav-sub{display:none !important;}.nav-fold .nav-caret{display:none;}}
 </style>
           <button type="button" class="board-nav-link nav-fold is-open" aria-expanded="true" onclick="var s=document.getElementById('diaNavSub');var on=this.classList.toggle('is-open');s.classList.toggle('is-open',on);this.setAttribute('aria-expanded',on?'true':'false');">공지사항 <span class="nav-new">NEW</span><span class="nav-caret">▼</span></button>
-          <div class="nav-sub" is-open id="diaNavSub">
+          <div class="nav-sub is-open" id="diaNavSub">
             <a class="nav-sub-link" href="dia-guide.html">품앗이 가이드</a>
             <a class="nav-sub-link" href="dia-pass.html">완료패스 공지</a>
             <a class="nav-sub-link" href="dia-rest.html">휴식 공지</a>
@@ -3178,6 +3181,7 @@ document.addEventListener('DOMContentLoaded', function(){
               <button type="button" class="ops-nav-item" data-nav="ops-members">회원 목록</button>
               <button type="button" class="ops-nav-item" data-nav="ops-course">🎓 뷰티수강</button>
               <button type="button" class="ops-nav-item" data-nav="ops-course-req">⏳ 수강 검토 <span id="opsReqBadge" style="display:none;margin-left:3px;padding:1px 6px;border-radius:999px;background:#d55576;color:#fff;font-size:11px;font-weight:800;">0</span></button>
+              <button type="button" class="ops-nav-item" data-nav="ops-notice">📣 알림장</button>
           </div>
           <div id="ops-stats">
           <div id="ops-now" style="display:flex;justify-content:center;align-items:baseline;gap:8px;margin:0 0 8px;font-size:13px;color:#8a8a8a;"><span id="ops-date">2026년 11월 16일 월요일</span><strong id="ops-time" style="font-size:18px;font-weight:800;color:#c2456a;letter-spacing:.5px;">--:--</strong></div>
@@ -5077,6 +5081,107 @@ document.addEventListener('DOMContentLoaded', function(){
   load();
 })();
           </script>
+          <div id="ops-notice" style="display:none;">
+            <style>
+            .nt-head{margin:0 0 12px;}
+            .nt-t{font-size:15px;font-weight:900;color:#3c2b31;}
+            .nt-s{font-size:12px;color:#9a8a90;margin-top:2px;}
+            .nt-form{background:#fff;border:1px solid #f0e2e7;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+            .nt-in,.nt-ta{width:100%;box-sizing:border-box;border:1px solid #ecd8df;border-radius:10px;padding:10px 12px;font-family:inherit;font-size:13px;color:#33262a;background:#fffdfd;}
+            .nt-in:focus,.nt-ta:focus{outline:none;border-color:#e49db3;background:#fff;}
+            .nt-ta{min-height:140px;line-height:1.7;resize:vertical;}
+            .nt-acts{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+            .nt-btn{padding:9px 18px;border-radius:9px;border:0;background:#d55576;color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;}
+            .nt-btn:disabled{opacity:.5;cursor:default;}
+            .nt-msg{font-size:12px;font-weight:700;color:#c2456a;min-height:16px;}
+            .nt-list{display:flex;flex-direction:column;gap:10px;}
+            .nt-card{background:#fff;border:1px solid #f0e2e7;border-radius:14px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;}
+            .nt-card-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+            .nt-card-t{font-size:13.5px;font-weight:800;color:#3c2b31;word-break:break-word;}
+            .nt-card-d{font-size:11.5px;color:#a98d97;}
+            .nt-card-b{font-size:12.5px;color:#4a3941;line-height:1.7;white-space:pre-wrap;word-break:break-word;}
+            .nt-del{margin-left:auto;padding:5px 11px;border-radius:999px;border:1px solid #f0d7e0;background:#fff;color:#b35172;font-size:11.5px;font-weight:800;cursor:pointer;font-family:inherit;}
+            .nt-del:hover{background:#fdeef3;}
+            .nt-empty{padding:30px 16px;text-align:center;color:#9a8a90;font-size:12.5px;background:#fff;border:1px dashed #eedbe2;border-radius:14px;}
+            </style>
+            <div class="nt-head">
+              <div class="nt-t">📣 알림장 쓰기</div>
+              <div class="nt-s">여기서 쓴 글이 홈 알림장과 공지사항 게시판에 최신순으로 올라갑니다.</div>
+            </div>
+            <div class="nt-form">
+              <input class="nt-in" id="nt-title" type="text" maxlength="120" placeholder="제목" autocomplete="off">
+              <textarea class="nt-ta" id="nt-body" maxlength="5000" placeholder="내용을 입력해 주세요."></textarea>
+              <div class="nt-acts">
+                <button type="button" class="nt-btn" id="nt-post">게시</button>
+                <span class="nt-msg" id="nt-msg"></span>
+              </div>
+            </div>
+            <div class="nt-list" id="nt-list"><div class="nt-empty">불러오는 중…</div></div>
+          </div>
+          <script>
+          (function(){
+            var listEl = document.getElementById('nt-list');
+            if(!listEl) return;
+            var tEl = document.getElementById('nt-title');
+            var bEl = document.getElementById('nt-body');
+            var msgEl = document.getElementById('nt-msg');
+            var btn = document.getElementById('nt-post');
+            function esc(s){ return String(s === undefined || s === null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+            function say(t, ok){ if(!msgEl) return; msgEl.style.color = ok ? '#2f7d4c' : '#c2456a'; msgEl.textContent = t || ''; }
+            function render(){
+              var src = (window.DiaBoard && DiaBoard.all) ? (DiaBoard.all() || []) : [];
+              if(!src.length){ listEl.innerHTML = '<div class="nt-empty">아직 올린 글이 없습니다.</div>'; return; }
+              listEl.innerHTML = src.map(function(p){
+                return '<div class="nt-card">'
+                  + '<div class="nt-card-top"><b class="nt-card-t">' + esc(p.title) + '</b><span class="nt-card-d">' + esc(p.date) + '</span>'
+                  + '<button type="button" class="nt-del" data-del="' + esc(p.id) + '">삭제</button></div>'
+                  + '<div class="nt-card-b">' + esc(p.body) + '</div></div>';
+              }).join('');
+            }
+            function draw(){
+              if(!window.DiaBoard || !DiaBoard.load){ listEl.innerHTML = '<div class="nt-empty">게시판을 불러오지 못했습니다.</div>'; return; }
+              DiaBoard.load(true).then(render, render);
+            }
+            window.diaNoticeAdminReload = draw;
+            if(btn) btn.addEventListener('click', function(){
+              var title = (tEl && tEl.value || '').trim();
+              var body = (bEl && bEl.value || '').trim();
+              if(!title){ say('제목을 입력해 주세요.', false); if(tEl) tEl.focus(); return; }
+              if(!body){ say('내용을 입력해 주세요.', false); if(bEl) bEl.focus(); return; }
+              if(!window.DiaFB || !DiaFB.addBoardPost){ say('게시판을 불러오지 못했습니다.', false); return; }
+              btn.disabled = true;
+              say('올리는 중…', true);
+              DiaFB.addBoardPost({ title: title, body: body }).then(function(res){
+                btn.disabled = false;
+                if(res && res.ok){
+                  if(tEl) tEl.value = '';
+                  if(bEl) bEl.value = '';
+                  say('알림장에 올렸습니다.', true);
+                  draw();
+                } else {
+                  say(res && res.error === 'bad_pin' ? '게시 실패 — 파이어베이스 보안 규칙 게시가 필요한 상태입니다.' : '게시하지 못했습니다. 잠시 후 다시 시도해 주세요.', false);
+                }
+              });
+            });
+            listEl.addEventListener('click', function(e){
+              var b = e.target && e.target.closest ? e.target.closest('[data-del]') : null;
+              if(!b) return;
+              var id = b.getAttribute('data-del');
+              var item = null;
+              var all = (window.DiaBoard && DiaBoard.all) ? (DiaBoard.all() || []) : [];
+              for(var i = 0; i < all.length; i++){ if(all[i].id === id){ item = all[i]; break; } }
+              if(!item) return;
+              if(!window.confirm('이 글을 지울까요? 지운 글은 되돌릴 수 없습니다.')) return;
+              if(!window.DiaFB || !DiaFB.delBoardPost){ say('지우지 못했습니다.', false); return; }
+              b.disabled = true;
+              DiaFB.delBoardPost(item).then(function(res){
+                if(res && res.ok){ say('글을 지웠습니다.', true); draw(); }
+                else { b.disabled = false; say(res && res.error === 'bad_pin' ? '지우기 실패 — 파이어베이스 보안 규칙 게시가 필요한 상태입니다.' : '지우지 못했습니다. 잠시 후 다시 시도해 주세요.', false); }
+              });
+            });
+            window.addEventListener('load', function(){ draw(); });
+          })();
+          </script>
           <div id="ops-course-req" style="display:none;">
             <style>
             .req-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:0 0 12px;}
@@ -5588,7 +5693,7 @@ document.addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 
-<script src="dia-tag.js?v=2" defer></script><script src="dia-tag-admin.js?v=3" defer></script><script src="dia-fb.js?v=11" defer></script><script src="dia-pin.js?v=2" defer></script><script src="dia-pin-admin.js?v=3" defer></script><script src="dia-fbstat.js?v=1" defer></script><script src="dia-gamestat.js?v=2" defer></script><!-- 운영 센터 '#️⃣ 해시태그' 탭, 회원 목록 '암호' 칸 -->
+<script src="dia-tag.js?v=2" defer></script><script src="dia-tag-admin.js?v=3" defer></script><script src="dia-board.js?v=2" defer></script><script src="dia-fb.js?v=12" defer></script><script src="dia-pin.js?v=2" defer></script><script src="dia-pin-admin.js?v=3" defer></script><script src="dia-fbstat.js?v=1" defer></script><script src="dia-gamestat.js?v=2" defer></script><!-- 운영 센터 '#️⃣ 해시태그' 탭, 회원 목록 '암호' 칸 -->
 <script>
 (function(){
   function loadConsultsAndAnalytics(){

@@ -777,8 +777,44 @@
     });
   }
 
+  // ── 알림장 게시판 (board_posts) — 운영 센터에서만 글쓰기·지우기 (스태프 확인 문서를 같은 묶음으로)
+  function addBoardPost(o){
+    var pid = rid('bp_');
+    var chk = rid('bp_');
+    var chkDel = rid('bp_');
+    var w = createDoc('board_posts', pid, {
+      id: pid,
+      title: String((o && o.title) || '').slice(0, 120),
+      body: String((o && o.body) || '').slice(0, 5000),
+      date: kstDay(),
+      chk: chk,
+      chkDel: chkDel
+    }, true);
+    var c = createDoc('checks', chk, { op: 'staff', id: pid, pw: STAFF_PW });
+    return commit([c, w]).then(function(){
+      tidy('checks', chk);
+      return { ok: true, id: pid };
+    }, function(e){
+      tidy('checks', chk);
+      return { ok: false, error: errOf(e) };
+    });
+  }
+  function delBoardPost(item){
+    if(!item || !item.id) return Promise.resolve({ ok: false });
+    var cid = item.chkDel || rid('bp_');
+    var chk = createDoc('checks', cid, { op: 'staff', id: item.id, pw: STAFF_PW });
+    return commit([chk, delDoc('board_posts', item.id)]).then(function(){
+      tidy('checks', cid);
+      return { ok: true };
+    }, function(e){
+      tidy('checks', cid);
+      return { ok: false, error: errOf(e) };
+    });
+  }
+
   window.DiaFB = {
     day: day, add: add, edit: edit, del: del, staffDel: staffDel,
+    addBoardPost: addBoardPost, delBoardPost: delBoardPost,
     ensurePin: ensurePin, setPin: setPin, safeId: safeId, stat: stat, kstDay: kstDay,
     linkId: linkId, keyOf: keyOf, STAFF_PW: STAFF_PW,
     getMeta: getMeta, saveMeta: saveMeta,

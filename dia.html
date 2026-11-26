@@ -2592,32 +2592,36 @@
                 <a class="mc-np-more" href="dia-board-notice.html">더보기 →</a>
               </div>
               </div>
-              <script src="dia-board.js?v=1"></script>
+              <script src="dia-board.js?v=2"></script>
               <script>
               (function(){
-                /* PC 오른쪽 공지 / 알림 — dia-board.js 의 목록(최신순) 5줄. 목록을 못 읽으면 '새 소식이 없습니다'. */
+                /* PC 오른쪽 알림장 — 운영 센터에서 쓴 글(최신순) 2줄. 목록을 못 읽으면 '새 소식이 없습니다'. */
                 var list = document.getElementById('mcNpList');
                 var dot = document.getElementById('mcNpNew');
                 if(!list) return;
                 var K = 'dia_notice_seen_v1';
                 function esc(x){ return String(x === undefined || x === null ? '' : x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-                var HIDE = {'완료패스':1,'휴식':1,'가이드':1};
-                var src = (window.DiaBoard && DiaBoard.list ? DiaBoard.list : []).filter(function(n){ return !HIDE[n.kind]; });
-                var items = src.slice(0, 2);
-                var rows = items.map(function(n){
-                  return '<a class="mc-np-row" href="' + esc(n.href) + '"><b>' + esc(n.title) + '</b><span>' + esc(n.date) + '</span></a>';
-                }).join('');
-                for(var p = items.length; p < 2; p++){
-                  rows += '<div class="mc-np-row is-blank"><b>&nbsp;</b><span>&nbsp;</span></div>';
+                function draw(src){
+                  var items = src.slice(0, 2);
+                  var rows = items.map(function(n){
+                    return '<a class="mc-np-row" href="dia-board-notice.html"><b>' + esc(n.title) + '</b><span>' + esc(n.date) + '</span></a>';
+                  }).join('');
+                  for(var p = items.length; p < 2; p++){
+                    rows += '<div class="mc-np-row is-blank"><b>&nbsp;</b><span>&nbsp;</span></div>';
+                  }
+                  list.innerHTML = rows;
                 }
-                list.innerHTML = rows;
-                try{
-                  var titles = src.map(function(n){ return n.title; });
-                  var seen = JSON.parse(localStorage.getItem(K) || '[]');
-                  var fresh = titles.some(function(x){ return seen.indexOf(x) < 0; });
-                  if(fresh && dot) dot.hidden = false;
-                  localStorage.setItem(K, JSON.stringify(titles));
-                }catch(e){}
+                if(!window.DiaBoard || !DiaBoard.ready){ draw([]); return; }
+                DiaBoard.ready(function(src){
+                  draw(src || []);
+                  try{
+                    var titles = (src || []).map(function(n){ return n.title; });
+                    var seen = JSON.parse(localStorage.getItem(K) || '[]');
+                    var fresh = titles.some(function(x){ return seen.indexOf(x) < 0; });
+                    if(fresh && dot) dot.hidden = false;
+                    localStorage.setItem(K, JSON.stringify(titles));
+                  }catch(e){}
+                });
               })();
               </script>
               <form class="mc-saju-form" id="mcSajuForm" hidden autocomplete="off">
@@ -6711,6 +6715,6 @@
   }catch(e){}
 })();
 </script>
-<script src="dia-tag.js?v=2" defer></script><script src="dia-fb.js?v=11" defer></script><script src="dia-pin.js?v=3" defer></script><script src="dia-pin-gate.js?v=2" defer></script><script src="dia-link.js?v=18" defer></script><script src="dia-chat.js?v=11" defer></script><script src="dia-ask.js?v=2" defer></script>
+<script src="dia-tag.js?v=2" defer></script><script src="dia-fb.js?v=12" defer></script><script src="dia-pin.js?v=3" defer></script><script src="dia-pin-gate.js?v=2" defer></script><script src="dia-link.js?v=18" defer></script><script src="dia-chat.js?v=11" defer></script><script src="dia-ask.js?v=2" defer></script>
 <script>window.addEventListener('load',function(){try{if(window.DiaFB&&DiaFB.hitVisit&&!sessionStorage.getItem('fb_vis_dia')){sessionStorage.setItem('fb_vis_dia','1');DiaFB.hitVisit('dia');}}catch(e){}});</script></body>
 </html>
