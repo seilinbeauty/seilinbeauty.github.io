@@ -99,7 +99,7 @@
   }
 
   // 게시판 페이지 — 10줄씩, 줄을 누르면 내용이 그 자리에서 펼쳐집니다.
-  // opt.onEdit(글, 버튼) 을 넣으면 각 글 아래에 '수정' 버튼이 붙습니다(알림장 페이지의 스태프 전용).
+  // opt.onEdit(글, 버튼)·opt.onDelete(글, 버튼) 을 넣으면 각 글 아래에 '수정'·'삭제' 버튼이 붙습니다(스태프 전용).
   function renderBoard(el, pager, page, opt){
     if (!el) return;
     if (!loaded){
@@ -108,6 +108,7 @@
       return;
     }
     var canEdit = !!(opt && typeof opt.onEdit === 'function');
+    var canDel = !!(opt && typeof opt.onDelete === 'function');
     var src = visible();
     var size = 10, total = src.length;
     var pages = Math.max(1, Math.ceil(total / size));
@@ -129,7 +130,10 @@
           + '<span class="bd-dt">' + esc(p.date) + '</span>'
           + '</button>'
           + '<div class="bd-body" id="' + vid + '" hidden><div class="bd-body-in">' + esc(p.body) + '</div></div>'
-          + (canEdit ? '<div class="bd-staff"><button type="button" class="bd-edit" data-edit="' + pid + '">수정</button></div>' : '')
+          + ((canEdit || canDel) ? '<div class="bd-staff">'
+              + (canEdit ? '<button type="button" class="bd-edit" data-edit="' + pid + '">수정</button>' : '')
+              + (canDel ? '<button type="button" class="bd-del" data-del="' + pid + '">삭제</button>' : '')
+              + '</div>' : '')
           + '</div>';
       }).join('');
       var btns = el.querySelectorAll('.bd-row');
@@ -142,13 +146,23 @@
           this.setAttribute('aria-expanded', open ? 'false' : 'true');
         });
       }
-      if (canEdit){
+      if (canEdit || canDel){
+        var pick = function(id){
+          for (var m = 0; m < list.length; m++){ if (list[m].id === id) return list[m]; }
+          return null;
+        };
         var ebtns = el.querySelectorAll('.bd-edit');
         for (var k = 0; k < ebtns.length; k++){
           ebtns[k].addEventListener('click', function(){
-            var id = this.getAttribute('data-edit'), post = null;
-            for (var m = 0; m < list.length; m++){ if (list[m].id === id){ post = list[m]; break; } }
+            var post = pick(this.getAttribute('data-edit'));
             if (post) opt.onEdit(post, this);
+          });
+        }
+        var dbtns = el.querySelectorAll('.bd-del');
+        for (var d = 0; d < dbtns.length; d++){
+          dbtns[d].addEventListener('click', function(){
+            var post = pick(this.getAttribute('data-del'));
+            if (post) opt.onDelete(post, this);
           });
         }
       }
