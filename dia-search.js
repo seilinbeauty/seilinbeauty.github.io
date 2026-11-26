@@ -26,6 +26,10 @@
     'beauty': ['뷰티'],
     'beuty': ['뷰티'],
     'beu': ['뷰'],
+    'ty': ['티'],
+    'beu_ty': ['뷰티'],
+    'beu_ty_j': ['뷰티제이'],
+    'beutyj': ['뷰티제이'],
     '6eauty': ['뷰티'],
     'brow': ['브로우', '부로우'],
     'brows': ['브로우즈', '브로우'],
@@ -233,6 +237,8 @@
     var out = [];
     // 구분자(_, ., /, 공백)로 쪼개진 토큰 + 붙어있는 긴 토큰 모두 처리
     var tokens = s.split(/[^a-z0-9]+/).filter(Boolean);
+    var joined = s.replace(/[^a-z0-9]+/g, '');
+    if(joined && tokens.length > 1) tokens.push(joined);
     var fullJoined = [];
     tokens.forEach(function(tok){
       var parts = [];
