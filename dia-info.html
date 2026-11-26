@@ -5173,7 +5173,369 @@ document.addEventListener('DOMContentLoaded', function(){
                   + '<div class="nt-card-b">' + esc(p.body) + '</div></div>';
               }).join('');
             }
-            // 창고(V) 날짜별 값 + 파이어스토어(W) 값을 날짜로 합친다 — 같은 날은 큰 값(파이어스토어가 이어받음)
+            function draw(){
+              if(!window.DiaBoard || !DiaBoard.load){ listEl.innerHTML = '<div class="nt-empty">게시판을 불러오지 못했습니다.</div>'; return; }
+              DiaBoard.load(true).then(render, render);
+            }
+            window.diaNoticeAdminReload = draw;
+            if(btn) btn.addEventListener('click', function(){
+              var title = (tEl && tEl.value || '').trim();
+              var body = (bEl && bEl.value || '').trim();
+              if(!title){ say('제목을 입력해 주세요.', false); if(tEl) tEl.focus(); return; }
+              if(!body){ say('내용을 입력해 주세요.', false); if(bEl) bEl.focus(); return; }
+              if(!window.DiaFB || !DiaFB.addBoardPost){ say('게시판을 불러오지 못했습니다.', false); return; }
+              btn.disabled = true;
+              say('올리는 중…', true);
+              DiaFB.addBoardPost({ title: title, body: body }).then(function(res){
+                btn.disabled = false;
+                if(res && res.ok){
+                  if(tEl) tEl.value = '';
+                  if(bEl) bEl.value = '';
+                  say('알림장에 올렸습니다.', true);
+                  draw();
+                } else {
+                  say(res && res.error === 'bad_pin' ? '게시 실패 — 파이어베이스 보안 규칙 게시가 필요한 상태입니다.' : '게시하지 못했습니다. 잠시 후 다시 시도해 주세요.', false);
+                }
+              });
+            });
+            listEl.addEventListener('click', function(e){
+              var b = e.target && e.target.closest ? e.target.closest('[data-del]') : null;
+              if(!b) return;
+              var id = b.getAttribute('data-del');
+              var item = null;
+              var all = (window.DiaBoard && DiaBoard.all) ? (DiaBoard.all() || []) : [];
+              for(var i = 0; i < all.length; i++){ if(all[i].id === id){ item = all[i]; break; } }
+              if(!item) return;
+              if(!window.confirm('이 글을 지울까요? 지운 글은 되돌릴 수 없습니다.')) return;
+              if(!window.DiaFB || !DiaFB.delBoardPost){ say('지우지 못했습니다.', false); return; }
+              b.disabled = true;
+              DiaFB.delBoardPost(item).then(function(res){
+                if(res && res.ok){ say('글을 지웠습니다.', true); draw(); }
+                else { b.disabled = false; say(res && res.error === 'bad_pin' ? '지우기 실패 — 파이어베이스 보안 규칙 게시가 필요한 상태입니다.' : '지우지 못했습니다. 잠시 후 다시 시도해 주세요.', false); }
+              });
+            });
+            window.addEventListener('load', function(){ draw(); });
+          })();
+          </script>
+          
+          <script>
+          (function(){
+            var FB = 'https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/';
+            var KEY = 'AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY';
+            var PW = '0423';
+            var listEl = document.getElementById('reqList');
+            var badgeEl = document.getElementById('opsReqBadge');
+            function str(x){ return { stringValue: String(x || '') }; }
+            function docName(coll, id){ return 'projects/seilindia/databases/(default)/documents/' + coll + '/' + String(id); }
+            function decode(doc){
+              if(!doc || !doc.fields) return null;
+              var o = {}, f = doc.fields;
+              for(var k in f){
+                if(f[k].stringValue !== undefined) o[k] = f[k].stringValue;
+                else if(f[k].timestampValue !== undefined) o[k] = f[k].timestampValue;
+              }
+              o._id = String(doc.name || '').split('/').pop();
+              return o;
+            }
+            function esc(s){ return String(s||'').replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+            function fb(path, body, method){
+              var opt = { method: method || 'POST', cache: 'no-store' };
+              if(body !== undefined){ opt.headers = { 'Content-Type': 'application/json' }; opt.body = JSON.stringify(body); }
+              return fetch(FB + path + (path.indexOf('?') > -1 ? '&' : '?') + 'key=' + KEY, opt).then(function(r){
+                if(!r.ok) throw new Error('fb ' + r.status);
+                return r.json();
+              });
+            }
+            function loadReqs(){
+              Promise.all([
+                fb('documents/course_requests?pageSize=100', undefined, 'GET'),
+                fb('documents/courses?pageSize=100', undefined, 'GET').catch(function(){ return { documents: [] }; })
+              ]).then(function(res){
+                var d = res[0], cd = res[1];
+                var rows = (d && d.documents ? d.documents : []).map(decode).filter(Boolean);
+                var curList = (cd && cd.documents ? cd.documents : []).map(decode).filter(Boolean);
+                var curMap = {};
+                curList.forEach(function(c){
+                  if(c.id) curMap['id:' + c.id] = c;
+                  if(c._id) curMap['id:' + c._id] = c;
+                  if(c.insta) curMap['ig:' + String(c.insta).toLowerCase()] = c;
+                  if(c.shop) curMap['sh:' + String(c.shop)] = c;
+                });
+                rows.sort(function(a, b){
+                  if(a.status === 'pending' && b.status !== 'pending') return -1;
+                  if(a.status !== 'pending' && b.status === 'pending') return 1;
+                  return String(b.updatedAt || '').localeCompare(String(a.updatedAt || ''));
+                });
+                var pend = rows.filter(function(r){ return r.status === 'pending'; }).length;
+                if(badgeEl){
+                  badgeEl.textContent = String(pend);
+                  badgeEl.style.display = pend > 0 ? 'inline-block' : 'none';
+                }
+                if(!listEl) return;
+                if(!rows.length){ listEl.innerHTML = '<div class="req-empty">들어온 수강 검토 요청이 없습니다.</div>'; return; }
+                listEl.innerHTML = '';
+                var FIELDS = [
+                  ['name', '상호명'], ['insta', '인스타'], ['region', '지역'], ['cat', '수강 분야'],
+                  ['benefit', '다이아 혜택'], ['intro', '소개'],
+                  ['insta_url', '인스타 링크'], ['naver_url', '네이버 지도'], ['home_url', '홈페이지']
+                ];
+                rows.forEach(function(r){
+                  var cur = curMap['id:' + (r.id || r._id)] || (r.insta && curMap['ig:' + String(r.insta).toLowerCase()]) || (r.shop && curMap['sh:' + String(r.shop)]) || null;
+                  if(cur && cur.intro === '__DELETED__') cur = null;
+                  var card = document.createElement('div');
+                  card.className = 'req-card';
+                  var stLabel = r.status === 'pending' ? (r.action === 'hide' ? '내리기 대기' : (cur ? '수정 검토 대기' : '신규 등록 대기')) : (r.status === 'approved' ? '승인됨' : '반려됨');
+                  var stCls = r.status === 'pending' ? '' : (r.status === 'approved' ? ' is-ok' : ' is-no');
+                  var bodyHtml = '';
+                  if(r.action === 'hide'){
+                    bodyHtml = '<div class="req-diff"><b>요청:</b> 뷰티수강 목록에서 내리기</div>';
+                  } else if(cur && r.status === 'pending'){
+                    var diffs = [], same = [];
+                    FIELDS.forEach(function(fp){
+                      var k = fp[0], lb = fp[1];
+                      var ov = String(cur[k] || '').trim(), nv = String(r[k] || '').trim();
+                      if(ov !== nv){
+                        diffs.push('<div class="req-diff"><b>' + lb + ' 변경:</b> ' + (ov ? '<span class="req-old">' + esc(ov) + '</span> → ' : '') + '<span class="req-new">' + esc(nv || '(비움)') + '</span></div>');
+                      } else if(nv){
+                        same.push('<b>' + lb + ':</b> ' + esc(nv));
+                      }
+                    });
+                    bodyHtml = (diffs.length ? diffs.join('') : '<div style="color:#9a8a90;">변경된 항목이 없습니다.</div>') +
+                      (same.length ? '<div style="margin-top:6px;color:#8a7b81;">' + same.join('<br>') + '</div>' : '');
+                  } else {
+                    bodyHtml =
+                      '<b>지역·분야:</b> ' + esc(r.region || '-') + ' · ' + esc(r.cat || '-') + '<br>' +
+                      (r.benefit ? '<b>다이아 혜택:</b> ' + esc(r.benefit) + '<br>' : '') +
+                      '<b>소개:</b> ' + esc(r.intro || '-') + '<br>' +
+                      '<b>링크:</b> ' + ([r.insta_url, r.naver_url, r.home_url].filter(Boolean).map(esc).join(' / ') || '-');
+                  }
+                  card.innerHTML =
+                    '<div class="req-top"><div class="req-who">' + esc(r.name || r.shop) + ' <small style="font-weight:700;color:#a9808d;">(' + esc(r.shop) + (r.insta ? ' · @' + esc(r.insta) : '') + ')</small></div>' +
+                    '<span class="req-tag' + stCls + '">' + stLabel + '</span></div>' +
+                    '<div class="req-meta">' + bodyHtml + '</div>';
+                  if(r.status === 'pending'){
+                    var acts = document.createElement('div'); acts.className = 'req-acts';
+                    var okBtn = document.createElement('button'); okBtn.className = 'req-btn req-btn-ok'; okBtn.textContent = '승인하고 바로 반영';
+                    var noBtn = document.createElement('button'); noBtn.className = 'req-btn req-btn-no'; noBtn.textContent = '반려';
+                    okBtn.addEventListener('click', function(){ decide(r, 'approved', okBtn, noBtn); });
+                    noBtn.addEventListener('click', function(){ decide(r, 'rejected', okBtn, noBtn); });
+                    acts.appendChild(okBtn); acts.appendChild(noBtn);
+                    card.appendChild(acts);
+                  }
+                  listEl.appendChild(card);
+                });
+              }).catch(function(){ if(listEl) listEl.innerHTML = '<div class="req-empty">불러오지 못했습니다.</div>'; });
+            }
+            function decide(r, nextStatus, b1, b2){
+              b1.disabled = true; b2.disabled = true;
+              var cid = r.id || r._id;
+              var chkId = 'stf_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+              var writes = [
+                {
+                  update: { name: docName('checks', chkId), fields: { op: str('staff'), id: str(cid), pw: str(PW) } },
+                  currentDocument: { exists: false }
+                },
+                {
+                  update: {
+                    name: docName('course_requests', cid),
+                    fields: {
+                      id: str(cid), shop: str(r.shop), status: str(nextStatus), action: str(r.action || 'save'),
+                      name: str(r.name), insta: str(r.insta), region: str(r.region), cat: str(r.cat),
+                      insta_url: str(r.insta_url), naver_url: str(r.naver_url), home_url: str(r.home_url),
+                      benefit: str(r.benefit), intro: str(r.intro), chk: str(chkId)
+                    }
+                  },
+                  updateTransforms: [{ fieldPath: 'updatedAt', setToServerValue: 'REQUEST_TIME' }]
+                }
+              ];
+              if(nextStatus === 'approved'){
+                writes.push({
+                  update: {
+                    name: docName('courses', cid),
+                    fields: {
+                      id: str(cid), shop: str(r.shop), name: str(r.name), insta: str(r.insta),
+                      region: str(r.region), cat: str(r.cat), insta_url: str(r.insta_url),
+                      naver_url: str(r.naver_url), home_url: str(r.home_url), benefit: str(r.benefit),
+                      intro: str(r.action === 'hide' ? '__DELETED__' : r.intro), chk: str(chkId)
+                    }
+                  },
+                  updateTransforms: [{ fieldPath: 'updatedAt', setToServerValue: 'REQUEST_TIME' }]
+                });
+              }
+              fb('documents:commit', { writes: writes }).then(function(){
+                fb('documents/checks/' + encodeURIComponent(chkId), undefined, 'DELETE').catch(function(){});
+                loadReqs();
+              }).catch(function(){
+                b1.disabled = false; b2.disabled = false;
+                alert('처리에 실패했습니다. 잠시 뒤 다시 눌러 주세요.');
+              });
+            }
+            var rf = document.getElementById('reqRefresh');
+            if(rf) rf.addEventListener('click', loadReqs);
+            window.diaCourseReqReload = loadReqs;
+            loadReqs();
+          })();
+          </script>
+
+        </div>
+      </div>
+      <a href="dia.html" class="back-link">← 홈으로 돌아가기</a>
+    </div>
+  </section>
+
+<script>
+(function(){
+  var KEY = atob('MDAwMA==');
+  document.addEventListener('click', function(e){
+    var el = e.target.closest('.dl-lock');
+    if(!el) return;
+    e.preventDefault();
+    var v = window.prompt('내려받기 비밀번호를 입력해 주세요.');
+    if(v === null) return;
+    if(v.trim() === KEY){
+      var href = el.getAttribute('href');
+      if(el.getAttribute('data-mode') === 'view'){
+        window.open(href, '_blank');
+      } else {
+        var a = document.createElement('a');
+        a.href = href; a.download = '';
+        document.body.appendChild(a); a.click(); a.remove();
+      }
+    } else {
+      alert('비밀번호가 맞지 않습니다.');
+    }
+  });
+})();
+</script>
+<div id="ops-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(40,25,32,.42);padding:24px;box-sizing:border-box;">
+  <div style="max-width:520px;margin:8vh auto 0;background:#fff;border-radius:18px;max-height:74vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 50px rgba(80,40,55,.25);">
+    <div style="display:flex;align-items:center;gap:10px;padding:16px 18px 12px;border-bottom:1px solid #f4e8ec;">
+      <div id="ops-modal-t" style="font-size:15.5px;font-weight:800;color:#3c2b31;">목록</div>
+      <button id="ops-modal-x" type="button" style="margin-left:auto;border:0;background:#f8eef1;color:#a9808d;width:26px;height:26px;border-radius:999px;font-size:14px;font-weight:800;cursor:pointer;">×</button>
+    </div>
+    <div id="ops-modal-b" style="padding:8px 18px 16px;overflow:auto;"></div>
+  </div>
+</div>
+<script>
+(function(){
+  var DATA = {"part": [["nail_jiand", 10], ["_eye.bari_", 8], ["star___beauty_", 7], ["year.seoul", 7], ["nailming_", 6], ["_soybrow", 6], ["long_bou_tique속눈썹", 6], ["beu_ty_j", 5], ["domely_beauty", 5], ["seilin_beauty.chu", 5], ["nailneedu", 4], ["beautyellido_nail", 4], ["153_beautynail", 3], ["line__novar", 3], ["monde6eauty", 3], ["lash_yeogi", 3], ["llenar._.waxing", 3], ["deepin_row", 3], ["soie.studios", 3], ["_brown.brow", 3], ["bella_.brow", 3], ["hbbeauty_official", 3], ["jio_ink", 3], ["a.__muse", 3], ["llenar._ waxing", 3], ["brow_n.me", 2], ["yoony_salon", 2], ["j.myu_", 2], ["jvelynail", 2], ["haute_ob", 2], ["j.__reve", 2], ["nail_leego", 2], ["nue.atelier_", 2], ["studio__yale", 2], ["brow.uu", 2], ["m_beauty_ink", 2], ["dareuming.beauty", 2], ["idreamiin", 2], ["andbeauty__", 2], ["brow_luin", 2], ["Iumi_point_", 2], [" 본점", 1], ["n.b._.lash", 1], ["binsbrow_", 1], ["lash_n_plan", 1], ["once_lash", 1], ["_clover_lash", 1], ["lodeur_aesthetic", 1], ["sina.br__", 1], ["STAFF", 0], ["lusom_beauty", 0], ["bonnie_extension", 0], ["leeji_nail", 0], ["onii.day_", 0], ["sio_lashhh", 0], ["yoonbrow__", 0], ["youux153", 0], ["lumi_point_", 0], ["_.b_x_b._", 0], ["moon_lash.beauty", 0], ["studio_2um", 0], ["le.belle_lash", 0], ["lloveenaill", 0], ["n.de_nuel", 0], [" myua.brow", 0], ["@eveof_studio", 0], ["5wol_lash", 0], ["beau_onne", 0], ["beauty_days2", 0], ["dyeon.seoul", 0], ["lehee.studio", 0], ["nanabella_l", 0], ["hion_lash_", 0], ["ㅇ", 0], ["nailndd", 0], ["browchaeum_", 0], ["browe____", 0], ["eye_min", 0], ["uni.salon", 0], ["pium.au", 0], ["yuha.lip", 0], ["reby_beauty_", 0], ["💙0601뷰티한나", 0], ["ddumi_nail", 0], ["dene.studio", 0], ["mellow._.beau", 0], ["nail_n_plan", 0], ["once_brow", 0], ["mini___brow", 0], ["eyelight_뷰티", 0], [" beauty.develo", 0], [" m__jbrow", 0], ["isooroom", 0], ["kyma_pmu", 0], ["나다움", 0], ["jineebrow", 0], ["💙0826merry.row ", 0], ["j.myu_lyn", 0], ["autumn_lash_\\속눈썹", 0], ["17 youux153", 0], ["hiino_lash", 0], ["dearmin_brow", 0], ["hagennabeauty", 0], ["_from.dear", 0], ["ur__lash", 0], ["인천", 0], ["studio__heeov", 0], ["narlash___", 0], ["onoa.brow", 0], ["jlee_beauty", 0], ["newjelly.kr", 0], [" hevbeauty_brow", 0], ["shubeㅣㅣㅁ", 0], ["wuv_lash", 0], ["an.u_scalp", 0], ["ssolbling_waxing", 0], ["oaru_lash", 0], ["wonz_day_", 0], ["rori__studio", 0], ["dalibom_studio", 0], ["D.cel_.nail", 0], ["black.city_brow", 0], ["_ella_beauty._", 0]], "pass": [["153_beautynail", 34], ["루솜", 4], ["뚜미네일", 1], ["로더에스테틱", 1], ["(몽드)", 1], ["브로우유", 1], ["빈스브로우", 1], ["소이브로우", 1], ["원스래쉬", 1], ["제이레브", 1], ["지오잉크", 1], ["브로우루인", 1], ["노바르", 1], ["아이바리", 1]], "miss": [["속눈썹", "지각 0회 · 미완료 3회", "16일, 17일, 20일"], ["_soybrow", "지각 0회 · 미완료 3회", "16일, 17일, 20일"], ["monde6eauty", "지각 1회 · 미완료 0회", "15일"], ["bella_.brow", "지각 1회 · 미완료 0회", "19일"], ["andbeauty__", "지각 1회 · 미완료 0회", "20일"], ["_eye.bari_", "지각 0회 · 미완료 2회", "16일, 20일"], ["beu_ty_j", "지각 0회 · 미완료 2회", "16일, 20일"], ["nail_jiand", "지각 0회 · 미완료 2회", "16일, 17일"], ["seilin_beauty.chu", "지각 0회 · 미완료 2회", "16일, 20일"], ["year.seoul", "지각 0회 · 미완료 2회", "16일, 17일"], ["long_bou_tique속눈썹", "지각 0회 · 미완료 2회", "16일, 20일"], ["nailneedu", "지각 0회 · 미완료 1회", "16일"], ["j.myu_", "지각 0회 · 미완료 1회", "16일"], ["domely_beauty", "지각 0회 · 미완료 1회", "16일"], ["hbbeauty_official", "지각 0회 · 미완료 1회", "16일"], ["nue.atelier_", "지각 0회 · 미완료 1회", "16일"], ["studio__yale", "지각 0회 · 미완료 1회", "16일"], ["jio_ink", "지각 0회 · 미완료 1회", "16일"], ["beautyellido_nail", "지각 0회 · 미완료 1회", "16일"], ["binsbrow_", "지각 0회 · 미완료 1회", "17일"], ["nailming_", "지각 0회 · 미완료 1회", "17일"], ["a.__muse", "지각 0회 · 미완료 1회", "17일"], ["haute_ob", "지각 0회 · 미완료 1회", "19일"], ["yoony_salon", "지각 0회 · 미완료 1회", "20일"], ["_brown.brow", "지각 0회 · 미완료 1회", "20일"], ["j.__reve", "지각 0회 · 미완료 1회", "20일"], ["nail_leego", "지각 0회 · 미완료 1회", "20일"], ["dareuming.beauty", "지각 0회 · 미완료 1회", "20일"], ["idreamiin", "지각 0회 · 미완료 1회", "20일"], ["lodeur_aesthetic", "지각 0회 · 미완료 1회", "20일"]], "never": [["경기/bonnie_extension/", "26.04.04 입장 · 226일"], ["경기/sio_lashhh/속눈썹", "26.03.24 입장 · 237일"], ["경기/yoonbrow__/속눈썹", "26.10.11 입장 · 36일"], ["대전/_.b_x_b._/반영구", "26.10.11 입장 · 36일"], ["부산/lloveenaill/네일", "26.06.28 입장 · 141일"], ["부산/n.de_nuel/네일", "26.04.06 입장 · 224일"], ["울산/nailndd/네일", "26.04.28 입장 · 202일"], ["인천/browchaeum_/반영구", "25.11.10 입장 · 371일"], ["인천/browe____/반영구", "26.04.24 입장 · 206일"], ["인천/eye_min/반영구", "25.11.21 입장 · 360일"], ["호주/pium.au/속눈썹", "26.05.02 입장 · 198일"]], "monthly_new": [["전북/long_bou_tique속눈썹", "11-02 입장"], ["서울/lehee.studio/속눈썹", "11-11 입장"], ["서울/beauty_days2/속눈썹", "11-11 입장"], ["서울/D.cel_.nail/네일.속펌", "11-11 입장"], ["경기/hedini_studio_", "11-12 입장"], ["경기/black.city_brow", "11-12 입장"], ["춘천/_brow.name/반영구", "11-13 입장"], ["소영", "11-13 입장"], ["서울/mubit_brow/반영구", "11-15 입장"], ["부산/_newnoon_/속눈썹", "11-16 입장"], ["창고 신규 입장 #1 (닉네임 확인 중)", "11-17 입장"], ["창고 신규 입장 #2 (닉네임 확인 중)", "11-17 입장"], ["수원/hion_lash_/속눈썹", "11-19 입장"]]};
+  var T = {'part':'11월 누적 참여','pass':'완료패스 보유','miss':'정시 완료 · 까먹은 사람','never':'신규 원장님','monthly_new':'이번 달 신규 원장님'};
+  var modal = document.getElementById('ops-modal');
+  var tb = document.getElementById('ops-modal-b');
+  var tt = document.getElementById('ops-modal-t');
+  function 닫기(){ modal.style.display = 'none'; }
+  function 열기(키){
+    var 목록 = DATA[키] || [];
+    tt.textContent = T[키] || '목록';
+    var html = '';
+    if(!목록.length){ html = '<div style="padding:22px 0;text-align:center;font-size:12.5px;color:#b9a9af;">기록이 없습니다.</div>'; }
+    for (var i = 0; i < 목록.length; i++){
+      var r = 목록[i];
+      if(키 === 'part'){
+        if(!r[1]) continue;
+        html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #faf3f5;">'
+          + '<span style="flex:0 0 30px;font-size:12px;color:#c9b3bb;font-weight:800;">' + (i+1) + '위</span>'
+          + '<span style="flex:1 1 auto;font-size:13px;color:#4a3941;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + r[0] + '</span>'
+          + '<span style="font-size:13px;font-weight:800;color:#c2456a;">' + r[1] + '회</span></div>';
+      } else if(키 === 'pass'){
+        html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #faf3f5;">'
+          + '<span style="flex:0 0 30px;font-size:12px;color:#c9b3bb;font-weight:800;">' + (i+1) + '위</span>'
+          + '<span style="flex:1 1 auto;font-size:13px;color:#4a3941;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + r[0] + '</span>'
+          + '<span style="font-size:13px;font-weight:800;color:#c2456a;">' + r[1] + '장</span></div>';
+      } else if(키 === 'never' || 키 === 'monthly_new'){
+        html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #faf3f5;">'
+          + '<span style="flex:0 0 26px;font-size:12px;color:#c9b3bb;font-weight:800;">' + (i+1) + '</span>'
+          + '<span style="flex:1 1 auto;font-size:13px;color:#4a3941;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + r[0] + '</span>'
+          + '<span style="font-size:12px;font-weight:700;color:#b35172;">' + r[1] + '</span></div>';
+      } else {
+        html += '<div style="padding:8px 0;border-bottom:1px solid #faf3f5;">'
+          + '<div style="display:flex;align-items:center;gap:8px;">'
+          + '<span style="flex:1 1 auto;font-size:13px;color:#4a3941;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + r[0] + '</span>'
+          + '<span style="font-size:11.5px;font-weight:700;color:#b35172;">' + r[1] + '</span></div>'
+          + '<div style="font-size:10.5px;color:#c3adb6;margin-top:2px;">' + r[2] + '</div></div>';
+      }
+    }
+    tb.innerHTML = html;
+    modal.style.display = 'block';
+  }
+  document.getElementById('ops-modal-x').addEventListener('click', 닫기);
+  modal.addEventListener('click', function(e){ if(e.target === modal) 닫기(); });
+  document.addEventListener('click', function(e){
+    var el = e.target.closest && e.target.closest('.ops-kpi-card[data-more]');
+    if(!el) return;
+    var 키 = el.getAttribute('data-more');
+    if(키 === 'members'){
+      var 탭 = document.querySelector('.ops-nav-item[data-nav="ops-members"]');
+      if(탭) 탭.click();
+      return;
+    }
+    열기(키);
+  });
+})();
+</script>
+<script>
+(function(){
+  document.addEventListener('click', function(e){
+    var el = e.target.closest && e.target.closest('#ops-rank-side [data-q]');
+    if(!el) return;
+    var q = el.getAttribute('data-q') || '';
+    var 탭 = document.querySelector('.ops-nav-item[data-nav="ops-members"]');
+    if(탭) 탭.click();
+    var 입력 = document.getElementById('mem-q');
+    if(입력){ 입력.value = q; 입력.dispatchEvent(new Event('input', {bubbles:true})); }
+  });
+})();
+</script><script>
+(function(){
+  var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
+  var V = {}, W = null, G = null;
+  function n(x){ x = Number(x) || 0; return x.toLocaleString('ko-KR'); }
+  function put(id, val, unit){ var el = document.getElementById(id); if(el){ el.innerHTML = n(val) + '<small>' + (unit || '명') + '</small>'; } }
+  function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function 회원방문(mc){
+    var tbody = document.getElementById('mem-body');
+    if(!tbody) return;
+    var trs = tbody.querySelectorAll('tr');
+    for(var i = 0; i < trs.length; i++){
+      var tr = trs[i];
+      var cell = tr.querySelector('.c-visit');
+      if(!cell) continue;
+      var c = Number(mc[tr.getAttribute('data-nick') || '']) || 0;
+      cell.textContent = c ? (c + '회') : '-';
+      cell.setAttribute('data-v', c ? '1' : '0');
+    }
+  }
+  function 방문원장(list){
+    var el = document.getElementById('visit-members');
+    if(!el) return;
+    if(!list || !list.length){ el.style.display = 'none'; el.innerHTML = ''; return; }
+    el.innerHTML = '<b>확인된 방문 원장님</b> ' + list.map(esc).join(' · ');
+    el.style.display = '';
+  }
+  function 접속중(online){
+    if(!online) return;
+    var t = document.getElementById('on-total'), d = document.getElementById('on-dia'), a = document.getElementById('on-aca'), k = document.getElementById('on-prk');
+    if(t) t.textContent = n(online.total);
+    if(d) d.textContent = n(online.dia);
+    if(a) a.textContent = n(online.academy);
+    if(k) k.textContent = n(online.parking);
+  }
+  function 표그리기(box, rows, pick){
+    if(!box) return;
+    if(!rows || !rows.length){ box.innerHTML = ''; return; }
+    function pair(a, v){
+      if(a === undefined && v === undefined) return '-';
+      return n(a) + ' / ' + n(v);
+    }
+    var html = '<table class="ops-visit-tb"><thead><tr><th>날짜</th><th>다이아 명·조회수</th><th class="aca-h">아카데미 명·조회수</th><th class="prk-h">주차 명·조회수</th></tr></thead><tbody>';
+    for(var i = 0; i < rows.length; i++){
+      var it = rows[i], mm = String(it.date || '').slice(5);
+      var d = pick(it, 'dia'), a = pick(it, 'academy'), k = pick(it, 'parking');
+      html += '<tr><td>' + mm + '</td><td>' + pair(d.p, d.v) + '</td><td>' + pair(a.p, a.v) + '</td><td>' + pair(k.p, k.v) + '</td></tr>';
+    }
+    box.innerHTML = html + '</tbody></table>';
+  }
+  // 창고(V) 날짜별 값과 파이어스토어(W) 값을 날짜로 합친다 — 같은 날은 큰 값을 쓴다(파이어스토어가 이어받음)
   function 날짜합치기(){
     var by = {}, order = [];
     function putD(date){
@@ -5195,7 +5557,7 @@ document.addEventListener('DOMContentLoaded', function(){
       r.academy = { p: Math.max(ca.p || 0, d.acaU || 0), v: Math.max(ca.v || 0, d.aca || 0) };
       if(!r.parking) r.parking = {};
     });
-    order.sort(function(a, b){ return a < b ? 1 : (a > b ? -1 : 0); });
+    order.sort(function(a1, b1){ return a1 < b1 ? 1 : (a1 > b1 ? -1 : 0); });
     return order.map(function(k){ return by[k]; });
   }
   function draw(rows){
@@ -5205,7 +5567,7 @@ document.addEventListener('DOMContentLoaded', function(){
       return { p: (x.visitors !== undefined ? x.visitors : x.p), v: (x.views !== undefined ? x.views : x.v) };
     });
   }
-  // 오늘·7일 숫자 — 파이어스토어 값 우선, 지난 날짜는 창고 값과 합쳐서 보여 준다
+  // 오늘·7일 숫자 — 파이어스토어 값을 우선하고 지난 날짜는 창고 값과 합쳐 보여 준다
   function 방문그리기(){
     var rows = 날짜합치기();
     var today = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
