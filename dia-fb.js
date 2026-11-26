@@ -862,10 +862,36 @@
       return { ok: false, error: errOf(e) };
     });
   }
+  // 글 고치기 (스태프) — 제목·본문만 바꾸고 글 번호·올린 날짜·시각은 그대로 둔다.
+  // 확인용 문서는 글의 chkDel 번호로 만들고, 끝나면 바로 지운다(보안 규칙의 chkStaff 와 같은 방식).
+  function editBoardPost(item, o){
+    if(!item || !item.id) return Promise.resolve({ ok: false });
+    var cid = item.chkDel || rid('bp_');
+    var w = patchDoc('board_posts', item.id, {
+      title: String((o && o.title) || '').slice(0, 120),
+      body: String((o && o.body) || '').slice(0, 5000),
+      date: String(item.date || kstDay()).slice(0, 10)
+    }, ['title', 'body', 'date']);
+    function save(){
+      var chk = createDoc('checks', cid, { op: 'staff', id: item.id, pw: STAFF_PW });
+      return commit([chk, w]).then(function(){
+        tidy('checks', cid);
+        return { ok: true };
+      }, function(e){
+        tidy('checks', cid);
+        return { ok: false, error: errOf(e), code: (e && e.status) || 0 };
+      });
+    }
+    return save().then(function(r){
+      // 앞선 시도가 남긴 확인용 문서가 있으면 한 번 지우고 다시 저장한다
+      if(r.ok || r.code !== 409) return r;
+      return req('documents/checks/' + encodeURIComponent(cid), null, 'DELETE').then(save, save);
+    });
+  }
 
   window.DiaFB = {
     day: day, add: add, edit: edit, del: del, staffDel: staffDel,
-    addBoardPost: addBoardPost, delBoardPost: delBoardPost,
+    addBoardPost: addBoardPost, editBoardPost: editBoardPost, delBoardPost: delBoardPost,
     ensurePin: ensurePin, setPin: setPin, safeId: safeId, stat: stat, kstDay: kstDay,
     linkId: linkId, keyOf: keyOf, STAFF_PW: STAFF_PW,
     getMeta: getMeta, saveMeta: saveMeta,

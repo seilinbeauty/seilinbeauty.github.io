@@ -2221,21 +2221,131 @@
               .bd-tt{font-size:12.5px;white-space:normal;word-break:keep-all;}
               .bd-dt{font-size:10.5px;text-align:left;grid-column:1 / -1;}
               .bd-body{padding:0 13px 12px;}
+              .bd-staff{padding:0 13px 9px;margin-top:-2px;}
+              .bd-ed-b{min-height:120px;}
             }
+            /* 스태프(운영 센터 비밀번호)로 들어왔을 때만 보이는 고치기 도구 */
+            .bd-tools{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin:0 0 8px;}
+            .bd-tool{padding:6px 12px;border:1px solid #f0d7e0;border-radius:999px;background:#fff;color:#b35172;
+              font-size:11.5px;font-weight:800;font-family:inherit;cursor:pointer;}
+            .bd-tool:hover{background:#fdeef3;border-color:#eab6c6;}
+            .bd-tool.is-on{background:#fdeef3;border-color:#eab6c6;}
+            .bd-staff{display:flex;justify-content:flex-end;padding:0 16px 8px 60px;margin-top:-4px;}
+            .bd-edit{padding:4px 11px;border:1px solid #f0d7e0;border-radius:999px;background:#fff;color:#b35172;
+              font-size:11px;font-weight:800;font-family:inherit;cursor:pointer;}
+            .bd-edit:hover{background:#fdeef3;border-color:#eab6c6;}
+            .bd-ed{display:flex;flex-direction:column;gap:8px;padding:4px 0 2px;}
+            .bd-ed-t,.bd-ed-b{width:100%;box-sizing:border-box;border:1px solid #ecd8df;border-radius:10px;padding:9px 11px;
+              font-family:inherit;font-size:12.5px;color:#33262a;background:#fff;}
+            .bd-ed-t:focus,.bd-ed-b:focus{outline:none;border-color:#e49db3;}
+            .bd-ed-b{min-height:130px;line-height:1.7;resize:vertical;}
+            .bd-ed-acts{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+            .bd-ed-save{padding:7px 16px;border:0;border-radius:8px;background:#d55576;color:#fff;
+              font-size:12px;font-weight:800;font-family:inherit;cursor:pointer;}
+            .bd-ed-save:disabled{opacity:.5;cursor:default;}
+            .bd-ed-cancel{padding:7px 14px;border:1px solid #f0d7e0;border-radius:8px;background:#fff;color:#a9778a;
+              font-size:12px;font-weight:800;font-family:inherit;cursor:pointer;}
+            .bd-ed-msg{font-size:11.5px;font-weight:700;color:#c2456a;}
           </style>
+          <div class="bd-tools" id="bdTools" hidden>
+            <button type="button" class="bd-tool" id="bdStaffBtn">✏️ 스태프</button>
+          </div>
           <div class="bd-wrap">
             <div class="bd-head"><span>번호</span><span>제목</span><span style="text-align:right;">날짜</span></div>
             <div id="bdList"><div class="bd-empty">불러오는 중…</div></div>
           </div>
           <div class="bd-pager" id="bdPager"></div>
-          <script src="dia-board.js?v=3"></script>
+          <script src="dia-fb.js?v=16"></script>
+          <script src="dia-board.js?v=4"></script>
           <script>
           (function(){
-            function draw(){
-              if(!window.DiaBoard){ document.getElementById('bdList').innerHTML = '<div class="bd-empty">목록을 불러오지 못했습니다.</div>'; return; }
-              DiaBoard.renderBoard(document.getElementById('bdList'), document.getElementById('bdPager'), 1);
+            var OK_KEY = 'dia_ops_ok', EXP_KEY = 'dia_ops_exp';
+            var listEl = document.getElementById('bdList');
+            var toolsEl = document.getElementById('bdTools');
+            var btnEl = document.getElementById('bdStaffBtn');
+            if(!listEl) return;
+            function 비번(){ return (window.DiaFB && DiaFB.STAFF_PW) || '0423'; }
+            function 스태프(){
+              try{
+                return localStorage.getItem(OK_KEY) === 비번()
+                  && Number(localStorage.getItem(EXP_KEY) || 0) > Date.now();
+              }catch(e){ return false; }
             }
-            draw();
+            function 잠금(){
+              try{ localStorage.removeItem(OK_KEY); localStorage.removeItem(EXP_KEY); }catch(e){}
+            }
+            function 그리기(){
+              if(toolsEl) toolsEl.hidden = false;
+              var on = 스태프();
+              if(btnEl){
+                btnEl.textContent = on ? '🔒 잠그기' : '✏️ 스태프';
+                if(on) btnEl.classList.add('is-on'); else btnEl.classList.remove('is-on');
+              }
+              if(!window.DiaBoard){
+                listEl.innerHTML = '<div class="bd-empty">목록을 불러오지 못했습니다.</div>';
+                return;
+              }
+              DiaBoard.renderBoard(listEl, document.getElementById('bdPager'), 1, on ? { onEdit: 고치기 } : null);
+            }
+            function 다시읽기(){ DiaBoard.load(true).then(그리기, 그리기); }
+
+            // 글 하나를 고치는 폼 — 그 글의 펼친 내용 자리에 넣는다
+            function 고치기(p, btn){
+              var item = btn && btn.closest ? btn.closest('.bd-item') : null;
+              var body = item ? item.querySelector('.bd-body') : null;
+              if(!body) return;
+              var esc = (window.DiaBoard && DiaBoard.esc) || function(s){ return String(s == null ? '' : s); };
+              body.hidden = false;
+              body.innerHTML = '<div class="bd-ed">'
+                + '<input class="bd-ed-t" type="text" maxlength="120" placeholder="제목" value="' + esc(p.title) + '">'
+                + '<textarea class="bd-ed-b" maxlength="5000" placeholder="내용을 입력해 주세요.">' + esc(p.body) + '</textarea>'
+                + '<div class="bd-ed-acts">'
+                + '<button type="button" class="bd-ed-save">저장</button>'
+                + '<button type="button" class="bd-ed-cancel">취소</button>'
+                + '<span class="bd-ed-msg"></span>'
+                + '</div></div>';
+              var tEl = body.querySelector('.bd-ed-t');
+              var bEl = body.querySelector('.bd-ed-b');
+              var msg = body.querySelector('.bd-ed-msg');
+              var saveBtn = body.querySelector('.bd-ed-save');
+              body.querySelector('.bd-ed-cancel').addEventListener('click', function(){ 다시읽기(); });
+              saveBtn.addEventListener('click', function(){
+                var t = (tEl.value || '').trim();
+                var b = (bEl.value || '').trim();
+                if(!t){ msg.textContent = '제목을 입력해 주세요.'; tEl.focus(); return; }
+                if(!b){ msg.textContent = '내용을 입력해 주세요.'; bEl.focus(); return; }
+                if(!window.DiaFB || !DiaFB.editBoardPost){ msg.textContent = '고치지 못했습니다.'; return; }
+                saveBtn.disabled = true;
+                msg.style.color = '#a98d97';
+                msg.textContent = '저장 중…';
+                DiaFB.editBoardPost(p, { title: t, body: b }).then(function(res){
+                  if(res && res.ok){
+                    msg.style.color = '#2f7d4c';
+                    msg.textContent = '저장했습니다.';
+                    setTimeout(다시읽기, 400);
+                    return;
+                  }
+                  saveBtn.disabled = false;
+                  msg.style.color = '#c2456a';
+                  msg.textContent = (res && res.error === 'bad_pin')
+                    ? '저장 실패 — 파이어베이스 보안 규칙 게시가 필요한 상태입니다.'
+                    : '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.';
+                });
+              });
+            }
+
+            if(btnEl) btnEl.addEventListener('click', function(){
+              if(스태프()){ 잠금(); 그리기(); return; }
+              var v = window.prompt('운영 센터 비밀번호를 입력해 주세요.');
+              if(v === null) return;
+              if(v.trim() !== 비번()){ alert('비밀번호가 맞지 않습니다.'); return; }
+              try{
+                localStorage.setItem(OK_KEY, 비번());
+                localStorage.setItem(EXP_KEY, String(Date.now() + 3600000));
+              }catch(e){}
+              다시읽기();
+            });
+            그리기();
           })();
           </script>
         </div>

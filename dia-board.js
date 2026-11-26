@@ -99,13 +99,15 @@
   }
 
   // 게시판 페이지 — 10줄씩, 줄을 누르면 내용이 그 자리에서 펼쳐집니다.
-  function renderBoard(el, pager, page){
+  // opt.onEdit(글, 버튼) 을 넣으면 각 글 아래에 '수정' 버튼이 붙습니다(알림장 페이지의 스태프 전용).
+  function renderBoard(el, pager, page, opt){
     if (!el) return;
     if (!loaded){
       el.innerHTML = '<div class="bd-empty">불러오는 중…</div>';
-      load().then(function(){ renderBoard(el, pager, page); });
+      load().then(function(){ renderBoard(el, pager, page, opt); });
       return;
     }
+    var canEdit = !!(opt && typeof opt.onEdit === 'function');
     var src = visible();
     var size = 10, total = src.length;
     var pages = Math.max(1, Math.ceil(total / size));
@@ -119,6 +121,7 @@
       el.innerHTML = list.map(function(p, i){
         var no = total - (start + i);
         var vid = 'bdBody_' + p.id.replace(/[^A-Za-z0-9_-]/g, '');
+        var pid = esc(p.id);
         return '<div class="bd-item">'
           + '<button type="button" class="bd-row" aria-expanded="false" data-body="' + vid + '">'
           + '<span class="bd-no">' + no + '</span>'
@@ -126,6 +129,7 @@
           + '<span class="bd-dt">' + esc(p.date) + '</span>'
           + '</button>'
           + '<div class="bd-body" id="' + vid + '" hidden><div class="bd-body-in">' + esc(p.body) + '</div></div>'
+          + (canEdit ? '<div class="bd-staff"><button type="button" class="bd-edit" data-edit="' + pid + '">수정</button></div>' : '')
           + '</div>';
       }).join('');
       var btns = el.querySelectorAll('.bd-row');
@@ -138,6 +142,16 @@
           this.setAttribute('aria-expanded', open ? 'false' : 'true');
         });
       }
+      if (canEdit){
+        var ebtns = el.querySelectorAll('.bd-edit');
+        for (var k = 0; k < ebtns.length; k++){
+          ebtns[k].addEventListener('click', function(){
+            var id = this.getAttribute('data-edit'), post = null;
+            for (var m = 0; m < list.length; m++){ if (list[m].id === id){ post = list[m]; break; } }
+            if (post) opt.onEdit(post, this);
+          });
+        }
+      }
     }
 
     if (pager){
@@ -149,7 +163,7 @@
       var pbtns = pager.querySelectorAll('.bd-pg');
       for (var j = 0; j < pbtns.length; j++){
         pbtns[j].addEventListener('click', function(){
-          renderBoard(el, pager, Number(this.getAttribute('data-pg')));
+          renderBoard(el, pager, Number(this.getAttribute('data-pg')), opt);
         });
       }
     }
