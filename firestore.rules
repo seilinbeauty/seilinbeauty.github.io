@@ -310,11 +310,14 @@ service cloud.firestore {
     // ── 일일 방문·접속 통계 (dia / aca / crs)
     match /analytics/{day} {
       allow read: if true;
-      allow create, update: if request.resource.data.keys().hasOnly(['dia','aca','crs','game','g_mem','g_react','g_lotto'])
+      allow create, update: if request.resource.data.keys().hasOnly(['dia','aca','crs','game','g_fortune','g_saju','g_tarot','g_mem','g_react','g_lotto'])
                             && (!('dia' in request.resource.data) || request.resource.data.dia is int)
                             && (!('aca' in request.resource.data) || request.resource.data.aca is int)
                             && (!('crs' in request.resource.data) || request.resource.data.crs is int)
                             && (!('game' in request.resource.data) || request.resource.data.game is int)
+                            && (!('g_fortune' in request.resource.data) || request.resource.data.g_fortune is int)
+                            && (!('g_saju' in request.resource.data) || request.resource.data.g_saju is int)
+                            && (!('g_tarot' in request.resource.data) || request.resource.data.g_tarot is int)
                             && (!('g_mem' in request.resource.data) || request.resource.data.g_mem is int)
                             && (!('g_react' in request.resource.data) || request.resource.data.g_react is int)
                             && (!('g_lotto' in request.resource.data) || request.resource.data.g_lotto is int);

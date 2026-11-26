@@ -1,6 +1,6 @@
 /* 운영 센터 — 미니게임 플레이 · 강의별 조회수 카드 (2026-11-26 커비)
    - 커뮤니티 홈(dia.html) 미니게임 3종(짝맞추기·반응속도·로또)을 연 횟수를 analytics/{날짜} 문서의
-     game(전체)·g_mem·g_react·g_lotto 에서 읽어 보여 줍니다.
+     game(전체)·g_fortune·g_saju·g_tarot·g_mem·g_react·g_lotto 에서 읽어 보여 줍니다.
    - 뷰티수강 카드(dia-course.html)를 연 횟수를 course_views/{날짜} 의 views 맵에서 읽어 강의별로 보여 줍니다.
    - 두 카드 모두 방문자 카드(#ops-visit)와 파이어베이스 읽기 사용량 카드(#ops-fb) 사이에 들어갑니다.
      dia-fbstat.js 가 #ops-fb 를 붙이는 순서와 상관없이 자리를 잡도록, #ops-fb 가 생기면 그 앞에 넣습니다.
@@ -106,7 +106,10 @@
       set('gs-7', has ? num(sum) : '-');
       var gs = document.getElementById('gs-games');
       if(gs){
-        gs.innerHTML = '<span>짝맞추기 <b>' + val(today && today.g_mem) + '</b></span>' +
+        gs.innerHTML = '<span>오늘의 운세 <b>' + val(today && today.g_fortune) + '</b></span>' +
+                       '<span>사주 보기 <b>' + val(today && today.g_saju) + '</b></span>' +
+                       '<span>오늘의 타로 <b>' + val(today && today.g_tarot) + '</b></span>' +
+                       '<span>짝맞추기 <b>' + val(today && today.g_mem) + '</b></span>' +
                        '<span>반응속도 <b>' + val(today && today.g_react) + '</b></span>' +
                        '<span>로또 <b>' + val(today && today.g_lotto) + '</b></span>';
       }

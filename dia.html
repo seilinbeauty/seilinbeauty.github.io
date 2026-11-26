@@ -3224,6 +3224,7 @@ window.창고읽기 = function(url){
                   var cIdx = Math.floor(Math.random() * 컬러목록.length);
                   var tIdx = Math.floor(Math.random() * 태그목록.length);
                   fBox.hidden = false;
+                  if(window.DiaFB && DiaFB.hitGame) DiaFB.hitGame('fortune');
                   fBox.innerHTML = '<div class="mc-fortune-tag">오늘의 샵 운세</div><div>' + 운세목록[idx] + '</div>' + 행운HTML(cIdx, tIdx);
                   fBtn.textContent = '🍀 다시 뽑기';
                 });
@@ -3255,7 +3256,10 @@ window.창고읽기 = function(url){
                   if(tRow) tRow.hidden = true;
                   if(mBox){ mBox.hidden = true; mBox.innerHTML = ''; }
                   sForm.hidden = !sForm.hidden;
-                  if(!sForm.hidden && bInput) bInput.focus();
+                  if(!sForm.hidden){
+                    if(window.DiaFB && DiaFB.hitGame) DiaFB.hitGame('saju');
+                    if(bInput) bInput.focus();
+                  }
                 });
                 sForm.addEventListener('submit', function(e){
                   e.preventDefault();
@@ -3296,6 +3300,7 @@ window.창고읽기 = function(url){
                     return;
                   }
                   tRow.hidden = false;
+                  if(window.DiaFB && DiaFB.hitGame) DiaFB.hitGame('tarot');
                   fBox.hidden = true;
                   타로섞기();
                 });

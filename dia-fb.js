@@ -481,7 +481,7 @@
           aca: parseInt((f.aca && f.aca.integerValue) || 0, 10) || 0,
           crs: parseInt((f.crs && f.crs.integerValue) || 0, 10) || 0,
           // 미니게임 플레이 수 — 집계 전 날짜는 0이 아니라 null(모름)로 돌려준다
-          game: iv('game'), g_mem: iv('g_mem'), g_react: iv('g_react'), g_lotto: iv('g_lotto')
+          game: iv('game'), g_fortune: iv('g_fortune'), g_saju: iv('g_saju'), g_tarot: iv('g_tarot'), g_mem: iv('g_mem'), g_react: iv('g_react'), g_lotto: iv('g_lotto')
         };
       });
       return out;
@@ -545,9 +545,9 @@
     return req('documents/analytics/' + encodeURIComponent(day), null, 'GET').then(function(doc){
       var f = (doc && doc.fields) || {};
       function iv(k){ return (f[k] && f[k].integerValue !== undefined) ? (parseInt(f[k].integerValue, 10) || 0) : null; }
-      return { day: day, game: iv('game'), g_mem: iv('g_mem'), g_react: iv('g_react'), g_lotto: iv('g_lotto') };
+      return { day: day, game: iv('game'), g_fortune: iv('g_fortune'), g_saju: iv('g_saju'), g_tarot: iv('g_tarot'), g_mem: iv('g_mem'), g_react: iv('g_react'), g_lotto: iv('g_lotto') };
     }, function(){
-      return { day: day, game: null, g_mem: null, g_react: null, g_lotto: null };
+      return { day: day, game: null, g_fortune: null, g_saju: null, g_tarot: null, g_mem: null, g_react: null, g_lotto: null };
     });
   }
 
@@ -568,7 +568,7 @@
       try{ if(localStorage.getItem('dia_no_track') === '1') return Promise.resolve(false); }catch(e){}
     }
     var k = String(kind || '');
-    var fld = (k === 'mem' || k === 'react' || k === 'lotto') ? ('g_' + k) : '';
+    var fld = (k === 'fortune' || k === 'saju' || k === 'tarot' || k === 'mem' || k === 'react' || k === 'lotto') ? ('g_' + k) : '';
     var tr = [{ fieldPath: 'game', increment: { integerValue: '1' } }];
     if(fld) tr.push({ fieldPath: fld, increment: { integerValue: '1' } });
     return commit([{
