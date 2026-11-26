@@ -100,6 +100,43 @@
 
   // 게시판 페이지 — 10줄씩, 줄을 누르면 내용이 그 자리에서 펼쳐집니다.
   // opt.onEdit(글, 버튼)·opt.onDelete(글, 버튼) 을 넣으면 각 글 아래에 '수정'·'삭제' 버튼이 붙습니다(스태프 전용).
+  function hitView(pid){
+    var id = String(pid || '').replace(/`/g, '').trim();
+    if (!id) return Promise.resolve(false);
+    if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || navigator.webdriver === true) return Promise.resolve(false);
+    try{ if (localStorage.getItem('dia_no_track') === '1') return Promise.resolve(false); }catch(e){}
+    var ck = 'dia_bv_' + id;
+    try{
+      var last = Number(sessionStorage.getItem(ck) || 0);
+      if (last && (Date.now() - last) < 1800000) return Promise.resolve(false);
+      sessionStorage.setItem(ck, String(Date.now()));
+    }catch(e){}
+    return fetch(BASE + 'documents:commit?key=' + KEY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        writes: [{
+          update: { name: 'projects/seilindia/databases/(default)/documents/board_views/counts', fields: {} },
+          updateMask: { fieldPaths: [] },
+          updateTransforms: [{ fieldPath: 'views.`' + id + '`', increment: { integerValue: '1' } }]
+        }]
+      })
+    }).then(function(r){ return r.ok; }, function(){ return false; });
+  }
+
+  function getViews(){
+    return fetch(BASE + 'documents/board_views/counts?key=' + KEY, { cache: 'no-store' })
+      .then(function(r){ return r.ok ? r.json() : null; }, function(){ return null; })
+      .then(function(d){
+        var out = {};
+        var vm = (d && d.fields && d.fields.views && d.fields.views.mapValue && d.fields.views.mapValue.fields) || {};
+        for (var k in vm){
+          out[k] = Number(vm[k].integerValue || vm[k].doubleValue || 0) || 0;
+        }
+        return out;
+      }, function(){ return {}; });
+  }
+
   function renderBoard(el, pager, page, opt){
     if (!el) return;
     if (!loaded){
@@ -124,7 +161,7 @@
         var vid = 'bdBody_' + p.id.replace(/[^A-Za-z0-9_-]/g, '');
         var pid = esc(p.id);
         return '<div class="bd-item">'
-          + '<button type="button" class="bd-row" aria-expanded="false" data-body="' + vid + '">'
+          + '<button type="button" class="bd-row" aria-expanded="false" data-body="' + vid + '" data-pid="' + pid + '">'
           + '<span class="bd-no">' + no + '</span>'
           + '<span class="bd-tt">' + esc(p.title) + '</span>'
           + '<span class="bd-dt">' + esc(p.date) + '</span>'
@@ -144,6 +181,7 @@
           var open = !body.hidden;
           body.hidden = open;
           this.setAttribute('aria-expanded', open ? 'false' : 'true');
+          if (!open) hitView(this.getAttribute('data-pid'));
         });
       }
       if (canEdit || canDel){
@@ -187,6 +225,8 @@
     load: load,
     ready: ready,
     renderBoard: renderBoard,
+    getViews: getViews,
+    hitView: hitView,
     esc: esc,
     all: function(){ return posts.slice(); },
     get list(){ return visible(); }

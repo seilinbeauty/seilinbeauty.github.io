@@ -330,6 +330,14 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ── 알림장 글별 조회수 (board_views/{doc}) — views 맵에 글 ID별 횟수
+    match /board_views/{doc} {
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(['views'])
+                            && request.resource.data.views is map;
+      allow delete: if false;
+    }
+
     // ── 품앗이 일일 이력 (pumasi_logs/{YYYY-MM-DD})
     match /pumasi_logs/{day} {
       allow read: if true;

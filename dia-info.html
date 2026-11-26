@@ -5241,6 +5241,7 @@ document.addEventListener('DOMContentLoaded', function(){
             .nt-card-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
             .nt-card-t{font-size:13.5px;font-weight:800;color:#3c2b31;word-break:break-word;}
             .nt-card-d{font-size:11.5px;color:#a98d97;}
+            .nt-card-v{font-size:11px;font-weight:700;color:#b35172;background:#fdf1f5;padding:2px 7px;border-radius:999px;}
             .nt-card-b{font-size:12.5px;color:#4a3941;line-height:1.7;white-space:pre-wrap;word-break:break-word;}
             .nt-del{margin-left:auto;padding:5px 11px;border-radius:999px;border:1px solid #f0d7e0;background:#fff;color:#b35172;font-size:11.5px;font-weight:800;cursor:pointer;font-family:inherit;}
             .nt-del:hover{background:#fdeef3;}
@@ -5270,19 +5271,27 @@ document.addEventListener('DOMContentLoaded', function(){
             var btn = document.getElementById('nt-post');
             function esc(s){ return String(s === undefined || s === null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
             function say(t, ok){ if(!msgEl) return; msgEl.style.color = ok ? '#2f7d4c' : '#c2456a'; msgEl.textContent = t || ''; }
+            var lastViews = {};
             function render(){
               var src = (window.DiaBoard && DiaBoard.all) ? (DiaBoard.all() || []) : [];
               if(!src.length){ listEl.innerHTML = '<div class="nt-empty">아직 올린 글이 없습니다.</div>'; return; }
               listEl.innerHTML = src.map(function(p){
+                var cnt = Number(lastViews[p.id] || 0);
                 return '<div class="nt-card">'
                   + '<div class="nt-card-top"><b class="nt-card-t">' + esc(p.title) + '</b><span class="nt-card-d">' + esc(p.date) + '</span>'
+                  + '<span class="nt-card-v">👁️ ' + cnt + '회</span>'
                   + '<button type="button" class="nt-del" data-del="' + esc(p.id) + '">삭제</button></div>'
                   + '<div class="nt-card-b">' + esc(p.body) + '</div></div>';
               }).join('');
             }
             function draw(){
               if(!window.DiaBoard || !DiaBoard.load){ listEl.innerHTML = '<div class="nt-empty">게시판을 불러오지 못했습니다.</div>'; return; }
-              DiaBoard.load(true).then(render, render);
+              var p1 = DiaBoard.load(true);
+              var p2 = DiaBoard.getViews ? DiaBoard.getViews() : Promise.resolve({});
+              Promise.all([p1, p2]).then(function(res){
+                lastViews = res[1] || {};
+                render();
+              }, render);
             }
             window.diaNoticeAdminReload = draw;
             if(btn) btn.addEventListener('click', function(){
@@ -5857,7 +5866,7 @@ document.addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 
-<script src="dia-tag.js?v=2" defer></script><script src="dia-tag-admin.js?v=3" defer></script><script src="dia-board.js?v=3" defer></script><script src="dia-fb.js?v=15" defer></script><script src="dia-pin.js?v=2" defer></script><script src="dia-pin-admin.js?v=3" defer></script><script src="dia-fbstat.js?v=1" defer></script><script src="dia-gamestat.js?v=2" defer></script><!-- 운영 센터 '#️⃣ 해시태그' 탭, 회원 목록 '암호' 칸 -->
+<script src="dia-tag.js?v=2" defer></script><script src="dia-tag-admin.js?v=3" defer></script><script src="dia-board.js?v=6" defer></script><script src="dia-fb.js?v=15" defer></script><script src="dia-pin.js?v=2" defer></script><script src="dia-pin-admin.js?v=3" defer></script><script src="dia-fbstat.js?v=1" defer></script><script src="dia-gamestat.js?v=2" defer></script><!-- 운영 센터 '#️⃣ 해시태그' 탭, 회원 목록 '암호' 칸 -->
 <script>
 (function(){
   function loadConsultsAndAnalytics(){
