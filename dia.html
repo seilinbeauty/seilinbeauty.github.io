@@ -2114,6 +2114,26 @@
       .board-side { flex-direction: row; align-items: center; justify-content: space-between; width: 100%; }
       .book-name { font-size: 23px; }
     }
+
+    /* PC 화면 전용 레이아웃 최적화 (모바일 무영향) */
+    @media (min-width: 881px) {
+      header.dia-header .header-inner { max-width: 1200px; margin: 0 auto; padding-left: 20px; padding-right: 20px; }
+      .dia-hero-in { max-width: 1200px; padding: 24px 20px 20px; }
+      .dia-hero .quick-links { max-width: 420px; gap: 8px; }
+      .dia-hero .quick-links > * { min-height: 38px; padding: 8px 14px; font-size: 13px; }
+      .plx-section { padding: 24px 20px 64px; }
+      .plx-inner { max-width: 1200px; grid-template-columns: 220px minmax(0, 1fr); gap: 20px;
+        background: transparent; border: 0; border-radius: 0; overflow: visible; align-items: start; }
+      .plx-nav { position: sticky; top: 82px; border: 1px solid #ede4e7; border-right: 1px solid #ede4e7;
+        border-radius: 14px; background: #fff; padding: 16px 0; box-shadow: 0 2px 10px rgba(180, 130, 145, .05); }
+      .plx-main { background: #fff; border: 1px solid #ede4e7; border-radius: 14px;
+        padding: 24px 28px 32px; box-shadow: 0 2px 10px rgba(180, 130, 145, .05); }
+      .pc-dash-row { display: grid; grid-template-columns: 1fr 1.25fr; gap: 16px; align-items: stretch; margin-bottom: 18px; }
+      .pc-dash-row > .fb-card, .pc-dash-row > .rank-card { margin: 0 !important; height: 100%; box-sizing: border-box; }
+      .home-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .home-panel.wide { grid-column: 1 / -1; }
+    }
+
   </style>
   <link rel="canonical" href="https://seilinbeauty.github.io/dia.html">
   <script type="application/ld+json">
@@ -3651,6 +3671,7 @@
           .fb-nm{font-size:15px;}
         }
       </style>
+      <div class="pc-dash-row">
       <div class="fb-card" id="firstBadgeCard" data-first="인천/idreamiin/속눈썹" data-fast="서울/domely_beauty/속눈썹">
         <div class="fb-top">
           <div class="fb-t">참여 1등 스피드 인증</div>
@@ -3735,6 +3756,7 @@
         @media(min-width:881px){ .rank-card{padding:18px 20px 16px;} .rank-nm{flex:0 0 32%;font-size:14.5px;} .rank-t{font-size:16px;} .rank-row{padding:8px 0;gap:12px;} .rank-i{flex:0 0 26px;} .rank-i b{font-size:14px;} .rank-bar{height:9px;} .rank-day{flex:0 0 32px;font-size:12.5px;} .rank-list{display:flex;flex-direction:column;justify-content:space-around;flex:1 1 auto;} .rank-i .crown{width:12px;height:9px;margin-left:-6px;top:-10px;} }
       </style>
       <div class="rank-card" id="rankCard" data-n="5"><div class="rank-top"><div class="rank-t">이번 달 참여왕</div></div><div class="rank-list"><div class="rank-row top"><span class="rank-i gold has-crown"><svg class="crown" viewBox="0 0 20 14" aria-hidden="true"><path d="M1 12.4h18l-1.8-9-4 3.4L10 1.6 6.8 6.8l-4-3.4z" fill="#d4af37"/></svg><b>1</b></span><span class="rank-nm" data-q="서울/nail_jiand/네일" data-insta="nail_jiand">nail_jiand<span class="rank-cat">네일</span></span><span class="rank-bar"><i style="width:100%"></i></span><span class="rank-day">11일</span></div><div class="rank-row top"><span class="rank-i silver"><b>2</b></span><span class="rank-nm" data-q="부산star___beauty_/속눈썹" data-insta="star___beauty_">star___beauty_<span class="rank-cat">속눈썹</span></span><span class="rank-bar"><i style="width:73%"></i></span><span class="rank-day">8일</span></div><div class="rank-row top"><span class="rank-i bronze"><b>3</b></span><span class="rank-nm" data-q="서울/year.seoul/반영구" data-insta="year.seoul">year.seoul<span class="rank-cat">반영구</span></span><span class="rank-bar"><i style="width:73%"></i></span><span class="rank-day">8일</span></div><div class="rank-row"><span class="rank-i "><b>4</b></span><span class="rank-nm" data-q="일산/_soybrow/반영구" data-insta="_soybrow">_soybrow<span class="rank-cat">반영구</span></span><span class="rank-bar"><i style="width:64%"></i></span><span class="rank-day">7일</span></div><div class="rank-row"><span class="rank-i "><b>5</b></span><span class="rank-nm" data-q="서울/domely_beauty/속눈썹" data-insta="domely_beauty">domely_beauty<span class="rank-cat">속눈썹</span></span><span class="rank-bar"><i style="width:64%"></i></span><span class="rank-day">7일</span></div></div></div>
+      </div>
       <script>
       (function(){
         document.addEventListener('click', function(e){
