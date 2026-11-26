@@ -2139,6 +2139,13 @@
         padding: 2px 18px 2px 2px !important;
       }
       body.dia-page #mcHeroStatus > .mc-row { margin-top: 0 !important; border: 0 !important; padding: 2px !important; }
+      /* 내 활동 기록 — PC에서 위아래 공백을 더 줄인다 (모바일 무영향) */
+      body.dia-page .dia-hero-in:has(#mcHeroStatus:not([hidden])) { padding-bottom: 12px !important; }
+      body.dia-page #mcHeroStatus:not([hidden]) { padding: 6px 10px !important; gap: 14px; }
+      body.dia-page #mcHeroStatus > .mc-row { padding: 0 !important; }
+      body.dia-page #mcHeroStatus .mc-act-hd { margin: 4px 2px 3px; }
+      body.dia-page #mcHeroStatus .mc-kpis { margin-top: 4px; gap: 5px; }
+      body.dia-page #mcHeroStatus .mc-k { padding: 5px 8px; }
       .dia-hero .quick-links { max-width: 420px; gap: 8px; }
       .dia-hero .quick-links > * { min-height: 38px; padding: 8px 14px; font-size: 13px; }
       body.dia-page .plx-section { padding: 16px 20px 64px !important; }
