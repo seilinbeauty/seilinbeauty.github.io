@@ -128,6 +128,8 @@ service cloud.firestore {
 
     // ── 뷰티수강 채팅 — 방(대화방) 모양과 메시지 모양
     //    방번호 = 원장님 열쇠 + '_' + 고객 기기번호 (dia-chat.js 의 roomId 와 같음)
+    //    알림방도 같은 모양을 씁니다 — '…_staffnotice'(STAFF 기록) · '…_passnotice'(완료패스 안내, 회원 본인 목록에 뜸)
+    //    이 두 방은 원장님 열쇠로 만들고 cust 자리에 staffnotice / passnotice 를 넣습니다(8자 이상 규칙 충족).
     function chatRoomOk(d, rid) {
       return d.keys().hasAll(['roomId','owner','nick','cust','custName','last','lastAt','lastFrom','unreadC','unreadI','createdAt'])
           && d.keys().hasOnly(['roomId','owner','nick','cust','custName','last','lastAt','lastFrom','unreadC','unreadI','createdAt'])

@@ -663,27 +663,34 @@
   }
 
 
-  // ── 지인 초대 2주(14일) 연속 참여 완료 — 완료패스 1장 자동 지급 + STAFF 채팅 알림 (2026-11-26 커비)
-  //    · 지급: 운영 데이터 묶음(meta/members)의 patch[초대한 닉네임].b(완료패스 보유)를 1 올린다.
+  // ── 지인 초대 2주(14일) 연속 참여 완료 — 완료패스 1장 자동 지급 + 채팅 알림 (2026-11-26 커비)
+  //    · 지급 대상은 추천인(초대한 사람). 피추천인 1명이 14일을 채울 때마다 추천인에게 1장, 인원 제한 없음.
+  //      피추천인에게는 지급하지 않는다. (도현 님 확정 2026-11-26: "내가 3명 데리고 왔으면 나는 3장,
+  //      내 친구들은 못 받는다" — 3명은 예시이고 규칙은 '피추천인 1명당 1장'.)
+  //    · 지급: 운영 데이터 묶음(meta/members)의 patch[추천인 닉네임].b(완료패스 보유)를 1 올린다.
   //      dia.html 이 patch 값을 명부에 그대로 덮어쓰므로 원장님 '마이페이지 → 완료패스'에 바로 반영된다.
-  //    · 알림: 사이트 채팅 chats/{원장님열쇠}_staffnotice 방에 STAFF 명의 메시지 1건.
-  //      원장님이 커뮤니티 홈에서 로그인하면 채팅 목록에 'STAFF' 방으로 보인다(안 읽은 수 1).
+  //    · 알림 1 — 추천인 본인 채팅: chats/{추천인열쇠}_passnotice 방에 '완료패스 안내' 이름으로 1건.
+  //      원장님이 커뮤니티 홈에서 로그인해 💬 채팅을 열면 자기 목록에 '완료패스 안내' 방으로 뜬다(안 읽은 수 1).
   //      ※ 채팅 화면에서 'i'는 원장님 본인 쪽이라, 원장님에게 '받은 메시지'로 보이려면 'c' 쪽으로 넣는다.
-  //    · 한 초대 건당 1회: 메시지 문서 번호를 초대 건으로 고정(pg_…)하고 '없을 때만 만들기'로 잠근다.
-  //      지급(meta 갱신)과 메시지 만들기를 한 번의 쓰기로 묶어, 한쪽만 되는 일이 없게 한다.
+  //    · 알림 2 — STAFF 방: chats/{추천인열쇠}_staffnotice 방에 STAFF 명의 기록 1건(기존 방식 그대로).
+  //    · 한 초대 건당 1회: 메시지 문서 번호를 초대 건으로 고정(pg_… / pn_…)하고 '없을 때만 만들기'로 잠근다.
+  //      지급(meta 갱신)과 두 알림 만들기를 한 번의 쓰기로 묶어, 한쪽만 되는 일이 없게 한다.
   var STAFF_CUST = 'staffnotice';
   var STAFF_ROOM_NAME = 'STAFF';
+  var PASS_CUST = 'passnotice';           // 완료패스 안내 — 회원 본인 채팅 목록에 뜨는 방 (보안규칙 cust 8자 이상)
+  var PASS_ROOM_NAME = '완료패스 안내';
   function normId(x){ return String(x === undefined || x === null ? '' : x).replace(/^@+/, '').trim().toLowerCase(); }
   function inviteMsgId(a, b){ var k = String(a) + '\n' + String(b); return 'pg_' + fnv(k, 2166136261) + fnv(k + '#2', 2445677089); }
+  function inviteNoticeId(a, b){ var k = String(a) + '\n' + String(b); return 'pn_' + fnv(k, 2166136261) + fnv(k + '#3', 2445677089); }
 
-  // STAFF 알림방이 없으면 만든다 (있으면 그대로)
-  function ensureStaffRoom(rid, owner, nick){
+  // 알림방이 없으면 만든다 (있으면 그대로)
+  function ensureRoom(rid, owner, nick, cust, custName){
     return req('documents/chats/' + encodeURIComponent(rid), null, 'GET').then(function(){ return true; }, function(e){
       if(e && e.status !== 404) return false;
       var w = {
         update: { name: name('chats', rid), fields: fields({
-          roomId: rid, owner: owner, nick: String(nick || '').slice(0, 80), cust: STAFF_CUST,
-          custName: STAFF_ROOM_NAME, last: '', lastFrom: 'c', unreadC: 0, unreadI: 0
+          roomId: rid, owner: owner, nick: String(nick || '').slice(0, 80), cust: cust,
+          custName: custName, last: '', lastFrom: 'c', unreadC: 0, unreadI: 0
         }) },
         currentDocument: { exists: false },
         updateTransforms: [{ fieldPath: 'createdAt', setToServerValue: 'REQUEST_TIME' },
@@ -696,17 +703,22 @@
       });
     });
   }
+  function ensureStaffRoom(rid, owner, nick){ return ensureRoom(rid, owner, nick, STAFF_CUST, STAFF_ROOM_NAME); }
+  function ensurePassRoom(rid, owner, nick){ return ensureRoom(rid, owner, nick, PASS_CUST, PASS_ROOM_NAME); }
 
-  // 완료패스 1장 지급 + STAFF 채팅 1건 (한 초대 건당 1회)
+  // 완료패스 1장 지급 + 본인 채팅 안내 1건 + STAFF 방 기록 1건 (한 초대 건당 1회)
   function grantInvitePass(o){
     o = o || {};
-    var inviter = String(o.inviter || '').trim();
-    var invitee = String(o.invitee || '').trim();
+    var inviter = String(o.inviter || '').trim();      // 추천인 — 완료패스를 받는 사람
+    var invitee = String(o.invitee || '').trim();      // 피추천인 — 14일을 채운 사람, 지급 없음
     var owner = normId(o.ownerKey || inviter);
-    var text = String(o.text || '').slice(0, 300);
+    var text = String(o.text || '').slice(0, 300);            // STAFF 방 기록 문구
+    var notice = String(o.notice || o.text || '').slice(0, 300);  // 추천인 본인 채팅에 뜨는 지급 안내
     if(!inviter || !invitee || !owner || !text) return Promise.resolve({ ok: false, error: 'bad' });
     var roomId = safeId(owner) + '_' + STAFF_CUST;
+    var noticeRoomId = safeId(owner) + '_' + PASS_CUST;
     var mid = inviteMsgId(inviter, invitee);
+    var nmid = inviteNoticeId(inviter, invitee);
     // 이미 보낸 초대 건이면 그때 시각을 돌려준다 (재조회해도 두 번 지급되지 않게)
     return req('documents/chats/' + encodeURIComponent(roomId) + '/msgs/' + encodeURIComponent(mid), null, 'GET').then(function(doc){
       var at = doc && doc.fields && doc.fields.at && doc.fields.at.timestampValue;
@@ -715,7 +727,9 @@
       if(!e || e.status !== 404) return { ok: false, error: errOf(e) };
       return ensureStaffRoom(roomId, owner, o.nick || inviter).then(function(roomOk){
         if(!roomOk) return { ok: false, error: 'room' };
-        return getMeta('members').then(function(meta){
+        return ensurePassRoom(noticeRoomId, owner, o.nick || inviter).then(function(noticeOk){
+          if(!noticeOk) return { ok: false, error: 'room2' };
+          return getMeta('members').then(function(meta){
           var m = (meta && typeof meta === 'object') ? meta : {};
           var patch = (m.patch && typeof m.patch === 'object') ? m.patch : {};
           var cur = (patch[inviter] && typeof patch[inviter] === 'object') ? patch[inviter] : {};
@@ -738,17 +752,27 @@
               updateMask: { fieldPaths: ['last', 'lastFrom'] },
               updateTransforms: [{ fieldPath: 'lastAt', setToServerValue: 'REQUEST_TIME' },
                                  { fieldPath: 'unreadI', increment: { integerValue: '1' } }],
+              currentDocument: { exists: true } },
+            // 추천인 본인 채팅 — 지급 안내
+            { update: { name: name('chats/' + noticeRoomId + '/msgs', nmid), fields: fields({ from: 'c', text: notice }) },
+              currentDocument: { exists: false },
+              updateTransforms: [{ fieldPath: 'at', setToServerValue: 'REQUEST_TIME' }] },
+            { update: { name: name('chats', noticeRoomId), fields: fields({ last: notice.slice(0, 60), lastFrom: 'c' }) },
+              updateMask: { fieldPaths: ['last', 'lastFrom'] },
+              updateTransforms: [{ fieldPath: 'lastAt', setToServerValue: 'REQUEST_TIME' },
+                                 { fieldPath: 'unreadI', increment: { integerValue: '1' } }],
               currentDocument: { exists: true } }
           ];
           return commit(writes).then(function(){
             tidy('checks', cid);
-            return { ok: true, at: new Date().toISOString(), roomId: roomId, pass: base + 1 };
+            return { ok: true, at: new Date().toISOString(), roomId: roomId, noticeRoomId: noticeRoomId, pass: base + 1 };
           }, function(e2){
             tidy('checks', cid);
             var m2 = String((e2.body && e2.body.error && e2.body.error.message) || '').toLowerCase();
             if(e2 && (e2.status === 409 || m2.indexOf('already exists') > -1)) return { ok: false, already: true, at: '' };
             return { ok: false, error: errOf(e2) };
           });
+        });
         });
       });
     });
