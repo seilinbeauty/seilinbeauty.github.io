@@ -2419,6 +2419,7 @@
               .mc-notice-panel{display:none;}
               @media (min-width:881px){
                 .mc-pc-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;}
+                .mc-pc-row .mc-fortune-btns{grid-template-columns:repeat(2,minmax(0,1fr));}
                 #mcSajuBtn,#mcReactBtn,#mcLottoBtn{display:none !important;}
                 .mc-notice-panel{display:block;border:1px solid #f0d7e0;border-radius:12px;background:#fffafc;
                   padding:9px 11px 8px;min-width:0;box-sizing:border-box;}
@@ -2540,46 +2541,35 @@
                 <button type="button" class="mc-fortune-btn" id="mcLottoBtn">🎱 로또 추첨</button>
               </div>
               <div class="mc-notice-panel" id="mcNoticePanel">
-                <div class="mc-np-hd">📣 공지·알림<span class="mc-np-new" id="mcNpNew" hidden>●</span></div>
+                <div class="mc-np-hd">📣 공지 / 알림<span class="mc-np-new" id="mcNpNew" hidden>●</span></div>
                 <div class="mc-np-list" id="mcNpList"><div class="mc-np-empty">새 소식이 없습니다</div></div>
-                <a class="mc-np-more" href="dia-notice.html">공지 전체보기 →</a>
+                <a class="mc-np-more" href="dia-board-notice.html">더보기 →</a>
               </div>
               </div>
+              <script src="dia-board.js?v=1"></script>
               <script>
               (function(){
-                /* PC 오른쪽 공지·알림 패널 — dia-notice.html 의 공지 타일을 그대로 읽어 최근 3줄을 채운다.
-                   못 읽으면 '새 소식이 없습니다'. 새 공지(이 기기에서 처음 보는 제목)가 있으면 ● 표시. */
+                /* PC 오른쪽 공지 / 알림 — dia-board.js 의 목록(최신순) 5줄. 목록을 못 읽으면 '새 소식이 없습니다'. */
                 var list = document.getElementById('mcNpList');
                 var dot = document.getElementById('mcNpNew');
                 if(!list) return;
                 var K = 'dia_notice_seen_v1';
-                function esc(s){ return String(s === undefined || s === null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-                fetch('dia-notice.html', {cache: 'no-store'}).then(function(r){ return r.text(); }).then(function(html){
-                  var doc = new DOMParser().parseFromString(html, 'text/html');
-                  var tiles = doc.querySelectorAll('a.notice-tile');
-                  if(!tiles || !tiles.length){ throw new Error('empty'); }
-                  var rows = [], titles = [];
-                  for(var i = 0; i < tiles.length && rows.length < 3; i++){
-                    var t = tiles[i];
-                    var title = (t.querySelector('.notice-tile-t') || {}).textContent || '';
-                    var kind = (t.querySelector('.notice-kind') || {}).textContent || '';
-                    var href = t.getAttribute('href') || 'dia-notice.html';
-                    title = title.replace(/\s+/g, ' ').trim();
-                    if(!title) continue;
-                    titles.push(title);
-                    rows.push('<a class="mc-np-row" href="' + esc(href) + '"><b>' + esc(title) + '</b><span>' + esc(kind.replace(/\s+/g,' ').trim()) + '</span></a>');
-                  }
-                  if(!rows.length){ throw new Error('empty'); }
-                  list.innerHTML = rows.join('');
-                  try{
-                    var seen = JSON.parse(localStorage.getItem(K) || '[]');
-                    var fresh = titles.some(function(x){ return seen.indexOf(x) < 0; });
-                    if(fresh && dot) dot.hidden = false;
-                    localStorage.setItem(K, JSON.stringify(titles));
-                  }catch(e){}
-                }).catch(function(){
+                function esc(x){ return String(x === undefined || x === null ? '' : x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+                if(!window.DiaBoard || !DiaBoard.list || !DiaBoard.list.length){
                   list.innerHTML = '<div class="mc-np-empty">새 소식이 없습니다</div>';
-                });
+                  return;
+                }
+                var rows = DiaBoard.list.slice(0, 5).map(function(n){
+                  return '<a class="mc-np-row" href="' + esc(n.href) + '"><b>' + esc(n.title) + '</b><span>' + esc(n.date) + '</span></a>';
+                }).join('');
+                list.innerHTML = rows;
+                try{
+                  var titles = DiaBoard.list.map(function(n){ return n.title; });
+                  var seen = JSON.parse(localStorage.getItem(K) || '[]');
+                  var fresh = titles.some(function(x){ return seen.indexOf(x) < 0; });
+                  if(fresh && dot) dot.hidden = false;
+                  localStorage.setItem(K, JSON.stringify(titles));
+                }catch(e){}
               })();
               </script>
               <form class="mc-saju-form" id="mcSajuForm" hidden autocomplete="off">
@@ -3774,6 +3764,7 @@
           text-overflow:ellipsis;white-space:nowrap;}
         .fb-cat{font-size:10.5px;font-weight:600;color:#a98d97;margin-left:4px;}
         .fb-tm{margin-top:2px;font-size:11px;font-weight:700;color:#9a858d;}
+        #firstBadgeCard{padding-top:10px;}
         .fb-wait{margin-top:6px;font-size:11.5px;font-weight:700;color:#b9a9af;}
         @media(min-width:881px){
           .fb-card{padding:16px 18px;}
@@ -3783,8 +3774,7 @@
       </style>
       <div class="pc-dash-row">
       <div class="fb-card" id="firstBadgeCard" data-first="인천/idreamiin/속눈썹" data-fast="서울/domely_beauty/속눈썹">
-        <div class="fb-top">
-          <div class="fb-t">참여 1등 스피드 인증</div>
+        <div class="fb-top" style="justify-content:flex-end;">
           <span class="fb-d">11/23(월) 기준</span>
         </div>
         <div class="fb-grid">

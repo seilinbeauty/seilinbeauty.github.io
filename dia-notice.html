@@ -2156,6 +2156,7 @@
           <div class="board-nav-title">카테고리</div>
           <a href="dia.html" class="board-nav-link">커뮤니티 홈</a>
           <a href="dia-notice.html" class="board-nav-link is-active">공지사항 <span class="nav-new">NEW</span></a>
+          <a href="#notice-board" class="board-nav-link">📣 공지 / 알림</a>
           <a href="dia-info.html" class="board-nav-link">⚙️ 운영 센터 <span class="nav-new">NEW</span></a>
           <div class="board-nav-sep"></div>
           <a href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" class="board-nav-link nav-ext only-mo">오픈채팅 바로가기</a>
@@ -2193,6 +2194,47 @@
                 <span class="notice-tile-d">개인 사정으로 쉬어야 할 때 신청 방법과 닉네임 표기 규칙.</span>
                 <span class="notice-chip">최대 6개월 · 닉네임 표기 · 복귀 시 안내</span>
               </a>
+          </div>
+          <div id="notice-board" style="margin-top:22px;">
+            <style>
+              .nb-hd{display:flex;align-items:baseline;gap:8px;margin-bottom:10px;}
+              .nb-hd b{font-size:13.5px;font-weight:800;color:#33262a;}
+              .nb-hd span{font-size:11.5px;color:#a08a91;}
+              .nb-hd a{margin-left:auto;font-size:11.5px;font-weight:800;color:#c2456a;text-decoration:none;}
+              .nb-wrap{border:1px solid #f3e3e9;border-radius:14px;background:#fff;overflow:hidden;}
+              .nb-row{display:grid;grid-template-columns:44px 1fr 92px;gap:8px;padding:10px 15px;border-top:1px solid #faf1f4;
+                text-decoration:none;color:#33262a;font-size:12.5px;align-items:center;}
+              .nb-row:first-child{border-top:0;}
+              .nb-row:hover{background:#fffafc;}
+              .nb-no{color:#c3adb6;font-size:11.5px;}
+              .nb-tt{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+              .nb-dt{color:#a98d97;font-size:11px;text-align:right;}
+              .nb-empty{padding:20px 15px;text-align:center;font-size:12px;color:#b9a9af;}
+              @media (max-width:560px){
+                .nb-row{grid-template-columns:1fr auto;row-gap:2px;padding:10px 12px;}
+                .nb-no{display:none;}
+                .nb-tt{font-size:12px;white-space:normal;word-break:keep-all;}
+                .nb-dt{grid-column:1 / -1;text-align:left;font-size:10.5px;}
+              }
+            </style>
+            <div class="nb-hd"><b>📣 공지 / 알림</b><span>최신순</span><a href="dia-board-notice.html">더보기 →</a></div>
+            <div class="nb-wrap" id="nbList"><div class="nb-empty">불러오는 중…</div></div>
+            <script src="dia-board.js?v=1"></script>
+            <script>
+            (function(){
+              var box = document.getElementById('nbList');
+              if(!box) return;
+              if(!window.DiaBoard || !DiaBoard.list || !DiaBoard.list.length){
+                box.innerHTML = '<div class="nb-empty">아직 올라온 공지가 없습니다.</div>';
+                return;
+              }
+              function esc(x){ return String(x === undefined || x === null ? '' : x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+              box.innerHTML = DiaBoard.list.slice(0, 10).map(function(n){
+                return '<a class="nb-row" href="' + esc(n.href) + '"><span class="nb-no">' + n.no + '</span>'
+                  + '<span class="nb-tt">' + esc(n.title) + '</span><span class="nb-dt">' + esc(n.date) + '</span></a>';
+              }).join('');
+            })();
+            </script>
           </div>
         </div>
       </div>
