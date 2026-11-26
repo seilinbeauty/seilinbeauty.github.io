@@ -2129,6 +2129,10 @@
         box-shadow: 0 2px 10px rgba(180, 130, 145, .05); box-sizing: border-box;
         gap: 12px !important;
       }
+      /* PC: 맨 위 카드를 본문 카드 바로 위에 붙인다 (사이 여백 제거) */
+      body.dia-page .dia-hero { padding-bottom: 0 !important; }
+      body.dia-page .dia-hero-in { border-radius: 14px 14px 0 0 !important; border-bottom: 0 !important; box-shadow: none !important; padding-bottom: 6px !important; }
+      body.dia-page .plx-section { padding-top: 0 !important; }
       /* PC: 맨 위 링크/활동기록 카드를 본문 폭에 맞춰 오른쪽 정렬 — 카테고리 위는 비워 둔다 */
       body.dia-page .dia-hero-in,
       body.dia-page .dia-hero-in:has(#mcHeroStatus:not([hidden])) {
