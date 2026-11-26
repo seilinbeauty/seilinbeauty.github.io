@@ -3792,8 +3792,15 @@
         crsBox.style.textDecoration = 'none';
         crsBox.innerHTML = '<div class="fb-k">🎓 인기 뷰티 수강</div><div class="fb-wait" id="fbCourse">집계 준비 중</div>';
 
-        if(!document.getElementById('fbStreakBox')) grid.appendChild(stBox);
-        if(!document.getElementById('fbCourseBox')) grid.appendChild(crsBox);
+        // 창고 실시간 보정 스크립트가 .fb-grid 를 다시 그리면 두 칸이 사라지므로, 바뀔 때마다 다시 붙인다
+        function ensureCells(){
+          if(stBox.parentNode !== grid) grid.appendChild(stBox);
+          if(crsBox.parentNode !== grid) grid.appendChild(crsBox);
+        }
+        ensureCells();
+        if(window.MutationObserver){
+          try{ new MutationObserver(ensureCells).observe(grid, {childList: true}); }catch(e){}
+        }
 
         function esc(s){ return String(s === undefined || s === null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
         function norm(x){ return String(x === undefined || x === null ? '' : x).replace(/\s+/g, ' ').trim(); }
