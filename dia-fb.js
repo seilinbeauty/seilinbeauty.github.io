@@ -488,6 +488,26 @@
     }, function(){ return {}; });
   }
 
+  // ── 창고 시트 → 파이어스토어 동기화 값 (meta/warehouse, 2026-11-26)
+  //    매일 09:00 동기화가 창고의 참여·완료·기준 날짜를 이 문서에 넣는다.
+  //    사이트는 이 값을 먼저 읽고, 없거나 실패하면 창고(구글 앱스크립트)를 그대로 부른다.
+  function getWarehouse(){
+    return getMeta('warehouse').then(function(w){
+      if(!w || !w.days) return null;
+      return w;
+    }, function(){ return null; });
+  }
+  function parseSource(url){
+    function 창고(){ return fetch(url, {cache: 'no-store'}).then(function(r){ return r.json(); }); }
+    return getWarehouse().then(function(w){
+      if(w && w.days && w.order && w.order.length){
+        return { ok: true, days: w.days, today: w.today, order: w.order, scanned: w.scanned,
+                 from: w.order[0], to: w.order[w.order.length - 1], src: 'fb', syncedAt: w.syncedAt };
+      }
+      return 창고();
+    }, function(){ return 창고(); });
+  }
+
   // ── 방문·접속 통계 읽기 (운영 센터 방문자 카드, 2026-11-26)
   //    analytics/{날짜} = 조회수 · analytics/{날짜}_v = 방문자(같은 기기 30분 1회) — 칸 이름 dia / aca
   function visitStats(n){
@@ -852,7 +872,7 @@
     getClicks: getClicks, hitClick: hitClick,
     addSuggestion: addSuggestion, listSuggestions: listSuggestions, doneSuggestion: doneSuggestion,
     addConsult: addConsult, listConsults: listConsults, doneConsult: doneConsult,
-    hitVisit: hitVisit, visitStats: visitStats, hitGame: hitGame, getAnalytics: getAnalytics, dayAnalytics: dayAnalytics,
+    hitVisit: hitVisit, visitStats: visitStats, getWarehouse: getWarehouse, parseSource: parseSource, hitGame: hitGame, getAnalytics: getAnalytics, dayAnalytics: dayAnalytics,
     hitCourse: hitCourse, getCourseViews: getCourseViews,
     savePumasiLog: savePumasiLog, listPumasiLogs: listPumasiLogs,
     saveDmLead: saveDmLead, listDmLeads: listDmLeads,
