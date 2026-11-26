@@ -475,14 +475,56 @@
       ((d && d.documents) || []).forEach(function(doc){
         var id = String(doc.name || '').split('/').pop();
         var f = doc.fields || {};
+        var iv = function(k){ return (f[k] && f[k].integerValue !== undefined) ? (parseInt(f[k].integerValue, 10) || 0) : null; };
         out[id] = {
           dia: parseInt((f.dia && f.dia.integerValue) || 0, 10) || 0,
           aca: parseInt((f.aca && f.aca.integerValue) || 0, 10) || 0,
-          crs: parseInt((f.crs && f.crs.integerValue) || 0, 10) || 0
+          crs: parseInt((f.crs && f.crs.integerValue) || 0, 10) || 0,
+          // 미니게임 플레이 수 — 집계 전 날짜는 0이 아니라 null(모름)로 돌려준다
+          game: iv('game'), g_mem: iv('g_mem'), g_react: iv('g_react'), g_lotto: iv('g_lotto')
         };
       });
       return out;
     }, function(){ return {}; });
+  }
+
+  // ── 하루치 분석 문서(analytics/{YYYY-MM-DD}) 하나만 읽기 — 미니게임 카드가 7일치만 읽도록
+  //    값이 없는 항목은 0이 아니라 null 로 돌려준다(집계 시작 전 날짜를 0으로 단정하지 않게).
+  function dayAnalytics(day){
+    return req('documents/analytics/' + encodeURIComponent(day), null, 'GET').then(function(doc){
+      var f = (doc && doc.fields) || {};
+      function iv(k){ return (f[k] && f[k].integerValue !== undefined) ? (parseInt(f[k].integerValue, 10) || 0) : null; }
+      return { day: day, game: iv('game'), g_mem: iv('g_mem'), g_react: iv('g_react'), g_lotto: iv('g_lotto') };
+    }, function(){
+      return { day: day, game: null, g_mem: null, g_react: null, g_lotto: null };
+    });
+  }
+
+  // ── 커뮤니티 홈 미니게임 플레이 수 (analytics/{YYYY-MM-DD} 의 game·g_*)
+  //    게임을 여는 순간 1회만 부른다. 같은 판의 반복 클릭은 세지 않는다.
+  //    hitVisit 과 같은 제외 조건(로컬·자동화·dia_no_track)을 쓰되, 검증용으로만
+  //    sessionStorage 'dia_game_track'='1' 또는 주소에 ?gametrack=1 이 있으면 센다.
+  function gameTrackOn(){
+    try{
+      if(sessionStorage.getItem('dia_game_track') === '1') return true;
+      if(/[?&]gametrack=1/.test(location.search)){ sessionStorage.setItem('dia_game_track', '1'); return true; }
+    }catch(e){}
+    return false;
+  }
+  function hitGame(kind){
+    if(!gameTrackOn()){
+      if(/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || navigator.webdriver === true) return Promise.resolve(false);
+      try{ if(localStorage.getItem('dia_no_track') === '1') return Promise.resolve(false); }catch(e){}
+    }
+    var k = String(kind || '');
+    var fld = (k === 'mem' || k === 'react' || k === 'lotto') ? ('g_' + k) : '';
+    var tr = [{ fieldPath: 'game', increment: { integerValue: '1' } }];
+    if(fld) tr.push({ fieldPath: fld, increment: { integerValue: '1' } });
+    return commit([{
+      update: { name: name('analytics', kstDay()), fields: {} },
+      updateMask: { fieldPaths: [] },
+      updateTransforms: tr
+    }]).then(function(){ return true; }, function(){ return false; });
   }
 
   // ── 품앗이 일일 이력 (pumasi_logs/{YYYY-MM-DD})
@@ -666,7 +708,7 @@
     getClicks: getClicks, hitClick: hitClick,
     addSuggestion: addSuggestion, listSuggestions: listSuggestions, doneSuggestion: doneSuggestion,
     addConsult: addConsult, listConsults: listConsults, doneConsult: doneConsult,
-    hitVisit: hitVisit, getAnalytics: getAnalytics,
+    hitVisit: hitVisit, hitGame: hitGame, getAnalytics: getAnalytics, dayAnalytics: dayAnalytics,
     savePumasiLog: savePumasiLog, listPumasiLogs: listPumasiLogs,
     saveDmLead: saveDmLead, listDmLeads: listDmLeads,
     grantInvitePass: grantInvitePass

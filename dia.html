@@ -2197,6 +2197,10 @@
     ]
   }
   </script>
+  <style>
+    /* PC 홈 머리글 우측 3버튼(문의하기·입장하기·운영 센터) 숨김 — 2026-11-26 지시. 휴대폰 머리글(.nav-mobile-links)은 그대로 */
+    @media (min-width: 881px) { header.dia-header .nav-links { display: none !important; } }
+  </style>
 </head>
 <body class="dia-page">
   <header class="dia-header">
@@ -2280,6 +2284,7 @@
           <a href="dia.html" class="board-nav-link is-active">커뮤니티 홈</a>
           <a href="dia-notice.html" class="board-nav-link">공지사항 <span class="nav-new">NEW</span></a>
           <a href="dia-info.html" class="board-nav-link">⚙️ 운영 센터 <span class="nav-new">NEW</span></a>
+          <a class="board-nav-link" href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener">입장하기</a>
           <div class="board-nav-sep"></div>
           <div class="side-set only-pc">
             <div class="side-set-top">
@@ -3168,6 +3173,10 @@
                 닫기모두();
                 if(!mBox) return;
                 mBox.hidden = false;
+                // 미니게임 플레이 수 집계 — 게임을 여는 순간 1회 (같은 판 반복 클릭은 세지 않음)
+                if(window.DiaFB && DiaFB.hitGame){
+                  DiaFB.hitGame(kind === 'memory' ? 'mem' : (kind === 'react' ? 'react' : (kind === 'lotto' ? 'lotto' : '')));
+                }
                 if(kind === 'memory'){
                   var icons = ['💎','💄','💅','🌸','✨','🎀','👑','🕊️'];
                   function startMem(){
