@@ -13,10 +13,16 @@
 <div class="wrap"><iframe id="f" src="../dia-board-notice.html"></iframe></div>
 <script>
 (function(){
-  var m = /[?&]p=([^&]+)/.exec(location.search);
-  if (m) document.getElementById('f').src = '../' + decodeURIComponent(m[1]);
-  var h = /[?&]h=(\d+)/.exec(location.search);
-  if (h) document.getElementById('f').style.height = h[1] + 'px';
+  var q = location.search.replace('?', '').split('&');
+  var p = '', h = '';
+  for (var i = 0; i < q.length; i++){
+    var kv = q[i].split('=');
+    if (kv[0] === 'p') p = decodeURIComponent(kv[1] || '');
+    if (kv[0] === 'h') h = kv[1] || '';
+  }
+  var f = document.getElementById('f');
+  if (p) f.src = '../' + p;
+  if (h) f.style.height = h + 'px';
 })();
 </script>
 </body>
