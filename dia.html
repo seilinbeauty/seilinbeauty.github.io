@@ -2129,13 +2129,10 @@
         box-shadow: 0 2px 10px rgba(180, 130, 145, .05); box-sizing: border-box;
         gap: 12px !important;
       }
-      /* PC: 링크 남기기 카드를 본문 카드 안 원장님들 화이팅 바로 위로 옮겼을 때 */
-      body.dia-page .dia-hero.in-main { background: transparent !important; border: 0 !important; padding: 0 !important; margin: 0 0 10px !important; }
-      body.dia-page .dia-hero.in-main .dia-hero-in,
-      body.dia-page .dia-hero.in-main .dia-hero-in:has(#mcHeroStatus:not([hidden])) {
-        width: 100% !important; max-width: none !important; margin: 0 !important;
-        padding: 12px 16px 10px !important; border-radius: 12px !important;
-      }
+      /* PC: 맨 위 카드를 본문 카드 바로 위에 붙인다 (사이 여백 제거) */
+      body.dia-page .dia-hero { padding-bottom: 0 !important; }
+      body.dia-page .dia-hero-in { border-radius: 14px 14px 0 0 !important; border-bottom: 0 !important; box-shadow: none !important; padding-bottom: 6px !important; }
+      body.dia-page .plx-section { padding-top: 0 !important; }
       /* PC: 맨 위 링크/활동기록 카드를 본문 폭에 맞춰 오른쪽 정렬 — 카테고리 위는 비워 둔다 */
       body.dia-page .dia-hero-in,
       body.dia-page .dia-hero-in:has(#mcHeroStatus:not([hidden])) {
@@ -6800,29 +6797,6 @@ window.창고읽기 = function(url){
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
-})();
-</script>
-
-<script>
-/* PC에서만: 링크 남기기 카드를 본문 카드 안 '원장님들 화이팅' 바로 위로 옮긴다. 휴대폰은 그대로. */
-(function(){
-  var mq = window.matchMedia ? window.matchMedia('(min-width: 881px)') : null;
-  var hero = document.querySelector('.dia-hero');
-  var main = document.querySelector('.plx-main');
-  var fortune = document.querySelector('.mc-fortune-wrap');
-  if(!hero || !main || !fortune) return;
-  var home = hero.parentNode, next = hero.nextSibling;
-  function place(){
-    var pc = !!(mq && mq.matches);
-    if(pc){
-      if(hero.parentNode !== main){ main.insertBefore(hero, fortune); hero.classList.add('in-main'); }
-    } else if(hero.parentNode !== home){
-      home.insertBefore(hero, next); hero.classList.remove('in-main');
-    }
-  }
-  place();
-  if(mq && mq.addEventListener) mq.addEventListener('change', place);
-  else if(mq && mq.addListener) mq.addListener(place);
 })();
 </script>
 </body>
