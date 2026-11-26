@@ -3212,8 +3212,15 @@ document.addEventListener('DOMContentLoaded', function(){
           <div id="ops-now" style="display:flex;justify-content:center;align-items:baseline;gap:8px;margin:0 0 8px;font-size:13px;color:#8a8a8a;"><span id="ops-date">2026년 11월 16일 월요일</span><strong id="ops-time" style="font-size:18px;font-weight:800;color:#c2456a;letter-spacing:.5px;">--:--</strong></div>
           <div id="ops-asof" style="display:flex;justify-content:center;align-items:baseline;gap:5px;margin:0 0 10px;font-size:11.5px;color:#b09aa3;">데이터 최신화 <strong style="font-weight:800;color:#c2456a;">11-23 마감</strong> 자동 갱신</div>
           <div id="fb-analytics-bar" style="display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin:0 0 14px;font-size:12px;color:#7d6a72;"></div>
+          <style>.ops-layout-bar{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin:0 0 10px;}.ops-layout-btn{padding:5px 12px;border-radius:999px;border:1px solid #ecd6de;background:#fff;color:#9e526b;font-size:11.5px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1.4;}.ops-layout-btn:hover{background:#fdf2f6;}.ops-layout-btn.on{background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;border-color:transparent;}.ops-layout-mode{font-size:11px;font-weight:800;color:#b35172;background:#fdf1f5;padding:4px 9px;border-radius:999px;margin-right:auto;}.ops-layout-board{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;align-items:start;}.ops-layout-board>[data-ops-sec]{grid-column:span 12;min-width:0;margin:0 !important;box-sizing:border-box;position:relative;}.ops-layout-board>[data-ops-sec].is-sized{overflow:auto;}.ops-layout-board>[data-ops-sec].is-narrow.ops-kpi{grid-template-columns:repeat(2,1fr) !important;gap:10px !important;}.ops-layout-board>[data-ops-sec].is-narrow .ops-vgroups{grid-template-columns:1fr !important;}.ops-layout-board>[data-ops-sec].is-narrow .ops-gs-row{grid-template-columns:repeat(2,1fr);}.ops-stats-edit .ops-layout-board>[data-ops-sec]{outline:2px dashed #eab6c6;outline-offset:2px;border-radius:14px;}.ops-stats-edit .ops-layout-board>[data-ops-sec].is-dragging{opacity:.55;outline-color:#d55576;}.ops-stats-edit .ops-layout-board>[data-ops-sec].is-drop-target{outline:2px solid #d55576;}.ops-sec-ctrl{display:none;align-items:center;gap:5px;flex-wrap:wrap;padding:6px 8px;margin:0 0 10px;border-radius:10px;background:#fdf4f7;border:1px solid #f0d7e0;font-size:11px;color:#5a464d;user-select:none;}.ops-stats-edit .ops-sec-ctrl{display:flex;}.ops-sec-drag{cursor:grab;font-weight:900;color:#c2456a;padding:2px 5px;border-radius:6px;background:#fff;border:1px solid #f0d7e0;touch-action:none;}.ops-sec-title{font-weight:800;color:#8a495f;margin-right:auto;font-size:11.5px;white-space:nowrap;}.ops-sec-grp{display:inline-flex;align-items:center;gap:3px;}.ops-sec-b{padding:2px 6px;border-radius:6px;border:1px solid #e9cfd8;background:#fff;color:#7a626a;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1.4;}.ops-sec-b[data-on="1"]{background:#d55576;color:#fff;border-color:#d55576;}.ops-sec-resize{display:none;position:absolute;right:4px;bottom:4px;width:18px;height:18px;border-radius:6px;background:#fdf0f4;border:1px solid #eab6c6;color:#c2456a;font-size:11px;line-height:16px;text-align:center;cursor:ns-resize;touch-action:none;z-index:5;user-select:none;}.ops-stats-edit .ops-sec-resize{display:block;}</style>
+          <div class="ops-layout-bar" id="ops-layout-bar">
+            <span class="ops-layout-mode" id="ops-layout-mode" style="display:none;"></span>
+            <button type="button" class="ops-layout-btn" id="ops-layout-reset" style="display:none;">↺ 기본으로</button>
+            <button type="button" class="ops-layout-btn" id="ops-layout-toggle">🎛️ 통계 배치 편집</button>
+          </div>
+          <div class="ops-layout-board" id="ops-layout-board">
           <style>.ops-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;}.ops-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:stretch;}.ops-sub-wrap{display:block;width:100%;margin-bottom:16px;}.ops-sub{display:flex;flex-direction:column;gap:9px;width:100%;min-width:0;}svg.ops-line{height:auto;display:block;}@media (max-width:880px){svg.ops-line{width:100% !important;max-width:none !important;}}@media (min-width:881px){svg.ops-line{width:100%;max-width:none;}}@media (min-width:881px){.ops-sub-wrap{max-width:50%;}}.ops-sub-row{display:block;}.ops-sub-side{display:none;}@media (min-width:881px){.ops-sub-row{display:flex;gap:16px;align-items:flex-start;}.ops-sub-row>.ops-sub-wrap{flex:1 1 50%;max-width:50%;margin-bottom:0;}.ops-sub-row>.ops-sub-side{display:block;flex:1 1 50%;min-width:0;}#ops-rank-side .rank-card{margin:0;box-sizing:border-box;overflow:hidden;}}.ops-sub-panel > div{width:100%;box-sizing:border-box;}@media (max-width:880px){.ops-grid{grid-template-columns:1fr !important;gap:14px !important;}.ops-sub{grid-column:1 / -1 !important;width:100%;}.ops-sub-panel{width:100%;}.ops-sub-panel > div{width:100% !important;max-width:none !important;box-sizing:border-box;margin-left:auto !important;margin-right:auto !important;}}.ops-grid svg:not(.ops-line){max-width:100%;}@media (max-width:880px){.ops-sub-tab{padding:3px 11px;font-size:11px;line-height:1.55;}}.ops-sub-tabs{display:flex;gap:6px;}@media (max-width:880px){.ops-sub-tabs{justify-content:center;}.ops-sub-tab{flex:1 1 0;}}.ops-sub-tab{text-align:center;padding:1px 7px;border-radius:999px;border:1px solid #f0e2e7;background:#fff;cursor:pointer;font-size:9.5px;font-weight:700;color:#a98d97;font-family:inherit;line-height:1.5;}.ops-sub-tab[data-on="1"]{background:#f7dbe4;border-color:#eab6c6;color:#b35172;}.ops-sub-panel{display:block;min-width:0;}.ops-grid>div{margin-bottom:0 !important;}.ops-tabs{display:flex;gap:8px;margin:2px 0 14px;}@media (max-width:880px){.ops-tabs{justify-content:center;}}.ops-tab{padding:8px 20px;border-radius:999px;border:1px solid #f0e2e7;background:#fff;cursor:pointer;font-size:13.5px;font-weight:700;color:#9a8b91;font-family:inherit;}.ops-tab[data-on="1"]{background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;border-color:transparent;}.ops-cap{font-size:13px;font-weight:800;color:#8a7b81;margin:18px 0 10px;letter-spacing:.2px;}.ops-more{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;margin-top:8px;padding:7px 0 2px;border:0;border-top:1px dashed #f2e4e9;background:transparent;cursor:pointer;font-size:13px;color:#c2456a;font-weight:700;}.ops-arrow{font-style:normal;transition:transform .3s ease;display:inline-block;}.ops-more[data-open="1"] .ops-arrow{transform:rotate(180deg);}.ops-more-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}.ops-more-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;padding-top:7px;}@media (max-width:1100px){.ops-grid{grid-template-columns:repeat(2,1fr);}}@media (max-width:820px){.ops-kpi{grid-template-columns:repeat(2,1fr);}.ops-grid{grid-template-columns:1fr;}}.ops-visit{background:#fff;border:1px solid #f0e2e7;border-radius:14px;padding:15px 16px 12px;margin-bottom:16px;width:100%;box-sizing:border-box;}.ops-visit-hd{display:flex;align-items:baseline;gap:8px;margin-bottom:12px;flex-wrap:wrap;}.ops-visit-t{font-size:13px;font-weight:800;color:#8a7b81;}.ops-visit-s{font-size:11px;color:#c3adb6;}.ops-visit-upd{margin-left:auto;font-size:11px;color:#c3adb6;}.ops-vgroups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}@media (max-width:1040px){.ops-vgroups{grid-template-columns:repeat(2,minmax(0,1fr));}}@media (max-width:640px){.ops-vgroups{grid-template-columns:1fr;}}.ops-vg.prk{border-color:#e6e0f2;background:linear-gradient(180deg,#fdfcff,#f5f2fb);}.ops-vg.prk .ops-vg-h{color:#5f4b8b;}.ops-vg.prk .ops-vg-h i{background:#9a7ad5;}.ops-vg{border-radius:12px;padding:12px 13px 11px;border:1px solid #f4dee6;background:linear-gradient(180deg,#fffbfc,#fdf3f6);min-width:0;}.ops-vg.aca{border-color:#dfe7f1;background:linear-gradient(180deg,#fbfcfe,#f2f6fb);}.ops-vg-h{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;color:#b04366;margin-bottom:9px;letter-spacing:.1px;}.ops-vg.aca .ops-vg-h{color:#47688f;}.ops-vg-h i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#e8839e;flex:0 0 auto;}.ops-vg.aca .ops-vg-h i{background:#7d9cc0;}.ops-vg-nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}.ops-visit-mem{font-size:11px;color:#8a7b81;margin:10px 0 0;line-height:1.55;word-break:keep-all;}.ops-visit-mem b{color:#c2456a;font-weight:800;margin-right:5px;}.ops-visit-note{font-size:10.5px;color:#c3adb6;margin:10px 0 0;line-height:1.6;word-break:keep-all;}.ops-online{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:8px 11px;margin:0 0 11px;border-radius:10px;background:#f6fbf7;border:1px solid #e2f0e6;}.ops-online-dot{width:7px;height:7px;border-radius:50%;background:#43b96a;box-shadow:0 0 0 3px rgba(67,185,106,.14);flex:0 0 auto;}.ops-online-t{font-size:11.5px;font-weight:800;color:#2f7d4b;letter-spacing:-.2px;}.ops-online-t b{font-size:13px;font-variant-numeric:tabular-nums;margin:0 1px;}.ops-online-s{font-size:10.5px;color:#7e9c88;margin-left:auto;letter-spacing:-.2px;}.ops-online-s b{color:#4f7a5f;font-variant-numeric:tabular-nums;}@media (max-width:400px){.ops-online-s{margin-left:0;width:100%;}}.ops-ga4-btn{display:block;width:100%;margin-top:12px;padding:8px 0;border:1px dashed #e8c9d6;border-radius:10px;background:#fffafc;color:#c2456a;font-size:11.5px;font-weight:800;cursor:pointer;letter-spacing:-.2px;}.ops-ga4-btn:hover{background:#fdf1f6;}.ops-ga4-btn[data-open="1"]{border-style:solid;background:#fdf1f6;}.ops-ga4[hidden]{display:none;}.ops-ga4{margin-top:12px;padding-top:12px;border-top:1px solid #f7eaef;}.ops-ga4-hd{display:flex;align-items:baseline;gap:6px;font-size:10.5px;color:#b39aa4;margin-bottom:9px;letter-spacing:-.2px;}.ops-ga4-hd span{margin-left:auto;color:#c9b6bd;}.ops-ga4-load{font-size:11px;color:#b39aa4;padding:10px 0;text-align:center;}.ops-visit-l{font-size:10.5px;color:#9a8b91;margin-bottom:4px;letter-spacing:-.2px;white-space:nowrap;}.ops-visit-v{font-size:20px;font-weight:800;color:#332b2f;line-height:1;font-variant-numeric:tabular-nums;}.ops-visit-v small{font-size:10.5px;font-weight:600;color:#c08fa2;margin-left:2px;}.ops-vg.aca .ops-visit-v small{color:#8fa6c2;}.ops-visit-tb{width:100%;max-width:100%;table-layout:fixed;border-collapse:collapse;margin-top:14px;font-size:12px;}.ops-visit-tb th{font-size:10.5px;font-weight:700;color:#a98d97;text-align:right;padding:6px 4px;border-bottom:1px solid #f5e9ee;letter-spacing:-.2px;}.ops-visit-tb th:first-child{text-align:left;width:62px;}.ops-visit-tb th.aca-h{color:#8fa6c2;}.ops-visit-tb th.prk-h{color:#9a86c4;}.ops-visit-tb td{padding:6px 4px;border-bottom:1px solid #faf3f5;text-align:right;color:#4a4448;font-variant-numeric:tabular-nums;}.ops-visit-tb td:first-child{text-align:left;color:#8a7b81;}.ops-visit-tb tr:last-child td{border-bottom:0;}@media (max-width:880px){.ops-visit-tb{font-size:11px;}.ops-visit-tb th,.ops-visit-tb td{padding:5px 2px;}}@media (max-width:400px){.ops-visit-tb{font-size:10.5px;}.ops-visit-tb th:first-child{width:50px;}.ops-visit-v{font-size:18px;}}</style>
-          <div class="ops-kpi">
+          <div class="ops-kpi" data-ops-sec="kpi" data-ops-title="핵심 통계 4박스">
               <div class="ops-kpi-card" data-more="members" style="cursor:pointer;border:1px solid #f0e2e7;border-radius:14px;background:#fff;padding:15px 16px 13px;">
                 <div style="font-size:12px;color:#9a9a9a;margin-bottom:7px;">전체 회원</div>
                 <div style="font-size:26px;font-weight:800;color:#333;line-height:1;">94<span style="font-size:13px;font-weight:600;color:#c08fa2;margin-left:3px;">명</span></div>
@@ -3235,7 +3242,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 <div style="font-size:12px;color:#c3adb6;margin-top:9px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;"><span style="color:#c3adb6;">—</span><span style="color:#e0d3d8;">|</span><span>11월 입장 기준</span></div>
               </div>
           </div>
-          <div class="ops-visit" id="ops-visit">
+          <div class="ops-visit" id="ops-visit" data-ops-sec="visit" data-ops-title="방문자 통계">
             <div class="ops-visit-hd">
               <span class="ops-visit-t">방문자</span>
               <span class="ops-visit-s">자체 집계 · 30분 단위 · 관리자 제외</span>
@@ -3307,7 +3314,7 @@ document.addEventListener('DOMContentLoaded', function(){
               <div id="ops-ga4-tb"></div>
               <div class="ops-visit-note">GA4는 태그 설치일(11월 19일) 이후 방문부터 집계되고, 당일 수치는 몇 시간 늦게 반영됩니다.</div>
             </div>
-          </div>          <div class="ops-tabs"><button class="ops-tab" data-panel="ops-panel-total" data-on="1" type="button">메인</button><button class="ops-tab" data-panel="ops-panel-day" data-on="0" type="button">일별</button><button class="ops-tab" data-panel="ops-panel-week" data-on="0" type="button">주별</button><button class="ops-tab" data-panel="ops-panel-month" data-on="0" type="button">월별</button></div>
+          </div>          <div id="ops-charts-wrap" data-ops-sec="charts" data-ops-title="기간별 그래프 · 차트"><div class="ops-tabs"><button class="ops-tab" data-panel="ops-panel-total" data-on="1" type="button">메인</button><button class="ops-tab" data-panel="ops-panel-day" data-on="0" type="button">일별</button><button class="ops-tab" data-panel="ops-panel-week" data-on="0" type="button">주별</button><button class="ops-tab" data-panel="ops-panel-month" data-on="0" type="button">월별</button></div>
           <div class="ops-panel" id="ops-panel-total">
           <div class="ops-sub-row">
           <div class="ops-sub-wrap"><div class="ops-sub"><div class="ops-sub-tabs"><button class="ops-sub-tab" data-sub="ops-sub-mem" data-on="1" type="button">전체 회원</button><button class="ops-sub-tab" data-sub="ops-sub-par" data-on="0" type="button">전체 참여</button><button class="ops-sub-tab" data-sub="ops-sub-on" data-on="0" type="button">정시 완료</button></div><div class="ops-sub-panel" id="ops-sub-mem">          <div style="border:1px solid #f0e2e7;border-radius:16px;background:#fff;padding:18px 18px 14px;margin-bottom:0;">
@@ -4579,6 +4586,7 @@ document.addEventListener('DOMContentLoaded', function(){
                   </div>
               </div>
             </div>
+          </div>
           </div>
           </div>
           </div>          <div id="ops-members" style="display:none;">
@@ -5870,7 +5878,251 @@ document.addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 
-<script src="dia-tag.js?v=2" defer></script><script src="dia-tag-admin.js?v=3" defer></script><script src="dia-board.js?v=6" defer></script><script src="dia-fb.js?v=16" defer></script><script src="dia-pin.js?v=2" defer></script><script src="dia-pin-admin.js?v=3" defer></script><script src="dia-fbstat.js?v=1" defer></script><script src="dia-gamestat.js?v=3" defer></script><!-- 운영 센터 '#️⃣ 해시태그' 탭, 회원 목록 '암호' 칸 -->
+<script src="dia-tag.js?v=2" defer></script><script src="dia-tag-admin.js?v=3" defer></script><script src="dia-board.js?v=6" defer></script><script src="dia-fb.js?v=16" defer></script><script src="dia-pin.js?v=2" defer></script><script src="dia-pin-admin.js?v=3" defer></script><script src="dia-fbstat.js?v=2" defer></script><script src="dia-gamestat.js?v=4" defer></script><!-- 운영 센터 '#️⃣ 해시태그' 탭, 회원 목록 '암호' 칸 -->
+<script>
+(function(){
+  var DEFAULT_ORDER = ['fb', 'kpi', 'visit', 'game', 'course', 'charts'];
+  function isMob(){ return window.innerWidth <= 880; }
+  function storeKey(){ return isMob() ? 'dia_ops_layout_mo_v1' : 'dia_ops_layout_pc_v1'; }
+  function loadCfg(){
+    try{
+      var raw = localStorage.getItem(storeKey());
+      if(raw){
+        var o = JSON.parse(raw);
+        if(o && Array.isArray(o.order) && o.items) return o;
+      }
+    }catch(e){}
+    return { order: DEFAULT_ORDER.slice(), items: {} };
+  }
+  function saveCfg(cfg){
+    try{ localStorage.setItem(storeKey(), JSON.stringify(cfg)); }catch(e){}
+  }
+  function ensureOrder(cfg){
+    var seen = {}, out = [];
+    (cfg.order || []).forEach(function(id){ if(!seen[id]){ seen[id] = 1; out.push(id); } });
+    DEFAULT_ORDER.forEach(function(id){ if(!seen[id]){ seen[id] = 1; out.push(id); } });
+    var board = document.getElementById('ops-layout-board');
+    if(board){
+      Array.prototype.forEach.call(board.children, function(el){
+        var id = el.getAttribute && el.getAttribute('data-ops-sec');
+        if(id && !seen[id]){ seen[id] = 1; out.push(id); }
+      });
+    }
+    cfg.order = out;
+    return cfg;
+  }
+
+  var editing = false;
+  var dragId = null;
+
+  function applyLayout(){
+    var board = document.getElementById('ops-layout-board');
+    var stats = document.getElementById('ops-stats');
+    if(!board || !stats) return;
+    var mob = isMob();
+    var cfg = ensureOrder(loadCfg());
+    var modeEl = document.getElementById('ops-layout-mode');
+    if(modeEl){
+      modeEl.style.display = editing ? '' : 'none';
+      modeEl.textContent = (mob ? '📱 모바일' : '🖥️ PC') + ' 배치 편집 중';
+    }
+    var rstBtn = document.getElementById('ops-layout-reset');
+    if(rstBtn) rstBtn.style.display = editing ? '' : 'none';
+    var togBtn = document.getElementById('ops-layout-toggle');
+    if(togBtn){
+      togBtn.textContent = editing ? '✅ 배치 완료' : '🎛️ 통계 배치 편집';
+      togBtn.className = 'ops-layout-btn' + (editing ? ' on' : '');
+    }
+    stats.classList.toggle('is-stats-edit', editing);
+
+    var spans = mob ? [[6,'1/2'],[12,'전체']] : [[4,'1/3'],[6,'1/2'],[8,'2/3'],[12,'전체']];
+    Array.prototype.forEach.call(board.children, function(el){
+      var id = el.getAttribute && el.getAttribute('data-ops-sec');
+      if(!id) return;
+      var it = (cfg.items && cfg.items[id]) || {};
+      var sp = parseInt(it.span, 10) || 12;
+      if(mob && sp !== 6 && sp !== 12) sp = 12;
+      if(!mob && [4,6,8,12].indexOf(sp) === -1) sp = 12;
+      var h = parseInt(it.h, 10) || 0;
+      var ord = cfg.order.indexOf(id);
+      el.style.order = ord >= 0 ? ord : 99;
+      el.style.gridColumn = 'span ' + sp;
+      if(h > 0){
+        el.style.height = h + 'px';
+        el.classList.add('is-sized');
+      }else{
+        el.style.height = '';
+        el.classList.remove('is-sized');
+      }
+      el.classList.toggle('is-narrow', sp <= 6);
+
+      var ctrl = el.querySelector(':scope > .ops-sec-ctrl');
+      if(!ctrl){
+        ctrl = document.createElement('div');
+        ctrl.className = 'ops-sec-ctrl';
+        el.insertBefore(ctrl, el.firstChild);
+      }
+      var title = el.getAttribute('data-ops-title') || id;
+      var spanBtns = spans.map(function(p){
+        return '<button type="button" class="ops-sec-b" data-act="span" data-v="' + p[0] + '" data-on="' + (sp === p[0] ? '1' : '0') + '">' + p[1] + '</button>';
+      }).join('');
+      ctrl.innerHTML =
+        '<span class="ops-sec-drag" title="끌어서 순서 변경" draggable="true">⠿</span>' +
+        '<span class="ops-sec-title">' + title + '</span>' +
+        '<span class="ops-sec-grp">' +
+          '<button type="button" class="ops-sec-b" data-act="up" title="앞으로">▲</button>' +
+          '<button type="button" class="ops-sec-b" data-act="dn" title="뒤로">▼</button>' +
+        '</span>' +
+        '<span class="ops-sec-grp">' + spanBtns + '</span>' +
+        '<span class="ops-sec-grp">' +
+          '<button type="button" class="ops-sec-b" data-act="hm" title="높이 줄이기">높이-</button>' +
+          '<button type="button" class="ops-sec-b" data-act="ha" data-on="' + (h === 0 ? '1' : '0') + '">자동</button>' +
+          '<button type="button" class="ops-sec-b" data-act="hp" title="높이 늘리기">높이+</button>' +
+        '</span>';
+
+      if(!el.querySelector(':scope > .ops-sec-resize')){
+        var rz = document.createElement('div');
+        rz.className = 'ops-sec-resize';
+        rz.title = '끌어서 높이 조절';
+        rz.textContent = '◢';
+        el.appendChild(rz);
+      }
+    });
+  }
+
+  function moveItem(id, dir){
+    var cfg = ensureOrder(loadCfg());
+    var board = document.getElementById('ops-layout-board');
+    var present = [];
+    if(board){
+      Array.prototype.forEach.call(board.children, function(el){
+        var k = el.getAttribute && el.getAttribute('data-ops-sec');
+        if(k) present.push(k);
+      });
+    }
+    var visibleOrder = cfg.order.filter(function(k){ return present.indexOf(k) !== -1; });
+    var idx = visibleOrder.indexOf(id);
+    if(idx === -1) return;
+    var ni = idx + dir;
+    if(ni < 0 || ni >= visibleOrder.length) return;
+    var targetId = visibleOrder[ni];
+    var a = cfg.order.indexOf(id), b = cfg.order.indexOf(targetId);
+    cfg.order[a] = targetId; cfg.order[b] = id;
+    saveCfg(cfg); applyLayout();
+  }
+
+  function swapTo(srcId, dstId){
+    if(!srcId || !dstId || srcId === dstId) return;
+    var cfg = ensureOrder(loadCfg());
+    var a = cfg.order.indexOf(srcId), b = cfg.order.indexOf(dstId);
+    if(a === -1 || b === -1) return;
+    cfg.order.splice(a, 1);
+    cfg.order.splice(b, 0, srcId);
+    saveCfg(cfg); applyLayout();
+  }
+
+  document.addEventListener('click', function(e){
+    var t = e.target;
+    if(t && t.id === 'ops-layout-toggle'){
+      editing = !editing; applyLayout(); return;
+    }
+    if(t && t.id === 'ops-layout-reset'){
+      try{ localStorage.removeItem(storeKey()); }catch(err){}
+      applyLayout(); return;
+    }
+    var btn = t && t.closest && t.closest('.ops-sec-b');
+    if(!btn) return;
+    var sec = btn.closest('[data-ops-sec]');
+    if(!sec) return;
+    var id = sec.getAttribute('data-ops-sec');
+    var act = btn.getAttribute('data-act');
+    if(act === 'up'){ moveItem(id, -1); return; }
+    if(act === 'dn'){ moveItem(id, 1); return; }
+    var cfg = ensureOrder(loadCfg());
+    cfg.items = cfg.items || {};
+    cfg.items[id] = cfg.items[id] || {};
+    if(act === 'span'){
+      cfg.items[id].span = parseInt(btn.getAttribute('data-v'), 10) || 12;
+    }else if(act === 'ha'){
+      cfg.items[id].h = 0;
+    }else if(act === 'hp'){
+      var curH = parseInt(cfg.items[id].h, 10) || sec.offsetHeight || 240;
+      cfg.items[id].h = Math.min(1200, Math.max(140, Math.round(curH / 20) * 20 + 40));
+    }else if(act === 'hm'){
+      var curH2 = parseInt(cfg.items[id].h, 10) || sec.offsetHeight || 240;
+      cfg.items[id].h = Math.max(140, Math.round(curH2 / 20) * 20 - 40);
+    }
+    saveCfg(cfg); applyLayout();
+  });
+
+  // PC HTML5 드래그 순서 변경
+  document.addEventListener('dragstart', function(e){
+    var h = e.target && e.target.closest && e.target.closest('.ops-sec-drag');
+    if(!h || !editing) return;
+    var sec = h.closest('[data-ops-sec]');
+    if(!sec) return;
+    dragId = sec.getAttribute('data-ops-sec');
+    sec.classList.add('is-dragging');
+    if(e.dataTransfer){ e.dataTransfer.effectAllowed = 'move'; try{ e.dataTransfer.setData('text/plain', dragId); }catch(err){} }
+  });
+  document.addEventListener('dragover', function(e){
+    if(!dragId || !editing) return;
+    var sec = e.target && e.target.closest && e.target.closest('[data-ops-sec]');
+    if(!sec) return;
+    e.preventDefault();
+    Array.prototype.forEach.call(document.querySelectorAll('.is-drop-target'), function(x){ x.classList.remove('is-drop-target'); });
+    if(sec.getAttribute('data-ops-sec') !== dragId) sec.classList.add('is-drop-target');
+  });
+  document.addEventListener('drop', function(e){
+    if(!dragId || !editing) return;
+    var sec = e.target && e.target.closest && e.target.closest('[data-ops-sec]');
+    if(!sec) return;
+    e.preventDefault();
+    var dstId = sec.getAttribute('data-ops-sec');
+    var src = dragId; dragId = null;
+    Array.prototype.forEach.call(document.querySelectorAll('.is-dragging,.is-drop-target'), function(x){ x.classList.remove('is-dragging','is-drop-target'); });
+    swapTo(src, dstId);
+  });
+  document.addEventListener('dragend', function(){
+    dragId = null;
+    Array.prototype.forEach.call(document.querySelectorAll('.is-dragging,.is-drop-target'), function(x){ x.classList.remove('is-dragging','is-drop-target'); });
+  });
+
+  // 마우스/터치 드래그로 높이 직접 조절
+  var rzState = null;
+  document.addEventListener('pointerdown', function(e){
+    var rz = e.target && e.target.closest && e.target.closest('.ops-sec-resize');
+    if(!rz || !editing) return;
+    var sec = rz.closest('[data-ops-sec]');
+    if(!sec) return;
+    e.preventDefault();
+    rzState = { sec: sec, id: sec.getAttribute('data-ops-sec'), y0: e.clientY, h0: sec.offsetHeight };
+  });
+  document.addEventListener('pointermove', function(e){
+    if(!rzState) return;
+    var nh = Math.min(1200, Math.max(140, rzState.h0 + (e.clientY - rzState.y0)));
+    rzState.sec.style.height = nh + 'px';
+    rzState.sec.classList.add('is-sized');
+    rzState.nh = nh;
+  });
+  document.addEventListener('pointerup', function(){
+    if(!rzState) return;
+    if(rzState.nh){
+      var cfg = ensureOrder(loadCfg());
+      cfg.items = cfg.items || {};
+      cfg.items[rzState.id] = cfg.items[rzState.id] || {};
+      cfg.items[rzState.id].h = Math.round(rzState.nh);
+      saveCfg(cfg);
+    }
+    rzState = null;
+  });
+
+  window.__OPS_LAYOUT_REFRESH__ = applyLayout;
+  window.addEventListener('resize', applyLayout);
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyLayout);
+  else applyLayout();
+})();
+</script>
 <script>
 (function(){
   function loadConsultsAndAnalytics(){

@@ -44,17 +44,21 @@
 
   var gameBox = document.createElement('div');
   gameBox.className = 'ops-gs'; gameBox.id = 'ops-gs';
+  gameBox.setAttribute('data-ops-sec', 'game');
+  gameBox.setAttribute('data-ops-title', '미니게임 플레이');
   gameBox.innerHTML = cardHtml('ops-gs', '미니게임 플레이', '커뮤니티 홈 · 게임을 열 때 1회',
     '<div class="ops-gs-row">' +
       '<div class="ops-gs-item"><b id="gs-today">-</b><span>오늘 플레이</span></div>' +
       '<div class="ops-gs-item"><b id="gs-yday">-</b><span>어제 플레이</span></div>' +
       '<div class="ops-gs-item"><b id="gs-7">-</b><span>최근 7일 합계</span></div>' +
     '</div>' +
-    '<div class="ops-gs-sub" id="gs-games"><span>짝맞추기 <b>-</b></span><span>반응속도 <b>-</b></span><span>로또 <b>-</b></span></div>' +
+    '<div class="ops-gs-sub" id="gs-games"><span>오늘의 운세 <b>-</b></span><span>사주 보기 <b>-</b></span><span>오늘의 타로 <b>-</b></span><span>짝맞추기 <b>-</b></span><span>반응속도 <b>-</b></span><span>로또 <b>-</b></span></div>' +
     '<div class="ops-gs-note">게임을 여는 순간 1회를 세고, 같은 판의 반복 클릭은 세지 않습니다. 집계를 시작하기 전 날짜는 - 로 표시합니다.</div>');
 
   var crsBox = document.createElement('div');
   crsBox.className = 'ops-gs'; crsBox.id = 'ops-cv';
+  crsBox.setAttribute('data-ops-sec', 'course');
+  crsBox.setAttribute('data-ops-title', '강의별 조회수');
   crsBox.innerHTML = cardHtml('ops-cv', '🎓 강의별 조회수', '뷰티수강 · 카드를 열 때 1회(30분 중복 제외)',
     '<div class="ops-gs-row two">' +
       '<div class="ops-gs-item"><b id="cv-today">-</b><span>오늘 조회 합계</span></div>' +
@@ -66,22 +70,9 @@
     '</div>' +
     '<div class="ops-gs-note">뷰티수강 페이지에는 표시하지 않고, 이 화면과 커뮤니티 홈 인기 수강 카드에만 보입니다. 집계 시작 전 날짜는 - 입니다.</div>');
 
-  // #ops-fb 가 생기면 그 앞에 [미니게임][강의] 순서로 넣는다
-  var placed = false;
-  function place(){
-    if(placed) return;
-    var fb = document.getElementById('ops-fb');
-    if(!fb || !fb.parentNode) return;
-    var host = fb.parentNode;
-    if(gameBox.parentNode !== host) host.insertBefore(gameBox, fb);
-    if(crsBox.parentNode !== host) host.insertBefore(crsBox, fb);
-    placed = true;
-  }
   anchor.parentNode.insertBefore(gameBox, anchor.nextSibling);
   anchor.parentNode.insertBefore(crsBox, gameBox.nextSibling);
-  var tries = 0;
-  var t = setInterval(function(){ place(); if(placed || ++tries > 60) clearInterval(t); }, 250);
-  place();
+  if(window.__OPS_LAYOUT_REFRESH__) window.__OPS_LAYOUT_REFRESH__();
 
   function fmt(v){ return (v === null || v === undefined) ? '-' : String(v); }
   function num(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
