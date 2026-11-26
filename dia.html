@@ -2139,6 +2139,8 @@
         padding: 2px 18px 2px 2px !important;
       }
       body.dia-page #mcHeroStatus > .mc-row { margin-top: 0 !important; border: 0 !important; padding: 2px !important; }
+      /* PC: 오늘 내 링크 남기기 박스가 반쪽만 차지해 오른쪽이 비어 보이던 것 — 한 줄 전체 사용 */
+      body.dia-page .dia-hero-in > #diaLinkBox { flex: 1 1 100%; width: 100% !important; max-width: none !important; }
       /* 내 활동 기록 — PC에서 위아래 공백을 더 줄인다 (모바일 무영향) */
       body.dia-page .dia-hero-in:has(#mcHeroStatus:not([hidden])) { padding-bottom: 12px !important; }
       body.dia-page #mcHeroStatus:not([hidden]) { padding: 6px 10px !important; gap: 14px; }
