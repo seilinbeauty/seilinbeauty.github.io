@@ -4050,7 +4050,7 @@ window.창고읽기 = function(url){
               if(!m || !m.n || Number(m.l)) continue;
               if(String(m.o || '').indexOf('휴식') > -1 || String(m.o || '').indexOf('퇴장') > -1) continue;
               var n = streak(m);
-              if(n >= 1) list.push({ m: m, n: n });
+              if(n >= 2) list.push({ m: m, n: n });   /* 하루만 참여한 건 연속이 아니라 명예의 전당에 올리지 않음 */
             }
             var el = document.getElementById('fbStreak');
             if(!el) return;
