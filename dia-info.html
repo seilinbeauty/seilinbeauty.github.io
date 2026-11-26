@@ -5488,7 +5488,7 @@ document.addEventListener('DOMContentLoaded', function(){
 </script><script>
 (function(){
   var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
-  var V = {}, G = null;
+  var V = {}, W = null, G = null;
   function n(x){ x = Number(x) || 0; return x.toLocaleString('ko-KR'); }
   function put(id, val, unit){ var el = document.getElementById(id); if(el){ el.innerHTML = n(val) + '<small>' + (unit || '명') + '</small>'; } }
   function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
@@ -5536,11 +5536,20 @@ document.addEventListener('DOMContentLoaded', function(){
     box.innerHTML = html + '</tbody></table>';
   }
   function draw(){
-    var days = (V && V.days) || [];
-    var rows = days.slice(-10).reverse();
-    표그리기(document.getElementById('ops-visit-tb'), rows, function(it, s){
+    var rows = [];
+    if(W && W.days && W.days.length){
+      var pk = {};
+      ((V && V.days) || []).forEach(function(it){ pk[it.date] = it.parking || {}; });
+      rows = W.days.map(function(d){
+        var p = pk[d.date] || {};
+        return { date: d.date, dia: { p: d.diaU, v: d.dia }, academy: { p: d.acaU, v: d.aca }, parking: { p: p.visitors, v: p.views } };
+      });
+    } else {
+      rows = (V && V.days) || [];
+    }
+    표그리기(document.getElementById('ops-visit-tb'), rows.slice(0, 10), function(it, s){
       var x = it[s] || {};
-      return { p: x.visitors, v: x.views };
+      return { p: (x.visitors !== undefined ? x.visitors : x.p), v: (x.views !== undefined ? x.views : x.v) };
     });
   }
   function ga4draw(){
@@ -5593,17 +5602,32 @@ document.addEventListener('DOMContentLoaded', function(){
     el.textContent = ('0' + t.getHours()).slice(-2) + ':' + ('0' + t.getMinutes()).slice(-2) + ' 기준';
   }
   if(!window.fetch) return;
+  // 방문자·조회수 — 파이어스토어(analytics)에서 읽는다 (2026-11-26)
+  var 방문대기 = 0;
+  function 방문집계(){
+    if(!(window.DiaFB && DiaFB.visitStats)){
+      if(방문대기++ < 20) setTimeout(방문집계, 300);   // dia-fb.js(defer)가 붙기를 기다린다
+      return;
+    }
+    DiaFB.visitStats(14).then(function(d){
+      if(!d) return;
+      W = d;
+      var t = d.today || {}, wk = d.week || {};
+      put('g-dia-a', t.diaU, '명');
+      put('g-dia-v', t.dia, '회');
+      put('g-dia-w', wk.dia, '회');
+      put('g-aca-a', t.acaU, '명');
+      put('g-aca-v', t.aca, '회');
+      put('g-aca-w', wk.aca, '회');
+      draw(); upd();
+    }).catch(function(){});
+  }
   function 자체집계(){
+    방문집계();
+    // 현재 접속·회원 누적 방문·주차 — 창고(구글 앱스크립트)에서 그대로 받는다
     fetch(EXEC + '?mode=visits&days=14&_=' + Date.now(), {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
       if(!d || !d.ok) return;
       V = d;
-      var dia = d.dia || {}, aca = d.academy || {};
-      put('g-dia-a', dia.today && dia.today.visitors, '명');
-      put('g-dia-v', dia.today && dia.today.views, '회');
-      put('g-dia-w', dia.week && dia.week.views, '회');
-      put('g-aca-a', aca.today && aca.today.visitors, '명');
-      put('g-aca-v', aca.today && aca.today.views, '회');
-      put('g-aca-w', aca.week && aca.week.views, '회');
       var prk = d.parking || {};
       put('g-prk-a', prk.today && prk.today.visitors, '명');
       put('g-prk-v', prk.today && prk.today.views, '회');
@@ -5696,7 +5720,7 @@ document.addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 
-<script src="dia-tag.js?v=2" defer></script><script src="dia-tag-admin.js?v=3" defer></script><script src="dia-board.js?v=3" defer></script><script src="dia-fb.js?v=12" defer></script><script src="dia-pin.js?v=2" defer></script><script src="dia-pin-admin.js?v=3" defer></script><script src="dia-fbstat.js?v=1" defer></script><script src="dia-gamestat.js?v=2" defer></script><!-- 운영 센터 '#️⃣ 해시태그' 탭, 회원 목록 '암호' 칸 -->
+<script src="dia-tag.js?v=2" defer></script><script src="dia-tag-admin.js?v=3" defer></script><script src="dia-board.js?v=3" defer></script><script src="dia-fb.js?v=13" defer></script><script src="dia-pin.js?v=2" defer></script><script src="dia-pin-admin.js?v=3" defer></script><script src="dia-fbstat.js?v=1" defer></script><script src="dia-gamestat.js?v=2" defer></script><!-- 운영 센터 '#️⃣ 해시태그' 탭, 회원 목록 '암호' 칸 -->
 <script>
 (function(){
   function loadConsultsAndAnalytics(){

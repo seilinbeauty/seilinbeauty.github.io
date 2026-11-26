@@ -488,6 +488,40 @@
     }, function(){ return {}; });
   }
 
+  // ── 방문·접속 통계 읽기 (운영 센터 방문자 카드, 2026-11-26)
+  //    analytics/{날짜} = 조회수 · analytics/{날짜}_v = 방문자(같은 기기 30분 1회) — 칸 이름 dia / aca
+  function visitStats(n){
+    n = Math.max(1, Math.min(14, Number(n) || 10));
+    var list = [], i;
+    for(i = 0; i < n; i++){ list.push(new Date(Date.now() + 9 * 3600 * 1000 - i * 86400000).toISOString().slice(0, 10)); }
+    var q = [];
+    list.forEach(function(d){
+      q.push('documents=' + encodeURIComponent(name('analytics', d)));
+      q.push('documents=' + encodeURIComponent(name('analytics', d + '_v')));
+    });
+    return req('documents:batchGet?' + q.join('&'), null, 'GET').then(function(rows){
+      var got = {};
+      (rows || []).forEach(function(r){
+        var doc = r && r.found;
+        if(!doc) return;
+        var id = String(doc.name || '').split('/').pop(), f = doc.fields || {}, o = {};
+        for(var k in f){ if(f[k] && f[k].integerValue !== undefined) o[k] = parseInt(f[k].integerValue, 10) || 0; }
+        got[id] = o;
+      });
+      var days = list.map(function(d){
+        var v = got[d] || {}, u = got[d + '_v'] || {};
+        return { date: d, dia: (v.dia || 0), aca: (v.aca || 0), diaU: (u.dia || 0), acaU: (u.aca || 0) };
+      });
+      function sum(k, cnt){ var s = 0, j; for(j = 0; j < cnt && j < days.length; j++){ s += days[j][k] || 0; } return s; }
+      var t = days[0];
+      return {
+        today: { dia: t.dia, aca: t.aca, diaU: t.diaU, acaU: t.acaU },
+        week: { dia: sum('dia', 7), aca: sum('aca', 7) },
+        days: days
+      };
+    });
+  }
+
   // ── 하루치 분석 문서(analytics/{YYYY-MM-DD}) 하나만 읽기 — 미니게임 카드가 7일치만 읽도록
   //    값이 없는 항목은 0이 아니라 null 로 돌려준다(집계 시작 전 날짜를 0으로 단정하지 않게).
   function dayAnalytics(day){
@@ -821,7 +855,7 @@
     getClicks: getClicks, hitClick: hitClick,
     addSuggestion: addSuggestion, listSuggestions: listSuggestions, doneSuggestion: doneSuggestion,
     addConsult: addConsult, listConsults: listConsults, doneConsult: doneConsult,
-    hitVisit: hitVisit, hitGame: hitGame, getAnalytics: getAnalytics, dayAnalytics: dayAnalytics,
+    hitVisit: hitVisit, visitStats: visitStats, hitGame: hitGame, getAnalytics: getAnalytics, dayAnalytics: dayAnalytics,
     hitCourse: hitCourse, getCourseViews: getCourseViews,
     savePumasiLog: savePumasiLog, listPumasiLogs: listPumasiLogs,
     saveDmLead: saveDmLead, listDmLeads: listDmLeads,

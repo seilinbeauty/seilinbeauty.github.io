@@ -2280,19 +2280,16 @@
     }catch(e1){}
     if(navigator.webdriver === true){ off = true; }
     if(off) return;
-    var EXEC = 'https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec';
+    // 방문 기록·조회수를 파이어스토어에 남긴다 (2026-11-26 — 구글 앱스크립트 호출 중단)
+    //   analytics/{YYYY-MM-DD}   : 그날 조회수 (페이지가 열릴 때마다 +1)
+    //   analytics/{YYYY-MM-DD}_v : 그날 방문자 (같은 기기 30분에 1회 +1)
+    //   칸 이름 — 다이아 dia / 아카데미 aca
+    var FB_BASE = 'https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/';
+    var FB_KEY = 'AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY';
     var SITE = 'dia';
-    var COOL = 1800000;   // 서버가 기기ID·회원명 기준으로 30분 중복을 걸러낸다
+    var F = (SITE === 'academy') ? 'aca' : 'dia';
     function get(k){ try{ return localStorage.getItem(k) || ''; }catch(e){ return ''; } }
     function set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
-    function 기기(){
-      var v = get('dia_vid');
-      if(!v){
-        v = 'd' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
-        set('dia_vid', v);
-      }
-      return v;
-    }
     function 회원(){
       var raw = get('dia_login_member');
       if(!raw){ raw = get('dia_login_member_bak'); }
@@ -2307,41 +2304,35 @@
       return s === 'STAFF' || s === '세이린뷰티 본점' || s === '세이린 뷰티';
     }
     function 오늘(){ return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10); }
-    // 페이지가 열릴 때마다 1회 부른다(조회수) — 방문자 30분 중복은 서버에서 걸러진다
+    // 문서 하나의 칸을 1 올린다 (없으면 만든다)
+    function 셈(docId){
+      var body = { writes: [{
+        update: { name: 'projects/seilindia/databases/(default)/documents/analytics/' + docId, fields: {} },
+        updateMask: { fieldPaths: [] },
+        updateTransforms: [{ fieldPath: F, increment: { integerValue: '1' } }]
+      }] };
+      try{
+        fetch(FB_BASE + 'documents:commit?key=' + FB_KEY, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body), cache: 'no-store'
+        }).catch(function(){});
+      }catch(e){}
+    }
+    // 페이지가 열릴 때마다 1회 (조회수)
     function 보내기(){
       var today = 오늘();
       var m = 회원().trim();
       if(관리자(m)) return;
+      셈(today);
       var ts = Number(get('dia_visit_ts')) || 0;
-      // 같은 기기·같은 날 30분 안에 또 열면 서버로 다시 보내지 않는다 (서버 중복 기준과 같음)
+      // 같은 기기·같은 날 30분 안에 또 열면 방문자로는 세지 않는다
       if(get('dia_visit') === today && ts && (Date.now() - ts) < 1800000) return;
-      var url = EXEC + '?mode=visit&d=' + today + '&site=' + SITE + '&u=' + encodeURIComponent(기기()) + (m ? '&m=' + encodeURIComponent(m) : '') + '&_=' + Date.now();
-      fetch(url, {cache: 'no-store'})
-        .then(function(r){ return r.json(); })
-        .then(function(d){
-          if(!d || !d.ok) return;
-          set('dia_visit', today);
-          if(d.counted || !ts){ set('dia_visit_ts', String(Date.now())); }
-          if(m && (d.counted || d.updated)){ set('dia_visit_m', today + ':' + m); }
-        })
-        .catch(function(){});
-    }
-    // 현재 접속 중: 화면이 보이는 동안 50초마다 가벼운 하트비트(관리자 제외)
-    function 살아있음(){
-      if(관리자(회원().trim())) return;
-      if(document.visibilityState && document.visibilityState !== 'visible') return;
-      var hb = Number(get('dia_hb_ts')) || 0;
-      if(hb && (Date.now() - hb) < 45000) return;
-      set('dia_hb_ts', String(Date.now()));
-      fetch(EXEC + '?mode=hb&site=' + SITE + '&u=' + encodeURIComponent(기기()) + '&_=' + Date.now(), {cache: 'no-store'}).catch(function(){});
+      set('dia_visit', today);
+      set('dia_visit_ts', String(Date.now()));
+      셈(today + '_v');
     }
     window.diaVisitSync = 보내기;
     보내기();
-    살아있음();
-    setInterval(살아있음, 50000);
-    document.addEventListener('visibilitychange', function(){
-      if(document.visibilityState === 'visible') 살아있음();
-    });
   }catch(e){}
 })();
 </script><script src="dia-ask.js?v=2" defer></script><!--nav-fold-js-->
