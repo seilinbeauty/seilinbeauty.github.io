@@ -2574,16 +2574,18 @@
                 if(!list) return;
                 var K = 'dia_notice_seen_v1';
                 function esc(x){ return String(x === undefined || x === null ? '' : x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-                if(!window.DiaBoard || !DiaBoard.list || !DiaBoard.list.length){
+                var HIDE = {'완료패스':1,'휴식':1,'가이드':1};
+                var src = (window.DiaBoard && DiaBoard.list ? DiaBoard.list : []).filter(function(n){ return !HIDE[n.kind]; });
+                if(!src.length){
                   list.innerHTML = '<div class="mc-np-empty">새 소식이 없습니다</div>';
                   return;
                 }
-                var rows = DiaBoard.list.slice(0, 5).map(function(n){
+                var rows = src.slice(0, 5).map(function(n){
                   return '<a class="mc-np-row" href="' + esc(n.href) + '"><b>' + esc(n.title) + '</b><span>' + esc(n.date) + '</span></a>';
                 }).join('');
                 list.innerHTML = rows;
                 try{
-                  var titles = DiaBoard.list.map(function(n){ return n.title; });
+                  var titles = src.map(function(n){ return n.title; });
                   var seen = JSON.parse(localStorage.getItem(K) || '[]');
                   var fresh = titles.some(function(x){ return seen.indexOf(x) < 0; });
                   if(fresh && dot) dot.hidden = false;
