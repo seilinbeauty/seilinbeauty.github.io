@@ -2132,6 +2132,15 @@
         grid-column: auto !important; width: 100% !important; max-width: none !important;
         margin: 0 0 12px !important;
       }
+      /* 화이팅 섹션이 가운데 정렬이므로 그 위 카드도 가운데로 모은다 */
+      body.dia-page .plx-main > .dia-hero-in {
+        display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px !important;
+      }
+      body.dia-page .plx-main > .dia-hero-in .dia-hero-l { width: 100%; display: flex; flex-direction: column; align-items: center; }
+      body.dia-page .plx-main > .dia-hero-in .quick-links { justify-content: center; max-width: none; }
+      body.dia-page .plx-main > .dia-hero-in .mc-hero-right { margin: 0 auto !important; }
+      body.dia-page .plx-main > .dia-hero-in #mcHeroStatus { width: 100% !important; max-width: 720px; margin: 0 auto !important; }
+      body.dia-page .plx-main > .dia-hero-in #mcLoginBox { margin: 0 auto !important; }
       body.dia-page .dia-hero > .dia-hero-in,
       body.dia-page .dia-hero > .dia-hero-in:has(#mcHeroStatus:not([hidden])) {
         grid-column: 2 !important; width: auto !important; max-width: none !important; margin: 0 !important;
