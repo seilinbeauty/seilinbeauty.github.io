@@ -2159,7 +2159,26 @@
         <aside class="board-nav">
           <div class="board-nav-title">카테고리</div>
           <a href="dia.html" class="board-nav-link">커뮤니티 홈</a>
-          <a href="dia-notice.html" class="board-nav-link">공지사항 <span class="nav-new">NEW</span></a>
+          <style id="diaNavCss">
+.nav-fold{width:100%;display:block;background:transparent;border:0;font-family:inherit;text-align:left;cursor:pointer;}
+.nav-fold .nav-caret{float:right;margin-top:4px;font-size:9px;line-height:1;color:#b9a3ad;transition:transform .22s ease;}
+.nav-fold.is-open{color:#d55576;}
+.nav-fold.is-open .nav-caret{transform:rotate(180deg);color:#d55576;}
+.nav-sub{max-height:0;overflow:hidden;transition:max-height .28s ease;background:#fcfbfc;}
+.nav-sub.is-open{max-height:280px;}
+.nav-sub-link{display:block;position:relative;padding:9px 18px 9px 32px;font-size:12.5px;font-weight:600;color:#7d8a91;text-decoration:none;line-height:1.35;word-break:keep-all;}
+.nav-sub-link:before{content:"";position:absolute;left:20px;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:#e6ccd6;}
+.nav-sub-link:hover{color:#d55576;background:#fdf1f4;}
+.nav-sub-link.is-here{color:#d55576;font-weight:800;}
+@media (max-width:880px){.nav-sub{display:none !important;}.nav-fold .nav-caret{display:none;}}
+</style>
+          <button type="button" class="board-nav-link nav-fold is-open" aria-expanded="true" onclick="var s=document.getElementById('diaNavSub');var on=this.classList.toggle('is-open');s.classList.toggle('is-open',on);this.setAttribute('aria-expanded',on?'true':'false');">공지사항 <span class="nav-new">NEW</span><span class="nav-caret">▼</span></button>
+          <div class="nav-sub is-open" id="diaNavSub">
+            <a class="nav-sub-link" href="dia-guide.html">품앗이 가이드</a>
+            <a class="nav-sub-link" href="dia-pass.html">완료패스 공지</a>
+            <a class="nav-sub-link" href="dia-rest.html">휴식 공지</a>
+            <a class="nav-sub-link is-here" href="dia-board-notice.html">공지 · 알림</a>
+          </div>
           <a href="dia-notice.html#notice-board" class="board-nav-link is-active">📣 공지 / 알림</a>
           <a href="dia-info.html" class="board-nav-link">⚙️ 운영 센터 <span class="nav-new">NEW</span></a>
           <div class="board-nav-sep"></div>
@@ -2316,6 +2335,5 @@
     });
   }catch(e){}
 })();
-</script><script src="dia-ask.js?v=1" defer></script><script src="dia-nav.js?v=1"></script>
-</body>
+</script><script src="dia-ask.js?v=1" defer></script></body>
 </html>
