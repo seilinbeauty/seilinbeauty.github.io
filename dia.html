@@ -46,6 +46,7 @@
     })();
   </script>
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <script src="dia-search.js?v=1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -2550,6 +2551,9 @@
               }
               function 자모만(t){ return /^[ㄱ-ㅎ]+$/.test(t); }
               var 색인 = 명부.map(function(m){
+                if(window.DIA_SEARCH){
+                  return {m:m, k:DIA_SEARCH.buildKeys([m.n, m.i, m.o, m.r, m.c, m.pk])};
+                }
                 var k = [정규(m.n), 정규(m.i), 정규(m.o), 정규(m.r), 정규(m.c)]
                   .concat(String(m.n||'').split('/').map(정규))
                   .concat(String(m.o||'').replace(/[()]/g,' ').split(/\s+/).map(정규))
@@ -2720,14 +2724,17 @@
               if(폼 && 입력 && 결과){
                 폼.addEventListener('submit', function(e){
                   e.preventDefault();
-                  var q = 정규(입력.value);
+                  var rawQ = String(입력.value || '').trim();
+                  var q = 정규(rawQ);
                   if(!q){ 결과.hidden = true; return; }
                   var 초성검색 = 자모만(q);
                   var qc = 초성검색 ? q : null;
                   var 맞음 = [];
                   색인.forEach(function(o){
                     var 점 = 0;
-                    if(초성검색){
+                    if(window.DIA_SEARCH){
+                      점 = DIA_SEARCH.matchKeys(o.k, rawQ);
+                    } else if(초성검색){
                       o.k.forEach(function(k){
                         var ch = 초성화(k);
                         if(ch.indexOf(qc) >= 0) 점 = Math.max(점, ch.length);
@@ -3520,13 +3527,24 @@
               }
               function 후보그리기(txt){
                 if(!lgPick) return;
-                var q = 정규(String(txt || '').replace(/^@+/, ''));
+                var raw = String(txt || '').replace(/^@+/, '');
+                var q = 정규(raw);
                 if(!q){ lgPick.innerHTML = ''; return; }
-                var 초 = 자모만(q);
-                var hits = 색인.filter(function(x){
-                  if(초) return 초성화(x.m.n).indexOf(초) >= 0;
-                  return x.k.some(function(s){ return s.indexOf(q) >= 0; });
-                }).slice(0, 6).map(function(x){ return x.m; });
+                var hits;
+                if(window.DIA_SEARCH){
+                  hits = 색인.map(function(x){
+                    return {m: x.m, s: DIA_SEARCH.matchKeys(x.k, raw)};
+                  }).filter(function(o){ return o.s > 0; })
+                    .sort(function(a, b){ return b.s - a.s; })
+                    .slice(0, 6)
+                    .map(function(o){ return o.m; });
+                } else {
+                  var 초 = 자모만(q);
+                  hits = 색인.filter(function(x){
+                    if(초) return 초성화(x.m.n).indexOf(초) >= 0;
+                    return x.k.some(function(s){ return s.indexOf(q) >= 0; });
+                  }).slice(0, 6).map(function(x){ return x.m; });
+                }
                 if(!hits.length){
                   lgPick.innerHTML = '<div style="font-size:11.5px;color:#b9a9af;padding:4px 2px;">일치하는 회원이 없습니다.</div>';
                   return;

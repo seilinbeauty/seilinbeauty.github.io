@@ -2092,6 +2092,7 @@
       .book-name { font-size: 23px; }
     }
   </style>
+  <script src="dia-search.js?v=1"></script>
 </head>
 <body class="dia-page">
   <header class="dia-header">
@@ -2309,7 +2310,18 @@ document.addEventListener('DOMContentLoaded', function(){
     for (var i = 0; i < 줄들.length; i++){
       var tr = 줄들[i];
       var 닉 = (tr.getAttribute('data-nick') || '').toLowerCase();
-      var 맞음 = (!q || 닉.indexOf(q) > -1)
+      var qOk = true;
+      if(q){
+        if(window.DIA_SEARCH){
+          if(!tr._diaKeys){
+            tr._diaKeys = DIA_SEARCH.buildKeys([닉, tr.getAttribute('data-cat') || '', tr.getAttribute('data-reg') || '']);
+          }
+          qOk = DIA_SEARCH.matchKeys(tr._diaKeys, q) > 0;
+        } else {
+          qOk = 닉.indexOf(q) > -1;
+        }
+      }
+      var 맞음 = qOk
         && (c === '전체' || tr.getAttribute('data-cat') === c)
         && (r === '전체' || tr.getAttribute('data-reg') === r);
       tr.style.display = 맞음 ? '' : 'none';

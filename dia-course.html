@@ -2147,6 +2147,7 @@
     ]
   }
   </script>
+  <script src="dia-search.js?v=1"></script>
 </head>
 <body class="dia-page">
   <header class="dia-header">
@@ -2664,8 +2665,15 @@
         if(rg !== state.region) ok = false;
       }
       if(state.q){
-        var hay = ((c.dataset.nick || '') + ' ' + c.textContent).toLowerCase();
-        if(hay.indexOf(state.q) < 0) ok = false;
+        if(window.DIA_SEARCH){
+          if(!c._diaKeys){
+            c._diaKeys = DIA_SEARCH.buildKeys([c.dataset.nick || '', c.textContent || '']);
+          }
+          if(DIA_SEARCH.matchKeys(c._diaKeys, state.q) <= 0) ok = false;
+        } else {
+          var hay = ((c.dataset.nick || '') + ' ' + c.textContent).toLowerCase();
+          if(hay.indexOf(state.q) < 0) ok = false;
+        }
       }
       if(state.quiz){
         if(state.quiz.cat !== '전체'){
