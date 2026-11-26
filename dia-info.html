@@ -2096,6 +2096,10 @@
 </head>
 <body class="dia-page">
   <header class="dia-header">
+  <style>
+    /* PC 머리글 우측 3버튼(문의하기·입장하기·운영 센터) 숨김 — 2026-11-26 지시. 휴대폰 머리글(.nav-mobile-links)은 그대로 */
+    @media (min-width: 881px) { header.dia-header .nav-links { display: none !important; } }
+  </style>
     <a href="dia.html" class="brand">
       <span class="brand-logo">다이아 커뮤니티</span><span class="brand-sub">속눈썹·반영구·네일아트·피부관리·왁싱·붙임머리</span>
     </a>
@@ -2571,10 +2575,16 @@ document.addEventListener('DOMContentLoaded', function(){
       return String(nick || '').replace(/^@+/, '').trim().toLowerCase();
     }
 
-    /* ---------- 완료패스 자동 지급 + STAFF 채팅 알림 ---------- */
+    /* ---------- 완료패스 자동 지급 + 채팅 안내 ---------- */
+    //  지급 대상은 추천인(초대한 사람). 피추천인 1명이 14일을 채울 때마다 추천인에게 1장, 인원 제한 없음.
+    //  알림 1 — 추천인 본인 채팅(완료패스 안내 방): 어느 피추천인이 채웠는지 닉네임을 남긴다.
+    //  알림 2 — STAFF 방 기록: 기존 방식 그대로 1건.
     function msgText(inviter, invitee){
-      return '완료패스 1장 올라갔습니다. ' + inviter + ' 원장님 초대로 ' + invitee
-        + ' 원장님이 14일 연속 참여 달성 — 완료패스는 ' + inviter + ' 원장님 명의로 지급되었습니다.';
+      return '지인 초대 14일 연속 달성 — ' + inviter + ' 원장님께 완료패스 1장이 지급되었습니다(피추천인 '
+        + invitee + ' 원장님).';
+    }
+    function noticeText(inviter, invitee){
+      return '🎫 초대하신 ' + invitee + ' 님이 14일 연속 참여를 달성해 완료패스 1장이 지급되었습니다.';
     }
     function stamp(iso){
       var t = Date.parse(iso || '');
@@ -2589,7 +2599,7 @@ document.addEventListener('DOMContentLoaded', function(){
       return DiaFB.grantInvitePass({
         inviter: inviter, invitee: invitee, nick: inviter,
         ownerKey: ownerKeyOf(inviter), basePass: basePassOf(inviter),
-        text: msgText(inviter, invitee)
+        text: msgText(inviter, invitee), notice: noticeText(inviter, invitee)
       }).then(function(res){
         if(!res) return null;
         if(res.ok || res.already){
@@ -2598,7 +2608,7 @@ document.addEventListener('DOMContentLoaded', function(){
           it.passStart = it.passStart || p.runStart;
           it.passEnd = it.passEnd || p.end;
           it.chatAt = it.chatAt || ((s.day ? s.day.slice(5) + ' ' : '') + s.hm).trim();
-          it.chatTo = it.chatTo || inviter;
+          it.chatTo = it.chatTo || inviter;   // 안내를 받은 사람 = 추천인 본인
           saveInv(loadInv());
         }
         return res;
@@ -2680,7 +2690,7 @@ document.addEventListener('DOMContentLoaded', function(){
         var chat = '';
         if(!isWait && (it.passAt || it.chatAt)){
           if(it.chatAt){
-            chat = '<span style="color:#218748;font-weight:800;">💬 채팅 알림 발송 완료</span>'
+            chat = '<span style="color:#218748;font-weight:800;">💬 본인 채팅 안내 + STAFF 기록 발송 완료</span>'
                  + '<span style="color:#a0969b;"> · ' + it.chatAt + (it.chatTo ? ' · ' + it.chatTo : '') + '</span>';
           } else {
             chat = '<span style="color:#b07a1e;font-weight:800;">💬 채팅 알림 발송 대기</span>';
@@ -4570,7 +4580,7 @@ document.addEventListener('DOMContentLoaded', function(){
             <div id="memFbMsg" style="font-size:11.5px;color:#8a7b81;margin-top:6px;"></div>
           </div>
           <div class="inv-panel" id="invPanel" hidden>
-            <div style="font-size:12.5px;font-weight:800;color:#9e3856;margin-bottom:8px;">🤝 지인 초대 설정 · 2주 연속 참여 추적 (달성 시 완료패스 지급)</div>
+            <div style="font-size:12.5px;font-weight:800;color:#9e3856;margin-bottom:8px;">🤝 지인 초대 설정 · 2주 연속 참여 추적 (피추천인 1명이 14일 채울 때마다 추천인에게 완료패스 1장)</div>
             <form class="inv-form" id="invForm">
               <select id="invFrom" required><option value="">초대한 사람 선택</option></select>
               <select id="invTo" required><option value="">초대받은 사람 선택</option></select>

@@ -2151,6 +2151,10 @@
 </head>
 <body class="dia-page">
   <header class="dia-header">
+  <style>
+    /* PC 머리글 우측 3버튼(문의하기·입장하기·운영 센터) 숨김 — 2026-11-26 지시. 휴대폰 머리글(.nav-mobile-links)은 그대로 */
+    @media (min-width: 881px) { header.dia-header .nav-links { display: none !important; } }
+  </style>
     <a href="dia.html" class="brand">
       <span class="brand-logo">다이아 커뮤니티</span><span class="brand-sub">속눈썹·반영구·네일아트·피부관리·왁싱·붙임머리</span>
     </a>
