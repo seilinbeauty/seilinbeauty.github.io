@@ -495,11 +495,8 @@
     var list = [], i;
     for(i = 0; i < n; i++){ list.push(new Date(Date.now() + 9 * 3600 * 1000 - i * 86400000).toISOString().slice(0, 10)); }
     var q = [];
-    list.forEach(function(d){
-      q.push('documents=' + encodeURIComponent(name('analytics', d)));
-      q.push('documents=' + encodeURIComponent(name('analytics', d + '_v')));
-    });
-    return req('documents:batchGet?' + q.join('&'), null, 'GET').then(function(rows){
+    list.forEach(function(d){ q.push(name('analytics', d), name('analytics', d + '_v')); });
+    return req('documents:batchGet', { documents: q }).then(function(rows){
       var got = {};
       (rows || []).forEach(function(r){
         var doc = r && r.found;
