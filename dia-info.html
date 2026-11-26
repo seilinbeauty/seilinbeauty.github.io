@@ -2291,9 +2291,11 @@ document.addEventListener('DOMContentLoaded', function(){
         if(통계칸) 통계칸.style.display = (대상 === 'ops-stats') ? '' : 'none';
         if(회원칸) 회원칸.style.display = (대상 === 'ops-members') ? '' : 'none';
         if(수강칸) 수강칸.style.display = (대상 === 'ops-course') ? '' : 'none';
-        if(검토칸) 검토칸.style.display = (대상 === 'ops-course-req') ? '' : 'none';
+        if(대상 === 'ops-course' && 검토칸) 검토칸.style.display = '';
+        if(검토칸) 검토칸.style.display = (대상 === 'ops-course' || 대상 === 'ops-course-req') ? '' : 'none';
         if(알림장칸) 알림장칸.style.display = (대상 === 'ops-notice') ? '' : 'none';
         if(대상 === 'ops-course' && typeof window.diaCourseReload === 'function') window.diaCourseReload();
+        if(대상 === 'ops-course' && typeof window.diaCourseReqReload === 'function') window.diaCourseReqReload();
         if(대상 === 'ops-course-req' && typeof window.diaCourseReqReload === 'function') window.diaCourseReqReload();
         if(대상 === 'ops-notice' && typeof window.diaNoticeAdminReload === 'function') window.diaNoticeAdminReload();
       });
@@ -3179,8 +3181,8 @@ document.addEventListener('DOMContentLoaded', function(){
           <div class="ops-nav">
               <button type="button" class="ops-nav-item" data-nav="ops-stats" data-on="1">통계</button>
               <button type="button" class="ops-nav-item" data-nav="ops-members">회원 목록</button>
-              <button type="button" class="ops-nav-item" data-nav="ops-course">🎓 뷰티수강</button>
-              <button type="button" class="ops-nav-item" data-nav="ops-course-req">⏳ 수강 검토 <span id="opsReqBadge" style="display:none;margin-left:3px;padding:1px 6px;border-radius:999px;background:#d55576;color:#fff;font-size:11px;font-weight:800;">0</span></button>
+              <button type="button" class="ops-nav-item" data-nav="ops-course">🎓 뷰티수강 <span id="opsReqBadge" style="display:none;margin-left:3px;padding:1px 6px;border-radius:999px;background:#d55576;color:#fff;font-size:11px;font-weight:800;">0</span></button>
+              
               <button type="button" class="ops-nav-item" data-nav="ops-notice">📣 알림장</button>
           </div>
           <div id="ops-stats">
@@ -4713,7 +4715,40 @@ document.addEventListener('DOMContentLoaded', function(){
             </table>
           </div></div>
           <div class="mem-empty" id="mem-empty" style="display:none;">해당하는 회원이 없습니다.</div>
-          </div>          <div id="ops-course" style="display:none;">
+          </div>          <div id="ops-course-req" style="display:none;">
+            <style>
+            .req-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:0 0 12px;}
+            .req-t{font-size:15px;font-weight:900;color:#3c2b31;}
+            .req-s{font-size:12px;color:#9a8a90;margin-top:2px;}
+            .req-list{display:flex;flex-direction:column;gap:10px;}
+            .req-card{background:#fff;border:1px solid #f0e2e7;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;}
+            .req-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+            .req-who{font-size:14px;font-weight:900;color:#231b1f;}
+            .req-tag{font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:#fdeef3;color:#c2456a;}
+            .req-tag.is-ok{background:#edf7f0;color:#2f7d4c;}
+            .req-tag.is-no{background:#f3f3f4;color:#888;}
+            .req-meta{font-size:12px;color:#6e5b62;line-height:1.6;word-break:break-word;}
+            .req-meta b{color:#3c2b31;}
+            .req-acts{display:flex;gap:8px;margin-top:4px;}
+            .req-btn{padding:8px 14px;border-radius:9px;border:0;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;}
+            .req-btn-ok{background:#d55576;color:#fff;}
+            .req-btn-no{background:#f3ecef;color:#6e5b62;}
+            .req-btn:disabled{opacity:.5;cursor:default;}
+            .req-empty{padding:36px 16px;text-align:center;color:#9a8a90;font-size:13px;background:#fff;border:1px dashed #eedbe2;border-radius:14px;}
+            .req-diff{background:#fff1f3;border-left:3px solid #e11d48;padding:4px 8px;border-radius:6px;margin:4px 0;color:#be123c;font-weight:700;}
+            .req-old{text-decoration:line-through;color:#b88692;font-weight:500;margin-right:4px;}
+            .req-new{color:#e11d48;font-weight:800;}
+            </style>
+            <div class="req-head">
+              <div>
+                <div class="req-t">⏳ 뷰티수강 등록·수정 검토</div>
+                <div class="req-s">원장님이 '내 수강'에서 보낸 수정·신규 요청을 승인하면 뷰티수강 페이지에 바로 반영됩니다.</div>
+              </div>
+              <button type="button" class="req-btn req-btn-no" id="reqRefresh">새로고침</button>
+            </div>
+            <div id="reqList" class="req-list"><div class="req-empty">불러오는 중…</div></div>
+          </div>
+          <div id="ops-course" style="display:none;">
           <style>.oc-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 6px;}.oc-t{font-size:15px;font-weight:800;color:#3d3538;}.oc-cnt{font-size:11.5px;color:#a0969b;}.oc-cnt b{color:#c2456a;}.oc-s{font-size:12px;color:#a0969b;line-height:1.6;margin:0 0 14px;word-break:keep-all;}.oc-card{border:1px solid #f0e2e7;border-radius:14px;background:#fff;padding:16px 16px 14px;margin-bottom:14px;}.oc-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;}.oc-f{display:flex;flex-direction:column;gap:4px;min-width:0;}.oc-f.oc-wide{grid-column:1/-1;}.oc-f span{font-size:11.5px;font-weight:800;color:#8a7b81;letter-spacing:-.2px;}.oc-f input,.oc-f select,.oc-f textarea{width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid #ecdfe4;border-radius:9px;font-size:13px;font-family:inherit;color:#3d3538;background:#fff;outline:none;resize:vertical;}.oc-f input:focus,.oc-f select:focus,.oc-f textarea:focus{border-color:#e6a6bb;}.oc-bio-box{margin-bottom:12px;padding:11px 12px;border:1px dashed #e6c6d2;border-radius:11px;background:#fff9fb;}.oc-bio-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}.oc-bio-top span{font-size:11.5px;font-weight:800;color:#9b5972;}.oc-bio-btn{padding:5px 11px;border:1px solid #e4c2cf;border-radius:7px;background:#fff;color:#b24b6b;font-size:11.5px;font-weight:800;cursor:pointer;font-family:inherit;}.oc-actions{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;}.oc-save{padding:10px 24px;border:0;border-radius:10px;cursor:pointer;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;font-size:13.5px;font-weight:800;font-family:inherit;}.oc-save:disabled{opacity:.6;}.oc-cancel{padding:10px 14px;border:1px solid #e7d8de;border-radius:10px;cursor:pointer;background:#fff;color:#7a6870;font-size:13px;font-weight:700;font-family:inherit;}.oc-msg{font-size:12px;color:#a9778a;}.oc-list{display:grid;gap:8px;}.oc-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #f2e2e8;border-radius:11px;background:#fffdfd;flex-wrap:wrap;}.oc-av{width:34px;height:34px;flex:0 0 auto;border-radius:50%;overflow:hidden;background:#fdeef3;border:1px solid #f0d6df;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#b35172;}.oc-av img{width:100%;height:100%;object-fit:cover;display:block;}.oc-info{min-width:0;flex:1 1 140px;}.oc-nm{font-size:12.5px;font-weight:800;color:#3c2b31;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.oc-meta{font-size:11px;color:#a9808d;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.oc-tag{flex:0 0 auto;font-size:10.5px;font-weight:800;color:#b93d64;background:#fdeef3;border:1px solid #f6d5df;border-radius:999px;padding:3px 8px;}.oc-btns{display:flex;gap:5px;flex:0 0 auto;}.oc-edit{flex:0 0 auto;padding:6px 11px;border:1px solid #e4d4da;border-radius:8px;background:#fff;color:#5b4a51;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;}.oc-del{flex:0 0 auto;padding:6px 11px;border:1px solid #ecd4dc;border-radius:8px;background:#fff;color:#b24b6b;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;}.oc-del:disabled,.oc-edit:disabled{opacity:.5;}.oc-empty{font-size:12.5px;color:#9a8f94;padding:6px 2px;}@media (max-width:700px){.oc-grid{grid-template-columns:1fr;}.oc-f.oc-wide{grid-column:auto;}}</style>
           <div class="oc-card" id="oc-form-card">
             <div class="oc-head"><div class="oc-t" id="oc-form-title">🎓 뷰티수강 추가</div><div class="oc-cnt">전체 등록 <b id="oc-count">15</b>곳</div></div>
@@ -5182,39 +5217,7 @@ document.addEventListener('DOMContentLoaded', function(){
             window.addEventListener('load', function(){ draw(); });
           })();
           </script>
-          <div id="ops-course-req" style="display:none;">
-            <style>
-            .req-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:0 0 12px;}
-            .req-t{font-size:15px;font-weight:900;color:#3c2b31;}
-            .req-s{font-size:12px;color:#9a8a90;margin-top:2px;}
-            .req-list{display:flex;flex-direction:column;gap:10px;}
-            .req-card{background:#fff;border:1px solid #f0e2e7;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;}
-            .req-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
-            .req-who{font-size:14px;font-weight:900;color:#231b1f;}
-            .req-tag{font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:#fdeef3;color:#c2456a;}
-            .req-tag.is-ok{background:#edf7f0;color:#2f7d4c;}
-            .req-tag.is-no{background:#f3f3f4;color:#888;}
-            .req-meta{font-size:12px;color:#6e5b62;line-height:1.6;word-break:break-word;}
-            .req-meta b{color:#3c2b31;}
-            .req-acts{display:flex;gap:8px;margin-top:4px;}
-            .req-btn{padding:8px 14px;border-radius:9px;border:0;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;}
-            .req-btn-ok{background:#d55576;color:#fff;}
-            .req-btn-no{background:#f3ecef;color:#6e5b62;}
-            .req-btn:disabled{opacity:.5;cursor:default;}
-            .req-empty{padding:36px 16px;text-align:center;color:#9a8a90;font-size:13px;background:#fff;border:1px dashed #eedbe2;border-radius:14px;}
-            .req-diff{background:#fff1f3;border-left:3px solid #e11d48;padding:4px 8px;border-radius:6px;margin:4px 0;color:#be123c;font-weight:700;}
-            .req-old{text-decoration:line-through;color:#b88692;font-weight:500;margin-right:4px;}
-            .req-new{color:#e11d48;font-weight:800;}
-            </style>
-            <div class="req-head">
-              <div>
-                <div class="req-t">⏳ 뷰티수강 등록·수정 검토</div>
-                <div class="req-s">원장님이 '내 수강'에서 보낸 수정·신규 요청을 승인하면 뷰티수강 페이지에 바로 반영됩니다.</div>
-              </div>
-              <button type="button" class="req-btn req-btn-no" id="reqRefresh">새로고침</button>
-            </div>
-            <div id="reqList" class="req-list"><div class="req-empty">불러오는 중…</div></div>
-          </div>
+          
           <script>
           (function(){
             var FB = 'https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/';
