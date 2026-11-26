@@ -2329,6 +2329,14 @@ window.창고읽기 = function(url){
         var st = document.getElementById('mcHeroStatus');
         var my = document.getElementById('mcCourseEditBtn');
         if(!actBtn || !st || !my) return;
+        try {
+          var _lg = localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak') || '';
+          if (_lg && _lg.indexOf('{') === 0) {
+            var _cb = document.getElementById('mcChatBtn');
+            if (_cb) _cb.hidden = false;
+            my.hidden = false;
+          }
+        } catch(e) {}
         var mqPc = window.matchMedia ? window.matchMedia('(min-width: 881px)') : null;
         function sync(){
           if(my.hidden){ st.hidden = true; actBtn.hidden = true; actBtn.classList.remove('is-on'); return; }
