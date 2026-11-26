@@ -1891,12 +1891,12 @@
     .reg-n { font-size: 11px; opacity: .65; font-weight: 700; }
     .reg-empty { padding: 18px 14px; text-align: center; font-size: 12.5px; color: #9a8c92;
       border: 1px dashed #efe0e6; border-radius: 8px; background: #fffdfd; }
-    .reg-scroll { max-height: 340px; overflow-y: auto; overscroll-behavior: contain;
+    .reg-scroll { min-height: 340px; max-height: 340px; overflow-y: auto; overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch; scrollbar-width: thin; padding-right: 6px; }
     .reg-scroll::-webkit-scrollbar { width: 6px; }
     .reg-scroll::-webkit-scrollbar-thumb { background: #eddae1; border-radius: 999px; }
     .reg-scroll::-webkit-scrollbar-track { background: transparent; }
-    .sum-scroll { max-height: 196px; overflow-y: auto; overscroll-behavior: contain;
+    .sum-scroll { min-height: 196px; max-height: 196px; overflow-y: auto; overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch; padding-right: 4px; }
     .sum-scroll::-webkit-scrollbar { width: 6px; }
     .sum-scroll::-webkit-scrollbar-thumb { background: #eddae1; border-radius: 999px; }
@@ -2494,8 +2494,11 @@
               .mc-news-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
               .mc-news-tag{font-size:11px;font-weight:800;color:#c2456a;}
               .mc-news-next{border:1px solid #ead2db;background:#fff;color:#9e3856;border-radius:999px;padding:2px 8px;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit;}
-              .mc-news-title{font-size:13px;font-weight:800;color:#33262a;line-height:1.4;margin-bottom:4px;}
-              .mc-news-sum{font-size:11.5px;color:#6c5c62;line-height:1.45;margin-bottom:7px;}
+              /* 종목 핫이슈 박스: 5초 자동 교체 때 제목·요약 길이로 높이가 흔들리지 않게 두 줄 고정 (2×1.4em / 2×1.45em) */
+              .mc-news-title{font-size:13px;font-weight:800;color:#33262a;line-height:1.4;margin-bottom:4px;
+                display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.8em;}
+              .mc-news-sum{font-size:11.5px;color:#6c5c62;line-height:1.45;margin-bottom:7px;
+                display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.9em;}
               .mc-news-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10.5px;color:#9e8890;}
               .mc-news-link{color:#c2456a;font-weight:800;text-decoration:none;}
               .mc-empty{margin-top:8px;font-size:12px;color:#b9a9af;}
@@ -3991,7 +3994,7 @@
         .rank-pass{margin-left:auto;font-size:10px;font-weight:800;color:#b35172;background:#fdf1f5;
           padding:3px 8px;border-radius:9px;line-height:1.35;text-align:right;letter-spacing:-.2px;}
         .rank-d{margin-left:auto;font-size:10px;color:#c0aeb5;}
-        .rank-list{margin-top:10px;}
+        .rank-list{margin-top:10px;min-height:142px;}   /* 5줄 자리 고정 — 후보가 적은 달 초에도 카드 높이 그대로(모바일 5×28.4px) */
         .rank-row{display:flex;align-items:center;gap:9px;padding:5px 0;}
         .rank-i{flex:0 0 22px;text-align:center;font-weight:900;color:#c9b3bb;line-height:1.05;}
         .rank-i b{display:block;font-size:11px;font-weight:900;}
@@ -4017,7 +4020,7 @@
         .rank-nm[data-q]:active{color:#c2456a;}
         .rank-nm[data-insta]{cursor:pointer;text-decoration:none;}
         .rank-nm[data-insta]:active{color:#c2456a;}
-        @media(min-width:881px){ .rank-card{padding:18px 20px 16px;} .rank-nm{flex:0 0 32%;font-size:14.5px;} .rank-t{font-size:16px;} .rank-row{padding:8px 0;gap:12px;} .rank-i{flex:0 0 26px;} .rank-i b{font-size:14px;} .rank-bar{height:9px;} .rank-day{flex:0 0 32px;font-size:12.5px;} .rank-list{display:flex;flex-direction:column;justify-content:space-around;flex:1 1 auto;} .rank-i .crown{width:12px;height:9px;margin-left:-6px;top:-10px;} }
+        @media(min-width:881px){ .rank-card{padding:18px 20px 16px;} .rank-nm{flex:0 0 32%;font-size:14.5px;} .rank-t{font-size:16px;} .rank-row{padding:8px 0;gap:12px;} .rank-i{flex:0 0 26px;} .rank-i b{font-size:14px;} .rank-bar{height:9px;} .rank-day{flex:0 0 32px;font-size:12.5px;} .rank-list{display:flex;flex-direction:column;justify-content:space-around;flex:1 1 auto;min-height:196px;} /* PC 5×39.2px 고정 */ .rank-i .crown{width:12px;height:9px;margin-left:-6px;top:-10px;} }
       </style>
       <div class="rank-card" id="rankCard" data-n="5"><div class="rank-top"><div class="rank-t">이번 달 참여왕</div><div class="rank-pass">1등 완료패스 3장 · 2등 2장 · 3등 1장<br>매월 1일 지급</div></div><div class="rank-list"><div class="rank-row top"><span class="rank-i gold has-crown"><svg class="crown" viewBox="0 0 20 14" aria-hidden="true"><path d="M1 12.4h18l-1.8-9-4 3.4L10 1.6 6.8 6.8l-4-3.4z" fill="#d4af37"/></svg><b>1</b></span><span class="rank-nm" data-q="서울/nail_jiand/네일" data-insta="nail_jiand">nail_jiand<span class="rank-cat">네일</span></span><span class="rank-bar"><i style="width:100%"></i></span><span class="rank-day">11일</span></div><div class="rank-row top"><span class="rank-i silver"><b>2</b></span><span class="rank-nm" data-q="부산star___beauty_/속눈썹" data-insta="star___beauty_">star___beauty_<span class="rank-cat">속눈썹</span></span><span class="rank-bar"><i style="width:73%"></i></span><span class="rank-day">8일</span></div><div class="rank-row top"><span class="rank-i bronze"><b>3</b></span><span class="rank-nm" data-q="서울/year.seoul/반영구" data-insta="year.seoul">year.seoul<span class="rank-cat">반영구</span></span><span class="rank-bar"><i style="width:73%"></i></span><span class="rank-day">8일</span></div><div class="rank-row"><span class="rank-i "><b>4</b></span><span class="rank-nm" data-q="일산/_soybrow/반영구" data-insta="_soybrow">_soybrow<span class="rank-cat">반영구</span></span><span class="rank-bar"><i style="width:64%"></i></span><span class="rank-day">7일</span></div><div class="rank-row"><span class="rank-i "><b>5</b></span><span class="rank-nm" data-q="서울/domely_beauty/속눈썹" data-insta="domely_beauty">domely_beauty<span class="rank-cat">속눈썹</span></span><span class="rank-bar"><i style="width:64%"></i></span><span class="rank-day">7일</span></div></div></div>
       </div>
