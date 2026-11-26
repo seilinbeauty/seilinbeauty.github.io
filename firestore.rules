@@ -345,20 +345,6 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // ── 아카데미 후기 관리 (reviews/{rid})
-    match /reviews/{rid} {
-      allow read: if true;
-      allow create, update: if request.resource.data.keys().hasAll(['id','author','text','visible','chk','updatedAt'])
-                            && request.resource.data.keys().hasOnly(['id','author','text','visible','chk','updatedAt'])
-                            && request.resource.data.id is string && request.resource.data.id == rid
-                            && request.resource.data.author is string && request.resource.data.author.size() > 0 && request.resource.data.author.size() <= 60
-                            && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 600
-                            && (request.resource.data.visible == '1' || request.resource.data.visible == '0')
-                            && request.resource.data.updatedAt == request.time
-                            && chkStaff(request.resource.data.chk, rid);
-      allow delete: if false;
-    }
-
     // ── 그 밖의 모든 경로는 막는다
     match /{document=**} {
       allow read, write: if false;

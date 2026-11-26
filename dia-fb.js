@@ -566,45 +566,6 @@
     }, function(){ return []; });
   }
 
-  // ── 아카데미 후기 관리 (reviews/{rid})
-  function saveReview(o){
-    var id = String((o && o.id) || rid('rv_'));
-    var cid = rid('rc_');
-    var chk = createDoc('checks', cid, { op: 'staff', id: id, pw: STAFF_PW });
-    var w = {
-      update: {
-        name: name('reviews', id),
-        fields: fields({
-          id: id,
-          author: String((o && o.author) || '').slice(0, 60),
-          text: String((o && o.text) || '').slice(0, 600),
-          visible: (o && o.visible === '0') ? '0' : '1',
-          chk: cid
-        })
-      },
-      updateTransforms: [{ fieldPath: 'updatedAt', setToServerValue: 'REQUEST_TIME' }]
-    };
-    return commit([chk, w]).then(function(){ tidy('checks', cid); return { ok: true, id: id }; },
-      function(e){ tidy('checks', cid); return { ok: false, error: errOf(e) }; });
-  }
-  function listReviews(){
-    return req('documents/reviews?pageSize=50', null, 'GET').then(function(d){
-      var out = [];
-      ((d && d.documents) || []).forEach(function(doc){
-        var f = doc.fields || {};
-        out.push({
-          id: (f.id && f.id.stringValue) || String(doc.name || '').split('/').pop(),
-          author: (f.author && f.author.stringValue) || '',
-          text: (f.text && f.text.stringValue) || '',
-          visible: (f.visible && f.visible.stringValue) || '1',
-          ts: Date.parse((f.updatedAt && f.updatedAt.timestampValue) || '') || 0
-        });
-      });
-      out.sort(function(a, b){ return b.ts - a.ts; });
-      return out;
-    }, function(){ return []; });
-  }
-
   window.DiaFB = {
     day: day, add: add, edit: edit, del: del, staffDel: staffDel,
     ensurePin: ensurePin, setPin: setPin, safeId: safeId, stat: stat, kstDay: kstDay,
@@ -615,7 +576,6 @@
     addConsult: addConsult, listConsults: listConsults, doneConsult: doneConsult,
     hitVisit: hitVisit, getAnalytics: getAnalytics,
     savePumasiLog: savePumasiLog, listPumasiLogs: listPumasiLogs,
-    saveDmLead: saveDmLead, listDmLeads: listDmLeads,
-    saveReview: saveReview, listReviews: listReviews
+    saveDmLead: saveDmLead, listDmLeads: listDmLeads
   };
 })();

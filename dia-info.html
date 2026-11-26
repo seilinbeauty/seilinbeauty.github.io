@@ -2833,7 +2833,7 @@ document.addEventListener('DOMContentLoaded', function(){
         </div>
         <div id="ops-pl-list" style="font-size:12.5px;color:#9a8f94;line-height:1.6;">불러오는 중…</div>
       </div>
-      <div style="margin:14px 0;border:1px solid #f0e2e7;border-radius:16px;background:#fff;box-shadow:0 8px 22px rgba(198,69,106,.06);padding:16px 18px;">
+      <div style="margin:14px 0 24px;border:1px solid #f0e2e7;border-radius:16px;background:#fff;box-shadow:0 8px 22px rgba(198,69,106,.06);padding:16px 18px;">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
           <div style="font-size:14px;font-weight:800;color:#333;">&#128140; 인스타 DM 현황판</div>
           <div style="font-size:11.5px;color:#a0969b;">로디 · 세컨드 계정</div>
@@ -2848,18 +2848,6 @@ document.addEventListener('DOMContentLoaded', function(){
           <button type="button" id="dm-add" style="padding:6px 12px;border:0;border-radius:8px;background:#c2456a;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">추가</button>
         </div>
         <div id="ops-dm-list" style="font-size:12.5px;color:#9a8f94;line-height:1.6;">불러오는 중…</div>
-      </div>
-      <div style="margin:14px 0 24px;border:1px solid #f0e2e7;border-radius:16px;background:#fff;box-shadow:0 8px 22px rgba(198,69,106,.06);padding:16px 18px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
-          <div style="font-size:14px;font-weight:800;color:#333;">&#11088; 아카데미 후기 관리</div>
-          <div style="font-size:11.5px;color:#a0969b;">저장 즉시 아카데미 홈 반영</div>
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
-          <input id="rv-author" type="text" placeholder="원장님 / 지점명" style="flex:1 1 140px;padding:6px 9px;border:1px solid #ead8df;border-radius:8px;font-size:12px;font-family:inherit;">
-          <input id="rv-text" type="text" placeholder="수강 후기 내용" style="flex:2 1 240px;padding:6px 9px;border:1px solid #ead8df;border-radius:8px;font-size:12px;font-family:inherit;">
-          <button type="button" id="rv-add" style="padding:6px 12px;border:0;border-radius:8px;background:#c2456a;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">등록</button>
-        </div>
-        <div id="ops-rv-list" style="font-size:12.5px;color:#9a8f94;line-height:1.6;">불러오는 중…</div>
       </div>
       <div class="board-layout">
         <aside class="board-nav">
@@ -5772,43 +5760,7 @@ document.addEventListener('DOMContentLoaded', function(){
         });
       });
     }
-    function renderRV(){
-      var box = document.getElementById('ops-rv-list');
-      if(!box || !DiaFB.listReviews) return;
-      DiaFB.listReviews().then(function(arr){
-        if(!arr.length){ box.innerHTML = '<div style="font-size:12px;color:#9a8f94;">추가 등록된 후기가 없습니다.</div>'; return; }
-        box.innerHTML = '';
-        arr.forEach(function(it){
-          var d = document.createElement('div');
-          d.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed #f2e4ea;font-size:12.5px;color:#4a353c;';
-          var left = document.createElement('span');
-          left.textContent = '[' + it.author + '] ' + it.text;
-          var btn = document.createElement('button');
-          btn.type = 'button';
-          btn.textContent = it.visible === '1' ? '노출중' : '숨김';
-          btn.style.cssText = 'flex-shrink:0;padding:3px 9px;border-radius:999px;border:1px solid #ead2db;background:' + (it.visible === '1' ? '#fdf1f5' : '#f4f4f5') + ';color:#c2456a;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;';
-          btn.addEventListener('click', function(){
-            btn.disabled = true;
-            DiaFB.saveReview({ id: it.id, author: it.author, text: it.text, visible: it.visible === '1' ? '0' : '1' }).then(function(){ renderRV(); });
-          });
-          d.appendChild(left); d.appendChild(btn); box.appendChild(d);
-        });
-      });
-    }
-    var rvAdd = document.getElementById('rv-add');
-    if(rvAdd && DiaFB.saveReview){
-      rvAdd.addEventListener('click', function(){
-        var a = document.getElementById('rv-author').value.trim();
-        var t = document.getElementById('rv-text').value.trim();
-        if(!a || !t) return;
-        rvAdd.disabled = true;
-        DiaFB.saveReview({ author: a, text: t, visible: '1' }).then(function(r){
-          rvAdd.disabled = false;
-          if(r && r.ok){ document.getElementById('rv-author').value=''; document.getElementById('rv-text').value=''; renderRV(); }
-        });
-      });
-    }
-    renderPL(); renderDM(); renderRV();
+    renderPL(); renderDM();
   }
   window.addEventListener('load', initExtraFB);
 })();

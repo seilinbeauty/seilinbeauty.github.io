@@ -2954,22 +2954,6 @@ window.addEventListener('load', function(){
       }
     }catch(e){}
   }
-  if(window.DiaFB && DiaFB.listReviews){
-    var grid = document.querySelector('#reviews .review-grid');
-    if(grid){
-      DiaFB.listReviews().then(function(arr){
-        (arr || []).forEach(function(r){
-          if(r.visible !== '1' || !r.text) return;
-          var item = document.createElement('div');
-          item.className = 'review-item';
-          item.innerHTML = '<span class="paper-layer pl2"></span><span class="paper-layer pl1"></span><div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text"></p><div class="review-author"><span></span><span>추가 등록 후기</span></div></div>';
-          item.querySelector('.review-text').textContent = '"' + r.text + '"';
-          item.querySelector('.review-author span').textContent = r.author || '수강 원장님';
-          grid.appendChild(item);
-        });
-      });
-    }
-  }
 });
 </script>
 </body>
