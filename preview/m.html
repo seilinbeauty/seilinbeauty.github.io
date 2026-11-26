@@ -15,6 +15,8 @@
 (function(){
   var m = /[?&]p=([^&]+)/.exec(location.search);
   if (m) document.getElementById('f').src = '../' + decodeURIComponent(m[1]);
+  var h = /[?&]h=(\d+)/.exec(location.search);
+  if (h) document.getElementById('f').style.height = h[1] + 'px';
 })();
 </script>
 </body>
