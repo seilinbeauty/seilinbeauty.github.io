@@ -97,17 +97,21 @@
   var keys = ['workRatio', 'topBroom', 'blower', 'callWork', 'toyW', 'backstageW', 'friendW', 'angelW', 'propW', 'rideW', 'housePct'];
   function render(c){
     var playKeys = ['toyW', 'backstageW', 'friendW', 'angelW', 'propW', 'rideW'];
-    var playSum = playKeys.reduce(function(acc, pk){ return acc + (Number(c[pk]) || 0); }, 0) + (Number(c.otherW) || 10);
+    /* 놀이 안에서만 합이 100%가 되게 */
+    var playSum = playKeys.reduce(function(acc, pk){ return acc + (Number(c[pk]) || 0); }, 0);
     if (playSum <= 0) playSum = 1;
+    var cleanKeys = ['topBroom', 'blower', 'callWork'];
+    var cleanSum = cleanKeys.reduce(function(acc, ck){ return acc + (Number(c[ck]) || 0); }, 0);
+    if (cleanSum <= 0) cleanSum = 1;
     keys.forEach(function(k){
       var el = document.getElementById('sn_' + k);
       var vl = document.getElementById('sn_v_' + k);
       if (!el || !vl) return;
       el.value = c[k];
       if (k === 'workRatio') vl.textContent = '일 ' + c[k] + '% : 휴식 ' + (100 - c[k]) + '%';
-      else if (k === 'blower') vl.textContent = '송풍기 ' + c[k] + '% / 제설 삽 ' + (100 - c[k]) + '%';
+      else if (k === 'blower') vl.textContent = '청소 중 ' + (Math.round(((Number(c[k]) || 0) / cleanSum) * 1000) / 10) + '% (송풍기 ' + c[k] + ' / 삽 ' + (100 - c[k]) + ')' ;
       else if (k === 'housePct') vl.textContent = c[k] + '%';
-      else if (k === 'topBroom' || k === 'callWork') vl.textContent = c[k] + '%';
+      else if (k === 'topBroom' || k === 'callWork') vl.textContent = (Math.round(((Number(c[k]) || 0) / cleanSum) * 1000) / 10) + '%';
       else {
         var pct = Math.round(((Number(c[k]) || 0) / playSum) * 1000) / 10;
         vl.textContent = pct + '%';
