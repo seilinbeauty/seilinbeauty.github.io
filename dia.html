@@ -1656,7 +1656,21 @@
     }
         .pc-hero-snow-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; border-radius: 14px; }
       .pc-hero-snow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 25; border-radius: 14px; }
-      @media (max-width: 880px) { .pc-hero-snow, .pc-hero-snow-bg { display: none !important; } }
+      @media (max-width: 880px) {
+        .dia-hero .pr-card.only-mo,
+        .dia-hero .quick-links,
+        #moShortcutBtn { display: none !important; }
+        .dia-hero .dia-hero-l > .only-pc { display: block !important; }
+        .dia-hero .pc-hero-datetime.only-pc { display: inline-flex !important; }
+        .dia-hero-in { padding: 16px 16px 18px !important; }
+        .dia-hero .plx-tag { font-size: 10px; }
+        .dia-hero .plx-title-row { gap: 6px 10px; margin: 4px 0 4px; }
+        .dia-hero .plx-title { font-size: 22px !important; }
+        .dia-hero .pc-hero-date { font-size: 15px !important; }
+        .dia-hero .pc-hero-time { font-size: 14px !important; }
+        .dia-hero .plx-sub { font-size: 12.5px !important; line-height: 1.5; }
+        .dia-hero .plx-ask { font-size: 11.5px !important; margin-top: 6px !important; }
+      }
       /* 태블릿(881~1100px) 자동 반응형 최적화 */
       @media (min-width: 881px) and (max-width: 1100px) {
         body.dia-page .plx-inner { grid-template-columns: 180px minmax(0, 1fr) !important; gap: 14px !important; }
@@ -7302,7 +7316,6 @@ window.창고읽기 = function(url){
         var boilerTimer = 0;
         var mouse = { x: -999, y: -999, px: -999, py: -999, vx: 0, vy: 0, inside: false };
         hero.addEventListener('mousemove', function(e){
-          if (window.innerWidth <= 880) return;
           var hr = hero.getBoundingClientRect();
           mouse.px = mouse.x; mouse.py = mouse.y;
           mouse.x = e.clientX - hr.left; mouse.y = e.clientY - hr.top;
@@ -7344,7 +7357,6 @@ window.창고읽기 = function(url){
         });
         hero.addEventListener('mouseleave', function(){ mouse.inside = false; mouse.vx = 0; mouse.vy = 0; });
         hero.addEventListener('click', function(e){
-          if (window.innerWidth <= 880) return;
           if (e.target && e.target.closest('a, button, input')) return;
           var hr = hero.getBoundingClientRect();
           var cx = e.clientX - hr.left, cy = e.clientY - hr.top;
@@ -7415,7 +7427,6 @@ window.창고읽기 = function(url){
 
         var lockH = 0, lastW = 0, lastH = 0;
         function buildSurface(){
-          if (window.innerWidth <= 880) { W = 0; return; }
           /* 내 품앗이 검색창이 열린 동안은 다시 재지 않는다 (산타 위치·화질 흔들림 방지) */
           var lb = document.getElementById('mcLoginBox');
           if (lb && !lb.hidden && (lb.offsetWidth || lb.offsetHeight)) { if (!W) { /* 첫 측정은 허용 */ } else return; }
@@ -7575,7 +7586,6 @@ window.창고읽기 = function(url){
 
         function step(){
           requestAnimationFrame(step);
-          if (window.innerWidth <= 880) return;
           if (!W || !surfaceY) { buildSurface(); if (!W) return; }
           if (bgCtx) bgCtx.clearRect(0, 0, W, H);
           ctx.clearRect(0, 0, W, H);
@@ -10298,7 +10308,7 @@ window.창고읽기 = function(url){
 <style>
 @media(min-width:881px){#moShortcutBtn{display:none !important;}}
 @media(max-width:880px){#pcShortcutBtn{display:none !important;}
-  #moShortcutBtn{display:block !important;}
+  #moShortcutBtn{display:none !important;}
   .nav-mobile-links > a[href*="instagram"], .nav-mobile-links > .dia-ask-btn, .nav-mobile-links > button.dia-ask-m { display: none !important; }
 }
 </style>
