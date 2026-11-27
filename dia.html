@@ -3114,42 +3114,43 @@ window.창고읽기 = function(url){
               }
             } else if (santa.state === 'backstage_fix') {
               santa.timer++;
-              // 0~28: 허공 손잡이 잡아 보이지 않는 문 열기, 28~70: 문 뒤로 들어가 그림자 실루엣으로 계단 올라가기
-              // 70~155: 뒤에서 스패너로 시계 수리 / 패널 교체 / 글자 뺐다 넣기, 155~195: 계단 내려와 밖으로 나오기, 195~220: 문 닫기(다시 사라짐)
-              if (santa.timer === 90) {
-                if (santa.bsMode === 'title' && titleEl) {
-                  titleEl.style.transition = 'transform 0.28s ease';
-                  titleEl.style.transform = 'translateY(-4px) rotate(-0.8deg)';
-                } else if (santa.bsMode === 'panel' && dtEl) {
-                  dtEl.style.transition = 'transform 0.28s ease, opacity 0.25s ease';
-                  dtEl.style.transform = 'translateY(4px) scale(0.95)';
-                  dtEl.style.opacity = '0.55';
-                } else if (santa.bsMode === 'clock' && dtEl) {
-                  dtEl.style.transition = 'transform 0.15s ease';
-                  dtEl.style.transform = 'rotate(1.8deg)';
-                } else if (santa.bsMode === 'switch_clock' && dtEl) {
-                  dtEl.style.transition = 'opacity 0.08s ease';
-                  dtEl.style.opacity = '0.08';
-                } else if (santa.bsMode === 'boiler') {
-                  boilerTimer = 150;
-                  setMood('🔥', 120);
-                }
+              // 1) 58~82: 제목 글자 뺐다 다시 끼우기
+              if (santa.timer === 58 && titleEl) {
+                titleEl.style.transition = 'transform 0.25s ease';
+                titleEl.style.transform = 'translateY(-4px) rotate(-0.8deg)';
               }
-              if (santa.timer === 120 && santa.bsMode === 'clock' && dtEl) {
+              if (santa.timer === 82 && titleEl) {
+                titleEl.style.transform = '';
+                if (sparkles.length < 20) sparkles.push({ x: (tLeft + tRight) / 2, y: titleBaseY, life: 1.0 });
+              }
+              // 2) 92~122: 시계 스패너 수리 & 패널 교체
+              if (santa.timer === 92 && dtEl) {
+                dtEl.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+                dtEl.style.transform = 'translateY(3px) scale(0.95) rotate(1.8deg)';
+              }
+              if (santa.timer === 108 && dtEl) {
                 dtEl.style.transform = 'rotate(-1.8deg)';
               }
-              if (santa.timer === 128 && santa.bsMode === 'switch_clock' && dtEl) {
-                dtEl.style.opacity = '1';
+              if (santa.timer === 120 && dtEl) {
+                dtEl.style.transform = '';
+                if (sparkles.length < 20) sparkles.push({ x: (dtLeft + dtRight) / 2, y: titleBaseY, life: 1.0 });
               }
-              if (santa.timer === 136 && santa.bsMode === 'switch_clock' && dtEl) {
-                dtEl.style.opacity = '0.15';
+              // 3) 128~150: 날짜·시계 전원 스위치 딸깍 껐다 켜기
+              if (santa.timer === 128 && dtEl) {
+                dtEl.style.transition = 'opacity 0.08s ease';
+                dtEl.style.opacity = '0.08';
               }
-              if (santa.timer === 145) {
-                if (titleEl) titleEl.style.transform = '';
-                if (dtEl) { dtEl.style.transform = ''; dtEl.style.opacity = ''; }
-                if (sparkles.length < 20) sparkles.push({ x: santa.bsMode === 'title' ? (tLeft + tRight) / 2 : (dtLeft + dtRight) / 2, y: titleBaseY, life: 1.0 });
+              if (santa.timer === 138 && dtEl) dtEl.style.opacity = '1';
+              if (santa.timer === 144 && dtEl) dtEl.style.opacity = '0.15';
+              if (santa.timer === 150 && dtEl) dtEl.style.opacity = '';
+              // 4) 156: 눈이 많이 쌓였거나 랜덤 확률로 보일러 스위치까지 켜고 내려오기!
+              if (santa.timer === 156 && (totalSub + totalTop > 2.2 || Math.random() < 0.45)) {
+                boilerTimer = 150;
+                setMood('🔥', 120);
               }
               if (santa.timer >= 220) {
+                if (titleEl) titleEl.style.transform = '';
+                if (dtEl) { dtEl.style.transform = ''; dtEl.style.opacity = ''; }
                 santa.state = 'idle'; santa.timer = 0;
               }
             } else if (santa.state === 'pocket_toy') {
@@ -3878,15 +3879,31 @@ window.창고읽기 = function(url){
                 ctx.restore();
               }
 
-              // 글자·시계 뒤쪽 레이어(bgCtx)에 계단 + 산타 그림자 실루엣 그리기!
+              // 글자·시계 뒤쪽 레이어(bgCtx)에 계단 + 산타 그림자 실루엣이 제목↔시계 오가며 다중 작업!
               if (bt >= 32 && bt <= 186 && bgCtx) {
-                var silP = (bt < 72) ? ((bt - 32) / 40) : (bt > 150 ? Math.max(0, 1 - (bt - 150) / 36) : 1);
-                var targetSilX = (santa.bsMode === 'title') ? ((tLeft + tRight) / 2) : ((dtLeft + dtRight) / 2);
-                var silX = doorX + 5 + (targetSilX - (doorX + 5)) * silP;
-                var silY = roadY - 3 - silP * 14;
-                var tapW = (bt >= 72 && bt <= 150) ? Math.sin(bt * 0.35) * 2.4 : 0;
-                var walkStep = (bt < 72 || bt > 150) ? Math.abs(Math.sin(bt * 0.4)) * 1.4 : 0;
+                var tMidX = (tLeft + tRight) / 2;
+                var cMidX = (dtLeft + dtRight) / 2;
+                var silX = doorX + 5, silY = roadY - 3;
+                if (bt < 58) {
+                  var pA = (bt - 32) / 26;
+                  silX = (doorX + 5) + (tMidX - (doorX + 5)) * pA;
+                  silY = roadY - 3 - pA * 14;
+                } else if (bt <= 82) {
+                  silX = tMidX; silY = roadY - 17;
+                } else if (bt < 94) {
+                  var pB = (bt - 82) / 12;
+                  silX = tMidX + (cMidX - tMidX) * pB; silY = roadY - 17;
+                } else if (bt <= 162) {
+                  silX = cMidX; silY = roadY - 17;
+                } else {
+                  var pC = (bt - 162) / 24;
+                  silX = cMidX + ((doorX + 5) - cMidX) * pC;
+                  silY = roadY - 17 + pC * 14;
+                }
+                var tapW = ((bt >= 58 && bt <= 82) || (bt >= 94 && bt <= 162)) ? Math.sin(bt * 0.35) * 2.4 : 0;
+                var walkStep = (bt < 58 || (bt > 82 && bt < 94) || bt > 162) ? Math.abs(Math.sin(bt * 0.4)) * 1.4 : 0;
 
+                var targetSilX = (bt <= 86) ? tMidX : cMidX;
                 bgCtx.save();
                 bgCtx.fillStyle = 'rgba(100, 116, 139, 0.16)';
                 for (var stp = 0; stp < 5; stp++) {
@@ -3899,8 +3916,8 @@ window.창고읽기 = function(url){
                 bgCtx.beginPath(); bgCtx.ellipse(0, -4.5, 4.0, 4.0, 0, 0, Math.PI * 2); bgCtx.fill();
                 bgCtx.strokeStyle = 'rgba(15, 23, 42, 0.42)'; bgCtx.lineWidth = 2.0;
                 bgCtx.beginPath(); bgCtx.moveTo(2, -5); bgCtx.lineTo(7.2, -7.2 + tapW); bgCtx.stroke();
-                if (santa.bsMode === 'switch_clock' || santa.bsMode === 'boiler') {
-                  bgCtx.fillStyle = (santa.bsMode === 'boiler') ? (bt >= 90 ? 'rgba(239,68,68,0.65)' : 'rgba(100,116,139,0.5)') : (bt >= 90 && bt < 145 ? 'rgba(71,85,105,0.5)' : 'rgba(34,197,94,0.6)');
+                if (bt >= 124 && bt <= 162) {
+                  bgCtx.fillStyle = (bt >= 156 && boilerTimer > 0) ? 'rgba(239,68,68,0.65)' : (bt >= 128 && bt < 150 ? 'rgba(71,85,105,0.5)' : 'rgba(34,197,94,0.6)');
                   bgCtx.fillRect(7.0, -9.5, 2.5, 3.4);
                 }
                 bgCtx.restore();
