@@ -20,8 +20,9 @@
     height:45px !important;
   }
   .dia-header .brand-logo{
-    font-size:14px !important; letter-spacing:.14em !important;
-    line-height:45px !important; color:#2f2a2b !important;
+    font-family:Arial,'Nanum Barun Gothic',"맑은 고딕",돋움,sans-serif !important;
+    font-size:15px !important; font-weight:700 !important; letter-spacing:.5px !important;
+    line-height:45px !important; color:#000 !important;
   }
   .dia-header .brand-sub{ display:none !important; }
 
@@ -66,8 +67,11 @@
   .dia-header.is-scrolled .brand,
   .dia-header.is-scrolled .brand-logo{
     height:55px !important; line-height:55px !important;
+    font-family:Arial,'Nanum Barun Gothic',"맑은 고딕",돋움,sans-serif !important;
     font-size:15px !important; font-weight:700 !important; letter-spacing:.5px !important;
+    color:#000 !important;
   }
+  .dia-header.is-scrolled .brand-logo{ color:#000 !important; }
   .dia-header.is-scrolled #pcShortcutBtn{
     right:max(50px, calc((100vw - 1350px) / 2 + 50px)) !important;
   }
