@@ -3137,11 +3137,7 @@ window.창고읽기 = function(url){
               }
               // 2) 92~122: 시계 스패너 수리 & 패널 교체
               if (santa.timer === 92 && dtEl) {
-                dtEl.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
-                dtEl.style.transform = 'translateY(3px) scale(0.95) rotate(1.8deg)';
-              }
-              if (santa.timer === 108 && dtEl) {
-                dtEl.style.transform = 'rotate(-1.8deg)';
+                dtEl.style.transition = 'opacity 0.2s ease';
               }
               if (santa.timer === 120 && dtEl) {
                 dtEl.style.transform = '';
