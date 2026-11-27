@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <script>/* 첫 화면부터 로그인 후 배치로 그리도록 미리 표시 */
+  try{ if(localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak')){ document.documentElement.classList.add('dia-login'); } }catch(e){}</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>다이아 커뮤니티 | 속눈썹펌·네일아트·피부관리·왁싱 뷰티 품앗이</title>
@@ -1923,17 +1925,17 @@
     .plx-cta-t { font-size: 12px; color: #868e96; }
     .only-pc { display: block; }
     /* 로그인 후 화면은 11/26 상태 그대로 — 오늘 상단에서 손댄 것은 로그인 전 화면에만 */
-    body.dia-page:has(#mcHeroStatus:not([hidden])) header.dia-header .brand-inline { display: none !important; }
+    html.dia-login body.dia-page header.dia-header .brand-inline { display: none !important; }
     @media (min-width: 881px) {
-      body.dia-page:has(#mcHeroStatus:not([hidden])) .dia-hero-in .quick-links > a[href="dia-notice.html"] { display: inline-flex !important; }
+      html.dia-login body.dia-page .dia-hero-in .quick-links > a[href="dia-notice.html"] { display: inline-flex !important; }
     }
-    body.dia-page:has(#mcHeroStatus:not([hidden])) .dia-hero-in .quick-links { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    html.dia-login body.dia-page .dia-hero-in .quick-links { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
       gap: 8px !important; max-width: 420px !important; width: auto !important; padding: 0 !important; }
-    body.dia-page:has(#mcHeroStatus:not([hidden])) .dia-hero-in .quick-links > * { width: 100% !important; min-width: 0 !important; min-height: 38px !important;
+    html.dia-login body.dia-page .dia-hero-in .quick-links > * { width: 100% !important; min-width: 0 !important; min-height: 38px !important;
       padding: 8px 14px !important; font-size: 13px !important; font-weight: 700 !important; letter-spacing: normal !important; border-radius: 8px !important; }
-    body.dia-page:has(#mcHeroStatus:not([hidden])) .dia-hero-in .quick-links > .mc-hero-login { padding: 8px 14px !important; font-size: 13px !important; }
-    body.dia-page:has(#mcHeroStatus:not([hidden])) .dia-hero-in > .mc-hero-right { position: static !important; margin: 0 0 0 auto !important; align-self: center !important; }
-    body.dia-page:has(#mcHeroStatus:not([hidden])) .dia-hero-in > #mcLoginBox { position: static !important; top: auto !important; left: auto !important;
+    html.dia-login body.dia-page .dia-hero-in .quick-links > .mc-hero-login { padding: 8px 14px !important; font-size: 13px !important; }
+    html.dia-login body.dia-page .dia-hero-in > .mc-hero-right { position: static !important; margin: 0 0 0 auto !important; align-self: center !important; }
+    html.dia-login body.dia-page .dia-hero-in > #mcLoginBox { position: static !important; top: auto !important; left: auto !important;
       transform: none !important; width: auto !important; max-width: 440px !important; margin: 8px auto 0 !important; }
     .only-mo { display: none; }
     .side-set { display: block; margin-top: 12px; padding: 12px 11px 11px; border: 1px solid #f1e3e9; border-radius: 12px;
@@ -5338,7 +5340,7 @@ window.창고읽기 = function(url){
                 body.dia-page .dia-hero-in{padding-bottom:0 !important;}
               }
               body.dia-page #myCard{padding-top:9px;margin-bottom:10px;}
-              body.dia-page:has(#mcHeroStatus:not([hidden])) .plx-clock{margin-top:-10px;}
+              html.dia-login body.dia-page .plx-clock{margin-top:-10px;}
               .plx-who{display:flex;align-items:center;gap:14px;min-width:0;}
               .plx-who .pr-av{width:74px;height:74px;font-size:26px;}
               .mc-chk-wrap{margin-top:10px;padding-top:9px;border-top:1px dashed #f0dce3;}
@@ -6524,6 +6526,7 @@ window.창고읽기 = function(url){
               function 로그인삭제(){
                 try{ localStorage.removeItem(LG_KEY); }catch(_e){}
                 try{ localStorage.removeItem(LG_KEY + '_bak'); }catch(_e){}
+                try{ document.documentElement.classList.remove('dia-login'); }catch(_e){}
               }
               if(lgBtn && lgBox){
                 var 미복원 = null;
