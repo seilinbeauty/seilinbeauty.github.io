@@ -9649,6 +9649,12 @@ window.창고읽기 = function(url){
     ['funbox',  '원장님들 화이팅 섹션', '.mc-fortune-wrap'],
     ['funhd',   '화이팅 제목 버튼',     '#mcGameToggle'],
     ['funbtns', '미니게임 6버튼 묶음',  '.mc-fortune-btns'],
+    ['g_fort',  '오늘의 운세 버튼',     '#mcFortuneBtn'],
+    ['g_saju',  '사주 보기 버튼',       '#mcSajuBtn'],
+    ['g_tarot', '오늘의 타로 버튼',     '#mcTarotBtn'],
+    ['g_mem',   '짝맞추기 버튼',        '#mcMemBtn'],
+    ['g_react', '반응속도 버튼',        '#mcReactBtn'],
+    ['g_lotto', '로또 추첨 버튼',       '#mcLottoBtn'],
     ['funnoti', '알림장 박스',          '#mcNoticePanel'],
     ['fbcard',  '참여 통계 카드',       '.fb-card'],
     ['rankcard','이번 달 참여왕 카드',  '#rankCard'],
@@ -9824,6 +9830,7 @@ window.창고읽기 = function(url){
   function bind(el, key){
     el.style.cursor = 'grab';
     el.style.touchAction = 'none';
+    el.addEventListener('click', function(e){ if (editing) { e.preventDefault(); e.stopPropagation(); } }, false);
     el.addEventListener('pointerdown', function(e){
       if (!editing) return;
       e.preventDefault(); e.stopPropagation();
@@ -9869,7 +9876,7 @@ window.창고읽기 = function(url){
       }
       document.addEventListener('pointermove', onMove);
       document.addEventListener('pointerup', onUp);
-    }, true);
+    }, false);
   }
 
   function bindEditText(el, key, isCustom){
