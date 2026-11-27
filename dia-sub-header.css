@@ -282,3 +282,5 @@ header.dia-header .nav-links a.nav-mypumasi:hover { color: #b54567; }
   border: 0;
   cursor: pointer;
 }
+
+header.dia-header .dia-ask-btn, header.dia-header .ask-btn { display: none !important; }
