@@ -2188,8 +2188,10 @@
       .dia-hero .quick-links > * { width: auto !important; min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; }
       .dia-hero .quick-links > .mc-hero-login { padding: 7px 11px !important; font-size: 12px !important; }
       .dia-hero .mc-chat { min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; box-sizing: border-box; }
+      .plx-title-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 6px 0 5px; }
+      .plx-title-row .plx-title { margin: 0; }
       .pc-hero-datetime {
-        display: inline-flex !important; flex-direction: row; align-items: baseline; justify-content: center; gap: 6px;
+        display: inline-flex !important; flex-direction: row; align-items: baseline; justify-content: flex-start; gap: 6px;
         padding: 0; border: 0; background: none; box-shadow: none;
         margin: 0; flex-shrink: 0; white-space: nowrap;
       }
@@ -2313,14 +2315,16 @@ window.창고읽기 = function(url){
         </div>
         <div class="only-pc">
           <span class="plx-tag">DIA COMMUNITY</span>
-          <div class="plx-title">다이아 커뮤니티</div>
+          <div class="plx-title-row">
+            <div class="plx-title">다이아 커뮤니티</div>
+            <div class="pc-hero-datetime only-pc" id="pcHeroDatetime" aria-live="off">
+              <div class="pc-hero-date" id="pcHeroDate"></div>
+              <div class="pc-hero-time" id="pcHeroTime"></div>
+            </div>
+          </div>
           <div class="plx-sub">속눈썹·반영구·네일 원장님들의 정보 공유와 마케팅 커뮤니티입니다.</div>
           <span class="plx-ask" style="margin-top:8px;">참여 비밀번호는 인스타그램 DM으로 문의해 주세요.</span>
         </div>
-      </div>
-      <div class="pc-hero-datetime only-pc" id="pcHeroDatetime" aria-live="off">
-        <div class="pc-hero-date" id="pcHeroDate"></div>
-        <div class="pc-hero-time" id="pcHeroTime"></div>
       </div>
       <script>
       (function(){
