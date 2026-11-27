@@ -93,23 +93,60 @@
     background:var(--ink);color:#fff;border:0;border-radius:999px;font-size:12.5px;font-weight:700;cursor:pointer;}
   .bar2 .add:hover{background:#3c3537;}
 
-  /* 매물 카드 목록 */
-  .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;padding-bottom:70px;}
-  .item{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:18px 18px 16px;
-    display:flex;flex-direction:column;gap:9px;transition:border-color .15s,box-shadow .15s;}
-  .item:hover{border-color:#d8c4ca;box-shadow:0 8px 24px rgba(30,20,24,.06);}
-  .item .top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  /* 알로하 쇼핑몰 스타일 매물 카드 그리드 */
+  .list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px 14px;padding-bottom:70px;}
+  .item{background:#fff;display:flex;flex-direction:column;cursor:pointer;transition:transform .16s ease;}
+  .item:hover .thumb img{transform:scale(1.04);}
+  .thumb{position:relative;width:100%;aspect-ratio:4/5;border-radius:10px;overflow:hidden;background:#f5f3f4;border:1px solid var(--line);}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .28s ease;}
+  .thumb .badges{position:absolute;top:8px;left:8px;display:flex;gap:4px;flex-wrap:wrap;}
+  .thumb .b-tag{font-size:10.5px;padding:3px 8px;border-radius:6px;font-weight:800;backdrop-filter:blur(4px);letter-spacing:-.01em;}
+  .thumb .b-tag.give{background:rgba(30,26,27,.82);color:#fff;}
+  .thumb .b-tag.want{background:rgba(61,102,143,.88);color:#fff;}
+  .thumb .b-tag.kind{background:rgba(255,255,255,.92);color:var(--ink);}
+  .thumb .pic-cnt{position:absolute;right:8px;bottom:8px;font-size:10.5px;font-weight:700;color:#fff;
+    background:rgba(0,0,0,.55);padding:3px 7px;border-radius:999px;backdrop-filter:blur(4px);}
+  .item-info{padding:10px 2px 2px;display:flex;flex-direction:column;gap:4px;}
+  .item-meta{font-size:11.5px;color:var(--ink-mute);font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:6px;}
+  .item h3{margin:0;font-size:13.5px;font-weight:700;line-height:1.42;letter-spacing:-.02em;color:var(--ink);
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .item-price{font-size:14px;font-weight:800;color:var(--ink);letter-spacing:-.02em;margin-top:2px;}
+  .item-key{font-size:11.5px;color:var(--accent);font-weight:700;}
+  .item-sub{font-size:11px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  /* 쇼핑몰 상품 상세 모달 */
+  .dmodal{position:fixed;inset:0;background:rgba(20,16,18,.58);display:none;align-items:center;justify-content:center;padding:16px;z-index:350;backdrop-filter:blur(3px);}
+  .dmodal[data-open="1"]{display:flex;}
+  .dmodal .dbox{width:100%;max-width:540px;max-height:90vh;overflow-y:auto;background:#fff;border-radius:18px;
+    box-shadow:0 24px 60px rgba(0,0,0,.25);position:relative;display:flex;flex-direction:column;}
+  .dmodal .dclose{position:absolute;top:12px;right:12px;z-index:5;width:34px;height:34px;border-radius:50%;border:0;
+    background:rgba(255,255,255,.9);color:var(--ink);font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+  .dgal{position:relative;width:100%;aspect-ratio:4/3;background:#f5f3f4;overflow:hidden;flex-shrink:0;}
+  .dgal img{width:100%;height:100%;object-fit:cover;display:block;}
+  .dgal .gbtn{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;border:0;
+    background:rgba(255,255,255,.88);color:var(--ink);font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+  .dgal .gbtn.prev{left:10px;} .dgal .gbtn.next{right:10px;}
+  .dgal .gdots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;
+    background:rgba(0,0,0,.45);padding:4px 8px;border-radius:999px;}
+  .dgal .gdots span{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.45);}
+  .dgal .gdots span.on{background:#fff;}
+  .dbody{padding:20px 22px 24px;}
+  .dtags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
   .tag{font-size:11px;padding:4px 9px;border-radius:999px;font-weight:700;}
   .tag.give{background:#fdf0f3;color:#c23b60;}
   .tag.want{background:#eef4fa;color:#3d668f;}
   .tag.kind{background:#f5f3f4;color:#62595b;}
   .tag.job{background:#f7f2fa;color:#6d4f82;}
-  .item h3{margin:2px 0 0;font-size:15.5px;font-weight:800;line-height:1.45;letter-spacing:-.02em;}
-  .item .addr{font-size:12px;color:var(--ink-mute);font-weight:600;}
-  .money{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 0 4px;border-top:1px solid #f4eff1;margin-top:2px;}
+  .dbody h2{margin:0 0 6px;font-size:18px;font-weight:800;line-height:1.4;letter-spacing:-.02em;}
+  .dbody .dmeta{font-size:12px;color:var(--ink-mute);margin-bottom:14px;}
+  .money{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 14px;background:#faf8f9;border-radius:12px;margin-bottom:14px;}
   .money div{font-size:11px;color:var(--ink-mute);}
-  .money b{display:block;font-size:14.5px;color:var(--ink);font-weight:800;letter-spacing:-.02em;margin-top:3px;}
-  .item .foot{display:flex;align-items:center;gap:8px;font-size:11px;color:#b0a5a8;margin-top:auto;}
+  .money b{display:block;font-size:15px;color:var(--ink);font-weight:800;letter-spacing:-.02em;margin-top:3px;}
+  .dtext{font-size:13px;line-height:1.7;color:var(--ink-soft);white-space:pre-line;max-height:220px;overflow-y:auto;padding-right:4px;margin-bottom:16px;}
+  .dact{display:flex;gap:8px;}
+  .dact a{flex:1;height:44px;border-radius:12px;background:var(--ink);color:#fff;font-size:13.5px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;gap:6px;}
+  .dact a:hover{background:#3c3537;}
 
   .empty{border:1.5px dashed var(--blush-deep);background:#fff;border-radius:16px;padding:48px 20px;text-align:center;
     font-size:13px;color:var(--ink-soft);line-height:1.9;margin-bottom:70px;}
@@ -136,6 +173,9 @@
   .gate .box a.ghost{background:#fff;color:var(--ink);border:1px solid var(--blush-deep);}
   .gate .box button.close{background:none;border:0;color:var(--ink-mute);font-size:12px;height:30px;}
 
+  @media (max-width:980px){
+    .list{grid-template-columns:repeat(3,minmax(0,1fr));}
+  }
   @media (max-width:760px){
     .headline{padding:22px 0 14px;}
     .headline h1{font-size:22px;}
@@ -143,7 +183,9 @@
     .search-box{min-width:100%;}
     .type-seg{width:100%;justify-content:stretch;}
     .type-seg button{flex:1;padding:8px 0;}
-    .list{grid-template-columns:1fr;}
+    .list{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 10px;}
+    .item h3{font-size:13px;}
+    .item-price{font-size:13px;}
   }
 </style>
 </head>
@@ -238,6 +280,11 @@
   </div>
 </div>
 
+<div class="dmodal" id="dmodal">
+  <div class="dbox" id="dbox"></div>
+</div>
+
+<script src="dia-shop-data.js?v=1"></script>
 <script src="dia-staff.js?v=5" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
@@ -409,25 +456,14 @@ document.addEventListener('DOMContentLoaded', function(){
     save(a); render();
   });
 
-  (function seed(){
-    try{
-      if (localStorage.getItem('dia_shop_seeded') === '1') return;
-      if (load().length) { localStorage.setItem('dia_shop_seeded','1'); return; }
-      var d = new Date().toISOString().slice(0,10);
-      save([
-        {id:'ex1',title:'홍대입구 속눈썹펌 2인 샵인샵 (기존 고객 300명)',kind:'샵인샵',type:'give',area:'서울',job:'속눈썹펌',dep:1000,rent:80,key:500,at:d},
-        {id:'ex2',title:'까치산 네일샵 매매 — 기자재 포함',kind:'샵매매',type:'give',area:'서울',job:'네일',dep:2000,rent:110,key:1500,at:d},
-        {id:'ex3',title:'수원 반영구 자리 임대 (1인실, 주차 가능)',kind:'임대',type:'give',area:'경기·인천',job:'반영구',dep:500,rent:45,key:0,at:d},
-        {id:'ex4',title:'부산 서면 왁싱샵 인수 희망합니다',kind:'샵매매',type:'want',area:'부산·울산',job:'왁싱',dep:3000,rent:100,key:1000,at:d},
-        {id:'ex5',title:'대전 피부관리실 샵인샵 자리 구합니다',kind:'샵인샵',type:'want',area:'대전·충청',job:'피부',dep:500,rent:50,key:0,at:d},
-        {id:'ex6',title:'강남 토탈뷰티 3층 매장 매매 (권리금 협의)',kind:'샵매매',type:'give',area:'서울',job:'토탈뷰티',dep:5000,rent:220,key:3000,at:d}
-      ]);
-      localStorage.setItem('dia_shop_seeded','1');
-    }catch(e){}
-  })();
+  function allItems(){
+    var base = Array.isArray(window.DIA_SHOP_LISTINGS) ? window.DIA_SHOP_LISTINGS : [];
+    var mine = load();
+    return mine.concat(base);
+  }
 
   function render(){
-    var all = load();
+    var all = allItems();
     var a = all.filter(function(it){
       if (state.area !== '전체' && it.area !== state.area) return false;
       if (state.kind && it.kind !== state.kind) return false;
@@ -437,7 +473,7 @@ document.addEventListener('DOMContentLoaded', function(){
       if (state.rentMax !== null && (Number(it.rent)||0) > state.rentMax) return false;
       if (state.keyMax !== null && (Number(it.key)||0) > state.keyMax) return false;
       if (state.q) {
-        var s = (it.title+' '+it.area+' '+it.job+' '+it.kind).toLowerCase();
+        var s = (it.title+' '+it.area+' '+it.job+' '+it.kind+' '+(it.summary||'')).toLowerCase();
         if (s.indexOf(state.q.toLowerCase()) < 0) return false;
       }
       return true;
@@ -446,29 +482,87 @@ document.addEventListener('DOMContentLoaded', function(){
     else if (state.sort === 'rent') a.sort(function(x,y){ return (x.rent||0)-(y.rent||0); });
     else a.sort(function(x,y){ return String(y.at||'').localeCompare(String(x.at||'')); });
 
-    document.getElementById('shop-count').textContent = '전체 매물 ' + all.length + '건';
+    document.getElementById('shop-count').textContent = '뷰앤잡 실매물 ' + all.length + '건';
     document.getElementById('shop-n').textContent = '매물 ' + a.length + '건';
 
     var box = document.getElementById('shop-items'), empty = document.getElementById('shop-empty');
     if (!a.length) { box.innerHTML=''; empty.style.display=''; return; }
     empty.style.display = 'none';
     box.innerHTML = a.map(function(it){
-      return '<article class="item">'+
-        '<div class="top">'+
-          '<span class="tag '+(it.type==='give'?'give':'want')+'">'+(it.type==='give'?'내놔요':'구해요')+'</span>'+
-          '<span class="tag kind">'+esc(it.kind||'샵인샵')+'</span>'+
-          '<span class="tag job">'+esc(it.job)+'</span>'+
+      var imgs = Array.isArray(it.imgs) && it.imgs.length ? it.imgs : [];
+      var cover = imgs[0] || '';
+      var priceStr = (it.depTxt || man(it.dep)) + ' / 월 ' + (it.rentTxt || man(it.rent));
+      var keyStr = it.keyTxt ? ('권리금 ' + it.keyTxt) : (Number(it.key)>0 ? ('권리금 ' + man(it.key)) : '무권리');
+      return '<article class="item" data-id="'+esc(it.id)+'">'+
+        '<div class="thumb">'+
+          (cover ? '<img src="'+esc(cover)+'" alt="'+esc(it.title)+'" loading="lazy">' : '')+
+          '<div class="badges">'+
+            '<span class="b-tag '+(it.type==='give'?'give':'want')+'">'+(it.type==='give'?'양도':'구함')+'</span>'+
+            '<span class="b-tag kind">'+esc(it.kind||'샵매매')+'</span>'+
+          '</div>'+
+          (imgs.length > 1 ? '<span class="pic-cnt">📷 '+imgs.length+'</span>' : '')+
         '</div>'+
-        '<h3>'+esc(it.title)+'</h3>'+
-        '<div class="addr">'+esc(it.area)+(it.area==='온라인'?'':' · ')+'</div>'+
-        '<div class="money">'+
-          '<div>보증금<b>'+man(it.dep)+'</b></div>'+
-          '<div>월세<b>'+man(it.rent)+'</b></div>'+
-          '<div>권리금<b>'+(Number(it.key)>0?man(it.key):'없음')+'</b></div>'+
+        '<div class="item-info">'+
+          '<div class="item-meta"><span>'+esc(it.area)+' · '+esc(it.job)+'</span><span>'+esc(it.at||'')+'</span></div>'+
+          '<h3>'+esc(it.title)+'</h3>'+
+          '<div class="item-price">'+esc(priceStr)+'</div>'+
+          '<div class="item-key">'+esc(keyStr)+'</div>'+
         '</div>'+
-        '<div class="foot"><span>'+esc(it.at||'')+'</span></div>'+
       '</article>';
     }).join('');
+
+    box.querySelectorAll('.item').forEach(function(el){
+      el.addEventListener('click', function(){
+        var id = el.getAttribute('data-id');
+        var found = all.find(function(x){ return x.id === id; });
+        if (found) openDetail(found);
+      });
+    });
+  }
+
+  var dmodal = document.getElementById('dmodal');
+  var dbox = document.getElementById('dbox');
+  dmodal.addEventListener('click', function(e){
+    if (e.target === dmodal) dmodal.setAttribute('data-open', '0');
+  });
+
+  function openDetail(it){
+    var imgs = Array.isArray(it.imgs) && it.imgs.length ? it.imgs : [];
+    var idx = 0;
+    function draw(){
+      var imgHtml = imgs.length ? (
+        '<div class="dgal">'+
+          '<img src="'+esc(imgs[idx])+'" alt="'+esc(it.title)+'">'+
+          (imgs.length > 1 ? '<button type="button" class="gbtn prev" id="dg-prev">‹</button><button type="button" class="gbtn next" id="dg-next">›</button>' : '')+
+          (imgs.length > 1 ? '<div class="gdots">'+imgs.map(function(_,i){ return '<span class="'+(i===idx?'on':'')+'"></span>'; }).join('')+'</div>' : '')+
+        '</div>'
+      ) : '';
+      dbox.innerHTML =
+        '<button type="button" class="dclose" id="d-close">×</button>'+
+        imgHtml+
+        '<div class="dbody">'+
+          '<div class="dtags">'+
+            '<span class="tag '+(it.type==='give'?'give':'want')+'">'+(it.type==='give'?'양도/임대':'구해요')+'</span>'+
+            '<span class="tag kind">'+esc(it.kind)+'</span>'+
+            '<span class="tag job">'+esc(it.job)+'</span>'+
+          '</div>'+
+          '<h2>'+esc(it.title)+'</h2>'+
+          '<div class="dmeta">'+esc(it.area)+' · '+esc(it.source||'직접 등록')+' · '+esc(it.at||'')+'</div>'+
+          '<div class="money">'+
+            '<div>보증금<b>'+esc(it.depTxt || man(it.dep))+'</b></div>'+
+            '<div>월세<b>'+esc(it.rentTxt || man(it.rent))+'</b></div>'+
+            '<div>권리금<b>'+esc(it.keyTxt || (Number(it.key)>0?man(it.key):'없음'))+'</b></div>'+
+          '</div>'+
+          '<div class="dtext">'+esc(it.body || it.summary || '상세 내용은 원글을 확인해 주세요.')+'</div>'+
+          (it.url ? '<div class="dact"><a href="'+esc(it.url)+'" target="_blank" rel="noopener">뷰앤잡 원글 보기 ↗</a></div>' : '')+
+        '</div>';
+      document.getElementById('d-close').onclick = function(){ dmodal.setAttribute('data-open', '0'); };
+      var pv = document.getElementById('dg-prev'), nx = document.getElementById('dg-next');
+      if (pv) pv.onclick = function(){ idx = (idx - 1 + imgs.length) % imgs.length; draw(); };
+      if (nx) nx.onclick = function(){ idx = (idx + 1) % imgs.length; draw(); };
+    }
+    draw();
+    dmodal.setAttribute('data-open', '1');
   }
 
   updatePills(); render();
