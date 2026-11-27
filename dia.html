@@ -2904,7 +2904,11 @@ window.창고읽기 = function(url){
                     santa.laziness = Math.min(100, santa.laziness + 12);
                     setMood('💦', 55);
                     if (chosen === 'top') { santa.state = 'walk_to'; santa.targetMode = 'top'; santa.targetX = Math.min(walkMaxX, bestTopX); }
-                    else if (chosen === 'road') { santa.state = 'walk_to'; santa.targetMode = 'road'; santa.targetX = Math.min(walkMaxX, bestSubX); }
+                    else if (chosen === 'road') {
+                      santa.state = 'walk_to';
+                      santa.targetMode = (maxSub >= 3.0 || totalSub >= 130) ? 'shovel' : 'road';
+                      santa.targetX = Math.min(walkMaxX, bestSubX);
+                    }
                     else { santa.state = 'summon_sleigh'; santa.timer = 0; santa.targetX = bestBtnX; }
                   } else {
                     santa.boredom = 0;
@@ -3002,6 +3006,22 @@ window.창고읽기 = function(url){
               if (santa.timer >= 60) {
                 santa.energy = Math.max(0, santa.energy - 4);
                 santa.state = 'idle'; santa.timer = 0;
+              }
+            } else if (santa.state === 'shovel_toss') {
+              santa.timer++;
+              if (santa.timer === 12) {
+                // 삽으로 퍼낸 눈 공중으로 휙 날려 보내기!
+                for (var st = 0; st < 8; st++) {
+                  if (puffs.length < 75) puffs.push({ x: santa.x + santa.dir * 8, y: santa.y - 10, vx: santa.dir * (1.2 + Math.random() * 1.4), vy: -1.5 - Math.random() * 1.1, r: 1.7, life: 0.95 });
+                }
+                santa.energy = Math.max(0, santa.energy - 5);
+              }
+              if (santa.timer >= 26) {
+                if (maxSub >= 2.6 && bestSubX >= 0 && bestSubX <= walkMaxX) {
+                  santa.state = 'walk_to'; santa.targetMode = 'shovel'; santa.targetX = bestSubX;
+                } else {
+                  santa.state = 'idle'; santa.timer = 0;
+                }
               }
             } else if (santa.state === 'pack_item') {
               santa.timer++;
@@ -3138,7 +3158,26 @@ window.창고읽기 = function(url){
                 santa.state = 'snowball'; santa.timer = 0; setMood('🎵', 55);
               }
               var dxMove = santa.targetX - santa.x;
-              if (santa.targetMode === 'road') {
+              if (santa.targetMode === 'shovel') {
+                // 바닥 눈이 수북할 땐 제설 삽으로 쓱 밀고 가다가 퍼내기!
+                santa.timer++;
+                if (Math.abs(dxMove) > 4) {
+                  santa.dir = dxMove > 0 ? 1 : -1;
+                  santa.x += santa.dir * 0.72;
+                  santa.walk += 0.2;
+                  santa.energy = Math.max(0, santa.energy - 0.12);
+                  var sfx = Math.round(santa.x + santa.dir * 8);
+                  for (var ddxS = -9; ddxS <= 9; ddxS++) {
+                    var cxS = sfx + ddxS;
+                    if (cxS >= sLeft && cxS <= sRight && subSurfaceY[cxS] >= 0 && subPileY[cxS] < subSurfaceY[cxS] - 0.2) {
+                      subPileY[cxS] = Math.min(subSurfaceY[cxS], subPileY[cxS] + 2.0);
+                    }
+                  }
+                  if (santa.timer % 48 === 47) { santa.state = 'shovel_toss'; santa.timer = 0; }
+                } else {
+                  santa.state = 'shovel_toss'; santa.timer = 0;
+                }
+              } else if (santa.targetMode === 'road') {
                 // 바닥 길은 걸어가면서 빗자루를 아래로 대고 쓱싹쓱싹 쓸어 치움
                 if (Math.abs(dxMove) > 4) {
                   santa.dir = dxMove > 0 ? 1 : -1;
@@ -3648,6 +3687,26 @@ window.창고읽기 = function(url){
               var warm = Math.sin(santa.timer * 0.14) * 0.7;
               drawLimb(2.2, -4.2, 5.2, -3.5, 7.6, -4.0 + warm, '#d93848', '#ffffff', 1.8);
               drawLimb(-2.2, -4.2, 3.0, -3.2, 6.2, -3.5 - warm, '#c12737', '#ffffff', 1.8);
+            } else if (santa.state === 'shovel_toss' || (santa.state === 'walk_to' && santa.targetMode === 'shovel')) {
+              // 제설 삽으로 눈 밀고 퍼내는 관절 동작
+              var isToss = (santa.state === 'shovel_toss');
+              var tp = isToss ? Math.sin(Math.min(1, santa.timer / 16) * Math.PI * 0.75) : 0;
+              var shX = 6.5 - tp * 1.5, shY = -1.5 - tp * 8.5;
+              drawLimb(2.2, -4.2, 4.5, -2.5 - tp * 3, shX, shY, '#d93848', '#ffffff', 1.9);
+              drawLimb(-2.2, -4.2, 1.5, -2.8 - tp * 2, 4.2, -2.2 - tp * 4, '#c12737', '#ffffff', 1.8);
+              ctx.save();
+              ctx.translate(shX, shY);
+              ctx.rotate(isToss ? (-0.75 * tp) : 0.18);
+              ctx.strokeStyle = '#c92a3a'; ctx.lineWidth = 1.5;
+              ctx.beginPath(); ctx.moveTo(-4, -3.5); ctx.lineTo(4.5, 1.5); ctx.stroke();
+              // 넓은 제설 삽판 + 삽 위 소복한 눈
+              ctx.fillStyle = '#94a3b8';
+              ctx.beginPath(); ctx.moveTo(3.5, 0.2); ctx.lineTo(7.5, 1.8); ctx.lineTo(6.5, 4.2); ctx.lineTo(2.8, 2.2); ctx.closePath(); ctx.fill();
+              if (!isToss || santa.timer < 12) {
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath(); ctx.arc(5.4, 1.4, 1.8, Math.PI, 0); ctx.fill();
+              }
+              ctx.restore();
             } else if (!isFlying) {
               var armS = isWalking ? Math.sin(santa.walk + Math.PI) * 2.2 : 0;
               drawLimb(-2.2, -4.2, -3.2 + armS * 0.5, -2.0, -2.2 + armS, -0.2, '#c12737', '#ffffff', 1.8);
