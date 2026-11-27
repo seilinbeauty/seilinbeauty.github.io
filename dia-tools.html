@@ -197,6 +197,7 @@
       <button type="button" class="s-btn" data-tab="plc"><span>플레이스 경쟁샵 비교</span></button>
       <button type="button" class="s-btn" data-tab="area"><span>상권 · 입지 수요 분석</span></button>
       <button type="button" class="s-btn" data-tab="margin"><span>시술 손익 · 시간당 마진</span></button>
+      <button type="button" class="s-btn" data-tab="sns_agent"><span>SNS 소통 · 타깃 비서</span></button>
       <button type="button" class="s-btn is-locked" data-tab="macro"><span>🔒 인스타·블로그 매크로</span></button>
       <button type="button" class="s-btn is-locked" data-tab="plc_lock"><span>🔒 플레이스 저장·트래픽</span></button>
       <button type="button" class="s-btn is-locked" data-tab="ig_lock"><span>🔒 타인 인스타 인사이트</span></button>
@@ -740,6 +741,48 @@
     </section>
 
     <!-- 14. 인스타·블로그 자동좋어요·댓글·서이추 매크로 (잠금 탭) -->
+    <!-- 15. SNS 소통 · 타깃 비서 -->
+    <section class="tl-panel" id="tab-sns_agent">
+      <div class="work-grid">
+        <div class="card">
+          <h3>SNS 타깃 분류 · 맞춤 댓글 생성</h3>
+          <p class="card-sub">상대 계정이나 게시물 내용을 넣으면 AI가 잠재 고객 여부를 분류하고 맞춤 소통 댓글 3종을 작성합니다.</p>
+          <div class="row2">
+            <div>
+              <label class="lbl">플랫폼</label>
+              <select id="saPlat" class="sel">
+                <option value="인스타그램" selected>인스타그램</option>
+                <option value="네이버 블로그">네이버 블로그</option>
+              </select>
+            </div>
+            <div>
+              <label class="lbl">상대 아이디 / 닉네임</label>
+              <input id="saUser" class="inp" placeholder="예: minji_hwagok">
+            </div>
+          </div>
+          <label class="lbl">상대 프로필 / 게시물 URL (선택)</label>
+          <input id="saUrl" class="inp" placeholder="미입력 시 인스타 아이디 주소로 자동 연결">
+          <label class="lbl">상대 소개글 또는 게시물 내용</label>
+          <textarea id="saBody" class="ta" rows="4" placeholder="예: 화곡동 사는 직장인! 눈 시림 없는 자연스러운 속눈썹펌 잘하는 곳 찾고 있어요"></textarea>
+          <div class="btn-row">
+            <button type="button" class="btn-primary" id="btnSaGen">AI 타깃 분류 · 댓글 생성</button>
+            <button type="button" class="btn-ghost" id="btnSaAdd">소통 큐에 저장</button>
+          </div>
+          <div id="saOut" class="out-box" style="min-height:130px;">상대 계정 정보나 글 내용을 입력하고 'AI 타깃 분류 · 댓글 생성'을 눌러 보세요.</div>
+        </div>
+        <div class="card">
+          <h3>오늘의 소통 큐 · 활동 이력</h3>
+          <p class="card-sub">선별된 대상을 원문에서 바로 확인하고 댓글 복사 후 완료 체크하세요. (중복 자동 방지)</p>
+          <div class="kpi-row" style="grid-template-columns:repeat(3,minmax(0,1fr));">
+            <div class="kpi"><div class="kpi-l">대기 중</div><div class="kpi-v" id="kSaWait">0건</div></div>
+            <div class="kpi"><div class="kpi-l">소통 완료</div><div class="kpi-v" id="kSaDone">0건</div></div>
+            <div class="kpi"><div class="kpi-l">잠재 고객</div><div class="kpi-v" id="kSaCust">0명</div></div>
+          </div>
+          <div id="saList" style="margin-top:12px;display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto;"></div>
+        </div>
+      </div>
+    </section>
+
     <section class="tl-panel" id="tab-macro">
       <div class="lock-card">
         <div class="lock-ico">🔒</div>
@@ -1722,6 +1765,132 @@
     document.getElementById("btnWsCopy").addEventListener("click", function(){ cpTxt(document.getElementById("wsReport").textContent); });
     window.__diaWsAuto = function(){ if (!ranOnce) runWs(); };
     if (location.hash === "#workspace" && authed) runWs();
+  })();
+
+  // 15. SNS 소통 · 타깃 비서
+  (function(){
+    var elPlat = document.getElementById("saPlat");
+    var elUser = document.getElementById("saUser");
+    var elUrl = document.getElementById("saUrl");
+    var elBody = document.getElementById("saBody");
+    var elOut = document.getElementById("saOut");
+    var elList = document.getElementById("saList");
+    if (!elOut || !elList) return;
+
+    var key = "dia_sns_agent_q_" + getActor();
+    function loadQ(){ try { return JSON.parse(localStorage.getItem(key) || "[]"); } catch(e){ return []; } }
+    function saveQ(arr){ try { localStorage.setItem(key, JSON.stringify(arr)); } catch(e){} }
+
+    var lastAnalysis = { cat: "잠재 고객", score: 85, comment: "" };
+
+    function renderQ(){
+      var arr = loadQ();
+      var wait = 0, done = 0, cust = 0;
+      arr.forEach(function(it){
+        if (it.done) done++; else wait++;
+        if (it.cat === "잠재 고객") cust++;
+      });
+      document.getElementById("kSaWait").textContent = wait + "건";
+      document.getElementById("kSaDone").textContent = done + "건";
+      document.getElementById("kSaCust").textContent = cust + "명";
+      if (!arr.length) {
+        elList.innerHTML = '<div style="padding:22px;text-align:center;color:#6b7280;font-size:12.5px;border:1px dashed #e5e7eb;border-radius:10px;">저장된 소통 대상이 없습니다. 왼쪽에서 생성 후 \'소통 큐에 저장\'을 눌러 보세요.</div>';
+        return;
+      }
+      elList.innerHTML = "";
+      arr.forEach(function(it, idx){
+        var row = document.createElement("div");
+        row.style.cssText = "border:1px solid #e5e7eb;border-radius:12px;padding:12px;background:" + (it.done ? "#f9fafb" : "#fff") + ";";
+        var link = it.url || (it.plat === "인스타그램" && it.user ? ("https://www.instagram.com/" + encodeURIComponent(it.user.replace(/^@/,"")) + "/") : "");
+        row.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">'
+          + '<div><b style="font-size:13px;">' + (it.user || "미입력") + '</b> <span style="font-size:11px;padding:2px 7px;border-radius:999px;background:#f3f4f6;color:#374151;font-weight:700;">' + it.plat + ' · ' + it.cat + ' (' + it.score + '점)</span></div>'
+          + '<div style="display:flex;gap:5px;">'
+          + (link ? '<a href="' + link + '" target="_blank" rel="noopener" class="btn-ghost" style="padding:5px 9px;font-size:11.5px;text-decoration:none;">열기 ↗</a>' : '')
+          + '<button type="button" class="btn-ghost sa-cp" data-i="' + idx + '" style="padding:5px 9px;font-size:11.5px;">복사</button>'
+          + '<button type="button" class="btn-ghost sa-tg" data-i="' + idx + '" style="padding:5px 9px;font-size:11.5px;' + (it.done ? '' : 'background:#111827;color:#fff;border-color:#111827;') + '">' + (it.done ? '완료됨' : '소통 완료') + '</button>'
+          + '<button type="button" class="btn-ghost sa-dl" data-i="' + idx + '" style="padding:5px 9px;font-size:11.5px;">삭제</button>'
+          + '</div></div>'
+          + (it.comment ? '<div style="margin-top:8px;font-size:12.5px;color:#374151;line-height:1.5;background:#f9fafb;padding:8px 10px;border-radius:8px;">' + it.comment.replace(/</g,"&lt;") + '</div>' : '');
+        elList.appendChild(row);
+      });
+    }
+    renderQ();
+
+    elList.addEventListener("click", function(e){
+      var cp = e.target.closest(".sa-cp");
+      var tg = e.target.closest(".sa-tg");
+      var dl = e.target.closest(".sa-dl");
+      var arr = loadQ();
+      if (cp) {
+        var it = arr[Number(cp.getAttribute("data-i"))];
+        if (it && it.comment) cpTxt(it.comment);
+      } else if (tg) {
+        var i = Number(tg.getAttribute("data-i"));
+        if (arr[i]) { arr[i].done = !arr[i].done; saveQ(arr); renderQ(); logTool("sns_agent", "toggle_done"); }
+      } else if (dl) {
+        arr.splice(Number(dl.getAttribute("data-i")), 1);
+        saveQ(arr); renderQ();
+      }
+    });
+
+    document.getElementById("btnSaGen").addEventListener("click", function(){
+      var plat = elPlat.value;
+      var user = elUser.value.trim() || "상대 계정";
+      var body = elBody.value.trim();
+      if (!body) { elOut.textContent = "상대 소개글 또는 게시물 내용을 먼저 입력해 주세요."; return; }
+      logTool("sns_agent", "ai_classify");
+      elOut.textContent = "AI가 타깃 유형을 분석하고 맞춤 댓글 3종을 작성 중입니다...";
+
+      var isShop = /원장|아카데미|수강|시술|샵|salon|lash|brow/i.test(user + " " + body);
+      var fbCat = isShop ? "뷰티샵 원장님" : "잠재 고객";
+      var fbCmt = isShop
+        ? "원장님 시술 퀄리티 정말 깔끔하네요! 같은 뷰티인으로서 응원하고 갑니다 :)"
+        : "글 내용 너무 공감돼요! 요즘 관리 고민 많으실 텐데 오늘도 좋은 하루 보내세요 :)";
+      var fbText = "[타깃 분류] " + fbCat + " (적합도 86점)\n"
+        + "[선별 사유] " + (isShop ? "동종 뷰티샵 계정 · 품앗이/네트워킹 적합" : "뷰티 관심 일반 계정 · 좋아요/댓글 소통 적합") + "\n\n"
+        + "[1안 · 자연스러운 공감]\n" + fbCmt + "\n\n"
+        + "[2안 · 질문형 소통]\n작성하신 글 잘 보고 가요! 평소에도 해당 관리에 관심 많으신가요?\n\n"
+        + "[3안 · 담백한 인사]\n피드 분위기가 정말 좋네요 :) 좋아요 누르고 갑니다!";
+
+      var pr = "SNS 마케팅 비서로서 아래 계정을 분석해 답해줘.\n"
+        + "- 플랫폼: " + plat + " / 계정: " + user + "\n- 내용: " + body + "\n"
+        + "1) [타깃 분류] 잠재 고객 / 뷰티샵 원장님 / 체험단 / 제외 중 하나와 적합도 점수(0~100)\n"
+        + "2) [선별 사유] 1줄\n"
+        + "3) [맞춤 댓글 1안~3안] 진정성 있고 스팸 같지 않은 1~2문장 댓글 3가지";
+
+      callAi(pr, function(txt){
+        elOut.textContent = txt;
+        var cat = /뷰티샵\s*원장/.test(txt) ? "뷰티샵 원장님" : (/체험단/.test(txt) ? "체험단" : (/제외/.test(txt) ? "제외" : "잠재 고객"));
+        var mScore = txt.match(/(\d{2,3})\s*점/);
+        var mCmt = txt.match(/\[?(?:맞춤\s*댓글\s*)?1안[^\n]*\]?\s*\n([^\n]+)/);
+        lastAnalysis = { cat: cat, score: mScore ? Number(mScore[1]) : 85, comment: mCmt ? mCmt[1].trim() : fbCmt };
+      }, function(){
+        elOut.textContent = fbText;
+        lastAnalysis = { cat: fbCat, score: 86, comment: fbCmt };
+      });
+    });
+
+    document.getElementById("btnSaAdd").addEventListener("click", function(){
+      var user = elUser.value.trim();
+      var plat = elPlat.value;
+      var url = elUrl.value.trim();
+      if (!user && !url) { alert("상대 아이디 또는 URL을 입력해 주세요."); return; }
+      var arr = loadQ();
+      var dup = arr.some(function(x){ return x.plat === plat && ((user && x.user === user) || (url && x.url === url)); });
+      if (dup) { alert("이미 소통 큐에 등록된 대상입니다 (중복 방지)."); return; }
+      arr.unshift({
+        plat: plat,
+        user: user || "링크 대상",
+        url: url,
+        cat: lastAnalysis.cat || "잠재 고객",
+        score: lastAnalysis.score || 85,
+        comment: lastAnalysis.comment || "",
+        done: false
+      });
+      saveQ(arr);
+      renderQ();
+      logTool("sns_agent", "enqueue");
+    });
   })();
 })();
 </script>
