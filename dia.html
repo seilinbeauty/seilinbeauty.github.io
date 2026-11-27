@@ -2323,6 +2323,7 @@ window.창고읽기 = function(url){
   });
 };
 </script>
+  <link rel="manifest" href="manifest.webmanifest">
 </head>
 <body class="dia-page">
   <header class="dia-header">
@@ -10103,5 +10104,91 @@ window.창고읽기 = function(url){
   window.diaReloadLayout = function(){ all = loadAll(); apply(); };
 })();
 </script>
+
+<div id="diaShortcutModal" hidden style="position:fixed;inset:0;z-index:9500;background:rgba(20,12,16,.45);display:none;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#fff;border-radius:16px;max-width:340px;width:100%;padding:20px 18px;box-shadow:0 16px 40px rgba(0,0,0,.2);text-align:center;font-family:inherit;">
+    <div style="font-size:16px;font-weight:800;color:#212529;">⭐ 바로가기 · 북마크 추가</div>
+    <div id="diaShortcutBody" style="margin-top:10px;font-size:13px;line-height:1.65;color:#55484e;word-break:keep-all;"></div>
+    <div style="margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+      <button type="button" id="diaShortcutDl" style="display:none;border:0;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;font-weight:800;font-size:12.5px;padding:9px 15px;border-radius:999px;cursor:pointer;font-family:inherit;">바탕화면 파일 받기</button>
+      <button type="button" id="diaShortcutClose" style="border:1px solid #e4d6dc;background:#fff;color:#55484e;font-weight:800;font-size:12.5px;padding:9px 16px;border-radius:999px;cursor:pointer;font-family:inherit;">닫기</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  function openShortcutGuide(){
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(){ deferredPrompt = null; });
+      return;
+    }
+    var modal = document.getElementById('diaShortcutModal');
+    var body = document.getElementById('diaShortcutBody');
+    var dl = document.getElementById('diaShortcutDl');
+    var ua = navigator.userAgent || '';
+    var isIOS = /iPhone|iPad|iPod/i.test(ua);
+    var isMo = /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || window.innerWidth <= 880;
+    if (isIOS) {
+      body.innerHTML = '하단 공유 버튼(<b>□↑</b>)을 누른 뒤<br><b>"홈 화면에 추가"</b> 또는 <b>"책갈피 추가"</b>를 누르세요.';
+      dl.style.display = 'none';
+    } else if (isMo) {
+      body.innerHTML = '브라우저 오른쪽 위 <b>⋮ 메뉴</b>에서<br><b>"홈 화면에 추가"</b> 또는 <b>⭐ 북마크</b>를 누르세요.';
+      dl.style.display = 'none';
+    } else {
+      body.innerHTML = '키보드에서 <b>Ctrl + D</b> (맥은 <b>⌘ + D</b>)를 누르면 북마크에 바로 저장됩니다.<br>아래 버튼을 누르면 바탕화면 바로가기 파일도 받을 수 있습니다.';
+      dl.style.display = '';
+    }
+    modal.hidden = false;
+    modal.style.display = 'flex';
+  }
+
+  document.getElementById('diaShortcutClose').addEventListener('click', function(){
+    var m = document.getElementById('diaShortcutModal');
+    m.hidden = true; m.style.display = 'none';
+  });
+  document.getElementById('diaShortcutDl').addEventListener('click', function(){
+    var urlContent = '[InternetShortcut]\r\nURL=https://seilinbeauty.github.io/dia.html\r\n';
+    var blob = new Blob([urlContent], { type: 'text/plain' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '다이아 커뮤니티.url';
+    a.click();
+  });
+
+  function mountBtns(){
+    // 1. PC: 왼쪽 사이드바 맨 아래
+    var nav = document.querySelector('.plx-nav');
+    if (nav && !document.getElementById('pcShortcutBtn')) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.id = 'pcShortcutBtn';
+      b.innerHTML = '⭐ 북마크 · 바로가기';
+      b.style.cssText = 'display:block;width:calc(100% - 24px);margin:10px 12px 0;padding:8px 10px;border-radius:9px;border:1px solid #f0d7e0;background:#fff8fa;color:#b35172;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;text-align:center;';
+      b.addEventListener('click', openShortcutGuide);
+      nav.appendChild(b);
+    }
+    // 2. 모바일: quick-links 바로 아래
+    var hero = document.querySelector('.dia-hero-in');
+    if (hero && !document.getElementById('moShortcutBtn')) {
+      var mb = document.createElement('button');
+      mb.type = 'button'; mb.id = 'moShortcutBtn'; mb.className = 'only-mo';
+      mb.innerHTML = '⭐ 홈 화면 추가 · 북마크';
+      mb.style.cssText = 'width:100%;margin-top:6px;padding:7px 10px;border-radius:999px;border:1px solid #f0d7e0;background:#fff9fb;color:#b35172;font-size:11.5px;font-weight:800;cursor:pointer;font-family:inherit;text-align:center;';
+      mb.addEventListener('click', openShortcutGuide);
+      var ql = hero.querySelector('.quick-links');
+      if (ql && ql.parentNode) ql.parentNode.insertBefore(mb, ql.nextSibling);
+    }
+  }
+  mountBtns();
+  window.addEventListener('load', mountBtns);
+})();
+</script>
+
 </body>
 </html>
