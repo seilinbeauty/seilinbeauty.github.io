@@ -6,7 +6,7 @@
 
   .dia-header{
     height:45px !important; min-height:45px !important;
-    padding:0 12% !important; margin:0 !important;
+    padding:0 max(50px, calc((100vw - 1350px) / 2 + 50px)) !important; margin:0 !important;
     box-sizing:border-box !important;
     display:flex !important; align-items:center !important;
     line-height:45px !important;
