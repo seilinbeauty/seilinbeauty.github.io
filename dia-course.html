@@ -3574,7 +3574,7 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
 .crs-tags{font-size:12px !important;font-weight:800 !important;color:#111 !important;margin-top:2px !important;}
 .crs-course{order:1;margin:3px 0 5px !important;padding:0 !important;border:0 !important;background:transparent !important;font-size:11.5px !important;font-weight:400 !important;color:#8c8c8c !important;line-height:1.4 !important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .crs-ribbon{order:2;margin:0 0 5px !important;border-radius:2px !important;padding:2px 6px !important;font-size:9.5px !important;font-weight:700 !important;background:#f4a261 !important;color:#fff !important;align-self:flex-start;}
-.crs-benefit{display:none !important;}
+.crs-benefit{order:4;display:inline-block !important;margin:0 3px 3px 0 !important;padding:2px 6px !important;border-radius:2px !important;font-size:9.5px !important;font-weight:700 !important;background:#ffecec !important;color:#d6456b !important;border:0 !important;line-height:1.3 !important;width:fit-content !important;max-width:100% !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;}
 .crs-ribbon{display:none !important;}
 .crs-links{order:4;gap:3px !important;flex-wrap:wrap;margin-top:auto;}
 .crs-ig{padding:2px 6px !important;font-size:9.5px !important;font-weight:700 !important;border-radius:2px !important;background:#e8f4fd !important;border:0 !important;color:#5a9bd4 !important;}
@@ -3594,6 +3594,14 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
     ['#ede0d4', '#7f5539', '#2b2d42']
   ];
   function addBars(){
+    var bens = document.querySelectorAll('.crs-grid > .crs-card .crs-benefit');
+    for (var j = 0; j < bens.length; j++) {
+      if (!bens[j].getAttribute('data-full')) {
+        bens[j].setAttribute('data-full', bens[j].textContent || '');
+        bens[j].setAttribute('title', bens[j].textContent || '');
+        bens[j].textContent = '💎 다이아혜택';
+      }
+    }
     var cards = document.querySelectorAll('.crs-grid > .crs-card');
     for (var i = 0; i < cards.length; i++) {
       if (cards[i].querySelector('.crs-aloha-bar')) continue;
