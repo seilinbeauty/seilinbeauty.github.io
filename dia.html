@@ -2468,13 +2468,13 @@ window.창고읽기 = function(url){
           for (var i = 0; i < nBulb; i++) {
             var tB = nBulb > 1 ? i / (nBulb - 1) : 0.5;
             var xB = wT * tB - 2.5;
-            var yB = hT * 0.5 + Math.sin(tB * Math.PI * 5) * (hT * 0.55);
+            var yB = hT * 0.45 + Math.sin(tB * Math.PI * 6) * (hT * 0.62);
             addBulb(xB, yB, i);
           }
           for (var g = 0; g < nBulb; g += 2) {
             var tG = (nBulb > 1) ? g / (nBulb - 1) : 0.5;
             var xG = wT * tG - 2.5;
-            var yG = hT * 0.5 + Math.sin(tG * Math.PI * 5) * (hT * 0.55) + 4.5;
+            var yG = hT * 0.45 + Math.sin(tG * Math.PI * 6) * (hT * 0.62) + 3.0;
             addBulb(xG, yG, g + 5);
           }
           var star = document.createElement('span');
