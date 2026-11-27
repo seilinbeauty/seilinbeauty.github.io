@@ -3391,9 +3391,8 @@ window.창고읽기 = function(url){
                       subPileY[cxS] = subSurfaceY[cxS];
                     }
                   }
-                  if (santa.timer % 68 === 67) { santa.state = 'shovel_toss'; santa.timer = 0; }
                 } else {
-                  santa.state = 'shovel_toss'; santa.timer = 0;
+                  santa.state = 'shovel_toss'; santa.timer = 22;
                 }
               } else if (santa.targetMode === 'road') {
                 // 바닥 길은 걸어가면서 빗자루를 아래로 대고 쓱싹쓱싹 쓸어 치움
@@ -4229,6 +4228,19 @@ window.창고읽기 = function(url){
                 friend.targetX = sLeft + 18 + Math.random() * Math.max(20, (fWalkMax - sLeft - 30));
               }
             } else if (friend.state === 'work_sweep') {
+              // 대장 산타가 놀고/쉬고 있는 걸 발견하면 좌충우돌 시트콤 발동!
+              var bossSlacking = (santa.state === 'sit_rest' || santa.state === 'idle' || santa.state === 'pet_rudolph' || santa.state === 'magic_car' || santa.state === 'snowball' || santa.state === 'sky_watch');
+              if (friend.timer === 85 && bossSlacking) {
+                friend.dir = (santa.x >= friend.x) ? 1 : -1;
+                friend.moodIcon = '💢'; friend.moodTimer = 75;
+                santa.state = 'busted'; santa.timer = 0; setMood('❗', 65);
+                if (Math.random() < 0.45) {
+                  // 친구 산타가 오히려 그 자리로 가서 앉아 쉬고, 대장 산타가 혼자 일함!
+                  friend.state = 'walk_sit';
+                  friend.targetX = santa.x;
+                  friend.timer = 0;
+                }
+              }
               // 친구 산타가 대장 대신 빗자루로 바닥·제목 위 눈 열심히 청소!
               var fdx = friend.targetX - friend.x;
               if (Math.abs(fdx) > 4) {
@@ -4253,6 +4265,22 @@ window.창고읽기 = function(url){
                 } else {
                   friend.state = 'bye'; friend.byeMode = (Math.random() < 0.5 ? 'walk' : 'ride'); friend.timer = 0; friend.moodIcon = '👋'; friend.moodTimer = 50;
                 }
+              }
+            } else if (friend.state === 'walk_sit') {
+              // 화난 친구 산타가 대장 산타가 쉬던 자리로 걸어가서 대신 앉아 버림!
+              var fdxS = friend.targetX - friend.x;
+              if (Math.abs(fdxS) > 4) {
+                friend.dir = fdxS > 0 ? 1 : -1;
+                friend.x += friend.dir * 1.05;
+                friend.walk += 0.28;
+              } else {
+                friend.state = 'sit_rest'; friend.timer = 0;
+                friend.moodIcon = '☕'; friend.moodTimer = 95;
+              }
+            } else if (friend.state === 'sit_rest') {
+              // 대장 자리 뺏어서 푹 쉬고 퇴장!
+              if (friend.timer >= 105) {
+                friend.state = 'bye'; friend.byeMode = (Math.random() < 0.5 ? 'walk' : 'ride'); friend.timer = 0; friend.moodIcon = '👋'; friend.moodTimer = 50;
               }
             } else if (friend.state === 'play_fun') {
               // 대장 산타랑 같이 눈싸움 · 점프 하이파이브 · 수다!
@@ -4321,7 +4349,13 @@ window.창고읽기 = function(url){
               ctx.scale(friend.dir, 1);
               ctx.fillStyle = 'rgba(15, 23, 42, 0.16)';
               ctx.beginPath(); ctx.ellipse(0, 0.8, 4.8, 1.3, 0, 0, Math.PI * 2); ctx.fill();
-              var fLeg = (friend.state === 'work_sweep' || (friend.state === 'bye' && friend.byeMode === 'walk' && friend.timer > 28)) ? Math.sin(friend.walk) * 2.4 : 0;
+              var fLeg = (friend.state === 'work_sweep' || friend.state === 'walk_sit' || (friend.state === 'bye' && friend.byeMode === 'walk' && friend.timer > 28)) ? Math.sin(friend.walk) * 2.4 : 0;
+              if (friend.state === 'sit_rest') {
+                // 친구 산타가 대장 자리에 미니 나무의자 꺼내 앉아서 커피 마시며 쉬기!
+                ctx.fillStyle = '#9c6b3b';
+                ctx.fillRect(-4.5, -2.8, 7.5, 1.3); ctx.fillRect(-4.5, -7.2, 1.3, 4.5);
+                ctx.fillRect(-4.0, -1.5, 1.2, 1.6); ctx.fillRect(1.5, -1.5, 1.2, 1.6);
+              }
               ctx.fillStyle = '#0f172a';
               ctx.beginPath(); ctx.ellipse(-2.0 - fLeg * 0.5, 0.2, 1.9, 1.1, 0, 0, Math.PI * 2); ctx.ellipse(2.0 + fLeg * 0.5, 0.2, 1.9, 1.1, 0, 0, Math.PI * 2); ctx.fill();
               var fbGrd = ctx.createRadialGradient(-1.2, -5.5, 0.6, 0, -4.4, 4.5);
