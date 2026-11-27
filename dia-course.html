@@ -3695,6 +3695,7 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
     var cards2 = document.querySelectorAll('.crs-grid > .crs-card');
     for (var c = 0; c < cards2.length; c++) {
       var card = cards2[c];
+      if (card.querySelector('.crs-benefit')) card.setAttribute('data-benefit', '1');
       var headEl = card.querySelector('.crs-head');
       var chatEl = card.querySelector('.crs-chat');
       if (headEl && chatEl && chatEl.parentNode !== headEl) {
