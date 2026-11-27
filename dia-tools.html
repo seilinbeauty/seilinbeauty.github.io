@@ -612,10 +612,10 @@
   }
   function isLoggedIn(){
     try {
-      var m = JSON.parse(localStorage.getItem("dia_member") || "null");
-      if (m && (m.i || m.n || m.id)) return true;
-      var s = JSON.parse(localStorage.getItem("dia_sns_auth") || "null");
-      if (s && (s.id || s.email || s.ig || s.nickname)) return true;
+      var mem = (localStorage.getItem("dia_login_member") || "").trim();
+      if (mem) return true;
+      var su = JSON.parse(localStorage.getItem("dia_sns_user") || "null");
+      if (su && (su.id || su.email || su.name || su.key)) return true;
     } catch (e) {}
     return false;
   }
@@ -629,10 +629,10 @@
 
   function getActor(){
     try {
-      var m = JSON.parse(localStorage.getItem("dia_member") || "null");
-      if (m && (m.i || m.n)) return String(m.i || m.n).replace(/[^a-zA-Z0-9가-힣_.-]/g, "_").slice(0, 32);
-      var s = JSON.parse(localStorage.getItem("dia_sns_auth") || "null");
-      if (s && (s.ig || s.nickname || s.id)) return String(s.ig || s.nickname || s.id).replace(/[^a-zA-Z0-9가-힣_.-]/g, "_").slice(0, 32);
+      var mem = (localStorage.getItem("dia_login_member") || "").trim();
+      if (mem) return mem.replace(/^@+/, "").replace(/[^a-zA-Z0-9가-힣_.-]/g, "_").slice(0, 32);
+      var su = JSON.parse(localStorage.getItem("dia_sns_user") || "null");
+      if (su && (su.name || su.email || su.id)) return String(su.name || su.email || su.id).replace(/[^a-zA-Z0-9가-힣_.-]/g, "_").slice(0, 32);
     } catch (e) {}
     return "guest";
   }
