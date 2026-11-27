@@ -2789,7 +2789,7 @@ window.창고읽기 = function(url){
               santa.timer++;
               santa.energy = Math.min(100, santa.energy + 0.35);
               santa.headLook = Math.sin(santa.timer * 0.05) * 0.15;
-              if (santa.energy >= 96 && santa.timer > 130) {
+              if (santa.energy >= 96 && santa.timer > 155) {
                 santa.state = 'idle'; santa.timer = 0;
               }
             } else if (santa.state === 'snowball') {
@@ -2829,7 +2829,7 @@ window.창고읽기 = function(url){
                 santa.flyT = 0;
               }
             } else if (santa.state === 'fly_to_btn') {
-              santa.flyT += 0.006;
+              santa.flyT += 0.003;
               var t = Math.min(1, santa.flyT);
               t = t * t * (3 - 2 * t);
               santa.dir = (santa.flyToX >= santa.flyFromX) ? 1 : -1;
@@ -2917,7 +2917,7 @@ window.창고읽기 = function(url){
                 santa.state = 'sweep_btn';
               }
             } else if (santa.state === 'fly_back') {
-              santa.flyT += 0.006;
+              santa.flyT += 0.003;
               var t2 = Math.min(1, santa.flyT);
               t2 = t2 * t2 * (3 - 2 * t2);
               santa.dir = (santa.flyToX >= santa.flyFromX) ? 1 : -1;
@@ -3113,12 +3113,36 @@ window.창고읽기 = function(url){
             ctx.save();
             var isWalking = (santa.state === 'walk_to' || santa.state === 'return' || santa.state === 'sweep_btn' || (santa.state === 'btn_bridge' && santa.timer > 18 && santa.timer <= 44));
             var isFlying = (santa.state === 'fly_to_btn' || santa.state === 'fly_back');
-            var isSitting = (santa.state === 'sit_rest');
+            var isPullChair = (santa.state === 'sit_rest' && santa.timer <= 26);
+            var isPutChair = (santa.state === 'sit_rest' && santa.timer > 136);
+            var isSitting = (santa.state === 'sit_rest' && santa.timer > 26 && santa.timer <= 136);
             var isCrouch = ((santa.state === 'snowball' && santa.timer < 28) || (santa.state === 'snowman' && santa.timer < 65));
             var bob = isWalking ? Math.abs(Math.sin(santa.walk)) * 1.1 : (isFlying ? Math.sin(santa.flyT * Math.PI * 4) * 1.2 : 0);
-            var seatDrop = isSitting ? 3.8 : (isCrouch ? 2.2 : 0);
+            var seatDrop = isSitting ? 2.4 : (isCrouch ? 2.2 : 0);
             ctx.translate(santa.x, santa.y - bob + seatDrop);
             ctx.scale(santa.dir, 1);
+
+            if (isPullChair || isPutChair) {
+              var cp = isPullChair ? Math.min(1, santa.timer / 26) : Math.max(0, 1 - (santa.timer - 136) / 19);
+              ctx.fillStyle = '#c92a3a';
+              ctx.beginPath(); ctx.ellipse(8, -4, 4.8, 4.2, 0, 0, Math.PI * 2); ctx.fill();
+              ctx.fillStyle = '#f3c44d'; ctx.fillRect(5.2, -8, 5.6, 1.4);
+              ctx.save();
+              ctx.translate(8 * (1 - cp), -8 * (1 - cp));
+              ctx.scale(0.35 + cp * 0.65, 0.35 + cp * 0.65);
+              ctx.strokeStyle = '#9c6b3b'; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+              ctx.beginPath(); ctx.moveTo(-4, -8); ctx.lineTo(-4, 0); ctx.moveTo(-4, -3.6); ctx.lineTo(3.5, -3.6); ctx.lineTo(3.5, 0); ctx.stroke();
+              ctx.restore();
+            } else if (isSitting) {
+              // 의자 그리기 (산타가 그 위에 착석)
+              ctx.strokeStyle = '#9c6b3b'; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+              ctx.beginPath();
+              ctx.moveTo(-4.5, -10.5); ctx.lineTo(-4.5, -2.4);
+              ctx.moveTo(-4.5, -5.8); ctx.lineTo(3.5, -5.8); ctx.lineTo(3.5, -2.4);
+              ctx.stroke();
+              ctx.fillStyle = '#b91c2c';
+              ctx.fillRect(-4.3, -6.5, 7.6, 1.4);
+            }
 
             if (santa.state === 'summon_sleigh') {
               var pop = Math.min(1, santa.timer / 24);
@@ -3163,8 +3187,9 @@ window.창고읽기 = function(url){
             }
 
             if (isSitting) {
-              drawLimb(-1.5, -4, 3.2, -3.5, 6.2, -0.5, '#c12737', '#2d2226', 2.1);
-              drawLimb(1.5, -4, 5.2, -3.8, 8.2, -0.8, '#d93848', '#2d2226', 2.1);
+              // 의자에 앉아 다리 내린 자연스러운 착석 관절
+              drawLimb(-1.5, -4, 3.0, -3.8, 3.6, -0.2, '#c12737', '#2d2226', 2.0);
+              drawLimb(1.5, -4, 4.6, -3.8, 5.4, -0.2, '#d93848', '#2d2226', 2.0);
             } else if (isCrouch) {
               drawLimb(-1.8, -4.5, -3.8, -2.5, -2.2, -0.3, '#c12737', '#2d2226', 2.0);
               drawLimb(1.8, -4.5, 3.5, -2.5, 2.2, -0.3, '#d93848', '#2d2226', 2.0);
