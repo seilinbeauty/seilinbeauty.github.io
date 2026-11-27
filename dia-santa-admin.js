@@ -186,10 +186,13 @@
     '<button type="button" class="sn-save" id="w_save">배치 저장</button></div>';
   wrap.innerHTML = html;
 
-  var btn2 = document.createElement('button');
-  btn2.type = 'button'; btn2.className = 'ops-nav-item'; btn2.setAttribute('data-bannertab', '1');
-  btn2.textContent = '🖼 다이아 섹션';
-  nav.appendChild(btn2);
+  var btn2 = nav.querySelector('.ops-nav-item[data-bannertab]');
+  if (!btn2) {
+    btn2 = document.createElement('button');
+    btn2.type = 'button'; btn2.className = 'ops-nav-item'; btn2.setAttribute('data-bannertab', '1');
+    btn2.textContent = '🖼 다이아 섹션';
+    nav.appendChild(btn2);
+  }
   var sec2 = document.createElement('div');
   sec2.id = 'ops-diaworld'; sec2.style.display = 'none';
   var style2 = document.createElement('style');
