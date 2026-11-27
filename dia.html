@@ -2946,27 +2946,28 @@ window.창고읽기 = function(url){
                       santa.state = 'walk_to'; santa.targetMode = 'lamp';
                       santa.targetX = Math.max(sLeft + 18, Math.min(walkMaxX, snowmen[0].x + (snowmen[0].x > walkMaxX - 24 ? -14 : 14)));
                       setMood('💡', 65);
-                    } else if (pick < 0.24 && lamps.length < 2 && walkMaxX > sLeft + 50) {
+                    } else if (pick < 0.18 && walkMaxX > sLeft + 70) {
+                      santa.state = 'magic_car'; santa.timer = 0; setMood('💡', 65);
+                    } else if (pick < 0.34) {
+                      santa.state = 'pet_rudolph'; santa.timer = 0; setMood('❤️', 85);
+                    } else if (pick < 0.52 && lamps.length < 2 && walkMaxX > sLeft + 50) {
                       santa.state = 'walk_to'; santa.targetMode = 'lamp';
                       santa.targetX = sLeft + 25 + Math.random() * Math.max(20, (walkMaxX - sLeft - 45));
                       setMood('💡', 60);
-                    } else if (pick < 0.48 && snowmen.length < 2 && walkMaxX > sLeft + 50) {
+                    } else if (pick < 0.70 && snowmen.length < 2 && walkMaxX > sLeft + 50) {
                       santa.state = 'walk_to'; santa.targetMode = 'snowman';
                       santa.targetX = sLeft + 25 + Math.random() * Math.max(20, (walkMaxX - sLeft - 45));
                       setMood('🎵', 60);
-                    } else if (pick < 0.74) {
+                    } else if (pick < 0.84) {
                       santa.state = 'snowball'; santa.timer = 0;
                       setMood('🎵', 55);
-                    } else if (pick < 0.87) {
+                    } else if (pick < 0.93) {
                       if (Math.random() < 0.55 && bLeft > Math.max(tRight, dtRight) + 54) {
                         santa.state = 'walk_to'; santa.targetMode = 'house';
                         santa.targetX = Math.min(bLeft - 32, (Math.max(tRight, dtRight) + bLeft) / 2 - 10);
                       } else {
                         santa.state = 'sit_rest'; santa.timer = 0; setMood('💤', 75);
                       }
-                    } else if (dtRight > dtLeft + 10 && Math.random() < 0.45) {
-                      santa.wipeWait = 0; santa.state = 'walk_to'; santa.targetMode = 'wipe';
-                      santa.targetX = Math.min(walkMaxX, dtLeft + 14 + Math.random() * Math.max(10, (dtRight - dtLeft - 28)));
                     } else {
                       santa.state = 'walk_to'; santa.targetMode = 'roam';
                       santa.targetX = sLeft + 20 + Math.random() * Math.max(20, (walkMaxX - sLeft - 35));
@@ -3093,6 +3094,31 @@ window.창고읽기 = function(url){
                 } else {
                   santa.state = 'idle'; santa.timer = 0;
                 }
+              }
+            } else if (santa.state === 'pet_rudolph') {
+              santa.timer++;
+              // 0~20: 뒤적, 20~34: 루돌프 꺼내기, 34~98: 토닥토닥 쓰다듬기, 98~114: 주머니에 넣기
+              if (santa.timer >= 114) {
+                santa.state = 'idle'; santa.timer = 0;
+              }
+            } else if (santa.state === 'magic_car') {
+              santa.timer++;
+              // 0~20: 뒤적, 20~36: 썰매 꺼내기, 36~52: 마법 짠!(반짝이 + 오픈카 변신), 52~175: 부릉부릉 왕복 드라이브, 175~195: 주머니에 넣기
+              if (santa.timer === 44) {
+                for (var mc = 0; mc < 7; mc++) {
+                  if (sparkles.length < 24) sparkles.push({ x: santa.x + (Math.random() - 0.5) * 18, y: santa.y - 6 - Math.random() * 8, life: 1.0 });
+                }
+              }
+              if (santa.timer > 52 && santa.timer <= 175) {
+                santa.x += santa.dir * 1.45;
+                if (santa.x >= walkMaxX - 10) santa.dir = -1;
+                if (santa.x <= sLeft + 16) santa.dir = 1;
+                if (santa.timer % 6 === 0 && puffs.length < 75) {
+                  puffs.push({ x: santa.x - santa.dir * 10, y: santa.y - 1, vx: -santa.dir * 0.9, vy: -0.4 - Math.random() * 0.4, r: 1.1, life: 0.6 });
+                }
+              }
+              if (santa.timer >= 195) {
+                santa.state = 'idle'; santa.timer = 0;
               }
             } else if (santa.state === 'blower') {
               santa.timer++;
@@ -3527,8 +3553,8 @@ window.창고읽기 = function(url){
             var isInsideHouse = (santa.state === 'house_rest' && santa.timer > 62 && santa.timer <= 485);
             var isBagHouse = (santa.state === 'house_rest' && (santa.timer <= 50 || santa.timer > 505));
             var isBagLamp = (santa.state === 'place_lamp' || santa.state === 'pack_item' || (santa.state === 'snowman' && santa.timer <= 35));
-            var isRummage = ((santa.state === 'summon_sleigh' && santa.timer <= 26) || (santa.state === 'sit_rest' && santa.timer <= 24) || (santa.state === 'btn_bridge' && santa.timer <= 18) || (santa.state === 'place_lamp' && santa.timer <= 20) || (santa.state === 'snowman' && santa.timer <= 20) || (santa.state === 'pack_item' && santa.timer <= 18) || (santa.state === 'house_rest' && santa.timer <= 22) || (santa.state === 'blower' && santa.timer <= 18));
-            var isBagAction = (santa.state === 'summon_sleigh' || isPullChair || isPutChair || isPullBridge || isBagLamp || isBagHouse || (santa.state === 'blower' && (santa.timer <= 30 || santa.timer > 105)));
+            var isRummage = ((santa.state === 'summon_sleigh' && santa.timer <= 26) || (santa.state === 'sit_rest' && santa.timer <= 24) || (santa.state === 'btn_bridge' && santa.timer <= 18) || (santa.state === 'place_lamp' && santa.timer <= 20) || (santa.state === 'snowman' && santa.timer <= 20) || (santa.state === 'pack_item' && santa.timer <= 18) || (santa.state === 'house_rest' && santa.timer <= 22) || (santa.state === 'blower' && santa.timer <= 18) || (santa.state === 'pet_rudolph' && santa.timer <= 20) || (santa.state === 'magic_car' && santa.timer <= 20));
+            var isBagAction = (santa.state === 'summon_sleigh' || isPullChair || isPutChair || isPullBridge || isBagLamp || isBagHouse || (santa.state === 'blower' && (santa.timer <= 30 || santa.timer > 105)) || (santa.state === 'pet_rudolph' && (santa.timer <= 34 || santa.timer > 98)) || (santa.state === 'magic_car' && (santa.timer <= 36 || santa.timer > 175)));
             var isCrouch = (santa.state === 'hurt' || (santa.state === 'snowball' && santa.timer < 28) || (santa.state === 'snowman' && santa.timer < 65));
             var bob = isWalking ? Math.abs(Math.sin(santa.walk)) * 1.1 : (isFlying ? Math.sin(santa.flyT * Math.PI * 4) * 1.2 : (santa.state === 'greet' && santa.timer < 20 ? Math.sin((santa.timer / 20) * Math.PI) * 7 : 0));
             var seatDrop = isSitting ? 2.4 : (isCrouch ? 2.2 : 0);
@@ -3648,6 +3674,52 @@ window.창고읽기 = function(url){
               ctx.fillStyle = '#fde047';
               ctx.beginPath(); ctx.moveTo(-1.3, -0.5); ctx.quadraticCurveTo(0, -5.5 + fFlick * 0.5, 1.3, -0.5); ctx.closePath(); ctx.fill();
               ctx.restore();
+            }
+
+            if (santa.state === 'pet_rudolph' && santa.timer > 20) {
+              var rp = (santa.timer <= 34) ? ((santa.timer - 20) / 14) : (santa.timer > 98 ? Math.max(0, 1 - (santa.timer - 98) / 16) : 1);
+              ctx.save();
+              ctx.translate(10 * rp + 3.2 * (1 - rp), -3.5 - 2.7 * (1 - rp));
+              ctx.scale(0.3 + rp * 0.7, 0.3 + rp * 0.7);
+              ctx.fillStyle = '#9c6644';
+              ctx.beginPath(); ctx.ellipse(0, 0, 4.4, 2.6, 0, 0, Math.PI * 2); ctx.fill();
+              ctx.beginPath(); ctx.arc(-3.6, -3.4, 2.2, 0, Math.PI * 2); ctx.fill();
+              ctx.strokeStyle = '#6f452c'; ctx.lineWidth = 1;
+              ctx.beginPath(); ctx.moveTo(-3.3, -5.2); ctx.lineTo(-2.3, -8.2); ctx.moveTo(-4.0, -5.2); ctx.lineTo(-5.0, -8.2); ctx.stroke();
+              ctx.fillStyle = '#ff2a3c'; ctx.beginPath(); ctx.arc(-5.6, -3.4, 1.15, 0, Math.PI * 2); ctx.fill();
+              ctx.strokeStyle = '#7f5236'; ctx.lineWidth = 1.2;
+              ctx.beginPath(); ctx.moveTo(-2, 1.5); ctx.lineTo(-2, 3.8); ctx.moveTo(2, 1.5); ctx.lineTo(2, 3.8); ctx.stroke();
+              ctx.restore();
+            }
+
+            if (santa.state === 'magic_car' && santa.timer > 20) {
+              var cpM = (santa.timer <= 36) ? ((santa.timer - 20) / 16) : (santa.timer > 175 ? Math.max(0, 1 - (santa.timer - 175) / 20) : 1);
+              if (santa.timer < 44) {
+                // 마법 쓰기 전 미니 썰매
+                ctx.save(); ctx.translate(6 * cpM, -3 * cpM); ctx.scale(0.3 + cpM * 0.7, 0.3 + cpM * 0.7);
+                ctx.fillStyle = '#b91c2c'; ctx.fillRect(-6, -4, 10, 4);
+                ctx.strokeStyle = '#e7c16b'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(-7, 1); ctx.lineTo(6, 1); ctx.stroke();
+                ctx.restore();
+              } else {
+                // 산타 마법으로 변신한 빨간 루돌프 오픈카!
+                ctx.save();
+                ctx.scale(cpM, cpM);
+                ctx.fillStyle = '#dc2626';
+                ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-10, -5.5, 20, 4.2, 2) : ctx.fillRect(-10, -5.5, 20, 4.2); ctx.fill();
+                // 앞유리 & 루돌프 빨간 코 보석 범퍼
+                ctx.strokeStyle = '#bae6fd'; ctx.lineWidth = 1.2;
+                ctx.beginPath(); ctx.moveTo(3, -5.5); ctx.lineTo(1.5, -8.5); ctx.stroke();
+                ctx.fillStyle = '#ff2a3c'; ctx.beginPath(); ctx.arc(10.2, -3.5, 1.2, 0, Math.PI * 2); ctx.fill();
+                // 헤드라이트 불빛
+                ctx.fillStyle = 'rgba(253, 224, 71, 0.35)';
+                ctx.beginPath(); ctx.moveTo(10.5, -3.5); ctx.lineTo(22, -6.5); ctx.lineTo(22, -0.5); ctx.closePath(); ctx.fill();
+                // 굴러가는 바퀴 2개
+                ctx.fillStyle = '#1e293b';
+                ctx.beginPath(); ctx.arc(-5.5, -1.2, 2.2, 0, Math.PI * 2); ctx.arc(5.5, -1.2, 2.2, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#e2e8f0';
+                ctx.beginPath(); ctx.arc(-5.5, -1.2, 0.9, 0, Math.PI * 2); ctx.arc(5.5, -1.2, 0.9, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+              }
             }
 
             if (santa.state === 'summon_sleigh') {
@@ -3824,6 +3896,22 @@ window.창고읽기 = function(url){
               var warm = Math.sin(santa.timer * 0.14) * 0.7;
               drawLimb(2.2, -4.2, 5.2, -3.5, 7.6, -4.0 + warm, '#d93848', '#ffffff', 1.8);
               drawLimb(-2.2, -4.2, 3.0, -3.2, 6.2, -3.5 - warm, '#c12737', '#ffffff', 1.8);
+            } else if (santa.state === 'pet_rudolph' && santa.timer > 34 && santa.timer <= 98) {
+              // 루돌프 머리 토닥토닥 쓰다듬는 팔
+              var pt = Math.sin(santa.timer * 0.32) * 1.4;
+              drawLimb(2.2, -4.2, 4.8, -5.2, 6.4 + pt * 0.4, -6.8 + pt * 0.5, '#d93848', '#ffffff', 1.9);
+              drawLimb(-2.2, -4.2, -3.0, -2.2, -2.0, -0.5, '#c12737', '#ffffff', 1.8);
+            } else if (santa.state === 'magic_car' && santa.timer > 36 && santa.timer <= 175) {
+              if (santa.timer <= 52) {
+                // 마법 지팡이 휘두르는 동작!
+                drawLimb(2.2, -4.2, 5.2, -6.5, 7.2, -8.5, '#d93848', '#ffffff', 1.9);
+                ctx.strokeStyle = '#fde047'; ctx.lineWidth = 1.2;
+                ctx.beginPath(); ctx.moveTo(7.2, -8.5); ctx.lineTo(10.5, -11.5); ctx.stroke();
+              } else {
+                // 오픈카 운전대 잡은 양손
+                drawLimb(2.2, -4.2, 4.2, -4.8, 5.2, -6.2, '#d93848', '#ffffff', 1.8);
+                drawLimb(-2.2, -4.2, 1.5, -4.5, 4.5, -6.0, '#c12737', '#ffffff', 1.8);
+              }
             } else if (santa.state === 'blower' && santa.timer > 30 && santa.timer <= 105) {
               // 송풍기 쥐고 바람 뿜기!
               var bAng = (santa.timer < 68) ? -0.45 : 0.05;
