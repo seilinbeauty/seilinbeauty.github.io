@@ -38,7 +38,7 @@
     '<div class="ops-fb-row"><div class="ops-fb-n" id="fb-n">-</div><div class="ops-fb-p" id="fb-p"></div></div>' +
     '<div class="ops-fb-bar" id="fb-bar"><i id="fb-fill"></i></div>' +
     '<div class="ops-fb-sub" id="fb-sub"></div>' +
-    '<div class="ops-fb-note">오늘 0시(한국)부터 지금까지 참여 링크 화면이 파이어스토어에서 읽은 문서 수입니다. 사이트가 직접 세는 값이라 암호 확인용 읽기는 빠져 있어 실제보다 조금 적게 나옵니다.</div>';
+    '<div class="ops-fb-note">무료 한도는 하루 단위로 매일 0시(한국)에 새로 주어집니다. 오늘 0시부터 지금까지 참여 링크 화면이 파이어스토어에서 읽은 문서 수입니다. 사이트가 직접 세는 값이라 암호 확인용 읽기는 빠져 있어 실제보다 조금 적게 나옵니다.</div>';
   anchor.parentNode.insertBefore(box, anchor);
   if(window.__OPS_LAYOUT_REFRESH__) window.__OPS_LAYOUT_REFRESH__();
 
@@ -58,7 +58,7 @@
       document.getElementById('fb-sub').innerHTML =
         '<span>남은 한도 <b>' + comma(Math.max(0, LIMIT - today)) + '건</b></span>' +
         '<span>어제 <b>' + comma(yday) + '건</b></span>' +
-        '<span>한도까지 <b>' + (today > 0 ? (yday > 0 ? '약 ' + Math.max(1, Math.floor((LIMIT - today) / Math.max(1, yday))) + '일' : '-') : '-') + '</b></span>';
+        '<span>한도 <b>매일 0시에 새로</b></span>';
     });
   }
   paint();
