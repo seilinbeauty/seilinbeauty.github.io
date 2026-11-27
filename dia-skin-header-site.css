@@ -1,0 +1,22 @@
+/* 다이아 커뮤니티 — 상단 헤더 색만 알로하 클로젯 팔레트로 (커비 · 2026-11-27)
+   살구빛 띠 #f5e5e2 · 실선 #eccfc9 · 글자 #323232 / 보조 #8a7f81 */
+.dia-header{
+  background:#f5e5e2 !important;
+  border-bottom:1px solid #eccfc9 !important;
+  box-shadow:none !important;
+}
+.dia-header .brand-logo{ color:#2f2a2b !important; }
+.dia-header .brand-sub{ color:#8a7f81 !important; }
+.dia-header .nav-links a{ color:#323232 !important; }
+.dia-header .nav-links a:hover{ color:#a9566a !important; }
+.dia-header .nav-links a.nav-dia{
+  background:#fff !important; color:#323232 !important;
+  border:1px solid #dcc4bf !important;
+}
+.dia-header .nav-links a.nav-dia:hover,
+.dia-header .nav-links a.nav-dia.is-on{
+  background:#c9707f !important; color:#fff !important; border-color:#c9707f !important;
+}
+.dia-header .nav-mobile-link{
+  background:#fff !important; border:1px solid #dcc4bf !important; color:#323232 !important;
+}
