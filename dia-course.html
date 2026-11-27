@@ -2371,6 +2371,7 @@
               <a class="crs-ig" href="https://www.instagram.com/seilin_beauty/" data-insta="seilin_beauty" target="_blank" rel="noopener">인스타그램</a>
             </div>
           </div>
+          <div class="crs-actions"><a class="crs-act crs-act-map" href="https://map.naver.com/p/search/%EC%84%B8%EC%9D%B4%EB%A6%B0%EB%B7%B0%ED%8B%B0" target="_blank" rel="noopener">네이버</a><a class="crs-act crs-act-home" href="https://seilinbeauty.github.io/" target="_blank" rel="noopener">홈페이지</a><a class="crs-act crs-act-ig" href="https://www.instagram.com/seilin_beauty/" data-insta="seilin_beauty" target="_blank" rel="noopener">인스타그램</a></div>
           <div class="crs-course"><span class="crs-kind">수강 운영</span>속눈썹펌 전문 아카데미 · 1:1 밀착 지도 · 눈매 분석·롯드 선정부터 창업까지 실무 커리큘럼</div>
           <div class="crs-benefit"><span class="crs-benefit-ico" aria-hidden="true">🎁</span><span class="crs-benefit-tag">다이아 회원 혜택</span><span class="crs-benefit-txt">세뷰 수강 등록하면 브로우리프트 과정 추가 제공</span></div>
           <div class="crs-photos"><a class="crs-ph" href="https://www.instagram.com/seilin_beauty/" data-insta="seilin_beauty" target="_blank" rel="noopener"><img src="course-photos/seilin_beauty_1.jpg" alt="세이린 뷰티 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/seilin_beauty/" data-insta="seilin_beauty" target="_blank" rel="noopener"><img src="course-photos/seilin_beauty_2.jpg" alt="세이린 뷰티 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/seilin_beauty/" data-insta="seilin_beauty" target="_blank" rel="noopener"><img src="course-photos/seilin_beauty_3.jpg" alt="세이린 뷰티 작품 사진" loading="lazy"></a><a class="crs-ph" href="https://www.instagram.com/seilin_beauty/" data-insta="seilin_beauty" target="_blank" rel="noopener"><img src="course-photos/seilin_beauty_4.jpg" alt="세이린 뷰티 작품 사진" loading="lazy"></a></div>
@@ -3657,12 +3658,32 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
     }
     var cards2 = document.querySelectorAll('.crs-grid > .crs-card');
     for (var c = 0; c < cards2.length; c++) {
-      var headEl = cards2[c].querySelector('.crs-head');
-      var chatEl = cards2[c].querySelector('.crs-chat');
+      var card = cards2[c];
+      var headEl = card.querySelector('.crs-head');
+      var chatEl = card.querySelector('.crs-chat');
       if (headEl && chatEl && chatEl.parentNode !== headEl) {
         chatEl.style.marginLeft = 'auto';
         chatEl.style.flexShrink = '0';
         headEl.appendChild(chatEl);
+      }
+      if (!card.querySelector('.crs-actions')) {
+        var lnks = card.querySelectorAll('.crs-links a:not(.crs-chat)');
+        if (lnks.length) {
+          var acts = document.createElement('div');
+          acts.className = 'crs-actions';
+          for (var li = 0; li < lnks.length; li++) {
+            var a = document.createElement('a');
+            a.className = 'crs-act';
+            a.href = lnks[li].getAttribute('href') || '#';
+            a.target = '_blank';
+            a.rel = 'noopener';
+            a.textContent = (lnks[li].textContent || '').trim() || '링크';
+            acts.appendChild(a);
+          }
+          var crsEl = card.querySelector('.crs-course');
+          if (crsEl) card.insertBefore(acts, crsEl);
+          else card.appendChild(acts);
+        }
       }
     }
   }
