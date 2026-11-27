@@ -2181,6 +2181,19 @@
       body.dia-page #mcHeroStatus .mc-k { padding: 5px 8px; }
       .dia-hero .quick-links { max-width: 420px; gap: 8px; }
       .dia-hero .quick-links > * { min-height: 38px; padding: 8px 14px; font-size: 13px; }
+      .pc-hero-datetime {
+        display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+        padding: 9px 18px; border-radius: 12px;
+        background: linear-gradient(180deg, #fff9fb, #fdf2f6);
+        border: 1px solid #f2dce4;
+        box-shadow: 0 1px 4px rgba(198, 69, 106, .05);
+        margin: 0 auto; flex-shrink: 0; white-space: nowrap;
+      }
+      .pc-hero-date { font-size: 12px; font-weight: 700; color: #8c586a; letter-spacing: -0.2px; }
+      .pc-hero-time {
+        font-size: 17px; font-weight: 900; color: #b35172;
+        font-variant-numeric: tabular-nums; letter-spacing: -0.3px; line-height: 1.15;
+      }
       body.dia-page .plx-section { padding: 16px 20px 64px !important; }
       body.dia-page .plx-inner { max-width: 1200px; grid-template-columns: 220px minmax(0, 1fr); gap: 20px;
         background: transparent; border: 0 !important; border-radius: 0 !important; overflow: visible; align-items: start; }
@@ -2300,6 +2313,35 @@ window.창고읽기 = function(url){
           <span class="plx-ask" style="margin-top:8px;">참여 비밀번호는 인스타그램 DM으로 문의해 주세요.</span>
         </div>
       </div>
+      <div class="pc-hero-datetime only-pc" id="pcHeroDatetime" aria-live="off">
+        <div class="pc-hero-date" id="pcHeroDate"></div>
+        <div class="pc-hero-time" id="pcHeroTime"></div>
+      </div>
+      <script>
+      (function(){
+        var dEl = document.getElementById('pcHeroDate');
+        var tEl = document.getElementById('pcHeroTime');
+        if (!dEl || !tEl) return;
+        var days = ['일','월','화','수','목','금','토'];
+        function tick(){
+          var now = new Date();
+          var kst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+          var y = kst.getFullYear();
+          var m = kst.getMonth() + 1;
+          var d = kst.getDate();
+          var w = days[kst.getDay()];
+          var h24 = kst.getHours();
+          var ap = h24 < 12 ? '오전' : '오후';
+          var h12 = h24 % 12 || 12;
+          var mm = String(kst.getMinutes()).padStart(2, '0');
+          var ss = String(kst.getSeconds()).padStart(2, '0');
+          dEl.textContent = y + '년 ' + m + '월 ' + d + '일 (' + w + ')';
+          tEl.textContent = ap + ' ' + h12 + ':' + mm + ':' + ss;
+        }
+        tick();
+        setInterval(tick, 1000);
+      })();
+      </script>
       <div class="quick-links">
         <a href="dia-notice.html" class="solid">공지사항</a>
         <button type="button" id="mcLoginBtn" class="mc-hero-login">내 품앗이</button>
