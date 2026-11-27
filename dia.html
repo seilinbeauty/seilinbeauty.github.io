@@ -2207,12 +2207,11 @@
       .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links > .mc-hero-login { padding: 7px 14px !important; font-size: 14px !important; font-weight: 800 !important; letter-spacing: -0.4px !important; line-height: 1.2 !important; }
       /* PC에서는 상단 버튼에서 공지사항을 빼고 2개만 둔다 (모바일은 그대로) */
       @media (min-width: 881px) { body.dia-page .dia-hero-in .quick-links > a[href="dia-notice.html"] { display: none !important; } }
-      /* PC: 검색창이 열려도 기존 제목·버튼이 움직이지 않게 위쪽 기준으로 고정 */
-      body.dia-page .plx-main > .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) { justify-content: flex-start !important; padding-top: 18px !important; }
-      /* PC: 상단 카드(산타월드) 안 가운데, 버튼 아래 흐름에 놓는다 — 다른 요소를 가리지 않는다 */
+      /* PC: 카드 크기는 그대로 두고, 카드 안 빈 공간 가운데에 겹쳐 띄운다 */
+      body.dia-page .plx-main > .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) { justify-content: flex-start !important; }
       body.dia-page .dia-hero-in > #mcLoginBox {
-        position: relative !important; top: auto !important; left: auto !important; right: auto !important;
-        width: 296px; max-width: calc(100vw - 32px) !important; margin: 4px auto 2px !important;
+        position: absolute !important; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        width: 296px; max-width: calc(100vw - 32px) !important; margin: 0 !important;
         padding: 0; background: transparent; border: 0; box-shadow: none; z-index: 40; text-align: center;
       }
       body.dia-page .dia-hero-in > #mcLoginBox #mcLoginIn { height: 24px !important; font-size: 10.5px !important; border-radius: 7px !important; padding: 0 7px !important; }
@@ -6401,7 +6400,42 @@ window.창고읽기 = function(url){
                     picked = null; lgIn.value = ''; lgPick.innerHTML = '';
                     lgMsg.textContent = '회원목록에서 본인 이름을 검색해 누르고 암호 4자리를 넣으면 열립니다.';
                     lgMsg.style.color = '#8a7b81';
-                    lgBox.style.left = ''; lgBox.style.right = ''; lgBox.style.top = '';
+                    lgBox.style.left = ''; lgBox.style.right = ''; lgBox.style.top = ''; lgBox.style.transform = '';
+                    if (window.innerWidth >= 881 && lgBox.parentElement) {
+                      /* 카드 안에서 제목·버튼과 겹치지 않는 빈 띠를 찾아 그 가운데에 놓는다 (카드 크기는 그대로) */
+                      var heroEl = lgBox.parentElement;
+                      var hr = heroEl.getBoundingClientRect();
+                      var bh = lgBox.offsetHeight || 62;
+                      var bands = [];
+                      for (var ci = 0; ci < heroEl.children.length; ci++) {
+                        var ch = heroEl.children[ci];
+                        if (ch === lgBox || ch.hidden) continue;
+                        if (ch.classList && (ch.classList.contains('pc-hero-snow') || ch.classList.contains('pc-hero-snow-bg'))) continue;
+                        var cs = window.getComputedStyle(ch);
+                        if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+                        var cb = ch.getBoundingClientRect();
+                        if (cb.height <= 0 || cb.width <= 0) continue;
+                        bands.push([cb.top - hr.top, cb.bottom - hr.top]);
+                      }
+                      bands.sort(function(a, b){ return a[0] - b[0]; });
+                      var gaps = [];
+                      var cursor = 8;
+                      for (var bi = 0; bi < bands.length; bi++) {
+                        if (bands[bi][0] - cursor > 0) gaps.push([cursor, bands[bi][0]]);
+                        if (bands[bi][1] > cursor) cursor = bands[bi][1];
+                      }
+                      if (hr.height - 8 - cursor > 0) gaps.push([cursor, hr.height - 8]);
+                      var best = null, bestH = -1;
+                      for (var gi = 0; gi < gaps.length; gi++) {
+                        var gh = gaps[gi][1] - gaps[gi][0];
+                        if (gh > bestH) { bestH = gh; best = gaps[gi]; }
+                      }
+                      if (best && bestH >= bh) {
+                        var topVal = best[0] + (bestH - bh) / 2;
+                        lgBox.style.top = Math.round(topVal) + 'px';
+                        lgBox.style.transform = 'translateX(-50%)';
+                      }
+                    }
                     lgIn.focus();
                   }
                 });
