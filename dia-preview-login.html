@@ -99,8 +99,8 @@
   <h1>다시 오셨네요</h1>
 
   <div class="field"><input type="text" placeholder="인스타그램 아이디 (@ 없이)" autocomplete="username" autocapitalize="off" spellcheck="false" inputmode="text"></div>
-  <div class="field"><input type="password" placeholder="비밀번호 (선택)" autocomplete="current-password"></div>
-  <p class="hint">가입할 때 쓴 인스타그램 아이디를 적어 주세요. 비밀번호는 정한 경우에만.</p>
+  <div class="field"><input type="password" id="pin" placeholder="비밀번호 4자리" inputmode="numeric" maxlength="4" autocomplete="current-password" style="letter-spacing:.45em;"></div>
+  <p class="hint">가입할 때 쓴 인스타그램 아이디를 적어 주세요. 비밀번호는 숫자 4자리입니다.</p>
   <button class="btn" type="button">로그인</button>
 
   <div class="links">
@@ -122,6 +122,9 @@ document.addEventListener('DOMContentLoaded', function(){
   var KEY = atob('MDQyMw==');
   function open(){ document.body.classList.remove('locked'); }
   try{ if (/[?&]staff=1/.test(location.search) || sessionStorage.getItem('dia_preview_ok') === '1') open(); }catch(e){}
+  var pin = document.getElementById('pin');
+  if (pin) { pin.addEventListener('input', function(){ pin.value = pin.value.replace(/[^0-9]/g,'').slice(0,4); }); }
+
   var pw = document.getElementById('pw'), go = document.getElementById('go'), err = document.getElementById('err');
   function tryOpen(){
     if (pw.value.trim() === KEY) { try{ sessionStorage.setItem('dia_preview_ok','1'); }catch(e){} err.textContent=''; open(); }
