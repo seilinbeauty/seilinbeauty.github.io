@@ -196,7 +196,7 @@
   var sec2 = document.createElement('div');
   sec2.id = 'ops-diaworld'; sec2.style.display = 'none';
   var style2 = document.createElement('style');
-  style2.textContent = sec.querySelector('style').textContent;
+  style2.textContent = sec.querySelector('style').textContent.split('#ops-santa').join('#ops-diaworld');
   sec2.appendChild(style2);
   sec2.appendChild(wrap);
   host.appendChild(sec2);
