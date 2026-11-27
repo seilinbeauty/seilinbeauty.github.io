@@ -7,43 +7,21 @@
 <meta name="googlebot" content="noindex, nofollow">
 <title>미리보기 — 상단 바</title>
 <style>
-  :root{ --bar-bg:#f5e5e2; --bar-txt:#323232; }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{background:#fafafa;font-family:Roboto,"맑은 고딕","Nanum Gothic",-apple-system,sans-serif;}
 
-  /* ── 알로하 클로젯 상단 바 복제 ── */
-  .ac-topbar{background:var(--bar-bg);height:45px;}
-  .ac-topbar .ac-inner{max-width:1240px;margin:0 auto;padding:0 20px;height:45px;
-    display:flex;align-items:center;justify-content:space-between;}
-  .ac-topbar ul{list-style:none;margin:0;padding:0;display:flex;align-items:center;height:45px;}
-  .ac-topbar li{display:flex;align-items:center;height:45px;font-size:11.2px;letter-spacing:.5px;
-    text-transform:capitalize;color:var(--bar-txt);font-family:inherit;}
-  .ac-topbar a{color:var(--bar-txt);text-decoration:none;font-size:11.2px;letter-spacing:.5px;
-    text-transform:capitalize;display:flex;align-items:center;height:45px;}
-  .ac-topbar a:hover{color:#000;}
-  .ac-menu li{margin-right:25px;}
-  .ac-menu li:last-child{margin-right:0;}
-  .ac-menu .ac-all{margin-right:25px;}
-  .ac-menu .ac-all button{background:none;border:0;padding:0;cursor:pointer;color:var(--bar-txt);
-    font-size:12px;line-height:1;display:flex;align-items:center;}
-  .ac-util li{margin-left:25px;}
-  .ac-util li:first-child{margin-left:0;}
-  .ac-util li.ico{margin-left:10px;}
-  .ac-util li.ico a{width:15px;height:15px;justify-content:center;font-size:12px;line-height:1;}
-  @media (max-width:760px){
-    .ac-topbar .ac-inner{padding:0 14px;}
-    .ac-menu li:not(.ac-all){display:none;}
-    .ac-util li:not(.ico){display:none;}
-  }
-
-  /* 미리보기 안내 (실제 사이트에는 안 들어감) */
-  .pv-note{max-width:1240px;margin:0 auto;padding:14px 20px 0;font-size:12px;color:#a0979a;letter-spacing:-.2px;}
+  .pv-note{max-width:1240px;margin:0 auto;padding:14px 20px 0;font-size:12px;color:#a0979a;letter-spacing:-.2px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .pv-live{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;color:#2f7d4b;
+    background:#f2fbf5;border:1px solid #dcf0e3;border-radius:99px;padding:2px 9px;}
+  .pv-live b{width:6px;height:6px;border-radius:50%;background:#43b96a;display:inline-block;}
   .pv-body{max-width:1240px;margin:0 auto;padding:18px 20px 60px;}
   .pv-box{border:1px solid #eee4e7;border-radius:14px;background:#fff;padding:34px 20px;text-align:center;
     font-size:13px;color:#b3a7ab;line-height:1.7;}
+  #pv-stage{transition:opacity .18s;}
+  #pv-stage.flash{opacity:.35;}
 
-  /* 잠금 */
   #pv-door{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;
     padding:24px;z-index:99;}
   #pv-door .card{width:100%;max-width:300px;text-align:center;}
@@ -71,29 +49,14 @@
 </div>
 
 <div id="pv-wrap">
-  <header class="ac-topbar">
-    <div class="ac-inner">
-      <ul class="ac-menu">
-        <li class="ac-all"><button type="button" aria-label="전체 메뉴">☰</button></li>
-        <li><a href="#">Best</a></li>
-        <li><a href="#">Made By Aloha♥</a></li>
-        <li><a href="#">Shop</a></li>
-        <li><a href="#">Community</a></li>
-      </ul>
-      <ul class="ac-util">
-        <li><a href="#">Login</a></li>
-        <li><a href="#">Join</a></li>
-        <li><a href="#">Cart</a></li>
-        <li><a href="#">My Page</a></li>
-        <li class="ico"><a href="#" aria-label="즐겨찾기">★</a></li>
-        <li class="ico"><a href="#" aria-label="검색">🔍</a></li>
-      </ul>
-    </div>
-  </header>
+  <div id="pv-stage"></div>
 
-  <div class="pv-note">상단 바 미리보기 · 실제 다이아에는 아직 적용하지 않았습니다</div>
+  <div class="pv-note">
+    <span>상단 바 미리보기 · 실제 다이아에는 아직 적용 전</span>
+    <span class="pv-live"><b></b>실시간 자동 반영</span>
+  </div>
   <div class="pv-body">
-    <div class="pv-box">상단 바만 먼저 올려 봤습니다.<br>문구·색·높이는 말씀하시는 대로 고치겠습니다.</div>
+    <div class="pv-box">수정하면 새로고침 없이 이 화면이 바로 바뀝니다.<br>문구·색·높이는 말씀하시는 대로 고치겠습니다.</div>
   </div>
 </div>
 
@@ -121,6 +84,36 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   go.addEventListener('click', tryOpen);
   pw.addEventListener('keydown', function(e){ if (e.key === 'Enter') tryOpen(); });
+
+  /* ── 실시간 반영 ── */
+  var stage = document.getElementById('pv-stage');
+  var ver = null;
+
+  function draw(v){
+    stage.classList.add('flash');
+    fetch('preview-bar.html?v=' + v, { cache: 'no-store' })
+      .then(function(r){ return r.ok ? r.text() : null; })
+      .then(function(html){
+        if (html) stage.innerHTML = html;
+        setTimeout(function(){ stage.classList.remove('flash'); }, 120);
+      })
+      .catch(function(){ setTimeout(function(){ stage.classList.remove('flash'); }, 120); });
+  }
+
+  function tick(){
+    fetch('preview-version.txt?t=' + Date.now(), { cache: 'no-store' })
+      .then(function(r){ return r.ok ? r.text() : null; })
+      .then(function(txt){
+        if (!txt) return;
+        var v = txt.split('\n')[0].trim();
+        if (ver === null) { ver = v; draw(v); return; }
+        if (v !== ver) { ver = v; draw(v); }
+      })
+      .catch(function(){});
+  }
+
+  tick();
+  setInterval(function(){ if (!document.hidden) tick(); }, 4000);
 });
 </script>
 </body>
