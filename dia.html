@@ -2210,8 +2210,8 @@
       /* PC: 카드 크기는 그대로 두고, 카드 안 빈 공간 가운데에 겹쳐 띄운다 */
       body.dia-page .plx-main > .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) { justify-content: flex-start !important; }
       body.dia-page .dia-hero-in > #mcLoginBox {
-        position: absolute !important; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        width: 198px; max-width: calc(100vw - 32px) !important; margin: 0 !important;
+        position: absolute !important; top: 50%; left: calc(50% - 99px); transform: translateY(-50%);
+        width: 300px; max-width: calc(100vw - 32px) !important; margin: 0 !important;
         padding: 0; background: transparent; border: 0; box-shadow: none; z-index: 40; text-align: center;
       }
       body.dia-page .dia-hero-in > #mcLoginBox #mcLoginIn { height: 42px !important; font-size: 9.5px !important; border-radius: 6px !important; padding: 0 6px !important; }
