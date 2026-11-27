@@ -2566,6 +2566,12 @@ window.창고읽기 = function(url){
             dtRight = Math.round(dr.right - hr.left);
             dtTop = Math.round(dr.top - hr.top);
           }
+          // 시계 아래쪽 길도 버튼 앞까지 자연스럽게 이어서 눈이 쌓이고 청소 가능하게 함
+          var roadEnd = (bLeft > sLeft + 40) ? Math.min(bLeft - 14, Math.max(sRight, dtRight + 24)) : Math.max(sRight, dtRight + 24);
+          for (var rxE = sRight + 1; rxE <= roadEnd; rxE++) {
+            if (subSurfaceY[rxE] < 0) { subSurfaceY[rxE] = roadY; subPileY[rxE] = roadY; }
+          }
+          if (roadEnd > sRight) sRight = roadEnd;
 
           if (santa.x < sLeft || santa.x > Math.max(sRight, dtRight)) santa.x = sLeft + 14;
           santa.y = roadY;
