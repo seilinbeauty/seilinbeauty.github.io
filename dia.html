@@ -6426,7 +6426,9 @@ window.창고읽기 = function(url){
                       }
                       var freeTop = contentBottom + 6;
                       var freeBottom = spaceBottom - 6;
-                      var centerTop = freeTop + ((freeBottom - freeTop) - bh) / 2;
+                      /* 상단 흰 섹션(히어로) 안의 가운데 공백에 놓는다 */
+                      var heroCenter = (hr.height - bh) / 2;
+                      var centerTop = heroCenter > freeTop ? heroCenter : freeTop;
                       if (!isFinite(centerTop) || freeBottom - freeTop < bh) centerTop = freeTop;
                       centerTop = Math.max(freeTop, centerTop);
                       lgBox.style.left = Math.round(clampedLeft) + 'px';
