@@ -6557,6 +6557,7 @@ window.창고읽기 = function(url){
                     lgMsg.textContent = '회원목록에서 본인 이름을 검색해 누르고 암호 4자리를 넣으면 열립니다.';
                     lgMsg.style.color = '#8a7b81';
                     lgBox.style.removeProperty('top');
+                    if (lgIn) lgIn.style.removeProperty('height');
                     lgBox.style.left = ''; lgBox.style.right = ''; lgBox.style.transform = '';
                     if (window.innerWidth >= 881) {
                       /* 제목(다이아 커뮤니티)·버튼·시계와 같은 줄 높이에 딱 맞춘다 */
@@ -6566,9 +6567,15 @@ window.창고읽기 = function(url){
                         var hr = heroEl.getBoundingClientRect();
                         var tr = tEl.getBoundingClientRect();
                         var bh = lgBox.offsetHeight || 62;
+                        var btnRect = lgBtn ? lgBtn.getBoundingClientRect() : null;
+                        if (btnRect && btnRect.height > 10) {
+                          lgIn.style.setProperty('height', Math.round(btnRect.height) + 'px', 'important');
+                          lgIn.style.setProperty('font-size', '10px', 'important');
+                          bh = lgBox.offsetHeight || bh;
+                        }
+                        var refTop = (btnRect && btnRect.height > 10) ? btnRect.top : tr.top;
                         if (tr.height > 0) {
-                          var alignTop = tr.top - hr.top;
-                          lgBox.style.setProperty('top', Math.round(alignTop) + 'px', 'important');
+                          lgBox.style.setProperty('top', Math.round(refTop - hr.top) + 'px', 'important');
                         }
                       }
                     }
