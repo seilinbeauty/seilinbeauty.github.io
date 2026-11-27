@@ -20,12 +20,29 @@
   button{font-family:inherit;}
 
   .wrap{max-width:1180px;margin:0 auto;padding:0 20px;}
-  .headline{padding:32px 0 18px;background:#fff;border-bottom:1px solid var(--line);}
-  .headline-in{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;}
-  .eyebrow{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-mute);font-weight:700;}
-  .headline h1{margin:6px 0 4px;font-size:26px;font-weight:800;letter-spacing:-.03em;}
-  .headline p{margin:0;font-size:13px;color:var(--ink-soft);}
-  .headline .count{font-size:12px;color:var(--ink-mute);font-weight:600;}
+  .headline{padding:18px 0 14px;background:#fff;}
+  .shop-banner{position:relative;overflow:hidden;border-radius:18px;
+    background:linear-gradient(135deg,#fff6f7 0%,#f9e5ea 52%,#f4dbe2 100%);
+    border:1px solid #f0d7de;padding:26px 28px;
+    display:flex;align-items:center;justify-content:space-between;gap:18px;}
+  .shop-banner::before{content:"";position:absolute;right:-40px;top:-50px;width:220px;height:220px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,255,255,.78) 0%,rgba(255,255,255,0) 70%);pointer-events:none;}
+  .shop-banner::after{content:"";position:absolute;left:-30px;bottom:-60px;width:180px;height:180px;border-radius:50%;
+    background:radial-gradient(circle,rgba(213,85,118,.12) 0%,rgba(213,85,118,0) 72%);pointer-events:none;}
+  .sb-left{position:relative;z-index:1;min-width:0;}
+  .sb-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;
+    background:rgba(255,255,255,.88);border:1px solid #eccfd7;
+    font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#b84866;font-weight:800;}
+  .sb-pill i{width:6px;height:6px;border-radius:50%;background:#d55576;display:inline-block;}
+  .shop-banner h1{margin:10px 0 5px;font-size:27px;font-weight:800;letter-spacing:-.035em;color:#1e1719;}
+  .shop-banner p{margin:0;font-size:13px;color:#625357;font-weight:500;line-height:1.5;}
+  .sb-right{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;}
+  .sb-count{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:12px;
+    background:rgba(255,255,255,.92);border:1px solid #edd4db;
+    font-size:12.5px;font-weight:800;color:#1e1719;box-shadow:0 4px 14px rgba(180,90,115,.08);}
+  .sb-tags{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;}
+  .sb-tags span{font-size:10.5px;font-weight:700;color:#8a606c;background:rgba(255,255,255,.65);
+    padding:3px 8px;border-radius:999px;border:1px solid rgba(235,200,210,.7);}
 
   /* 트렌디한 상단 검색 + 가로 필터 바 */
   .flt-sticky{position:sticky;top:45px;z-index:40;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);
@@ -179,8 +196,12 @@
   }
   @media (max-width:760px){
     .wrap{padding:0 6px;}
-    .headline{padding:22px 0 14px;}
-    .headline h1{font-size:22px;}
+    .headline{padding:10px 0 8px;}
+    .shop-banner{padding:18px 16px;border-radius:14px;flex-direction:column;align-items:flex-start;gap:12px;}
+    .shop-banner h1{font-size:21px;margin:8px 0 3px;}
+    .shop-banner p{font-size:12px;}
+    .sb-right{width:100%;flex-direction:row;align-items:center;justify-content:space-between;}
+    .sb-count{padding:6px 11px;font-size:11.5px;}
     .flt-sticky{top:45px;padding:10px 0;}
     .search-box{min-width:100%;}
     .type-seg{width:100%;justify-content:stretch;}
@@ -205,13 +226,17 @@
 </header>
 
 <div class="headline">
-  <div class="wrap headline-in">
-    <div>
-      <div class="eyebrow">Shop Market</div>
-      <h1>샵매물</h1>
-      <p>샵인샵 · 샵매매 · 임대 자리 — 원하는 조건을 쏙 골라 보세요.</p>
+  <div class="wrap">
+    <div class="shop-banner">
+      <div class="sb-left">
+        <span class="sb-pill"><i></i>BEAUTY SHOP MARKET</span>
+        <h1>샵매물</h1>
+        <p>샵인샵 · 샵매매 · 단독룸 자리, 사진으로 꼼꼼하게 골라보세요.</p>
+      </div>
+      <div class="sb-right">
+        <div class="sb-tags"><span>#속눈썹</span><span>#피부·왁싱</span><span>#네일</span><span>#단독룸</span></div>
+      </div>
     </div>
-    <div class="count" id="shop-count"></div>
   </div>
 </div>
 
@@ -485,7 +510,8 @@ document.addEventListener('DOMContentLoaded', function(){
     else if (state.sort === 'rent') a.sort(function(x,y){ return (x.rent||0)-(y.rent||0); });
     else a.sort(function(x,y){ return String(y.at||'').localeCompare(String(x.at||'')); });
 
-    document.getElementById('shop-count').textContent = '뷰앤잡 실매물 ' + all.length + '건';
+    var cntEl = document.getElementById('shop-count');
+    if (cntEl) cntEl.textContent = '';
     document.getElementById('shop-n').textContent = '매물 ' + a.length + '건';
 
     var box = document.getElementById('shop-items'), empty = document.getElementById('shop-empty');
