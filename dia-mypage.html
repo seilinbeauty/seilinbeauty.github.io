@@ -220,6 +220,9 @@
 
   document.getElementById('mpBody').style.display = '';
 
+  var curMem = (m && (m.n || m.i)) || linkedIg || '';
+  var snsInfo = null;
+  try { snsInfo = JSON.parse(localStorage.getItem('dia_sns_auth') || 'null'); } catch (e) {}
   var profKey = 'dia_custom_profile_' + curMem;
   var customProf = {};
   try { customProf = JSON.parse(localStorage.getItem(profKey) || '{}') || {}; } catch (e) {}
@@ -243,8 +246,7 @@
   if (m.sk && m.sk >= 2) badges.push('<span class="mc-badge mc-b-fire">🔥 ' + m.sk + '일 연속</span>');
   if (m.b && m.b >= 3) badges.push('<span class="mc-badge mc-b-pass">🎟️ 패스 부자</span>');
 
-  var snsInfo = null;
-  try { snsInfo = JSON.parse(localStorage.getItem('dia_sns_auth') || 'null'); } catch (e) {}
+
   var provMap = { google: '구글 간편 로그인', kakao: '카카오 간편 로그인', naver: '네이버 간편 로그인' };
   var loginMethod = (snsInfo && snsInfo.provider && provMap[snsInfo.provider]) ? provMap[snsInfo.provider] : '일반 로그인';
   badges.push('<span class="mc-badge mc-b2">🔑 ' + esc(loginMethod) + '</span>');
