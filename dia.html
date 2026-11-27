@@ -2217,21 +2217,22 @@
       @media (min-width: 881px) { body.dia-page .dia-hero-in .quick-links > a[href="dia-notice.html"] { display: none !important; } }
       /* PC: 카드 크기는 그대로 두고, 카드 안 빈 공간 가운데에 겹쳐 띄운다 */
       body.dia-page .plx-main > .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) { justify-content: flex-start !important; }
-      body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) > #mcLoginBox { order: 1 !important; }
-      body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) > .quick-links { order: 2 !important; }
-      body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) > .mc-hero-right { order: 3 !important; }
+      body.dia-page .dia-hero-in > #mcLoginBox { order: 0 !important; }
+      body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) > #mcLoginBox { order: 0 !important; }
+      body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) > .quick-links { order: 0 !important; }
+      body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) > .mc-hero-right { order: 0 !important; }
       body.dia-page .dia-hero-in > #mcLoginBox {
-        position: relative !important; top: auto !important; bottom: auto !important; left: auto !important; right: auto !important; transform: none !important;
-        width: 300px; max-width: calc(100vw - 32px) !important; margin: 2px auto !important;
+        position: absolute !important; top: auto !important; bottom: 58px !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important;
+        width: 250px; max-width: calc(100vw - 32px) !important; margin: 0 !important;
         padding: 0; background: transparent; border: 0; box-shadow: none; z-index: 40; text-align: center;
       }
-      body.dia-page .dia-hero-in > #mcLoginBox #mcLoginIn { height: 42px !important; font-size: 9.5px !important; border-radius: 6px !important; padding: 0 6px !important; }
+      body.dia-page .dia-hero-in > #mcLoginBox #mcLoginIn { height: 26px !important; font-size: 8.5px !important; border-radius: 6px !important; padding: 0 5px !important; }
       body.dia-page .dia-hero-in > #mcLoginBox #mcLoginPick { position: absolute !important; left: 0; right: 0; top: auto !important; bottom: calc(100% + 4px);
         margin-top: 0 !important; gap: 3px !important; max-height: 214px; overflow-y: auto; padding: 5px;
         background: #fff; border: 1px solid #f0dce3; border-radius: 10px; box-shadow: 0 8px 20px rgba(120, 60, 80, .14); z-index: 60; text-align: left; }
       body.dia-page .dia-hero-in > #mcLoginBox #mcLoginPick:empty { display: none !important; }
       body.dia-page .dia-hero-in > #mcLoginBox #mcLoginMsg { font-size: 7.5px !important; line-height: 1.25 !important; margin-top: 2px !important; white-space: normal !important; letter-spacing: -0.3px; }
-      body.dia-page .dia-hero-in > #mcLoginBox[hidden] { display: block !important; visibility: hidden !important; pointer-events: none !important; }
+      body.dia-page .dia-hero-in > #mcLoginBox[hidden] { display: none !important; }
       .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .mc-chat { min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; box-sizing: border-box; }
       /* 로그인 후(#mcHeroStatus 노출 시)에는 어제 원래 버튼 크기·폭 그대로 */
       body.dia-page .dia-hero-in:has(#mcHeroStatus:not([hidden])) .quick-links { max-width: 420px; gap: 8px; }
