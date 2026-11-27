@@ -1,82 +1,27 @@
-/* 다이아 — 스태프 전용 처리 공통 스크립트
-   · 스태프 판별: 운영센터(dia-info.html)를 한 번이라도 연 브라우저 또는 관리자 인증
-   · 운영센터 '🔧 페이지 공개' 설정(analytics/dia_pages_v1)을 읽어, 공개된 페이지는 누구나 볼 수 있다
-   · 페이지 쪽 사용법: <body data-dev="1"> + 개발 중 화면 #dev-soon / 실제 화면 #dev-real
+/* 다이아 — 공개 모드 공통 스크립트
+   · 2026-11-27 도현 님 지시: '앞으로는 비공개 없다. 다 공개.'
+   · 스태프 판별·페이지 공개 스위치 없이 모든 메뉴와 개발 중 페이지를 그대로 보여준다
 */
 (function(){
-  var PAGES_DOC = 'https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/analytics/dia_pages_v1';
-  var LS_PAGES = 'dia_pages_v1';
+  window.DIA_STAFF = true;
+  window.__diaPagesConfirmed = true;
+  try { localStorage.removeItem('dia_pages_v1'); } catch(e){}
 
-  var staff = false;
-  try {
-    staff = localStorage.getItem('dia_no_track') === '1' || localStorage.getItem('dia_shop_admin') === '1';
-  } catch(e){}
-  window.DIA_STAFF = staff;
-
-  function cachedPublic(){
-    try { var o = JSON.parse(localStorage.getItem(LS_PAGES) || '{}'); return (o && typeof o === 'object') ? o : {}; }
-    catch(e){ return {}; }
-  }
-  // 파일명 → 공개 여부 키
-  function keyOfFile(file){
-    if (file === 'dia-shop.html') return 'shop';
-    if (file === 'dia-jobs.html') return 'jobs';
-    return null;
-  }
-
-  function apply(pub){
-    var staffNow = staff;
-    var here = (location.pathname.split('/').pop() || '').toLowerCase();
-    var hereKey = keyOfFile(here);
-    if (!staffNow && hereKey && pub[hereKey] && pub[hereKey].public) staffNow = true; // 이 페이지는 공개됨
-
-    // 메뉴: 스태프 전용 메뉴는 스태프이거나 그 페이지가 공개일 때만 남긴다
+  function apply(){
     var nodes = document.querySelectorAll('.staff-only-nav, [data-staff-only]');
     for (var i = 0; i < nodes.length; i++) {
       var n = nodes[i];
-      var href = (n.getAttribute('href') || '').toLowerCase();
-      var k = keyOfFile(href);
-      var open = !!(k && pub[k] && pub[k].public);
-      if (!staffNow && !open && n.parentNode) n.parentNode.removeChild(n);
+      if (n.hasAttribute('hidden')) n.removeAttribute('hidden');
+      if (n.style.display === 'none') n.style.display = '';
     }
-
-    // 개발 중 페이지: 공개로 바뀌면 일반 방문자도 내용을 본다
     if (document.body && document.body.getAttribute('data-dev') === '1') {
       var soon = document.getElementById('dev-soon');
       var real = document.getElementById('dev-real');
-      var pubNow = !!(hereKey && pub[hereKey] && pub[hereKey].public);
-      if (soon && real) {
-        // 공개 여부는 서버 확인이 끝난 뒤에만 열린다 (캐시만으로는 절대 열지 않음)
-        var confirmed = (window.__diaPagesConfirmed === true);
-        var open = staffNow || (pubNow && confirmed);
-        if (open) { soon.style.display = 'none'; real.style.display = ''; }
-        else { soon.style.display = ''; real.style.display = 'none'; }
-      }
+      if (soon) soon.style.display = 'none';
+      if (real) real.style.display = '';
     }
   }
 
-  function run(){
-    apply({});  // 서버 답을 받기 전에는 비공개가 기본값
-    fetch(PAGES_DOC + '?t=' + Date.now(), { cache: 'no-store' }).then(function(r){
-      if (r.status === 404) return { missing: true };
-      return r.ok ? r.json() : null;
-    }).then(function(d){
-      if (d && d.missing) {  // 서버에 설정이 없으면 '전부 비공개'가 맞다 (찌꺼기 캐시 삭제)
-        try { localStorage.removeItem(LS_PAGES); } catch(e){}
-        window.__diaPagesConfirmed = true;
-        apply({});
-        return;
-      }
-      if (d && d.fields && d.fields.json && d.fields.json.stringValue) {
-        var o = JSON.parse(d.fields.json.stringValue);
-        if (o && typeof o === 'object') {
-          try { localStorage.setItem(LS_PAGES, JSON.stringify(o)); } catch(e){}
-          window.__diaPagesConfirmed = true;
-          apply(o);
-        }
-      }
-    }).catch(function(){});
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
-  else run();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
+  else apply();
 })();
