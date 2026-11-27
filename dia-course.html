@@ -3570,7 +3570,7 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
 .crs-aloha-bar i{display:block;width:11px;height:3px;border-radius:0;}
 .crs-head{order:0;gap:5px !important;margin-bottom:3px !important;align-items:flex-start !important;}
 .crs-av{display:none !important;}
-.crs-nick{font-size:13px !important;font-weight:800 !important;color:#111 !important;line-height:1.35 !important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.crs-nick{font-size:13px !important;font-weight:800 !important;color:#111 !important;line-height:1.35 !important;display:block !important;overflow:visible !important;-webkit-line-clamp:unset !important;}
 .crs-tags{font-size:12px !important;font-weight:800 !important;color:#111 !important;margin-top:2px !important;}
 .crs-course{order:2;margin:3px 0 5px !important;padding:0 !important;border:0 !important;background:transparent !important;font-size:11.5px !important;font-weight:400 !important;color:#8c8c8c !important;line-height:1.4 !important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .crs-ribbon{order:2;margin:0 0 5px !important;border-radius:2px !important;padding:2px 6px !important;font-size:9.5px !important;font-weight:700 !important;background:#f4a261 !important;color:#fff !important;align-self:flex-start;}
@@ -3582,6 +3582,12 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
 .crs-ig:nth-of-type(3n){background:#f797b5 !important;color:#fff !important;}
 .crs-ig:nth-of-type(4n){background:#76c893 !important;color:#fff !important;}
 .crs-kind{border-radius:2px !important;font-size:9.5px !important;padding:2px 5px !important;}
+.crs-badge-row{order:4;display:flex;flex-wrap:wrap;align-items:center;gap:3px;margin:2px 0 0;}
+.crs-badge-row .crs-benefit{margin:0 !important;}
+.crs-badge-row .crs-kind{margin:0 !important;background:#f7946d !important;color:#fff !important;font-weight:700 !important;}
+.crs-badge-row .crs-tag-mini{padding:2px 6px;border-radius:2px;font-size:9.5px;font-weight:700;background:#e8f4fd;color:#5a9bd4;}
+.crs-badge-row .crs-tag-mini.pink{background:#f797b5;color:#fff;}
+.crs-badge-row .crs-tag-mini.green{background:#76c893;color:#fff;}
 .crs-actions{order:5;margin-top:6px !important;gap:4px !important;}
 .crs-act{height:25px !important;border-radius:3px !important;font-size:10px !important;background:#fff !important;border:1px solid #e4d8da !important;color:#1e1a1b !important;}
 </style>
@@ -3594,12 +3600,38 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
     ['#ede0d4', '#7f5539', '#2b2d42']
   ];
   function addBars(){
-    var bens = document.querySelectorAll('.crs-grid > .crs-card .crs-benefit');
-    for (var j = 0; j < bens.length; j++) {
-      if (!bens[j].getAttribute('data-full')) {
-        bens[j].setAttribute('data-full', bens[j].textContent || '');
-        bens[j].setAttribute('title', bens[j].textContent || '');
-        bens[j].textContent = '💎 다이아혜택';
+    var allCards = document.querySelectorAll('.crs-grid > .crs-card');
+    for (var k = 0; k < allCards.length; k++) {
+      var card = allCards[k];
+      if (!card.querySelector('.crs-badge-row')) {
+        var row = document.createElement('div');
+        row.className = 'crs-badge-row';
+        var ben = card.querySelector('.crs-benefit');
+        if (ben) {
+          if (!ben.getAttribute('data-full')) {
+            ben.setAttribute('data-full', ben.textContent || '');
+            ben.setAttribute('title', ben.textContent || '');
+            ben.textContent = '💎 다이아혜택';
+          }
+          row.appendChild(ben);
+        }
+        var kind = card.querySelector('.crs-kind');
+        if (kind) row.appendChild(kind);
+        var tagsEl = card.querySelector('.crs-tags');
+        if (tagsEl && tagsEl.textContent) {
+          var parts = tagsEl.textContent.split('·').map(function(x){ return x.trim(); }).filter(Boolean);
+          parts.forEach(function(pt, pi){
+            var sp = document.createElement('span');
+            sp.className = 'crs-tag-mini' + (pi === 0 ? ' pink' : ' green');
+            sp.textContent = pt;
+            row.appendChild(sp);
+          });
+        }
+        if (row.children.length) {
+          var acts = card.querySelector('.crs-actions');
+          if (acts) card.insertBefore(row, acts);
+          else card.appendChild(row);
+        }
       }
     }
     var cards = document.querySelectorAll('.crs-grid > .crs-card');
