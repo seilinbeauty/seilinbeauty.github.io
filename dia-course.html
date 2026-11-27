@@ -3585,6 +3585,7 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
 .crs-ig:nth-of-type(3n){background:#f797b5 !important;color:#fff !important;}
 .crs-ig:nth-of-type(4n){background:#76c893 !important;color:#fff !important;}
 .crs-kind{border-radius:2px !important;font-size:9.5px !important;padding:2px 5px !important;}
+.crs-benefit-line{order:3;margin:2px 0 5px;padding:4px 7px;border-radius:4px;background:#fff5f7;border:1px solid #f7dce4;font-size:10.5px;font-weight:700;color:#b84062;line-height:1.35;word-break:keep-all;}
 .crs-badge-row{order:4;display:flex;flex-wrap:wrap;align-items:center;gap:3px;margin:2px 0 0;}
 .crs-badge-row .crs-benefit{order:-1;margin:0 !important;}
 .crs-chat-slot{display:none !important;}
@@ -3623,9 +3624,18 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
         var ben = card.querySelector('.crs-benefit');
         if (ben) {
           if (!ben.getAttribute('data-full')) {
-            ben.setAttribute('data-full', ben.textContent || '');
-            ben.setAttribute('title', ben.textContent || '');
+            var txtEl = ben.querySelector('.crs-benefit-txt');
+            var benBody = txtEl ? (txtEl.textContent || '').trim() : (ben.textContent || '').replace(/^🎁/, '').replace(/^다이아 회원 혜택/, '').trim();
+            ben.setAttribute('data-full', benBody);
+            ben.setAttribute('title', benBody);
             ben.textContent = '💎 다이아혜택';
+          }
+          var fullTxt = ben.getAttribute('data-full') || '';
+          if (fullTxt && !card.querySelector('.crs-benefit-line')) {
+            var bl = document.createElement('div');
+            bl.className = 'crs-benefit-line';
+            bl.textContent = '🎁 ' + fullTxt;
+            card.appendChild(bl);
           }
           row.appendChild(ben);
         }
