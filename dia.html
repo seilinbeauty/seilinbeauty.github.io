@@ -2683,8 +2683,10 @@ window.창고읽기 = function(url){
           if (!W || !surfaceY) { buildSurface(); if (!W) return; }
           if (bgCtx) bgCtx.clearRect(0, 0, W, H);
           ctx.clearRect(0, 0, W, H);
-          // 로그인 전 화면에서만 산타·눈 연출 표시 (로그인해서 개인 화면 들어가면 원래대로 숨김)
-          if (localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak')) return;
+          // 로그인 전 화면에서만 날짜·시계·산타·눈 연출 표시 (로그인 후에는 확실히 숨김)
+          var isLoggedIn = !!(localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak'));
+          if (dtEl) dtEl.style.setProperty('display', isLoggedIn ? 'none' : 'inline-flex', 'important');
+          if (isLoggedIn) return;
 
           for (var i = 0; i < flakes.length; i++) {
             var f = flakes[i];
