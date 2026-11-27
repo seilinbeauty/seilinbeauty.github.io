@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>샵인샵 — 다이아 커뮤니티</title>
+<title>샵매물 — 다이아 커뮤니티</title>
 <meta name="robots" content="noindex, nofollow">
 <style>
   :root{ --pink:#d55576; --pink-deep:#c6506f; --pink-soft:#fdf3f7; --line:#f0e2e7; --txt:#333; --mute:#9a9a9a; }
@@ -55,6 +55,7 @@
   .badge.give{background:#fdeef2;color:var(--pink-deep);}
   .badge.area{background:#f5f5f5;color:#777;}
   .badge.job{background:#f3fbf5;color:#15803d;}
+  .badge.kind{background:#f4f0ff;color:#6d28d9;}
   .item h3{margin:0 0 6px;font-size:14.5px;font-weight:800;line-height:1.45;letter-spacing:-.02em;}
   .item .meta{font-size:12px;color:var(--mute);line-height:1.6;}
   .empty{border:1px dashed #f3c7d6;background:var(--pink-soft);border-radius:14px;padding:34px 20px;text-align:center;font-size:13px;color:#a3566d;line-height:1.7;}
@@ -69,9 +70,9 @@
 </header>
 
 <main>
-  <div class="hero-tag">SHOP IN SHOP</div>
-  <h1>🏪 샵인샵</h1>
-  <p class="sub">샵인샵 자리를 구하고 내놓는 곳 — 전국 지역별로 모읍니다.</p>
+  <div class="hero-tag">SHOP MARKET</div>
+  <h1>🏪 샵매물</h1>
+  <p class="sub">샵인샵 · 샵매매 · 구인 · 기자재 — 전국 지역별로 모읍니다.</p>
 
   <section id="shop-soon">
     <div class="ico">🛠️</div>
@@ -100,8 +101,15 @@
         <span style="font-size:11.5px;color:#9a9a9a;">이 화면은 스태프에게만 보입니다. 일반 방문자는 개발 중 화면만 봅니다.</span>
       </div>
       <div class="toolbar">
-        <div class="seg" id="shop-type">
+        <div class="seg" id="shop-kind">
           <button type="button" data-v="" data-on="1">전체</button>
+          <button type="button" data-v="샵인샵">샵인샵</button>
+          <button type="button" data-v="샵매매">샵매매</button>
+          <button type="button" data-v="구인">구인</button>
+          <button type="button" data-v="기자재">기자재</button>
+        </div>
+        <div class="seg" id="shop-type">
+          <button type="button" data-v="" data-on="1">구해요·내놔요 전체</button>
           <button type="button" data-v="want">구해요</button>
           <button type="button" data-v="give">내놔요</button>
         </div>
@@ -116,7 +124,7 @@
 
       <div class="cats" id="shop-areas"></div>
       <div class="list" id="shop-items"></div>
-      <div class="empty" id="shop-empty">아직 등록된 샵인샵 글이 없습니다.<br>지역 카테고리를 고르고 오른쪽 위 <b>+ 글 등록</b>으로 하나씩 쌓으면 됩니다.</div>
+      <div class="empty" id="shop-empty">아직 등록된 샵매물 글이 없습니다.<br>지역 카테고리를 고르고 오른쪽 위 <b>+ 글 등록</b>으로 하나씩 쌓으면 됩니다.</div>
     </div>
   </section>
 </main>
@@ -157,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   // 데이터 (지금은 브라우저 저장 / 나중에 파이어스토어)
   var LS = 'dia_shop_items_v1';
-  var state = { area: '전체', type: '', q: '', job: '' };
+  var state = { area: '전체', type: '', kind: '', q: '', job: '' };
   function load(){ try { var a = JSON.parse(localStorage.getItem(LS) || '[]'); return Array.isArray(a) ? a : []; } catch(e){ return []; } }
   function save(a){ try { localStorage.setItem(LS, JSON.stringify(a)); } catch(e){} }
 
@@ -170,6 +178,13 @@ document.addEventListener('DOMContentLoaded', function(){
       b.addEventListener('click', function(){ state.area = b.getAttribute('data-a'); buildAreas(); render(); });
     });
   }
+  document.getElementById('shop-kind').querySelectorAll('button').forEach(function(b){
+    b.addEventListener('click', function(){
+      state.kind = b.getAttribute('data-v');
+      document.getElementById('shop-kind').querySelectorAll('button').forEach(function(x){ x.setAttribute('data-on', x===b?1:0); });
+      render();
+    });
+  });
   document.getElementById('shop-type').querySelectorAll('button').forEach(function(b){
     b.addEventListener('click', function(){
       state.type = b.getAttribute('data-v');
@@ -183,6 +198,8 @@ document.addEventListener('DOMContentLoaded', function(){
   document.getElementById('shop-add').addEventListener('click', function(){
     var title = prompt('제목 (예: 홍대 속눈썹펌 샵인샵 자리 구합니다)');
     if (!title) return;
+    var kind = prompt('종류 (샵인샵·샵매매·구인·기자재)', '샵인샵');
+    if (!kind) return;
     var type = prompt('구해요 / 내놔요 중 하나', '구해요');
     if (!type) return;
     var area = prompt('지역 (서울·경기·인천·부산·대구·대전·광주·강원·제주·온라인)', '서울');
@@ -191,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function(){
     if (!job) return;
     var link = prompt('원문 주소 (없으면 비워 두세요)', '') || '';
     var a = load();
-    a.unshift({ id: 's'+Date.now(), title: title, type: type.indexOf('내놔') >= 0 ? 'give' : 'want',
+    a.unshift({ id: 's'+Date.now(), title: title, kind: kind, type: type.indexOf('내놔') >= 0 ? 'give' : 'want',
       area: area, job: job, link: link, at: new Date().toISOString().slice(0,10) });
     save(a); render();
   });
@@ -199,6 +216,7 @@ document.addEventListener('DOMContentLoaded', function(){
   function render(){
     var a = load().filter(function(it){
       if (state.area !== '전체' && it.area !== state.area) return false;
+      if (state.kind && it.kind !== state.kind) return false;
       if (state.type && it.type !== state.type) return false;
       if (state.job && it.job !== state.job) return false;
       if (state.q) {
@@ -215,6 +233,7 @@ document.addEventListener('DOMContentLoaded', function(){
       return '<div class="item">' +
         '<div class="top">' +
           '<span class="badge '+(it.type==='give'?'give':'want')+'">'+(it.type==='give'?'내놔요':'구해요')+'</span>' +
+          '<span class="badge kind">'+esc(it.kind||'샵인샵')+'</span>' +
           '<span class="badge area">'+esc(it.area)+'</span>' +
           '<span class="badge job">'+esc(it.job)+'</span>' +
         '</div>' +
