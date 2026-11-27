@@ -20,3 +20,37 @@
 .dia-header .nav-mobile-link{
   background:#fff !important; border:1px solid #dcc4bf !important; color:#323232 !important;
 }
+
+/* ── 넓이·높이를 알로하 클로젯과 같게 (PC) ──
+   알로하: 띠 높이 45px, 좌우 12% 여백, 안쪽 폭 1250px */
+@media (min-width:881px){
+  body{ padding-top:45px !important; }
+  .dia-header{
+    height:45px !important; min-height:45px !important;
+    padding:0 !important; margin:0 !important;
+    display:flex !important; align-items:center !important;
+    line-height:45px !important;
+  }
+  .dia-header .brand{
+    margin-left:12% !important; padding:0 !important;
+    display:inline-flex !important; align-items:center !important;
+    height:45px !important;
+  }
+  .dia-header .brand-logo{ font-size:14px !important; letter-spacing:.14em !important; line-height:45px !important; }
+  .dia-header .brand-sub{ display:none !important; }
+  .dia-header .nav-links{
+    margin-left:26px !important;
+    height:45px !important; display:flex !important; align-items:center !important; gap:0 !important;
+  }
+  .dia-header .nav-links a{
+    height:45px !important; line-height:45px !important;
+    padding:0 11px !important; font-size:10.5px !important;
+    letter-spacing:.14em !important; text-transform:uppercase;
+    display:inline-flex !important; align-items:center !important;
+  }
+  .dia-header .nav-links a.nav-dia{
+    height:26px !important; line-height:1 !important; padding:0 14px !important;
+    border-radius:2px !important; font-size:10px !important; margin-left:8px !important;
+  }
+  .dia-header .nav-mobile-links{ display:none !important; }
+}
