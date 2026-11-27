@@ -2471,7 +2471,7 @@ window.창고읽기 = function(url){
             }
           }
         });
-        var santa = { x: 40, dir: 1, turn: 1, depthZ: 0, targetZ: 0, walk: 0, y: 58, vx: 0, vy: 0, state: 'idle', timer: 0, targetX: 40, targetMode: 'top', tapCount: 0, broomSwing: 0, wipeWait: 0, flyFromX: 40, flyFromY: 58, flyToX: 40, flyToY: 58, flyT: 0, bridgeX1: 0, bridgeX2: 0, bridgeY: 0, energy: 100, boredom: 0, headLook: 0, lastJob: '', playful: 65, laziness: 45, playStreak: 0, moodIcon: '', moodTimer: 0, callOk: true, hitCount: 0, grudge: 0, bsMode: 'clock', bsDoorX: 180 };
+        var santa = { x: 40, dir: 1, turn: 1, depthZ: 0, targetZ: 0, walk: 0, y: 58, vx: 0, vy: 0, state: 'idle', timer: 0, subTick: 0, targetX: 40, targetMode: 'top', tapCount: 0, broomSwing: 0, wipeWait: 0, flyFromX: 40, flyFromY: 58, flyToX: 40, flyToY: 58, flyT: 0, bridgeX1: 0, bridgeX2: 0, bridgeY: 0, energy: 100, boredom: 0, headLook: 0, lastJob: '', playful: 65, laziness: 45, playStreak: 0, moodIcon: '', moodTimer: 0, callOk: true, hitCount: 0, grudge: 0, bsMode: 'clock', bsDoorX: 180 };
         var friend = { active: false, x: 40, y: -12, dir: -1, walk: 0, state: 'drop_in', timer: 0, mode: 'work', targetX: 40, broomSwing: 0, moodIcon: '', moodTimer: 0 };
         function setMood(ic, dur){ santa.moodIcon = ic; santa.moodTimer = dur || 65; }
         var colors = ['rgba(255,255,255,0.96)','rgba(240,246,252,0.95)','rgba(225,235,245,0.92)'];
@@ -2933,7 +2933,23 @@ window.창고읽기 = function(url){
             if (santa.grudge > 0) santa.grudge--;
             if (mouse.idle === undefined) mouse.idle = 0;
             mouse.idle++;
-            if (santa.state === 'idle') {
+            santa.subTick = (santa.subTick || 0) + 1;
+            var fastStates = (santa.state === 'idle' || santa.state === 'walk_to' || santa.state === 'knockback' || santa.state === 'fly_to_btn' || santa.state === 'fly_back' || santa.state === 'btn_jump');
+            if (!fastStates && (santa.subTick % 5 !== 0)) {
+              if (santa.state === 'pocket_toy' && (santa.toyType === 'snowboard' || santa.toyType === 'umbrella') && santa.timer > 22 && santa.timer <= 92) {
+                santa.x += santa.dir * (santa.toyType === 'snowboard' ? 0.32 : 0.16);
+                if (santa.x >= walkMaxX - 8) santa.dir = -1;
+                if (santa.x <= sLeft + 14) santa.dir = 1;
+                if (santa.toyType === 'umbrella') santa.walk += 0.16;
+              } else if (santa.state === 'blower' && santa.timer > 30 && santa.timer <= 92) {
+                santa.x += santa.dir * 0.18;
+                if (santa.x >= walkMaxX - 10) santa.dir = -1;
+                if (santa.x <= sLeft + 14) santa.dir = 1;
+                santa.walk += 0.16;
+              } else if (santa.state === 'sweep_btn') {
+                santa.walk += 0.18;
+              }
+            } else if (santa.state === 'idle') {
               santa.broomSwing *= 0.85;
               santa.timer++;
               santa.wipeWait++;
