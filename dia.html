@@ -1657,6 +1657,15 @@
         .pc-hero-snow-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; border-radius: 14px; }
       .pc-hero-snow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 25; border-radius: 14px; }
       @media (max-width: 880px) { .pc-hero-snow, .pc-hero-snow-bg { display: none !important; } }
+      /* PC 로그인 전: 내 품앗이·뷰티수강 버튼을 오른쪽 여백(커서 쪽)으로 배치 */
+      @media (min-width: 881px) {
+        body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links {
+          margin-left: auto !important; display: flex !important; justify-content: flex-end !important; width: auto !important; gap: 10px !important;
+        }
+        body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links > * {
+          width: auto !important; min-width: 118px !important; padding: 8px 20px !important;
+        }
+      }
       .plx-title-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 6px 0 5px; }
       .plx-title-row .plx-title { margin: 0; position: relative; display: inline-block; z-index: 1; color: #212529; }
       .pc-hero-datetime {
@@ -9560,22 +9569,28 @@ window.창고읽기 = function(url){
       })();
       </script>
 <script>
-/* 다이아 섹션: 화면을 그대로 복제해 끌어서 배치하는 편집기 (PC·태블릿·모바일 따로 저장) */
+/* 다이아 섹션: PC·태블릿·모바일 화면별 드래그 위치·크기·글씨·색상 편집기 */
 (function(){
   var WKEY = 'dia_world_layout_v1';
   var ITEMS = [
-    ['title',  '다이아 커뮤니티 제목', '#plxTitleText'],
-    ['clock',  '날짜·시계',           '#pcHeroDatetime'],
-    ['login',  '내 품앗이 버튼',      '#mcLoginBtn'],
-    ['course', '뷰티수강 버튼',       '#mcCourseBtn'],
-    ['search', '검색창',              '#mcLoginBox'],
-    ['banner', '상단 소개 배너',      '.brand-inline']
+    ['brand',   '상단 로고·소개',     'header.dia-header .brand'],
+    ['molinks', '모바일 상단 버튼',   '.nav-mobile-links'],
+    ['mocard',  '모바일 PR 카드',     '.pr-card.only-mo'],
+    ['tag',     '영문 태그',          '.plx-tag'],
+    ['title',   '다이아 커뮤니티 제목', '#plxTitleText'],
+    ['clock',   '날짜·시계',          '#pcHeroDatetime'],
+    ['sub',     '소개 문구',          '#plxSubText'],
+    ['ask',     'DM 문의 안내',       '.plx-ask'],
+    ['login',   '내 품앗이 버튼',     '#mcLoginBtn'],
+    ['course',  '뷰티수강 버튼',      '#mcCourseBtn']
   ];
   var KEYS = ITEMS.map(function(it){ return it[0]; });
+  var mDev = location.search.match(/[?&]dev=(pc|tb|mo)/);
 
   function bp(){
+    if (mDev) return mDev[1];
     var w = window.innerWidth;
-    return w <= 767 ? 'mo' : (w <= 1024 ? 'tb' : 'pc');
+    return w <= 880 ? 'mo' : (w <= 1024 ? 'tb' : 'pc');
   }
   function loadAll(){
     var raw = {};
@@ -9593,17 +9608,45 @@ window.창고읽기 = function(url){
   function 로그인상태(){
     try { return !!localStorage.getItem('dia_login_member'); } catch(e){ return false; }
   }
+  function applyOne(el, v, 잠금){
+    if (!el) return;
+    if (잠금 || !v) {
+      el.style.removeProperty('translate');
+      el.style.removeProperty('scale');
+      el.style.removeProperty('font-size');
+      el.style.removeProperty('color');
+      el.style.removeProperty('background');
+      el.style.removeProperty('background-color');
+      return;
+    }
+    var x = Number(v.x) || 0, y = Number(v.y) || 0;
+    if (x || y) el.style.setProperty('translate', x + 'px ' + y + 'px', 'important');
+    else el.style.removeProperty('translate');
+
+    var sc = Number(v.scale) || 100;
+    if (sc !== 100) el.style.setProperty('scale', String(sc / 100), 'important');
+    else el.style.removeProperty('scale');
+
+    var fs = Number(v.fs) || 0;
+    if (fs > 0) el.style.setProperty('font-size', fs + 'px', 'important');
+    else el.style.removeProperty('font-size');
+
+    if (v.color) el.style.setProperty('color', v.color, 'important');
+    else el.style.removeProperty('color');
+
+    if (v.bg) {
+      el.style.setProperty('background', v.bg, 'important');
+      el.style.setProperty('background-color', v.bg, 'important');
+    } else {
+      el.style.removeProperty('background');
+      el.style.removeProperty('background-color');
+    }
+  }
   function apply(){
     var c = all[bp()] || {};
-    /* 저장한 위치는 로그인 전 화면에만 적용한다. 로그인 후 화면은 원래 배치 그대로. */
     var 잠금 = 로그인상태() && !window.__diaLayoutEdit;
     ITEMS.forEach(function(it){
-      var el = document.querySelector(it[2]); if (!el) return;
-      if (잠금) { el.style.removeProperty('translate'); return; }
-      var v = c[it[0]] || {};
-      var x = Number(v.x) || 0, y = Number(v.y) || 0;
-      if (!x && !y) { el.style.removeProperty('translate'); return; }
-      el.style.setProperty('translate', x + 'px ' + y + 'px', 'important');
+      applyOne(document.querySelector(it[2]), c[it[0]], 잠금);
     });
   }
   function store(){
@@ -9613,32 +9656,56 @@ window.창고읽기 = function(url){
   window.addEventListener('load', function(){ apply(); setTimeout(apply, 120); setTimeout(apply, 400); });
   window.addEventListener('resize', apply);
   if (document.fonts && document.fonts.ready) { document.fonts.ready.then(function(){ apply(); }); }
-
-  /* 화면 전체를 감시하면 다시 칠할 때마다 스스로를 깨워 느려지므로, 로그인 직후 몇 번만 맞춘다. */
-  function settle(){
-    apply();
-    setTimeout(apply, 300);
-    setTimeout(apply, 1200);
-  }
+  function settle(){ apply(); setTimeout(apply, 300); setTimeout(apply, 1200); }
   try { window.addEventListener('dia:login', settle); } catch(e){}
 
-  var editing = false;
   var inFrame = location.search.indexOf('edit=1') > -1;
+  if (!inFrame) {
+    window.diaReloadLayout = function(){ all = loadAll(); apply(); };
+    return;
+  }
 
-  var bar = document.createElement('div');
-  bar.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:3000;display:flex;gap:8px;align-items:center;font-family:inherit;';
-  var btn = document.createElement('button');
-  btn.type = 'button';
-  btn.textContent = '🎨 다이아 섹션';
-  btn.style.cssText = 'padding:10px 16px;border-radius:999px;border:0;background:#d55576;color:#fff;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(180,60,100,.3);font-family:inherit;';
-  var undo = document.createElement('button');
-  undo.type = 'button';
-  undo.textContent = '이 화면 원래대로';
-  undo.style.cssText = 'display:none;padding:9px 13px;border-radius:999px;border:1px solid #e6d7dc;background:#fff;color:#7a6d72;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 6px 16px rgba(150,80,105,.16);font-family:inherit;';
-  bar.appendChild(undo); bar.appendChild(btn);
-  document.body.appendChild(bar);
-
+  var editing = false;
+  var selectedKey = '';
   var moved = false;
+
+  function rgb2hex(rgb){
+    if (!rgb || rgb === 'transparent' || rgb === 'rgba(0, 0, 0, 0)') return '';
+    var m = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!m) return '';
+    return '#' + [m[1], m[2], m[3]].map(function(n){ return ('0' + parseInt(n, 10).toString(16)).slice(-2); }).join('');
+  }
+  function notifySelect(key){
+    selectedKey = key;
+    var it = ITEMS.filter(function(x){ return x[0] === key; })[0];
+    var el = it ? document.querySelector(it[2]) : null;
+    ITEMS.forEach(function(x){
+      var node = document.querySelector(x[2]); if (!node) return;
+      if (x[0] === key) {
+        node.style.outline = '2px solid #2563eb';
+        node.style.outlineOffset = '2px';
+      } else if (editing) {
+        node.style.outline = '1.5px dashed rgba(213,85,118,.55)';
+        node.style.outlineOffset = '2px';
+      }
+    });
+    if (!el || !window.parent) return;
+    var cs = getComputedStyle(el);
+    var v = (all[bp()] && all[bp()][key]) || {};
+    window.parent.postMessage({
+      type: 'dia-edit-select',
+      dev: bp(),
+      key: key,
+      label: it[1],
+      data: Object.assign({ x: 0, y: 0, scale: 100, fs: 0, color: '', bg: '' }, v),
+      computed: {
+        fs: Math.round(parseFloat(cs.fontSize) || 14),
+        color: rgb2hex(cs.color) || '#212529',
+        bg: rgb2hex(cs.backgroundColor) || '#ffffff'
+      }
+    }, '*');
+  }
+
   function bind(el, key){
     el.style.cursor = 'grab';
     el.style.touchAction = 'none';
@@ -9646,21 +9713,26 @@ window.창고읽기 = function(url){
       if (!editing) return;
       e.preventDefault(); e.stopPropagation();
       var b = bp();
-      var cur = all[b][key] || { x: 0, y: 0 };
-      var sx = e.clientX, sy = e.clientY, bx = cur.x || 0, by = cur.y || 0;
+      if (!all[b][key]) all[b][key] = {};
+      var cur = all[b][key];
+      var sx = e.clientX, sy = e.clientY, bx = Number(cur.x) || 0, by = Number(cur.y) || 0;
       moved = false;
       el.style.cursor = 'grabbing';
+      notifySelect(key);
       function onMove(ev){
         var dx = ev.clientX - sx, dy = ev.clientY - sy;
         if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
-        all[b][key] = { x: Math.round(bx + dx), y: Math.round(by + dy) };
-        el.style.setProperty('translate', all[b][key].x + 'px ' + all[b][key].y + 'px', 'important');
+        cur.x = Math.round(bx + dx);
+        cur.y = Math.round(by + dy);
+        applyOne(el, cur, false);
+        notifySelect(key);
       }
       function onUp(){
         document.removeEventListener('pointermove', onMove);
         document.removeEventListener('pointerup', onUp);
         el.style.cursor = 'grab';
         store();
+        notifySelect(key);
       }
       document.addEventListener('pointermove', onMove);
       document.addEventListener('pointerup', onUp);
@@ -9673,26 +9745,23 @@ window.창고읽기 = function(url){
       if (el && !el.__diaDragBound) { el.__diaDragBound = 1; bind(el, it[0]); }
     });
   }
-  setup();
-  window.addEventListener('load', setup);
-
   function setEditing(v){
     editing = v;
     document.body.style.userSelect = v ? 'none' : '';
-    btn.textContent = v ? '✅ 편집 끝내기' : '🎨 다이아 섹션';
-    btn.style.background = v ? '#16a34a' : '#d55576';
-    undo.style.display = v ? '' : 'none';
     ITEMS.forEach(function(it){
       var el = document.querySelector(it[2]); if (!el) return;
-      if (v) { el.style.outline = '1.5px dashed rgba(213,85,118,.55)'; el.style.outlineOffset = '2px'; }
-      else { el.style.outline = ''; el.style.outlineOffset = ''; }
+      if (v) {
+        el.style.outline = (it[0] === selectedKey) ? '2px solid #2563eb' : '1.5px dashed rgba(213,85,118,.55)';
+        el.style.outlineOffset = '2px';
+      } else {
+        el.style.outline = ''; el.style.outlineOffset = '';
+      }
     });
     setup();
   }
-  btn.addEventListener('click', function(){ setEditing(!editing); });
 
   document.addEventListener('click', function(e){
-    if (!editing || !moved) return;
+    if (!editing) return;
     var t = e.target;
     ITEMS.forEach(function(it){
       var el = document.querySelector(it[2]);
@@ -9700,28 +9769,34 @@ window.창고읽기 = function(url){
     });
   }, true);
 
-  undo.addEventListener('click', function(){
-    all[bp()] = {};
-    ITEMS.forEach(function(it){
-      var el = document.querySelector(it[2]); if (!el) return;
-      el.style.removeProperty('translate');
-    });
-    store();
-    undo.textContent = '되돌렸어요';
-    setTimeout(function(){ undo.textContent = '이 화면 원래대로'; }, 1400);
+  window.addEventListener('message', function(e){
+    var d = e.data || {};
+    if (d.type === 'dia-edit-update' && d.key) {
+      var b = bp();
+      all[b][d.key] = Object.assign({}, all[b][d.key] || {}, d.data || {});
+      var it = ITEMS.filter(function(x){ return x[0] === d.key; })[0];
+      if (it) applyOne(document.querySelector(it[2]), all[b][d.key], false);
+      store();
+    } else if (d.type === 'dia-edit-reset-one' && d.key) {
+      var b = bp();
+      delete all[b][d.key];
+      var it = ITEMS.filter(function(x){ return x[0] === d.key; })[0];
+      if (it) applyOne(document.querySelector(it[2]), null, false);
+      store();
+      notifySelect(d.key);
+    } else if (d.type === 'dia-edit-reset-all') {
+      all[bp()] = {};
+      apply();
+      store();
+      if (selectedKey) notifySelect(selectedKey);
+    }
   });
 
-  /* 운영센터 다이아 섹션 탭에서 불러오면 바로 편집 모드 */
-  if (inFrame) {
-    window.__diaLayoutEdit = true;
-    bar.style.display = 'none';
-    apply();
-    window.addEventListener('load', function(){ setEditing(true); });
-  }
-  window.diaReloadLayout = function(){
-    all = loadAll();
-    apply();
-  };
+  window.__diaLayoutEdit = true;
+  apply();
+  setEditing(true);
+  window.addEventListener('load', function(){ setEditing(true); });
+  window.diaReloadLayout = function(){ all = loadAll(); apply(); };
 })();
 </script>
 </body>

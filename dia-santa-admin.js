@@ -152,30 +152,30 @@
     document.getElementById('sn_msg').textContent = '저장 완료! 다이아 커뮤니티 새로고침 시 바로 적용됩니다.';
   });
 
-  /* ── 다이아 월드 배치 편집기 (요소별 X·Y 미세 조정) ── */
+  /* ── 다이아 섹션 편집기 (PC·태블릿·모바일 분리 미리보기 + 드래그·크기·글씨·색깔) ── */
   var WKEY = 'dia_world_layout_v1';
-  var WITEMS = [
-    ['title', '다이아 커뮤니티 제목'],
-    ['clock', '날짜·시계'],
-    ['login', '내 품앗이 버튼'],
-    ['course', '뷰티수강 버튼'],
-    ['search', '검색창'],
-    ['banner', '상단 소개 배너']
-  ];
   var wrap = document.createElement('div');
   wrap.className = 'sn';
   wrap.style.marginTop = '0';
   wrap.innerHTML = '<div class="sn-h"><span>🖼 다이아 섹션</span></div>' +
-    '<div class="sn-d">아래 화면은 다이아 커뮤니티를 그대로 띄운 것입니다. 요소를 끌어 옮기면 그 자리에서 저장되고, 기기별로 따로 기억합니다.</div>' +
+    '<div class="sn-d">PC·태블릿·모바일 실제 화면을 각각 띄웁니다. 요소를 끌어 옮기고, 아래 막대에서 크기·글씨 크기·색깔을 바로 바꾸세요.</div>' +
     '<div style="margin-top:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">' +
       '<button type="button" class="sn-save" id="w_pc">PC</button>' +
       '<button type="button" class="sn-save" id="w_tb" style="background:#fff;color:#c2456a;border:1px solid #e6b8c8;">태블릿</button>' +
       '<button type="button" class="sn-save" id="w_mo" style="background:#fff;color:#c2456a;border:1px solid #e6b8c8;">모바일</button>' +
-      '<button type="button" class="sn-reset" id="w_reset" style="margin-left:auto;">원래대로</button>' +
+      '<button type="button" class="sn-reset" id="w_reset" style="margin-left:auto;">이 기기 원래대로</button>' +
     '</div>' +
-    '<div style="margin-top:8px;font-size:11.5px;color:#8a7b81;font-weight:800;" id="w_msg"></div>' +
-    '<div style="margin-top:8px;border:1px solid #eee3e8;border-radius:12px;overflow:hidden;background:#faf6f8;display:flex;justify-content:center;">' +
-      '<iframe id="w_frame" src="dia.html?edit=1" style="display:block;width:100%;height:78vh;border:0;background:#fff;"></iframe>' +
+    '<div id="w_props" style="margin-top:10px;padding:10px 12px;border:1px solid #f0dde4;border-radius:10px;background:#fff9fb;display:none;flex-wrap:wrap;gap:10px 14px;align-items:center;font-size:12px;color:#4a3f44;">' +
+      '<strong id="wp_name" style="color:#b62d47;min-width:110px;">선택됨</strong>' +
+      '<label style="display:inline-flex;align-items:center;gap:5px;">크기 <input id="wp_scale" type="range" min="50" max="200" value="100" style="width:78px;accent-color:#d55576;"> <span id="wp_scale_v" style="min-width:34px;font-weight:800;">100%</span></label>' +
+      '<label style="display:inline-flex;align-items:center;gap:5px;">글씨 <input id="wp_fs" type="range" min="9" max="44" value="14" style="width:78px;accent-color:#d55576;"> <span id="wp_fs_v" style="min-width:34px;font-weight:800;">기본</span></label>' +
+      '<label style="display:inline-flex;align-items:center;gap:4px;">글자색 <input id="wp_color" type="color" value="#212529" style="width:28px;height:24px;border:1px solid #e6d7dc;border-radius:5px;padding:0;background:#fff;cursor:pointer;"></label>' +
+      '<label style="display:inline-flex;align-items:center;gap:4px;">배경색 <input id="wp_bg" type="color" value="#ffffff" style="width:28px;height:24px;border:1px solid #e6d7dc;border-radius:5px;padding:0;background:#fff;cursor:pointer;"></label>' +
+      '<button type="button" class="sn-reset" id="wp_one_reset" style="margin-left:auto;padding:5px 10px;font-size:11px;">이 요소 초기화</button>' +
+    '</div>' +
+    '<div style="margin-top:8px;font-size:11.5px;color:#8a7b81;font-weight:800;" id="w_msg">편집할 요소를 화면에서 눌러 선택하거나 끌어 옮기세요.</div>' +
+    '<div id="w_stage" style="margin-top:8px;border:1px solid #eee3e8;border-radius:12px;overflow:hidden;background:#faf6f8;display:flex;justify-content:center;align-items:flex-start;position:relative;min-height:460px;">' +
+      '<iframe id="w_frame" src="dia.html?edit=1&dev=pc" style="display:block;flex:0 0 auto;width:1200px;height:680px;border:0;background:#fff;transform-origin:top center;"></iframe>' +
     '</div>';
 
   var btn2 = nav.querySelector('.ops-nav-item[data-bannertab]');
@@ -188,12 +188,49 @@
   sec2.appendChild(wrap);
   host.appendChild(sec2);
 
+  var stage = document.getElementById('w_stage');
   var frame = document.getElementById('w_frame');
   var msgEl = document.getElementById('w_msg');
-  var DEV = { pc: ['100%', 'PC'], tb: ['820px', '태블릿'], mo: ['390px', '모바일'] };
+  var propsEl = document.getElementById('w_props');
+  var wpName = document.getElementById('wp_name');
+  var wpScale = document.getElementById('wp_scale');
+  var wpScaleV = document.getElementById('wp_scale_v');
+  var wpFs = document.getElementById('wp_fs');
+  var wpFsV = document.getElementById('wp_fs_v');
+  var wpColor = document.getElementById('wp_color');
+  var wpBg = document.getElementById('wp_bg');
+  var wpOneReset = document.getElementById('wp_one_reset');
+
+  var DEV = { pc: [1200, 'PC (1200px)'], tb: [920, '태블릿 (920px)'], mo: [390, '모바일 (390px)'] };
+  var curDev = 'pc';
+  var selKey = '';
+
+  function fitFrame(){
+    var targetW = DEV[curDev][0];
+    var avail = stage.clientWidth || 1000;
+    var ratio = avail < targetW ? (avail / targetW) : 1;
+    frame.style.width = targetW + 'px';
+    frame.style.height = '680px';
+    if (ratio < 1) {
+      frame.style.transform = 'scale(' + ratio.toFixed(4) + ')';
+      frame.style.transformOrigin = 'top left';
+      frame.style.marginLeft = '0';
+      stage.style.justifyContent = 'flex-start';
+      stage.style.height = Math.round(680 * ratio) + 'px';
+    } else {
+      frame.style.transform = '';
+      frame.style.transformOrigin = 'top center';
+      stage.style.justifyContent = 'center';
+      stage.style.height = '680px';
+    }
+  }
+  window.addEventListener('resize', fitFrame);
+
   function setDev(k){
-    frame.style.width = DEV[k][0];
-    msgEl.textContent = DEV[k][1] + ' 화면 기준으로 옮기는 중입니다.';
+    curDev = k;
+    selKey = '';
+    propsEl.style.display = 'none';
+    msgEl.textContent = DEV[k][1] + ' 화면입니다. 요소를 눌러 선택하거나 끌어 옮기세요.';
     ['pc','tb','mo'].forEach(function(x){
       var b = document.getElementById('w_' + x);
       if (!b) return;
@@ -201,18 +238,53 @@
       b.style.background = on ? 'linear-gradient(90deg,#ef9ab4,#d55576)' : '#fff';
       b.style.color = on ? '#fff' : '#c2456a';
     });
+    fitFrame();
     frame.src = 'dia.html?edit=1&dev=' + k + '&r=' + Date.now();
   }
   ['pc','tb','mo'].forEach(function(k){
     var b = document.getElementById('w_' + k);
     if (b) b.addEventListener('click', function(){ setDev(k); });
   });
-  setDev('pc');
+
+  window.addEventListener('message', function(e){
+    var d = e.data || {};
+    if (d.type !== 'dia-edit-select' || !d.key) return;
+    selKey = d.key;
+    propsEl.style.display = 'flex';
+    wpName.textContent = d.label + ' (' + d.data.x + ', ' + d.data.y + ')';
+    var sc = Number(d.data.scale) || 100;
+    wpScale.value = sc; wpScaleV.textContent = sc + '%';
+    var fs = Number(d.data.fs) || 0;
+    wpFs.value = fs > 0 ? fs : (d.computed && d.computed.fs ? d.computed.fs : 14);
+    wpFsV.textContent = fs > 0 ? (fs + 'px') : '기본';
+    wpColor.value = d.data.color || (d.computed && d.computed.color) || '#212529';
+    wpBg.value = d.data.bg || (d.computed && d.computed.bg) || '#ffffff';
+  });
+
+  function sendPatch(patch){
+    if (!selKey || !frame.contentWindow) return;
+    frame.contentWindow.postMessage({ type: 'dia-edit-update', key: selKey, data: patch }, '*');
+  }
+  wpScale.addEventListener('input', function(){
+    var v = parseInt(wpScale.value, 10) || 100;
+    wpScaleV.textContent = v + '%';
+    sendPatch({ scale: v });
+  });
+  wpFs.addEventListener('input', function(){
+    var v = parseInt(wpFs.value, 10) || 14;
+    wpFsV.textContent = v + 'px';
+    sendPatch({ fs: v });
+  });
+  wpColor.addEventListener('input', function(){ sendPatch({ color: wpColor.value }); });
+  wpBg.addEventListener('input', function(){ sendPatch({ bg: wpBg.value }); });
+  wpOneReset.addEventListener('click', function(){
+    if (!selKey || !frame.contentWindow) return;
+    frame.contentWindow.postMessage({ type: 'dia-edit-reset-one', key: selKey }, '*');
+  });
 
   document.getElementById('w_reset').addEventListener('click', function(){
-    try { localStorage.setItem(WKEY, '{"pc":{},"tb":{},"mo":{}}'); } catch(e){}
-    frame.src = 'dia.html?edit=1&r=' + Date.now();
-    msgEl.textContent = '세 기기 모두 원래 자리로 되돌렸습니다.';
+    if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'dia-edit-reset-all' }, '*');
+    msgEl.textContent = DEV[curDev][1] + ' 화면을 원래대로 되돌렸습니다.';
   });
 
   // 다른 탭과 상호 전환 연결
@@ -226,6 +298,7 @@
         if (ch.id === 'ops-santa' || ch.id === 'ops-diaworld') ch.style.display = (ch === mine ? '' : 'none');
         else if (ch.id && ch.id.indexOf('ops-') === 0) ch.style.display = 'none';
       });
+      if (t === btn2) setTimeout(fitFrame, 40);
     } else {
       sec.style.display = 'none';
       sec2.style.display = 'none';
@@ -233,4 +306,5 @@
       btn2.setAttribute('data-on', '0');
     }
   });
+  setDev('pc');
 })();
