@@ -95,6 +95,10 @@
     </div>
 
     <div id="shop-main" style="display:none;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <span style="font-size:11px;font-weight:900;color:#15803d;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:99px;padding:4px 10px;">● 스태프 모드</span>
+        <span style="font-size:11.5px;color:#9a9a9a;">이 화면은 스태프에게만 보입니다. 일반 방문자는 개발 중 화면만 봅니다.</span>
+      </div>
       <div class="toolbar">
         <div class="seg" id="shop-type">
           <button type="button" data-v="" data-on="1">전체</button>
@@ -135,7 +139,12 @@ document.addEventListener('DOMContentLoaded', function(){
     buildAreas();
     render();
   }
-  try { if (localStorage.getItem('dia_shop_admin') === '1') showAdmin(); } catch(e){}
+  // 스태프(운영센터를 한 번이라도 연 계정)면 암호 없이 바로 목록 화면
+  var isStaff = false;
+  try {
+    isStaff = localStorage.getItem('dia_shop_admin') === '1' || localStorage.getItem('dia_no_track') === '1';
+  } catch(e){}
+  if (isStaff) { showAdmin(); }
   if (location.hash === '#admin') { wrap.style.display = ''; soon.style.display = 'none'; }
 
   function go(){
