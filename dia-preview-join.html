@@ -35,6 +35,13 @@
   .join .eyebrow{font-size:10.5px;letter-spacing:2.6px;text-transform:uppercase;color:var(--ink-mute);text-align:center;}
   .join h1{margin:14px 0 0;text-align:center;font-weight:400;font-size:27px;letter-spacing:-.8px;line-height:1.4;}
   .join .sub{margin:12px 0 0;text-align:center;font-size:12px;line-height:1.9;color:var(--ink-soft);font-weight:400;}
+  .match{display:flex;align-items:center;gap:7px;margin:8px 2px 0;font-size:11px;color:var(--ink-mute);letter-spacing:.01em;}
+  .match .dot{width:5px;height:5px;border-radius:50%;background:#cfc4c6;flex:0 0 auto;}
+  .match.checking .dot{background:#d9b06a;}
+  .match.ok .dot{background:#7ba97f;}
+  .match.ok .txt{color:#5c8a61;}
+  .match.ng .dot{background:#c9707f;}
+  .match.ng .txt{color:#b05364;}
   .rule{height:1px;background:var(--line);margin:34px 0 30px;}
 
   .field{margin-bottom:16px;}
@@ -135,7 +142,9 @@
     <div class="field">
       <label>인스타그램 아이디</label>
       <input type="text" id="insta" placeholder="@seilin_beauty.pr" autocomplete="username" autocapitalize="off" spellcheck="false">
-      <p class="hint">품앗이 확인과 안내가 모두 이 아이디로 갑니다.</p>
+      <div class="match" id="igMatch" aria-live="polite">
+        <span class="dot"></span><span class="txt">아이디를 적으면 계정을 확인합니다.</span>
+      </div>
     </div>
     <div class="field">
       <label>이메일 <span class="opt">선택</span></label>
@@ -190,6 +199,29 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   go.addEventListener('click', tryOpen);
   pw.addEventListener('keydown', function(e){ if (e.key==='Enter') tryOpen(); });
+
+  /* MATCH_SCRIPT */
+  var ig = document.getElementById('insta'), box = document.getElementById('igMatch');
+  var t = null;
+  function setState(cls, msg){ box.className = 'match ' + (cls||''); box.querySelector('.txt').textContent = msg; }
+  function check(){
+    var v = (ig.value||'').trim().replace(/^@/,'');
+    if (!v) { setState('', '아이디를 적으면 계정을 확인합니다.'); return; }
+    if (!/^[A-Za-z0-9._]{2,30}$/.test(v)) { setState('ng', '영문·숫자·점(.)만 쓸 수 있습니다.'); return; }
+    setState('checking', '계정 확인 중…');
+    setTimeout(function(){
+      var fail = /^(test|none|없음)$/i.test(v) || v.length < 3;
+      if (fail) setState('ng', '일치하는 인스타그램 계정을 찾지 못했습니다. 다시 확인해 주세요.');
+      else setState('ok', '@' + v + ' 확인됨 · 활동 지역은 계정 정보로 채웁니다.');
+    }, 700);
+  }
+  if (ig) {
+    ig.addEventListener('blur', check);
+    ig.addEventListener('input', function(){
+      setState('', '아이디를 적으면 계정을 확인합니다.');
+      clearTimeout(t); t = setTimeout(check, 900);
+    });
+  }
 
   var all = document.getElementById('agreeAll');
   var items = [].slice.call(document.querySelectorAll('.ag'));
