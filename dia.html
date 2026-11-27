@@ -4122,30 +4122,49 @@ window.창고읽기 = function(url){
                 if (friend.timer < 180) {
                   friend.targetX = sLeft + 18 + Math.random() * Math.max(20, (fWalkMax - sLeft - 30));
                 } else {
-                  friend.state = 'bye'; friend.timer = 0; friend.moodIcon = '👋'; friend.moodTimer = 45;
+                  friend.state = 'bye'; friend.byeMode = (Math.random() < 0.5 ? 'walk' : 'ride'); friend.timer = 0; friend.moodIcon = '👋'; friend.moodTimer = 50;
                 }
               }
             } else if (friend.state === 'play_fun') {
-              // 대장 산타랑 같이 눈싸움 & 수다!
+              // 대장 산타랑 같이 눈싸움 · 점프 하이파이브 · 수다!
               friend.dir = (santa.x >= friend.x) ? 1 : -1;
-              if (friend.timer === 35 || friend.timer === 85) {
+              if (friend.timer === 30 || friend.timer === 95) {
                 snowballs.push({ x: friend.x + friend.dir * 5, y: friend.y - 10, vx: friend.dir * 2.2, vy: -2.0 });
                 friend.moodIcon = '💬'; friend.moodTimer = 45;
               }
+              if (friend.timer === 65) {
+                friend.moodIcon = '🙌'; friend.moodTimer = 35;
+                if (santa.state === 'idle' || santa.state === 'call_friend') setMood('🙌', 35);
+              }
               if (friend.timer >= 145) {
-                friend.state = 'bye'; friend.timer = 0; friend.moodIcon = '👋'; friend.moodTimer = 45;
+                friend.state = 'bye'; friend.byeMode = (Math.random() < 0.5 ? 'walk' : 'ride'); friend.timer = 0; friend.moodIcon = '👋'; friend.moodTimer = 50;
               }
             } else if (friend.state === 'bye') {
-              if (friend.timer > 30) {
-                friend.y -= 2.4;
-                if (friend.y < -20) friend.active = false;
+              if (friend.byeMode === 'walk') {
+                // 0~28: 손 흔들기, 28~: 왼쪽 화면 밖으로 걸어서 퇴장!
+                if (friend.timer > 28) {
+                  friend.dir = -1;
+                  friend.x -= 1.05;
+                  friend.walk += 0.28;
+                  if (friend.x < -18) friend.active = false;
+                }
+              } else {
+                // 0~26: 손 흔들기, 26~44: 주머니에서 미니 로켓(탈것) 꺼내기, 44~: 타고 슝 날아 퇴장!
+                if (friend.timer > 44) {
+                  friend.dir = -1;
+                  friend.x -= 1.85;
+                  friend.y -= 0.75;
+                  if (Math.random() < 0.45 && puffs.length < 75) puffs.push({ x: friend.x + 7, y: friend.y - 2, vx: 1.2, vy: 0.4, r: 1.3, life: 0.55 });
+                  if (friend.x < -24 || friend.y < -24) friend.active = false;
+                }
               }
             }
 
             // 친구 산타 그리기 (파란 산타복 + 흰 띠!)
             if (friend.active) {
               ctx.save();
-              ctx.translate(friend.x, friend.y);
+              var fJump = (friend.state === 'play_fun' && friend.timer >= 62 && friend.timer <= 78) ? Math.sin(((friend.timer - 62) / 16) * Math.PI) * 7 : 0;
+              ctx.translate(friend.x, friend.y - fJump);
               if (friend.state === 'drop_in') {
                 // 낙하산!
                 ctx.strokeStyle = 'rgba(148,163,184,0.8)'; ctx.lineWidth = 0.8;
@@ -4153,9 +4172,24 @@ window.창고읽기 = function(url){
                 ctx.fillStyle = '#38bdf8';
                 ctx.beginPath(); ctx.arc(0, -24, 7.5, Math.PI, 0); ctx.fill();
               }
+              if (friend.state === 'bye' && friend.byeMode === 'ride' && friend.timer > 26) {
+                // 주머니에서 꺼낸 미니 로켓/호버썰매!
+                var rpF = (friend.timer <= 44) ? ((friend.timer - 26) / 18) : 1;
+                ctx.save();
+                ctx.scale(rpF, rpF);
+                ctx.fillStyle = '#0284c7';
+                ctx.beginPath(); ctx.ellipse(0, -1.5, 8.5, 2.8, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#fbbf24';
+                ctx.beginPath(); ctx.moveTo(-8.5, -1.5); ctx.lineTo(-11.5, -4); ctx.lineTo(-10, 0.5); ctx.closePath(); ctx.fill();
+                if (friend.timer > 44) {
+                  ctx.fillStyle = '#f97316';
+                  ctx.beginPath(); ctx.moveTo(8.5, -1.5); ctx.lineTo(13 + Math.random() * 3, -2.5); ctx.lineTo(13 + Math.random() * 3, -0.5); ctx.closePath(); ctx.fill();
+                }
+                ctx.restore();
+              }
               ctx.save();
               ctx.scale(friend.dir, 1);
-              var fLeg = (friend.state === 'work_sweep') ? Math.sin(friend.walk) * 2.4 : 0;
+              var fLeg = (friend.state === 'work_sweep' || (friend.state === 'bye' && friend.byeMode === 'walk' && friend.timer > 28)) ? Math.sin(friend.walk) * 2.4 : 0;
               ctx.fillStyle = '#0f172a';
               ctx.beginPath(); ctx.ellipse(-2.0 - fLeg * 0.5, 0.2, 1.9, 1.1, 0, 0, Math.PI * 2); ctx.ellipse(2.0 + fLeg * 0.5, 0.2, 1.9, 1.1, 0, 0, Math.PI * 2); ctx.fill();
               ctx.fillStyle = '#0284c7';
