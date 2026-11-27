@@ -17,24 +17,47 @@
   .hero-tag{font-size:11px;font-weight:900;letter-spacing:.14em;color:var(--pink);}
   h1{margin:6px 0 4px;font-size:24px;font-weight:900;letter-spacing:-.03em;}
   .sub{margin:0 0 22px;font-size:13px;color:var(--mute);}
-  /* 개발 중 화면 */
+
+  /* 개발 중 (일반 방문자) */
   #shop-soon{border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 10px 30px rgba(198,69,106,.07);
     padding:64px 24px;text-align:center;}
   #shop-soon .ico{font-size:40px;line-height:1;margin-bottom:16px;}
   #shop-soon .t{font-size:20px;font-weight:900;letter-spacing:-.03em;margin-bottom:10px;}
+  #shop-soon .bar{width:60px;height:3px;border-radius:99px;background:linear-gradient(90deg,#ef9ab4,#d55576);margin:0 auto 20px;}
   #shop-soon .d{font-size:13.5px;color:var(--mute);line-height:1.7;margin-bottom:22px;}
-  #shop-soon .bar{width:60px;height:3px;border-radius:99px;background:linear-gradient(90deg,#ef9ab4,#d55576);margin:0 auto 22px;}
   .soon-foot{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
   .soon-foot a,.soon-foot button{display:inline-block;padding:10px 18px;border-radius:10px;border:1px solid var(--line);
     background:#fff;color:#8a7b81;font-size:12.5px;font-weight:800;text-decoration:none;cursor:pointer;font-family:inherit;}
   .soon-foot .on{border:0;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;}
-  /* 관리자 화면 */
+
+  /* 관리자 */
   #shop-admin{display:none;}
   .gate{max-width:340px;margin:50px auto;border:1px solid var(--line);border-radius:16px;background:#fff;padding:28px 22px;text-align:center;}
   .gate input{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;font-size:14px;text-align:center;letter-spacing:3px;outline:none;margin-bottom:10px;}
   .gate button{width:100%;padding:12px;border:0;border-radius:10px;cursor:pointer;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;font-size:14px;font-weight:800;font-family:inherit;}
   .gate .m{font-size:12px;color:var(--pink);margin-top:9px;min-height:15px;}
-  .note{border:1px dashed #f3c7d6;background:var(--pink-soft);border-radius:12px;padding:16px 18px;font-size:13px;color:#a3566d;line-height:1.7;}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px;}
+  .toolbar input[type=text]{flex:1;min-width:180px;padding:10px 13px;border:1px solid var(--line);border-radius:9px;font-size:13px;outline:none;font-family:inherit;}
+  .toolbar select{padding:10px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px;outline:none;font-family:inherit;background:#fff;color:#555;}
+  .toolbar button{padding:10px 16px;border:0;border-radius:9px;cursor:pointer;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;font-size:13px;font-weight:800;font-family:inherit;}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;}
+  .seg button{border:0;background:#fff;color:#8a7b81;font-size:12.5px;font-weight:800;padding:9px 14px;cursor:pointer;font-family:inherit;}
+  .seg button[data-on="1"]{background:var(--pink-soft);color:var(--pink-deep);}
+  .cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+  .cats button{border:1px solid var(--line);background:#fff;color:#7a6b71;font-size:12.5px;font-weight:700;padding:7px 13px;border-radius:99px;cursor:pointer;font-family:inherit;}
+  .cats button[data-on="1"]{border-color:#f0b9c9;background:var(--pink-soft);color:var(--pink-deep);}
+  .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}
+  .item{border:1px solid var(--line);border-radius:14px;background:#fff;padding:16px 17px;box-shadow:0 2px 10px rgba(198,69,106,.05);}
+  .item .top{display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap;}
+  .badge{font-size:11px;font-weight:900;padding:3px 8px;border-radius:99px;}
+  .badge.want{background:#eef4ff;color:#2563eb;}
+  .badge.give{background:#fdeef2;color:var(--pink-deep);}
+  .badge.area{background:#f5f5f5;color:#777;}
+  .badge.job{background:#f3fbf5;color:#15803d;}
+  .item h3{margin:0 0 6px;font-size:14.5px;font-weight:800;line-height:1.45;letter-spacing:-.02em;}
+  .item .meta{font-size:12px;color:var(--mute);line-height:1.6;}
+  .empty{border:1px dashed #f3c7d6;background:var(--pink-soft);border-radius:14px;padding:34px 20px;text-align:center;font-size:13px;color:#a3566d;line-height:1.7;}
 </style>
 </head>
 <body>
@@ -70,12 +93,26 @@
       <button type="button" id="shop-go">열기</button>
       <div class="m" id="shop-m"></div>
     </div>
-    <div id="shop-list" style="display:none;">
-      <div class="note">
-        아직 등록된 샵인샵 글이 없습니다.<br>
-        전국 카페에서 <b>샵인샵 구해요 · 내놔요</b> 글을 지역별로 모아 오면 여기에 쌓입니다.<br>
-        이 화면은 관리자용이라 일반 방문자에게는 <b>개발 중</b> 화면만 보입니다.
+
+    <div id="shop-main" style="display:none;">
+      <div class="toolbar">
+        <div class="seg" id="shop-type">
+          <button type="button" data-v="" data-on="1">전체</button>
+          <button type="button" data-v="want">구해요</button>
+          <button type="button" data-v="give">내놔요</button>
+        </div>
+        <input id="shop-q" type="text" placeholder="제목·지역·업종 검색">
+        <select id="shop-job">
+          <option value="">업종 전체</option>
+          <option>속눈썹펌</option><option>속눈썹연장</option><option>네일</option>
+          <option>반영구</option><option>왁싱</option><option>피부</option><option>토탈뷰티</option><option>두피·탈모</option>
+        </select>
+        <button type="button" id="shop-add">+ 글 등록</button>
       </div>
+
+      <div class="cats" id="shop-areas"></div>
+      <div class="list" id="shop-items"></div>
+      <div class="empty" id="shop-empty">아직 등록된 샵인샵 글이 없습니다.<br>지역 카테고리를 고르고 오른쪽 위 <b>+ 글 등록</b>으로 하나씩 쌓으면 됩니다.</div>
     </div>
   </section>
 </main>
@@ -83,38 +120,101 @@
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   var KEY = atob('MDQyMw==');
-  var admin = false;
-  try { admin = localStorage.getItem('dia_shop_admin') === '1'; } catch(e){}
+  var AREAS = ['전체','서울','경기·인천','부산·울산','대구·경북','대전·충청','광주·전라','강원','제주','온라인'];
+
   var soon = document.getElementById('shop-soon');
   var wrap = document.getElementById('shop-admin');
   var gate = document.getElementById('shop-gate');
-  var list = document.getElementById('shop-list');
+  var mainEl = document.getElementById('shop-main');
 
   function showAdmin(){
     wrap.style.display = '';
     gate.style.display = 'none';
-    list.style.display = '';
+    mainEl.style.display = '';
     soon.style.display = 'none';
+    buildAreas();
+    render();
   }
-  if (admin) { showAdmin(); }
+  try { if (localStorage.getItem('dia_shop_admin') === '1') showAdmin(); } catch(e){}
+  if (location.hash === '#admin') { wrap.style.display = ''; soon.style.display = 'none'; }
 
   function go(){
     var v = (document.getElementById('shop-pw').value || '').trim();
-    if (v === KEY) {
-      try { localStorage.setItem('dia_shop_admin', '1'); } catch(e){}
-      showAdmin();
-    } else {
-      document.getElementById('shop-m').textContent = '비밀번호가 맞지 않습니다.';
-    }
+    if (v === KEY) { try{ localStorage.setItem('dia_shop_admin','1'); }catch(e){} showAdmin(); }
+    else document.getElementById('shop-m').textContent = '비밀번호가 맞지 않습니다.';
   }
   document.getElementById('shop-go').addEventListener('click', go);
   document.getElementById('shop-pw').addEventListener('keydown', function(e){ if (e.key === 'Enter') go(); });
 
-  // 관리자 진입: 주소 뒤 #admin
-  if (location.hash === '#admin') {
-    wrap.style.display = '';
-    soon.style.display = 'none';
+  // 데이터 (지금은 브라우저 저장 / 나중에 파이어스토어)
+  var LS = 'dia_shop_items_v1';
+  var state = { area: '전체', type: '', q: '', job: '' };
+  function load(){ try { var a = JSON.parse(localStorage.getItem(LS) || '[]'); return Array.isArray(a) ? a : []; } catch(e){ return []; } }
+  function save(a){ try { localStorage.setItem(LS, JSON.stringify(a)); } catch(e){} }
+
+  function buildAreas(){
+    var box = document.getElementById('shop-areas');
+    box.innerHTML = AREAS.map(function(a){
+      return '<button type="button" data-a="'+a+'" data-on="'+(a===state.area?1:0)+'">'+a+'</button>';
+    }).join('');
+    box.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click', function(){ state.area = b.getAttribute('data-a'); buildAreas(); render(); });
+    });
   }
+  document.getElementById('shop-type').querySelectorAll('button').forEach(function(b){
+    b.addEventListener('click', function(){
+      state.type = b.getAttribute('data-v');
+      document.getElementById('shop-type').querySelectorAll('button').forEach(function(x){ x.setAttribute('data-on', x===b?1:0); });
+      render();
+    });
+  });
+  document.getElementById('shop-q').addEventListener('input', function(e){ state.q = e.target.value.trim(); render(); });
+  document.getElementById('shop-job').addEventListener('change', function(e){ state.job = e.target.value; render(); });
+
+  document.getElementById('shop-add').addEventListener('click', function(){
+    var title = prompt('제목 (예: 홍대 속눈썹펌 샵인샵 자리 구합니다)');
+    if (!title) return;
+    var type = prompt('구해요 / 내놔요 중 하나', '구해요');
+    if (!type) return;
+    var area = prompt('지역 (서울·경기·인천·부산·대구·대전·광주·강원·제주·온라인)', '서울');
+    if (!area) return;
+    var job = prompt('업종 (속눈썹펌·속눈썹연장·네일·반영구·왁싱·피부·토탈뷰티·두피)', '속눈썹펌');
+    if (!job) return;
+    var link = prompt('원문 주소 (없으면 비워 두세요)', '') || '';
+    var a = load();
+    a.unshift({ id: 's'+Date.now(), title: title, type: type.indexOf('내놔') >= 0 ? 'give' : 'want',
+      area: area, job: job, link: link, at: new Date().toISOString().slice(0,10) });
+    save(a); render();
+  });
+
+  function render(){
+    var a = load().filter(function(it){
+      if (state.area !== '전체' && it.area !== state.area) return false;
+      if (state.type && it.type !== state.type) return false;
+      if (state.job && it.job !== state.job) return false;
+      if (state.q) {
+        var s = (it.title + ' ' + it.area + ' ' + it.job).toLowerCase();
+        if (s.indexOf(state.q.toLowerCase()) < 0) return false;
+      }
+      return true;
+    });
+    var box = document.getElementById('shop-items');
+    var empty = document.getElementById('shop-empty');
+    if (!a.length) { box.innerHTML = ''; empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    box.innerHTML = a.map(function(it){
+      return '<div class="item">' +
+        '<div class="top">' +
+          '<span class="badge '+(it.type==='give'?'give':'want')+'">'+(it.type==='give'?'내놔요':'구해요')+'</span>' +
+          '<span class="badge area">'+esc(it.area)+'</span>' +
+          '<span class="badge job">'+esc(it.job)+'</span>' +
+        '</div>' +
+        '<h3>'+esc(it.title)+'</h3>' +
+        '<div class="meta">'+esc(it.at||'')+(it.link?' · <a href="'+esc(it.link)+'" target="_blank" rel="noopener" style="color:#c6506f;font-weight:700;text-decoration:none;">원문 보기</a>':'')+'</div>' +
+      '</div>';
+    }).join('');
+  }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 });
 </script>
 </body>
