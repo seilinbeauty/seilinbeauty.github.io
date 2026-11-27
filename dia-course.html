@@ -2672,10 +2672,14 @@
       }
       if(state.q){
         if(window.DIA_SEARCH){
-          if(!c._diaKeys){
-            c._diaKeys = DIA_SEARCH.buildKeys([c.dataset.nick || '', c.textContent || '']);
-          }
-          if(DIA_SEARCH.matchKeys(c._diaKeys, state.q) <= 0) ok = false;
+          var _q = DIA_SEARCH.norm(state.q);
+          var _jamo = DIA_SEARCH.isJamoOnly(_q);
+          // 원장님 이름(닉네임)은 초성까지 따로 본다 — 'ㅅㅇㄹ'처럼 쳐도 걸리게
+          if(!c._nickKeys){ c._nickKeys = DIA_SEARCH.buildKeys([c.dataset.nick || '']); }
+          if(!c._diaKeys){ c._diaKeys = DIA_SEARCH.buildKeys([c.textContent || '']); }
+          var _hitNick = DIA_SEARCH.matchKeys(c._nickKeys, state.q);
+          var _hitAll = _jamo ? 0 : DIA_SEARCH.matchKeys(c._diaKeys, state.q);
+          if(_hitNick <= 0 && _hitAll <= 0) ok = false;
         } else {
           var hay = ((c.dataset.nick || '') + ' ' + c.textContent).toLowerCase();
           if(hay.indexOf(state.q) < 0) ok = false;
