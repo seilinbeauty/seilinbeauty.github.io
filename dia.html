@@ -6573,10 +6573,7 @@ window.창고읽기 = function(url){
                           lgIn.style.setProperty('font-size', '10px', 'important');
                           bh = lgBox.offsetHeight || bh;
                         }
-                        var refTop = (btnRect && btnRect.height > 10) ? btnRect.top : tr.top;
-                        if (tr.height > 0) {
-                          lgBox.style.setProperty('top', Math.round(refTop - hr.top) + 'px', 'important');
-                        }
+                        /* 위치는 원래 자리 그대로, 높이만 버튼과 같게 */
                       }
                     }
                     lgIn.focus();
