@@ -3593,6 +3593,8 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
 .crs-badge-row .crs-tag-mini{padding:2px 6px;border-radius:2px;font-size:9.5px;font-weight:700;background:#e8f4fd;color:#5a9bd4;}
 .crs-badge-row .crs-tag-mini.pink{background:#f797b5;color:#fff;}
 .crs-badge-row .crs-tag-mini.green{background:#76c893;color:#fff;}
+.crs-badge-row .crs-tag-mini.orange{background:#f7946d;color:#fff;}
+.crs-badge-row .crs-tag-mini.purple{background:#a78bfa;color:#fff;}
 .crs-actions{display:flex !important;order:1;margin:4px 0 5px !important;gap:4px !important;}
 .crs-act{height:25px !important;border-radius:3px !important;font-size:10px !important;background:#fff !important;border:1px solid #e4d8da !important;color:#1e1a1b !important;}
 </style>
@@ -3638,6 +3640,28 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
             sp.textContent = pt;
             row.appendChild(sp);
           });
+        }
+        var crsTxt = (card.querySelector('.crs-course') && card.querySelector('.crs-course').textContent) || '';
+        var kwRules = [
+          [/1:1/, '1:1밀착', 'orange'],
+          [/창업/, '창업반', 'purple'],
+          [/실무|테크닉|데모/, '실무중심', ''],
+          [/원데이/, '원데이', 'orange'],
+          [/소수|4:1/, '소수정예', 'pink'],
+          [/단과|정규|종합반/, '정규·단과', ''],
+          [/연습실/, '연습실', 'green'],
+          [/자격증|국가/, '자격증', 'purple'],
+          [/모집/, '모집중', 'orange']
+        ];
+        var addedKw = 0;
+        for (var r = 0; r < kwRules.length && addedKw < 3; r++) {
+          if (kwRules[r][0].test(crsTxt)) {
+            var ks = document.createElement('span');
+            ks.className = 'crs-tag-mini' + (kwRules[r][2] ? ' ' + kwRules[r][2] : '');
+            ks.textContent = kwRules[r][1];
+            row.appendChild(ks);
+            addedKw++;
+          }
         }
         if (row.children.length) {
           var acts = card.querySelector('.crs-actions');
