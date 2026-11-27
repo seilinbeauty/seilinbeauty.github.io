@@ -9712,19 +9712,26 @@ window.창고읽기 = function(url){
     if (t && t.contains(e.target)) { e.preventDefault(); e.stopPropagation(); }
   }, true);
 
-  btn.addEventListener('click', function(){
-    editing = !editing;
-    document.body.style.userSelect = editing ? 'none' : '';
-    btn.textContent = editing ? '✅ 편집 끝내기' : '🎨 다이아 섹션';
-    btn.style.background = editing ? '#16a34a' : '#d55576';
-    undo.style.display = editing ? '' : 'none';
+  function setEditing(v){
+    editing = v;
+    document.body.style.userSelect = v ? 'none' : '';
+    btn.textContent = v ? '✅ 편집 끝내기' : '🎨 다이아 섹션';
+    btn.style.background = v ? '#16a34a' : '#d55576';
+    undo.style.display = v ? '' : 'none';
     ITEMS.forEach(function(it){
       var el = document.querySelector(it[2]); if (!el) return;
-      if (editing) { el.style.outline = '1.5px dashed rgba(213,85,118,.55)'; el.style.outlineOffset = '2px'; }
+      if (v) { el.style.outline = '1.5px dashed rgba(213,85,118,.55)'; el.style.outlineOffset = '2px'; }
       else { el.style.outline = ''; el.style.outlineOffset = ''; }
     });
     setup();
-  });
+  }
+  btn.addEventListener('click', function(){ setEditing(!editing); });
+
+  /* 운영센터의 다이아 섹션 탭에서 불러오면 바로 편집 모드 */
+  if (location.search.indexOf('edit=1') > -1) {
+    bar.style.display = 'none';
+    window.addEventListener('load', function(){ setEditing(true); });
+  }
 
   undo.addEventListener('click', function(){
     cfg = {};

@@ -162,29 +162,18 @@
     ['search', '검색창'],
     ['banner', '상단 소개 배너']
   ];
-  function loadW(){
-    try { return JSON.parse(localStorage.getItem(WKEY)) || {}; } catch(e){ return {}; }
-  }
-  var wcur = loadW();
   var wrap = document.createElement('div');
-  wrap.className = 'sn'; wrap.style.marginTop = '0';
-  var html = '<div class="sn-h"><span>🖼 다이아 섹션</span></div>' +
-    '<div class="sn-d">상단(다이아 월드) 요소를 좌우·상하로 조금씩 옮겨 자리를 맞출 수 있어요. 저장하면 다이아 커뮤니티 화면에 그대로 적용됩니다.</div>';
-  WITEMS.forEach(function(it){
-    var k = it[0], label = it[1];
-    var v = wcur[k] || { x: 0, y: 0 };
-    html += '<div class="sn-box">' +
-      '<div class="sn-bt">' + label + '</div>' +
-      '<div class="sn-row"><div class="sn-top"><span>좌우</span><span class="sn-val" id="wv_x_' + k + '">' + (v.x || 0) + 'px</span></div>' +
-      '<input type="range" id="w_x_' + k + '" min="-200" max="200" step="1" value="' + (v.x || 0) + '"></div>' +
-      '<div class="sn-row"><div class="sn-top"><span>상하</span><span class="sn-val" id="wv_y_' + k + '">' + (v.y || 0) + 'px</span></div>' +
-      '<input type="range" id="w_y_' + k + '" min="-140" max="140" step="1" value="' + (v.y || 0) + '"></div>' +
-      '</div>';
-  });
-  html += '<div class="sn-acts"><span class="sn-msg" id="w_msg"></span>' +
-    '<button type="button" class="sn-reset" id="w_reset">전체 0으로</button>' +
-    '<button type="button" class="sn-save" id="w_save">배치 저장</button></div>';
-  wrap.innerHTML = html;
+  wrap.className = 'sn';
+  wrap.style.marginTop = '0';
+  wrap.innerHTML = '<div class="sn-h"><span>🖼 다이아 섹션</span></div>' +
+    '<div class="sn-d">아래에 다이아 커뮤니티 화면이 그대로 떠 있습니다. 요소를 마우스로 끌어 옮기면 바로 저장되고, 다이아 커뮤니티를 새로고침하면 그 자리에 있습니다.</div>' +
+    '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;">' +
+      '<button type="button" class="sn-reset" id="w_reset">전체 원래대로</button>' +
+      '<span class="sn-msg" id="w_msg" style="margin-left:auto;"></span>' +
+    '</div>' +
+    '<div style="margin-top:10px;border:1px solid #eee3e8;border-radius:12px;overflow:hidden;background:#fff;">' +
+      '<iframe id="w_frame" src="dia.html?edit=1" style="display:block;width:100%;height:78vh;border:0;"></iframe>' +
+    '</div>';
 
   var btn2 = nav.querySelector('.ops-nav-item[data-bannertab]');
   if (!btn2) return;
@@ -196,36 +185,11 @@
   sec2.appendChild(wrap);
   host.appendChild(sec2);
 
-  WITEMS.forEach(function(it){
-    var k = it[0];
-    ['x', 'y'].forEach(function(ax){
-      var el = document.getElementById('w_' + ax + '_' + k);
-      if (!el) return;
-      el.addEventListener('input', function(){
-        if (!wcur[k]) wcur[k] = { x: 0, y: 0 };
-        wcur[k][ax] = parseInt(el.value, 10) || 0;
-        var vl = document.getElementById('wv_' + ax + '_' + k);
-        if (vl) vl.textContent = wcur[k][ax] + 'px';
-      });
-    });
-  });
-  document.getElementById('w_save').addEventListener('click', function(){
-    try { localStorage.setItem(WKEY, JSON.stringify(wcur)); } catch(e){}
-    document.getElementById('w_msg').textContent = '저장 완료! 다이아 커뮤니티 새로고침 시 적용됩니다.';
-  });
   document.getElementById('w_reset').addEventListener('click', function(){
-    wcur = {};
-    WITEMS.forEach(function(it){
-      var k = it[0];
-      ['x', 'y'].forEach(function(ax){
-        var el = document.getElementById('w_' + ax + '_' + k);
-        if (el) el.value = 0;
-        var vl = document.getElementById('wv_' + ax + '_' + k);
-        if (vl) vl.textContent = '0px';
-      });
-    });
     try { localStorage.setItem(WKEY, '{}'); } catch(e){}
-    document.getElementById('w_msg').textContent = '전체 0으로 되돌렸어요. 화면을 새로고침해 주세요.';
+    var fr = document.getElementById('w_frame');
+    if (fr) fr.src = 'dia.html?edit=1&r=' + Date.now();
+    document.getElementById('w_msg').textContent = '원래 자리로 되돌렸어요.';
   });
 
   // 다른 탭과 상호 전환 연결
