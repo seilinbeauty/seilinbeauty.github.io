@@ -168,7 +168,7 @@
   var wcur = loadW();
   var wrap = document.createElement('div');
   wrap.className = 'sn'; wrap.style.marginTop = '0';
-  var html = '<div class="sn-h"><span>🖼 다이아 홈페이지 섹션</span></div>' +
+  var html = '<div class="sn-h"><span>🖼 다이아 섹션</span></div>' +
     '<div class="sn-d">상단(다이아 월드) 요소를 좌우·상하로 조금씩 옮겨 자리를 맞출 수 있어요. 저장하면 다이아 커뮤니티 화면에 그대로 적용됩니다.</div>';
   WITEMS.forEach(function(it){
     var k = it[0], label = it[1];
@@ -188,7 +188,7 @@
 
   var btn2 = document.createElement('button');
   btn2.type = 'button'; btn2.className = 'ops-nav-item'; btn2.setAttribute('data-bannertab', '1');
-  btn2.textContent = '🖼 다이아 홈페이지 섹션';
+  btn2.textContent = '🖼 다이아 섹션';
   nav.appendChild(btn2);
   var sec2 = document.createElement('div');
   sec2.id = 'ops-diaworld'; sec2.style.display = 'none';
