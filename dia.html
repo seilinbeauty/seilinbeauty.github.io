@@ -4114,11 +4114,13 @@ window.창고읽기 = function(url){
                   var linkedIg = '';
                   try{ linkedIg = localStorage.getItem('dia_sns_linked_ig') || ''; }catch(_e){}
                   var sm = 회원찾기(saved.n) || 회원찾기(saved.i || '') || (linkedIg ? 회원찾기(linkedIg) : null);
-                  if(!sm && linkedIg){
+                  if(!sm && (linkedIg || (saved && saved.n))){
                     var _jts = 0;
                     try{ _jts = Number(localStorage.getItem('dia_sns_joined_ts') || 0); }catch(_e){}
                     var _isNew1d = !_jts || (Date.now() - _jts) < 86400000;
-                    sm = { n: linkedIg, no: 0, r: '미상', c: '뷰티', o: _isNew1d ? '신규회원' : '일반회원', i: linkedIg, b: 0, l: 0, p: 0, d: 0, w: [-1, -1, -1, -1, -1, -1, -1], mc: 0, rk: 0, lw: 0, tot: 0, sk: 0, nw: _isNew1d ? 1 : 0, vl: 0, vlt: '', pl: 0, pk: '', pr: '', pd: '' };
+                    var _nick = (saved && saved.n) ? saved.n : linkedIg;
+                    var _ig = linkedIg || (saved && saved.i) || (/^[a-z0-9._]+$/i.test(_nick) ? _nick : '');
+                    sm = { n: _nick, no: 0, r: '미상', c: '뷰티', o: _isNew1d ? '신규회원' : '일반회원', i: _ig, b: 0, l: 0, p: 0, d: 0, w: [-1, -1, -1, -1, -1, -1, -1], mc: 0, rk: 0, lw: 0, tot: 0, sk: 0, nw: _isNew1d ? 1 : 0, vl: 0, vlt: '', pl: 0, pk: '', pr: '', pd: '' };
                   }
                   if(sm){
                     로그인저장(sm);
