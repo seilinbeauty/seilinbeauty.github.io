@@ -65,6 +65,14 @@
   .mp-extra b{color:var(--ink);}
 
   .mp-links{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .mp-shop-list{display:flex;flex-direction:column;gap:10px;}
+  .mp-shop-item{display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fff;}
+  .mp-shop-thumb{width:54px;height:68px;border-radius:6px;object-fit:cover;background:#f5f3f4;flex-shrink:0;}
+  .mp-shop-info{flex:1;min-width:0;}
+  .mp-shop-title{font-size:13.5px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .mp-shop-meta{font-size:12px;color:var(--ink-soft);margin-top:3px;}
+  .mp-shop-del{border:1px solid #e6d2d7;background:#fff;color:#b84866;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;}
+  .mp-shop-add{font-size:12px;font-weight:800;color:#fff;background:#1e1a1b;padding:5px 11px;border-radius:999px;}
   .mp-lbtn{display:flex;align-items:center;justify-content:center;gap:6px;height:44px;border-radius:12px;
     border:1.5px solid var(--line);background:#fff;font-size:13px;font-weight:800;color:var(--ink);}
   .mp-lbtn:hover{border-color:#dcb9c4;background:#fdf7f9;}
@@ -113,6 +121,10 @@
   <div id="mpBody" style="display:none;">
     <section class="mp-card" id="mpProfCard"></section>
     <section class="mp-card" id="mpActCard"></section>
+    <section class="mp-card" id="mpShopCard">
+      <div class="mp-hd">내가 올린 샵매물 <a href="dia-shop-write.html" class="mp-shop-add">+ 매물 등록</a></div>
+      <div id="mpShopList" class="mp-shop-list"><div style="font-size:12.5px;color:#9c9194;">불러오는 중...</div></div>
+    </section>
     <section class="mp-links">
       <a class="mp-lbtn" href="dia-my-course.html">🎓 내 수강</a>
       <a class="mp-lbtn" href="dia-chat.html">💬 채팅</a>
@@ -240,6 +252,63 @@
       (m.sk ? '<div>연속 참여 <b>' + m.sk + '일</b></div>' : '') +
       (m.no ? '<div>회원 번호 <b>' + esc(m.no) + '번</b></div>' : '') +
     '</div>';
+
+  (function loadMyShops(){
+    var FS_SHOP_URL = 'https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/course_views/shop_listings_v1';
+    var listEl = document.getElementById('mpShopList');
+    var keys = [rawMem, m.i, m.n, linkedIg].filter(Boolean).map(norm);
+    function isMine(it){
+      if (!it || !it.authorId) return false;
+      var a = norm(it.authorId);
+      if (keys.indexOf(a) >= 0) return true;
+      try {
+        var p = JSON.parse(it.authorId);
+        if (p && (keys.indexOf(norm(p.i)) >= 0 || keys.indexOf(norm(p.n)) >= 0)) return true;
+      } catch(e){}
+      return false;
+    }
+    function drawMyShops(allArr){
+      var mine = allArr.filter(isMine);
+      if (!mine.length) {
+        listEl.innerHTML = '<div style="font-size:12.5px;color:#9c9194;padding:8px 0;">아직 등록한 샵매물이 없습니다.</div>';
+        return;
+      }
+      listEl.innerHTML = mine.map(function(it){
+        var thumb = (it.imgs && it.imgs[0]) ? '<img class="mp-shop-thumb" src="'+esc(it.imgs[0])+'">' : '<div class="mp-shop-thumb"></div>';
+        var price = (it.depTxt || '협의') + ' / 월 ' + (it.rentTxt || '협의');
+        return '<div class="mp-shop-item">' +
+          thumb +
+          '<div class="mp-shop-info">' +
+            '<a href="dia-shop.html" class="mp-shop-title">['+esc(it.area)+'/'+esc(it.kind)+'] '+esc(it.title)+'</a>' +
+            '<div class="mp-shop-meta">'+esc(price)+' · '+esc(it.at||'')+'</div>' +
+          '</div>' +
+          '<button type="button" class="mp-shop-del" data-id="'+esc(it.id)+'">삭제</button>' +
+        '</div>';
+      }).join('');
+      listEl.querySelectorAll('.mp-shop-del').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          if (!confirm('이 매물을 삭제할까요?')) return;
+          var tid = btn.getAttribute('data-id');
+          var nextArr = allArr.filter(function(x){ return x && x.id !== tid; });
+          fetch(FS_SHOP_URL, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fields: { items: { stringValue: JSON.stringify(nextArr) } } })
+          }).then(function(){ drawMyShops(nextArr); });
+        });
+      });
+    }
+    fetch(FS_SHOP_URL + '?t=' + Date.now()).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+      var arr = [];
+      try{
+        var raw = d && d.fields && d.fields.items && d.fields.items.stringValue;
+        arr = raw ? JSON.parse(raw) : [];
+      }catch(e){}
+      drawMyShops(Array.isArray(arr) ? arr : []);
+    }).catch(function(){
+      listEl.innerHTML = '<div style="font-size:12.5px;color:#9c9194;">등록 매물을 불러오지 못했습니다.</div>';
+    });
+  })();
 })();
 </script>
 </body>

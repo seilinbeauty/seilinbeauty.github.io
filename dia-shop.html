@@ -225,22 +225,7 @@
   </div>
 </header>
 
-<div class="headline">
-  <div class="wrap">
-    <div class="shop-banner">
-      <div class="sb-left">
-        <span class="sb-pill"><i></i>BEAUTY SHOP MARKET</span>
-        <h1>샵매물</h1>
-        <p>샵인샵 · 샵매매 · 단독룸 자리, 사진으로 꼼꼼하게 골라보세요.</p>
-      </div>
-      <div class="sb-right">
-        <div class="sb-tags"><span>#속눈썹</span><span>#피부·왁싱</span><span>#네일</span><span>#단독룸</span></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<main class="wrap">
+<main class="wrap" style="padding-top:14px;">
 
   <section id="dev-soon" style="display:none;">
     <div class="ico">🛠️</div>
@@ -289,6 +274,9 @@
     </div>
 
     <div class="list" id="shop-items"></div>
+    <div id="shop-more-wrap" style="text-align:center;padding:8px 0 44px;display:none;">
+      <button type="button" id="shop-more" style="height:42px;padding:0 26px;border-radius:999px;border:1px solid #e4d8da;background:#fff;color:#1e1a1b;font:inherit;font-size:13px;font-weight:800;cursor:pointer;">매물 더 보기</button>
+    </div>
     <div class="empty" id="shop-empty" style="display:none;">
       조건에 맞는 매물이 없습니다.<br>지역이나 가격 조건을 넓혀 보세요.
     </div>
@@ -312,14 +300,17 @@
   <div class="dbox" id="dbox"></div>
 </div>
 
-<script src="dia-shop-data.js?v=3"></script>
+<script src="dia-shop-data.js?v=4"></script>
 <script src="dia-staff.js?v=5" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   var AREAS = ['전체','서울','경기·인천','부산·울산','대구·경북','대전·충청','광주·전라','강원','제주','온라인'];
-  var KINDS = [['','전체'],['샵매매','샵매매'],['샵인샵','샵인샵'],['임대','자리 임대']];
+  var KINDS = [['','전체'],['샵매매','샵매매'],['샵인샵','샵인샵'],['베드쉐어','베드쉐어'],['임대','자리 임대']];
   var JOBS  = ['전체','속눈썹펌','속눈썹연장','네일','반영구','왁싱','피부','토탈뷰티','두피·탈모'];
+  var FS_SHOP_URL = 'https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/course_views/shop_listings_v1';
+  var remoteShopItems = [];
 
+  var visibleCount = 24;
   var LS = 'dia_shop_items_v1';
   var state = { area:'전체', kind:'', type:'', job:'전체', depMax:null, rentMax:null, keyMax:null, q:'', sort:'new' };
   var openPanel = '';
@@ -469,25 +460,34 @@ document.addEventListener('DOMContentLoaded', function(){
   });
   document.getElementById('shop-add').addEventListener('click', function(){
     if (!loggedIn()) { gate.setAttribute('data-open','1'); return; }
-    var title = prompt('매물 이름 (예: 홍대 속눈썹펌 샵인샵 자리)');
-    if (!title) return;
-    var kind = prompt('종류 (샵매매 · 샵인샵 · 임대)', '샵인샵') || '샵인샵';
-    var type = prompt('내놔요 / 구해요', '내놔요') || '내놔요';
-    var area = prompt('지역 (서울 · 경기·인천 · 부산·울산 · 대구·경북 · 대전·충청 · 광주·전라 · 강원 · 제주 · 온라인)', '서울') || '서울';
-    var job = prompt('업종 (속눈썹펌 · 네일 · 반영구 · 왁싱 · 피부 · 토탈뷰티 · 두피·탈모)', '속눈썹펌') || '속눈썹펌';
-    var dep = Number(prompt('보증금 (만원, 숫자만)', '1000') || 0);
-    var rent = Number(prompt('월세 (만원, 숫자만)', '80') || 0);
-    var key = Number(prompt('권리금 (만원, 없으면 0)', '0') || 0);
-    var a = load();
-    a.unshift({ id:'s'+Date.now(), title:title, kind:kind, type:(type.indexOf('구해')>=0?'want':'give'),
-      area:area, job:job, dep:dep, rent:rent, key:key, at:new Date().toISOString().slice(0,10) });
-    save(a); render();
+    location.href = 'dia-shop-write.html';
   });
+
+  function loadRemoteShop(){
+    fetch(FS_SHOP_URL + '?t=' + Date.now()).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+      try{
+        var raw = d && d.fields && d.fields.items && d.fields.items.stringValue;
+        var arr = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(arr)) { remoteShopItems = arr; render(); }
+      }catch(e){}
+    }).catch(function(){});
+  }
 
   function allItems(){
     var base = Array.isArray(window.DIA_SHOP_LISTINGS) ? window.DIA_SHOP_LISTINGS : [];
-    var mine = load().filter(function(x){ return x && !/^ex[1-6]$/.test(String(x.id||'')); });
-    return mine.concat(base);
+    var rawMine = load();
+    var mine = rawMine.filter(function(x){
+      return x && !/^ex[1-6]$/.test(String(x.id||'')) && Array.isArray(x.imgs) && x.imgs.length > 0;
+    });
+    if (mine.length !== rawMine.length) save(mine);
+    var seen = {};
+    var merged = [];
+    remoteShopItems.concat(mine).concat(base).forEach(function(it){
+      if (!it || !it.id || seen[it.id]) return;
+      seen[it.id] = 1;
+      merged.push(it);
+    });
+    return merged;
   }
 
   function render(){
@@ -515,9 +515,21 @@ document.addEventListener('DOMContentLoaded', function(){
     document.getElementById('shop-n').textContent = '매물 ' + a.length + '건';
 
     var box = document.getElementById('shop-items'), empty = document.getElementById('shop-empty');
-    if (!a.length) { box.innerHTML=''; empty.style.display=''; return; }
+    var moreWrap = document.getElementById('shop-more-wrap');
+    var moreBtn = document.getElementById('shop-more');
+    if (!a.length) { box.innerHTML=''; empty.style.display=''; if (moreWrap) moreWrap.style.display='none'; return; }
     empty.style.display = 'none';
-    box.innerHTML = a.map(function(it){
+    var sliced = a.slice(0, visibleCount);
+    if (moreWrap && moreBtn) {
+      if (a.length > sliced.length) {
+        moreWrap.style.display = '';
+        moreBtn.textContent = '매물 더 보기 (' + sliced.length + ' / ' + a.length + ')';
+        moreBtn.onclick = function(){ visibleCount += 24; render(); };
+      } else {
+        moreWrap.style.display = 'none';
+      }
+    }
+    box.innerHTML = sliced.map(function(it){
       var imgs = Array.isArray(it.imgs) && it.imgs.length ? it.imgs : [];
       var cover = imgs[0] || '';
       var priceStr = (it.depTxt || man(it.dep)) + ' / 월 ' + (it.rentTxt || man(it.rent));
@@ -537,7 +549,7 @@ document.addEventListener('DOMContentLoaded', function(){
       var swColors = (Array.isArray(it.colors) && it.colors.length) ? it.colors : (it.type === 'give' ? ['#f5e5e2','#d55576','#2b2527'] : ['#e4eef8','#6d96c4','#2b2527']);
       return '<article class="item" data-id="'+esc(it.id)+'">'+
         '<div class="thumb">'+
-          (cover ? '<img src="'+esc(cover)+'" alt="'+esc(it.title)+'" loading="lazy">' : '')+
+          (cover ? '<img src="'+esc(cover)+'" alt="'+esc(it.title)+'" loading="lazy" decoding="async">' : '')+
         '</div>'+
         '<div class="item-info">'+
           '<div class="item-swatches">'+swColors.map(function(c){ return '<span style="background:'+c+'"></span>'; }).join('')+'</div>'+
@@ -603,7 +615,7 @@ document.addEventListener('DOMContentLoaded', function(){
     dmodal.setAttribute('data-open', '1');
   }
 
-  updatePills(); render();
+  updatePills(); render(); loadRemoteShop();
   (function(){
     var ab = document.getElementById('shopAuthBtn');
     var jb = document.getElementById('shopJoinBtn');

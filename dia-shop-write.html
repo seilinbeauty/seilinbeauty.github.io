@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>매물 등록 — 다이아 커뮤니티</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#ffffff;color:#1e1a1b;font-family:'Pretendard',-apple-system,sans-serif;}
+  .top{position:sticky;top:0;z-index:20;background:#f5e5e2;border-bottom:1px solid #eccfc9;height:52px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;}
+  .top a.brand{font-size:15px;font-weight:900;letter-spacing:.5px;color:#000;text-decoration:none;}
+  .top .back{font-size:12.5px;font-weight:700;color:#523e42;text-decoration:none;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.7);}
+  .wrap{max-width:640px;margin:0 auto;padding:24px 16px 80px;}
+  h1{margin:0 0 6px;font-size:22px;font-weight:800;letter-spacing:-.03em;}
+  .sub{margin:0 0 22px;font-size:13px;color:#736569;}
+  .gate{border:1px solid #eccfc9;background:#fff8f7;border-radius:16px;padding:30px 20px;text-align:center;}
+  .gate h2{margin:8px 0 6px;font-size:17px;font-weight:800;}
+  .gate p{margin:0 0 18px;font-size:13px;color:#6b5b5f;line-height:1.55;}
+  .gate a{display:inline-block;padding:11px 22px;border-radius:999px;background:#1e1a1b;color:#fff;font-size:13px;font-weight:800;text-decoration:none;}
+  .card{border:1px solid #eee4e6;border-radius:16px;padding:20px;background:#fff;display:flex;flex-direction:column;gap:16px;}
+  .fg{display:flex;flex-direction:column;gap:6px;}
+  .fg label{font-size:12.5px;font-weight:800;color:#2b2325;}
+  .fg label span{font-weight:600;color:#b84866;margin-left:3px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  input[type="text"],input[type="number"],select,textarea{width:100%;padding:11px 12px;border:1px solid #e4d8da;border-radius:10px;font:inherit;font-size:13.5px;background:#fff;color:#1e1a1b;outline:none;}
+  input:focus,select:focus,textarea:focus{border-color:#d55576;}
+  textarea{min-height:130px;resize:vertical;line-height:1.6;}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;}
+  .seg button{padding:8px 14px;border-radius:999px;border:1px solid #e4d8da;background:#fff;color:#5d4e52;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;}
+  .seg button.on{background:#1e1a1b;border-color:#1e1a1b;color:#fff;}
+  .photo-box{border:1.5px dashed #dfc8cd;border-radius:12px;padding:16px;text-align:center;background:#fdfafb;cursor:pointer;}
+  .photo-box input{display:none;}
+  .photo-box p{margin:0;font-size:12.5px;font-weight:700;color:#6c5c60;}
+  .photo-box small{display:block;margin-top:4px;font-size:11px;color:#99898d;}
+  .previews{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px;}
+  .pv-item{position:relative;aspect-ratio:3/4;border-radius:8px;overflow:hidden;border:1px solid #eee;background:#f5f3f4;}
+  .pv-item img{width:100%;height:100%;object-fit:cover;display:block;}
+  .pv-item button{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.65);color:#fff;font-size:12px;cursor:pointer;line-height:1;}
+  .submit-btn{margin-top:6px;height:46px;border:0;border-radius:12px;background:#d55576;color:#fff;font:inherit;font-size:14.5px;font-weight:800;cursor:pointer;}
+  .submit-btn:disabled{opacity:.5;cursor:not-allowed;}
+  .msg{font-size:12.5px;font-weight:700;text-align:center;min-height:18px;color:#b84866;}
+  @media (max-width:540px){
+    .row2,.row3{grid-template-columns:1fr;}
+    .previews{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <a href="dia.html" class="brand">DIA COMMUNITY</a>
+  <a href="dia-shop.html" class="back">← 샵매물 목록</a>
+</header>
+
+<main class="wrap">
+  <h1>샵매물 등록</h1>
+  <p class="sub">로그인한 회원만 매물을 올릴 수 있으며, 등록한 글은 마이페이지에서 관리할 수 있어요.</p>
+
+  <div id="loginGate" class="gate" style="display:none;">
+    <div style="font-size:28px;">🔐</div>
+    <h2>로그인이 필요합니다</h2>
+    <p>매물을 올리려면 먼저 다이아 커뮤니티에 로그인해 주세요.</p>
+    <a href="dia-preview-login.html">로그인하러 가기</a>
+  </div>
+
+  <form id="writeForm" class="card" style="display:none;">
+    <div class="fg">
+      <label>매물 사진 <span>*최대 4장</span></label>
+      <label class="photo-box" for="photoInput">
+        <p>📷 사진 선택하기 (샵 내부 · 룸 · 외부)</p>
+        <small>첫 번째 사진이 대표 썸네일로 올라갑니다</small>
+        <input id="photoInput" type="file" accept="image/*" multiple>
+      </label>
+      <div class="previews" id="previews"></div>
+    </div>
+
+    <div class="fg">
+      <label>구분 <span>*</span></label>
+      <div class="seg" id="typeSeg">
+        <button type="button" data-v="give" class="on">내놔요 (양도·임대)</button>
+        <button type="button" data-v="want">구해요</button>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>거래 종류 <span>*</span></label>
+      <div class="seg" id="kindSeg">
+        <button type="button" data-v="샵인샵" class="on">샵인샵</button>
+        <button type="button" data-v="샵매매">샵매매</button>
+        <button type="button" data-v="베드쉐어">베드쉐어</button>
+        <button type="button" data-v="임대">자리 임대</button>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="fg">
+        <label for="fArea">지역 <span>*</span></label>
+        <select id="fArea">
+          <option value="서울">서울</option>
+          <option value="경기·인천">경기·인천</option>
+          <option value="부산·경남">부산·경남</option>
+          <option value="대구·경북">대구·경북</option>
+          <option value="대전·충청">대전·충청</option>
+          <option value="광주·전라">광주·전라</option>
+          <option value="강원">강원</option>
+          <option value="제주">제주</option>
+          <option value="전국">전국</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label for="fJob">업종 <span>*</span></label>
+        <select id="fJob">
+          <option value="속눈썹펌">속눈썹펌</option>
+          <option value="속눈썹연장">속눈썹연장</option>
+          <option value="네일">네일</option>
+          <option value="반영구">반영구</option>
+          <option value="왁싱">왁싱</option>
+          <option value="피부">피부</option>
+          <option value="토탈뷰티">토탈뷰티</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label for="fTitle">매물 제목 <span>*</span></label>
+      <input id="fTitle" type="text" placeholder="예: 강남역 도보 3분 단독룸 샵인샵 구합니다" required>
+    </div>
+
+    <div class="row3">
+      <div class="fg">
+        <label for="fDep">보증금 (만원)</label>
+        <input id="fDep" type="number" min="0" placeholder="예: 300">
+      </div>
+      <div class="fg">
+        <label for="fRent">월세 (만원)</label>
+        <input id="fRent" type="number" min="0" placeholder="예: 65">
+      </div>
+      <div class="fg">
+        <label for="fKey">권리금 (만원)</label>
+        <input id="fKey" type="number" min="0" placeholder="없으면 0">
+      </div>
+    </div>
+
+    <div class="fg">
+      <label for="fBody">상세 내용 (위치 · 시설 · 연락처) <span>*</span></label>
+      <textarea id="fBody" placeholder="역 도보 거리, 평수, 단독룸/주차/사업자 가능 여부, 오픈채팅이나 연락처를 적어주세요." required></textarea>
+    </div>
+
+    <div class="msg" id="msg"></div>
+    <button type="submit" class="submit-btn" id="submitBtn">매물 등록하기</button>
+  </form>
+</main>
+
+<script>
+(function(){
+  var FS_SHOP_URL = 'https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/course_views/shop_listings_v1';
+
+  function getUser(){
+    try{
+      var m = localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak');
+      if (m) return m;
+      if (localStorage.getItem('dia_member') === '1') return 'member';
+    }catch(e){}
+    return '';
+  }
+
+  var user = getUser();
+  if (!user) {
+    document.getElementById('loginGate').style.display = 'block';
+    return;
+  }
+  document.getElementById('writeForm').style.display = 'flex';
+
+  var typeVal = 'give';
+  var kindVal = '샵인샵';
+  var images = [];
+  var colors = ['#f5e5e2','#d55576','#2b2527'];
+
+  function bindSeg(id, cb){
+    var box = document.getElementById(id);
+    box.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click', function(){
+        box.querySelectorAll('button').forEach(function(x){ x.classList.remove('on'); });
+        b.classList.add('on');
+        cb(b.getAttribute('data-v'));
+      });
+    });
+  }
+  bindSeg('typeSeg', function(v){ typeVal = v; });
+  bindSeg('kindSeg', function(v){ kindVal = v; });
+
+  function renderPreviews(){
+    var pv = document.getElementById('previews');
+    pv.innerHTML = images.map(function(src, i){
+      return '<div class="pv-item"><img src="'+src+'"><button type="button" data-i="'+i+'">×</button></div>';
+    }).join('');
+    pv.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click', function(){
+        images.splice(Number(b.getAttribute('data-i')), 1);
+        renderPreviews();
+      });
+    });
+  }
+
+  function extractColorsFromImg(img){
+    try{
+      var c = document.createElement('canvas');
+      c.width = 24; c.height = 24;
+      var ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0, 24, 24);
+      var d = ctx.getImageData(0,0,24,24).data;
+      var pts = [[4,4],[12,12],[20,18]];
+      colors = pts.map(function(p){
+        var idx = (p[1]*24 + p[0])*4;
+        var hex = function(n){ return ('0'+n.toString(16)).slice(-2); };
+        return '#' + hex(d[idx]) + hex(d[idx+1]) + hex(d[idx+2]);
+      });
+    }catch(e){}
+  }
+
+  document.getElementById('photoInput').addEventListener('change', function(e){
+    var files = Array.prototype.slice.call(e.target.files || []);
+    if (!files.length) return;
+    files.slice(0, 4 - images.length).forEach(function(file, idx){
+      var reader = new FileReader();
+      reader.onload = function(ev){
+        var im = new Image();
+        im.onload = function(){
+          var maxW = 720;
+          var scale = im.width > maxW ? (maxW / im.width) : 1;
+          var w = Math.round(im.width * scale);
+          var h = Math.round(im.height * scale);
+          var cv = document.createElement('canvas');
+          cv.width = w; cv.height = h;
+          cv.getContext('2d').drawImage(im, 0, 0, w, h);
+          if (images.length === 0 && idx === 0) extractColorsFromImg(im);
+          images.push(cv.toDataURL('image/jpeg', 0.72));
+          renderPreviews();
+        };
+        im.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  });
+
+  function manTxt(raw){
+    if (raw === '' || raw === null || isNaN(Number(raw))) return '협의';
+    var v = Number(raw);
+    if (v <= 0) return '없음';
+    if (v >= 10000) {
+      var e = Math.floor(v/10000), r = v%10000;
+      return r ? (e + '억 ' + r.toLocaleString('ko-KR') + '만') : (e + '억');
+    }
+    return v.toLocaleString('ko-KR') + '만';
+  }
+
+  document.getElementById('writeForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var msg = document.getElementById('msg');
+    var btn = document.getElementById('submitBtn');
+    if (!images.length) { msg.textContent = '매물 사진을 1장 이상 첨부해 주세요.'; return; }
+    var title = document.getElementById('fTitle').value.trim();
+    var body = document.getElementById('fBody').value.trim();
+    if (!title || !body) { msg.textContent = '제목과 상세 내용을 입력해 주세요.'; return; }
+
+    btn.disabled = true;
+    msg.textContent = '매물을 등록하는 중...';
+
+    var depRaw = document.getElementById('fDep').value.trim();
+    var rentRaw = document.getElementById('fRent').value.trim();
+    var keyRaw = document.getElementById('fKey').value.trim();
+
+    var item = {
+      id: 'u_' + Date.now(),
+      authorId: user,
+      title: title,
+      type: typeVal,
+      kind: kindVal,
+      area: document.getElementById('fArea').value,
+      job: document.getElementById('fJob').value,
+      dep: depRaw ? Number(depRaw) : 0,
+      depTxt: manTxt(depRaw),
+      rent: rentRaw ? Number(rentRaw) : 0,
+      rentTxt: manTxt(rentRaw),
+      key: keyRaw ? Number(keyRaw) : 0,
+      keyTxt: keyRaw === '' ? '없음' : manTxt(keyRaw),
+      at: new Date().toISOString().slice(0,10),
+      ts: Date.now(),
+      summary: body.replace(/\s+/g,' ').slice(0, 160),
+      body: body,
+      imgs: images,
+      colors: colors
+    };
+
+    fetch(FS_SHOP_URL + '?t=' + Date.now()).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+      var arr = [];
+      try{
+        var raw = d && d.fields && d.fields.items && d.fields.items.stringValue;
+        arr = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(arr)) arr = [];
+      }catch(ex){ arr = []; }
+      arr.unshift(item);
+      return fetch(FS_SHOP_URL, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: { items: { stringValue: JSON.stringify(arr) } } })
+      });
+    }).then(function(r){
+      if (!r || !r.ok) throw new Error('save_failed');
+      location.href = 'dia-shop.html';
+    }).catch(function(){
+      btn.disabled = false;
+      msg.textContent = '저장 중 오류가 발생했습니다. 사진 용량을 줄이거나 다시 시도해 주세요.';
+    });
+  });
+})();
+</script>
+</body>
+</html>
