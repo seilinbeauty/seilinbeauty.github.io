@@ -10105,6 +10105,7 @@ window.창고읽기 = function(url){
 })();
 </script>
 
+<style>@media(min-width:881px){#moShortcutBtn{display:none !important;}}@media(max-width:880px){#moShortcutBtn{display:block !important;}}</style>
 <div id="diaShortcutModal" hidden style="position:fixed;inset:0;z-index:9500;background:rgba(20,12,16,.45);display:none;align-items:center;justify-content:center;padding:16px;">
   <div style="background:#fff;border-radius:16px;max-width:340px;width:100%;padding:20px 18px;box-shadow:0 16px 40px rgba(0,0,0,.2);text-align:center;font-family:inherit;">
     <div style="font-size:16px;font-weight:800;color:#212529;">⭐ 바로가기 · 북마크 추가</div>
@@ -10177,7 +10178,7 @@ window.창고읽기 = function(url){
     var hero = document.querySelector('.dia-hero-in');
     if (hero && !document.getElementById('moShortcutBtn')) {
       var mb = document.createElement('button');
-      mb.type = 'button'; mb.id = 'moShortcutBtn'; mb.className = 'only-mo';
+      mb.type = 'button'; mb.id = 'moShortcutBtn';
       mb.innerHTML = '⭐ 홈 화면 추가 · 북마크';
       mb.style.cssText = 'width:100%;margin-top:6px;padding:7px 10px;border-radius:999px;border:1px solid #f0d7e0;background:#fff9fb;color:#b35172;font-size:11.5px;font-weight:800;cursor:pointer;font-family:inherit;text-align:center;';
       mb.addEventListener('click', openShortcutGuide);
