@@ -3,138 +3,213 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>다이아 섹션 1:1 편집기 · 세이린뷰티</title>
+  <title>다이아 사이트 에디터 · 아임웹·카페24 스타일</title>
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
   <style>
     * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; height: 100%; font-family: 'Pretendard', -apple-system, sans-serif; background: #f3eff1; overflow: hidden; }
+    html, body { margin: 0; padding: 0; height: 100%; font-family: 'Pretendard', -apple-system, sans-serif; background: #ede9eb; overflow: hidden; }
     .ed-top {
-      position: fixed; top: 0; left: 0; right: 0; min-height: 54px; z-index: 100;
-      background: #fff; border-bottom: 1px solid #e9dde2;
-      display: flex; align-items: center; gap: 10px; padding: 8px 16px; flex-wrap: wrap;
-      box-shadow: 0 2px 10px rgba(80, 40, 55, .06);
+      height: 52px; background: #fff; border-bottom: 1px solid #e5d8dd;
+      display: flex; align-items: center; gap: 8px; padding: 0 14px;
+      box-shadow: 0 2px 8px rgba(60, 30, 40, .05); position: relative; z-index: 20;
     }
     .ed-back {
-      text-decoration: none; font-size: 12.5px; font-weight: 800; color: #6e5f66;
-      padding: 6px 11px; border-radius: 8px; border: 1px solid #e5d8dd; background: #faf7f8;
+      text-decoration: none; font-size: 12px; font-weight: 800; color: #5f5157;
+      padding: 6px 10px; border-radius: 7px; border: 1px solid #e2d4d9; background: #faf7f8;
     }
-    .ed-back:hover { background: #f3eaee; }
-    .ed-devs { display: flex; gap: 4px; background: #f6eff2; padding: 3px; border-radius: 9px; }
+    .ed-devs { display: flex; gap: 3px; background: #f4edf0; padding: 3px; border-radius: 8px; }
     .ed-dev {
-      border: 0; background: transparent; color: #7a6870; font-size: 12.5px; font-weight: 800;
-      padding: 6px 12px; border-radius: 7px; cursor: pointer; font-family: inherit;
+      border: 0; background: transparent; color: #7a6870; font-size: 12px; font-weight: 800;
+      padding: 5px 11px; border-radius: 6px; cursor: pointer; font-family: inherit;
     }
     .ed-dev.is-on { background: linear-gradient(90deg,#ef9ab4,#d55576); color: #fff; }
-    .ed-props {
-      display: none; align-items: center; gap: 10px; flex-wrap: wrap;
-      padding: 4px 10px; border-radius: 9px; background: #fff7fa; border: 1px solid #f0dbe3;
-      font-size: 12px; color: #4a3f44;
-    }
-    .ed-props strong { color: #b62d47; }
-    .ed-props label { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; }
-    .ed-props input[type="range"] { width: 72px; accent-color: #d55576; }
-    .ed-props input[type="color"] { width: 24px; height: 22px; border: 1px solid #e0cfd6; border-radius: 4px; padding: 0; cursor: pointer; background: #fff; }
-    .ed-right { margin-left: auto; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .ed-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
     .ed-btn {
-      border: 1px solid #dfd2d7; background: #fff; color: #4a3f44; font-size: 12.5px; font-weight: 800;
-      padding: 7px 12px; border-radius: 8px; cursor: pointer; font-family: inherit;
+      border: 1px solid #dfd2d7; background: #fff; color: #4a3f44; font-size: 12px; font-weight: 800;
+      padding: 6px 11px; border-radius: 7px; cursor: pointer; font-family: inherit; text-decoration: none;
     }
     .ed-btn.is-blue { background: #2563eb; border-color: #2563eb; color: #fff; }
     .ed-save {
-      border: 0; background: linear-gradient(90deg,#ef9ab4,#d55576); color: #fff; font-size: 12.5px; font-weight: 800;
-      padding: 7px 16px; border-radius: 8px; cursor: pointer; font-family: inherit;
+      border: 0; background: linear-gradient(90deg,#ef9ab4,#d55576); color: #fff; font-size: 12px; font-weight: 800;
+      padding: 7px 16px; border-radius: 7px; cursor: pointer; font-family: inherit;
     }
-    .ed-msg { font-size: 12px; font-weight: 800; color: #16a34a; }
+    .ed-msg { font-size: 12px; font-weight: 800; color: #16a34a; margin-right: 4px; }
+
+    .ed-body { display: flex; height: calc(100vh - 52px); width: 100%; }
+    .ed-left {
+      width: 210px; flex: 0 0 210px; background: #fff; border-right: 1px solid #e5d8dd;
+      display: flex; flex-direction: column; overflow-y: auto; padding: 12px 10px; gap: 14px;
+    }
+    .ed-sec-t { font-size: 11px; font-weight: 800; color: #9a8890; letter-spacing: .04em; margin: 0 0 6px 4px; }
+    .ed-widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .ed-wbtn {
+      border: 1px solid #eadce1; background: #fcf9fa; color: #4a3f44; border-radius: 8px;
+      padding: 9px 6px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit; text-align: center;
+    }
+    .ed-wbtn:hover { border-color: #d55576; color: #b62d47; background: #fff4f7; }
+    .ed-layers { display: flex; flex-direction: column; gap: 3px; }
+    .ed-layer {
+      text-align: left; border: 0; background: transparent; padding: 6px 8px; border-radius: 6px;
+      font-size: 12px; font-weight: 700; color: #54464c; cursor: pointer; font-family: inherit;
+    }
+    .ed-layer:hover { background: #f8eff2; color: #b62d47; }
+    .ed-layer.is-on { background: #fdeef3; color: #b62d47; font-weight: 800; }
+
     .ed-stage {
-      position: fixed; top: 54px; left: 0; right: 0; bottom: 0;
-      display: flex; justify-content: center; align-items: stretch;
-      overflow: auto; padding: 0;
+      flex: 1 1 auto; min-width: 0; display: flex; justify-content: center; align-items: stretch;
+      overflow: auto; background: #e8e2e5;
     }
-    .ed-frame {
-      display: block; width: 100%; border: 0; background: #fff; height: 100%; flex: 0 0 auto;
-      box-shadow: 0 0 30px rgba(0,0,0,.08);
+    .ed-frame { display: block; width: 100%; height: 100%; border: 0; background: #fff; flex: 0 0 auto; box-shadow: 0 0 28px rgba(0,0,0,.09); }
+
+    .ed-inspector {
+      width: 240px; flex: 0 0 240px; background: #fff; border-left: 1px solid #e5d8dd;
+      padding: 14px 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
     }
+    .ed-empty { font-size: 12px; color: #8c7b82; line-height: 1.55; background: #faf6f8; padding: 12px; border-radius: 9px; border: 1px dashed #e5d5dc; }
+    .ed-prop-row { display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; font-weight: 700; color: #54464c; }
+    .ed-prop-hd { display: flex; justify-content: space-between; align-items: center; }
+    .ed-prop-row input[type="range"] { width: 100%; accent-color: #d55576; }
+    .ed-colors { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .ed-cbox { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border: 1px solid #eadce1; border-radius: 7px; font-size: 11.5px; font-weight: 700; }
+    .ed-cbox input { width: 26px; height: 22px; border: 0; padding: 0; background: transparent; cursor: pointer; }
+    @media (max-width: 960px) { .ed-left, .ed-inspector { display: none; } }
   </style>
 </head>
 <body>
-  <div class="ed-top" id="edTop">
+  <div class="ed-top">
     <a href="dia-info.html" class="ed-back">← 운영센터</a>
     <div class="ed-devs">
       <button type="button" class="ed-dev is-on" id="d_pc">🖥 PC (1:1)</button>
       <button type="button" class="ed-dev" id="d_mo">📱 모바일 (412px)</button>
     </div>
-    <div class="ed-props" id="d_props">
-      <strong id="dp_name">선택됨</strong>
-      <label>크기 <input id="dp_scale" type="range" min="50" max="200" value="100"> <span id="dp_scale_v">100%</span></label>
-      <label>글씨 <input id="dp_fs" type="range" min="9" max="44" value="14"> <span id="dp_fs_v">기본</span></label>
-      <label>글자 <input id="dp_color" type="color" value="#212529"></label>
-      <label>배경 <input id="dp_bg" type="color" value="#ffffff"></label>
-      <button type="button" class="ed-btn" id="dp_one_reset" style="padding:4px 8px;font-size:11px;">초기화</button>
-    </div>
+    <span style="font-size:11.5px;color:#8a7b82;font-weight:700;">태블릿은 PC 기반 자동 반응형</span>
     <div class="ed-right">
       <span class="ed-msg" id="d_msg"></span>
-      <button type="button" class="ed-btn" id="d_addtxt">T 텍스트 추가</button>
       <button type="button" class="ed-btn" id="d_grid">📐 그리드</button>
-      <button type="button" class="ed-btn" id="d_reset">이 기기 원래대로</button>
-      <button type="button" class="ed-save" id="d_save">💾 저장하기</button>
+      <a href="dia.html" target="_blank" rel="noopener" class="ed-btn">👁 미리보기</a>
+      <button type="button" class="ed-btn" id="d_reset">초기화</button>
+      <button type="button" class="ed-save" id="d_save">💾 게시하기(저장)</button>
     </div>
   </div>
-  <div class="ed-stage" id="edStage">
-    <iframe class="ed-frame" id="d_frame" src="dia.html?edit=1&dev=pc"></iframe>
+  <div class="ed-body">
+    <aside class="ed-left">
+      <div>
+        <div class="ed-sec-t">위젯 추가 (카페24·아임웹)</div>
+        <div class="ed-widgets">
+          <button type="button" class="ed-wbtn" data-add="text">T 텍스트</button>
+          <button type="button" class="ed-wbtn" data-add="btn">⬜ 버튼</button>
+          <button type="button" class="ed-wbtn" data-add="divider">━ 구분선</button>
+        </div>
+      </div>
+      <div>
+        <div class="ed-sec-t">모든 섹션·요소</div>
+        <div class="ed-layers" id="d_layers"></div>
+      </div>
+    </aside>
+    <main class="ed-stage">
+      <iframe class="ed-frame" id="d_frame" src="dia.html?edit=1&dev=pc"></iframe>
+    </main>
+    <aside class="ed-inspector">
+      <div class="ed-sec-t" style="margin-left:0;">요소 디자인 설정</div>
+      <div class="ed-empty" id="d_empty">캔버스에서 섹션이나 요소를 클릭하거나 빈 곳을 드래그해 선택하세요.<br><br>• <b>더블클릭</b>: 글자 직접 수정<br>• <b>Shift + 클릭</b>: 다중 선택<br>• <b>방향키</b>: 1px 미세 이동</div>
+      <div id="d_props" style="display:none;flex-direction:column;gap:12px;">
+        <div style="font-size:13px;font-weight:800;color:#b62d47;padding-bottom:6px;border-bottom:1px solid #f0e2e7;" id="dp_name">선택됨</div>
+        <div class="ed-prop-row">
+          <div class="ed-prop-hd"><span>크기</span><span id="dp_scale_v">100%</span></div>
+          <input id="dp_scale" type="range" min="50" max="200" value="100">
+        </div>
+        <div class="ed-prop-row">
+          <div class="ed-prop-hd"><span>글씨 크기</span><span id="dp_fs_v">기본</span></div>
+          <input id="dp_fs" type="range" min="9" max="44" value="14">
+        </div>
+        <div class="ed-prop-row">
+          <div class="ed-prop-hd"><span>모서리 둥글기</span><span id="dp_rad_v">기본</span></div>
+          <input id="dp_rad" type="range" min="0" max="40" value="10">
+        </div>
+        <div class="ed-prop-row">
+          <div class="ed-prop-hd"><span>투명도</span><span id="dp_op_v">100%</span></div>
+          <input id="dp_op" type="range" min="20" max="100" value="100">
+        </div>
+        <div class="ed-colors">
+          <label class="ed-cbox"><span>글자색</span><input id="dp_color" type="color" value="#212529"></label>
+          <label class="ed-cbox"><span>배경색</span><input id="dp_bg" type="color" value="#ffffff"></label>
+        </div>
+        <button type="button" class="ed-btn" id="dp_hide" style="width:100%;">👁 이 요소 숨기기/보이기</button>
+        <button type="button" class="ed-btn" id="dp_one_reset" style="width:100%;color:#c2456a;">이 요소 초기화 / 삭제</button>
+      </div>
+    </aside>
   </div>
   <script>
   (function(){
-    var topEl = document.getElementById('edTop');
-    var stage = document.getElementById('edStage');
+    var LAYERS = [
+      ['header','상단 헤더 바'], ['brand','상단 로고·소개'], ['title','다이아 커뮤니티 제목'], ['clock','날짜·시계'],
+      ['sub','소개 문구'], ['login','내 품앗이 버튼'], ['course','뷰티수강 버튼'], ['mocard','모바일 PR 카드'],
+      ['nav','왼쪽 카테고리'], ['funbox','원장님들 화이팅'], ['funnoti','알림장 박스'],
+      ['fbcard','참여 통계 카드'], ['rankcard','이번 달 참여왕'], ['panel1','소상공인 지원금'],
+      ['panel2','네이버 공지'], ['panel3','인스타 공지'], ['mainbox','본문 전체 카드']
+    ];
+    var layersEl = document.getElementById('d_layers');
+    LAYERS.forEach(function(it){
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'ed-layer'; b.textContent = it[1]; b.setAttribute('data-k', it[0]);
+      b.addEventListener('click', function(){
+        if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'dia-edit-focus', key: it[0] }, '*');
+      });
+      layersEl.appendChild(b);
+    });
+
     var frame = document.getElementById('d_frame');
+    var emptyEl = document.getElementById('d_empty');
     var propsEl = document.getElementById('d_props');
     var msgEl = document.getElementById('d_msg');
     var dpName = document.getElementById('dp_name');
-    var dpScale = document.getElementById('dp_scale');
-    var dpScaleV = document.getElementById('dp_scale_v');
-    var dpFs = document.getElementById('dp_fs');
-    var dpFsV = document.getElementById('dp_fs_v');
-    var dpColor = document.getElementById('dp_color');
-    var dpBg = document.getElementById('dp_bg');
+    var dpScale = document.getElementById('dp_scale'), dpScaleV = document.getElementById('dp_scale_v');
+    var dpFs = document.getElementById('dp_fs'), dpFsV = document.getElementById('dp_fs_v');
+    var dpRad = document.getElementById('dp_rad'), dpRadV = document.getElementById('dp_rad_v');
+    var dpOp = document.getElementById('dp_op'), dpOpV = document.getElementById('dp_op_v');
+    var dpColor = document.getElementById('dp_color'), dpBg = document.getElementById('dp_bg');
 
-    var DEV = { pc: ['100%', 'PC'], tb: ['890px', '태블릿'], mo: ['412px', '모바일'] };
-    var curDev = 'pc', selKey = '', selKeys = [], gridOn = false;
-
-    function syncTop(){ stage.style.top = topEl.offsetHeight + 'px'; }
-    window.addEventListener('resize', syncTop);
-    syncTop();
+    var DEV = { pc: ['100%', 'PC'], mo: ['412px', '모바일'] };
+    var curDev = 'pc', selKey = '', selKeys = [], gridOn = false, curHide = false;
 
     function setDev(k){
       curDev = k; selKey = ''; selKeys = [];
-      propsEl.style.display = 'none';
-      msgEl.textContent = '';
+      emptyEl.style.display = ''; propsEl.style.display = 'none'; msgEl.textContent = '';
       frame.style.width = DEV[k][0];
-      ['pc','mo'].forEach(function(x){
-        document.getElementById('d_' + x).classList.toggle('is-on', x === k);
-      });
+      ['pc','mo'].forEach(function(x){ document.getElementById('d_' + x).classList.toggle('is-on', x === k); });
       frame.src = 'dia.html?edit=1&dev=' + k + '&r=' + Date.now();
-      setTimeout(syncTop, 30);
     }
     ['pc','mo'].forEach(function(k){
       document.getElementById('d_' + k).addEventListener('click', function(){ setDev(k); });
+    });
+
+    document.querySelectorAll('[data-add]').forEach(function(b){
+      b.addEventListener('click', function(){
+        if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'dia-edit-add-widget', kind: b.getAttribute('data-add') }, '*');
+      });
     });
 
     window.addEventListener('message', function(e){
       var d = e.data || {};
       if (d.type === 'dia-edit-select' && d.key) {
         selKey = d.key; selKeys = d.keys || [d.key];
-        propsEl.style.display = 'flex';
+        emptyEl.style.display = 'none'; propsEl.style.display = 'flex';
         dpName.textContent = d.label + ' (' + d.data.x + ', ' + d.data.y + ')';
-        var sc = Number(d.data.scale) || 100;
-        dpScale.value = sc; dpScaleV.textContent = sc + '%';
+        var sc = Number(d.data.scale) || 100; dpScale.value = sc; dpScaleV.textContent = sc + '%';
         var fs = Number(d.data.fs) || 0;
         dpFs.value = fs > 0 ? fs : (d.computed && d.computed.fs ? d.computed.fs : 14);
         dpFsV.textContent = fs > 0 ? (fs + 'px') : '기본';
+        var rd = d.data.radius !== undefined && d.data.radius !== '' ? Number(d.data.radius) : -1;
+        dpRad.value = rd >= 0 ? rd : 10; dpRadV.textContent = rd >= 0 ? (rd + 'px') : '기본';
+        var op = Number(d.data.opacity) || 100; dpOp.value = op; dpOpV.textContent = op + '%';
+        curHide = !!d.data.hide;
         dpColor.value = d.data.color || (d.computed && d.computed.color) || '#212529';
         dpBg.value = d.data.bg || (d.computed && d.computed.bg) || '#ffffff';
-        syncTop();
+        layersEl.querySelectorAll('.ed-layer').forEach(function(x){
+          x.classList.toggle('is-on', selKeys.indexOf(x.getAttribute('data-k')) > -1);
+        });
       } else if (d.type === 'dia-edit-saved') {
-        msgEl.textContent = DEV[curDev][1] + ' 저장 완료!';
+        msgEl.textContent = DEV[curDev][1] + ' 게시(저장) 완료!';
         setTimeout(function(){ msgEl.textContent = ''; }, 3000);
       }
     });
@@ -143,24 +218,21 @@
       if (!selKey || !frame.contentWindow) return;
       frame.contentWindow.postMessage({ type: 'dia-edit-update', key: selKey, keys: selKeys, data: patch }, '*');
     }
-    dpScale.addEventListener('input', function(){
-      var v = parseInt(dpScale.value, 10) || 100; dpScaleV.textContent = v + '%'; sendPatch({ scale: v });
-    });
-    dpFs.addEventListener('input', function(){
-      var v = parseInt(dpFs.value, 10) || 14; dpFsV.textContent = v + 'px'; sendPatch({ fs: v });
-    });
+    dpScale.addEventListener('input', function(){ var v = parseInt(dpScale.value,10)||100; dpScaleV.textContent = v+'%'; sendPatch({ scale: v }); });
+    dpFs.addEventListener('input', function(){ var v = parseInt(dpFs.value,10)||14; dpFsV.textContent = v+'px'; sendPatch({ fs: v }); });
+    dpRad.addEventListener('input', function(){ var v = parseInt(dpRad.value,10)||0; dpRadV.textContent = v+'px'; sendPatch({ radius: v }); });
+    dpOp.addEventListener('input', function(){ var v = parseInt(dpOp.value,10)||100; dpOpV.textContent = v+'%'; sendPatch({ opacity: v }); });
     dpColor.addEventListener('input', function(){ sendPatch({ color: dpColor.value }); });
     dpBg.addEventListener('input', function(){ sendPatch({ bg: dpBg.value }); });
+    document.getElementById('dp_hide').addEventListener('click', function(){ curHide = !curHide; sendPatch({ hide: curHide }); });
     document.getElementById('dp_one_reset').addEventListener('click', function(){
       if (!selKey || !frame.contentWindow) return;
       frame.contentWindow.postMessage({ type: 'dia-edit-reset-one', key: selKey, keys: selKeys }, '*');
     });
 
-    document.getElementById('d_addtxt').addEventListener('click', function(){ if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'dia-edit-add-text' }, '*'); });
     var gridBtn = document.getElementById('d_grid');
     gridBtn.addEventListener('click', function(){
-      gridOn = !gridOn;
-      gridBtn.classList.toggle('is-blue', gridOn);
+      gridOn = !gridOn; gridBtn.classList.toggle('is-blue', gridOn);
       if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'dia-edit-grid', on: gridOn }, '*');
     });
     frame.addEventListener('load', function(){
@@ -168,7 +240,7 @@
     });
     document.getElementById('d_reset').addEventListener('click', function(){
       if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'dia-edit-reset-all' }, '*');
-      msgEl.textContent = '원래대로 되돌림 (저장 시 반영)';
+      msgEl.textContent = '초기화됨 (저장 시 반영)';
     });
     document.getElementById('d_save').addEventListener('click', function(){
       if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'dia-edit-save' }, '*');

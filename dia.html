@@ -8332,7 +8332,7 @@ window.창고읽기 = function(url){
                     }
                   }
                 } else {
-                  santa.state = 'shovel_toss'; santa.timer = 22;
+                  santa.state = 'idle'; santa.timer = 0;
                 }
               } else if (santa.targetMode === 'road') {
                 // 바닥 길은 걸어가면서 빗자루를 아래로 대고 쓱싹쓱싹 쓸어 치움
@@ -9289,7 +9289,7 @@ window.창고읽기 = function(url){
               ctx.restore();
             } else if (santa.state === 'shovel_toss' || (santa.state === 'walk_to' && santa.targetMode === 'shovel')) {
               // 제설 삽으로 눈 밀고 퍼내는 관절 동작
-              var isToss = (santa.state === 'shovel_toss');
+              var isToss = false;
               var isPackShovel = (isToss && santa.timer > 22);
               var tp = (isToss && !isPackShovel) ? Math.sin(Math.min(1, santa.timer / 20) * Math.PI * 0.75) : 0;
               var packP = isPackShovel ? Math.min(1, (santa.timer - 22) / 16) : 0;
@@ -9579,28 +9579,29 @@ window.창고읽기 = function(url){
 (function(){
   var WKEY = 'dia_world_layout_v1';
   var ITEMS = [
-    ['header',  '상단 헤더 바',       'header.dia-header'],
-    ['brand',   '상단 로고·소개',     'header.dia-header .brand'],
-    ['molinks', '모바일 상단 버튼',   '.nav-mobile-links'],
-    ['mocard',  '모바일 PR 카드',     '.pr-card.only-mo'],
-    ['hero',    '상단 히어로 카드',   '.dia-hero-in'],
-    ['tag',     '영문 태그',          '.plx-tag'],
+    ['header',  '상단 헤더 바',         'header.dia-header'],
+    ['brand',   '상단 로고·소개',       'header.dia-header .brand'],
+    ['molinks', '모바일 상단 버튼',     '.nav-mobile-links'],
+    ['mocard',  '모바일 PR 카드',       '.pr-card.only-mo'],
+    ['hero',    '상단 히어로 카드',     '.dia-hero-in'],
+    ['tag',     '영문 태그',            '.plx-tag'],
     ['title',   '다이아 커뮤니티 제목', '#plxTitleText'],
-    ['clock',   '날짜·시계',          '#pcHeroDatetime'],
-    ['sub',     '소개 문구',          '#plxSubText'],
-    ['ask',     'DM 문의 안내',       '.plx-ask'],
-    ['login',   '내 품앗이 버튼',     '#mcLoginBtn'],
-    ['course',  '뷰티수강 버튼',      '#mcCourseBtn'],
-    ['nav',     '왼쪽 카테고리 메뉴', '.plx-nav'],
-    ['funbox',  '원장님들 화이팅 섹션', '.fun-box'],
-    ['funhd',   '화이팅 제목',        '.fun-hd'],
-    ['funnoti', '알림장 박스',        '.fun-notice'],
-    ['fbcard',  '참여 통계 카드',     '.fb-card'],
-    ['rankcard','이번 달 참여왕 카드', '.rank-card'],
+    ['clock',   '날짜·시계',            '#pcHeroDatetime'],
+    ['sub',     '소개 문구',            '#plxSubText'],
+    ['ask',     'DM 문의 안내',         '.plx-ask'],
+    ['login',   '내 품앗이 버튼',       '#mcLoginBtn'],
+    ['course',  '뷰티수강 버튼',        '#mcCourseBtn'],
+    ['nav',     '왼쪽 카테고리 메뉴',   '.plx-nav'],
+    ['funbox',  '원장님들 화이팅 섹션', '.mc-fortune-wrap'],
+    ['funhd',   '화이팅 제목 버튼',     '#mcGameToggle'],
+    ['funbtns', '미니게임 6버튼 묶음',  '.mc-fortune-btns'],
+    ['funnoti', '알림장 박스',          '#mcNoticePanel'],
+    ['fbcard',  '참여 통계 카드',       '.fb-card'],
+    ['rankcard','이번 달 참여왕 카드',  '#rankCard'],
     ['panel1',  '소상공인 지원금 패널', '.home-panels > .home-panel:nth-child(1)'],
-    ['panel2',  '네이버 공지 패널',   '.home-panels > .home-panel:nth-child(2)'],
-    ['panel3',  '인스타 공지 패널',   '.home-panels > .home-panel:nth-child(3)'],
-    ['mainbox', '본문 전체 카드',     '.plx-main']
+    ['panel2',  '네이버 공지 패널',     '.home-panels > .home-panel:nth-child(2)'],
+    ['panel3',  '인스타 공지 패널',     '.home-panels > .home-panel:nth-child(3)'],
+    ['mainbox', '본문 전체 카드',       '.plx-main']
   ];
   var KEYS = ITEMS.map(function(it){ return it[0]; });
   var mDev = location.search.match(/[?&]dev=(pc|tb|mo)/);
@@ -9662,6 +9663,12 @@ window.창고읽기 = function(url){
     if (typeof v.text === 'string' && v.text.length && el.children.length === 0) {
       el.textContent = v.text;
     }
+    if (v.radius !== undefined && v.radius !== '') el.style.setProperty('border-radius', v.radius + 'px', 'important');
+    else el.style.removeProperty('border-radius');
+    if (v.opacity !== undefined && Number(v.opacity) < 100) el.style.setProperty('opacity', String(Number(v.opacity) / 100), 'important');
+    else el.style.removeProperty('opacity');
+    if (v.hide) el.style.setProperty('display', window.__diaLayoutEdit ? '' : 'none', 'important');
+    else if (v.hide === false) el.style.removeProperty('display');
   }
   function renderCustomBoxes(c, 잠금){
     document.querySelectorAll('.dia-custom-tbox').forEach(function(n){ n.remove(); });
@@ -9670,8 +9677,15 @@ window.창고읽기 = function(url){
       var d = document.createElement('div');
       d.className = 'dia-custom-tbox';
       d.setAttribute('data-cbox', bx.id);
-      d.textContent = bx.text || '텍스트를 입력하세요';
-      d.style.cssText = 'position:fixed;z-index:2400;padding:8px 14px;border-radius:10px;font-size:15px;font-weight:700;color:#212529;background:rgba(255,255,255,0.92);border:1px solid #eadfe4;box-shadow:0 4px 14px rgba(0,0,0,.08);white-space:pre-wrap;min-width:80px;';
+      if (bx.kind === 'divider') {
+        d.style.cssText = 'position:fixed;z-index:2400;width:280px;height:4px;border-radius:2px;background:#e5cdd6;';
+      } else if (bx.kind === 'btn') {
+        d.textContent = bx.text || '새 버튼';
+        d.style.cssText = 'position:fixed;z-index:2400;padding:10px 20px;border-radius:999px;font-size:14px;font-weight:800;color:#fff;background:#d55576;box-shadow:0 4px 14px rgba(213,85,118,.28);white-space:nowrap;';
+      } else {
+        d.textContent = bx.text || '새 텍스트 (더블클릭 수정)';
+        d.style.cssText = 'position:fixed;z-index:2400;padding:8px 14px;border-radius:10px;font-size:15px;font-weight:700;color:#212529;background:rgba(255,255,255,0.94);border:1px solid #eadfe4;box-shadow:0 4px 14px rgba(0,0,0,.08);white-space:pre-wrap;min-width:80px;';
+      }
       d.style.left = (bx.left || 120) + 'px';
       d.style.top = (bx.top || 120) + 'px';
       applyOne(d, bx, false);
@@ -9987,12 +10001,25 @@ window.창고읽기 = function(url){
         var it = ITEMS.filter(function(x){ return x[0] === k; })[0];
         if (it) applyOne(document.querySelector(it[2]), all[b][k], false);
       });
-    } else if (d.type === 'dia-edit-add-text') {
+    } else if (d.type === 'dia-edit-add-text' || d.type === 'dia-edit-add-widget') {
       var b = bp();
       if (!Array.isArray(all[b]._boxes)) all[b]._boxes = [];
       var cid = 'tb_' + Date.now();
-      all[b]._boxes.push({ id: cid, text: '새 텍스트 (더블클릭 수정)', left: 160, top: 140, scale: 100, fs: 16, color: '#212529', bg: '#ffffff' });
+      var kind = d.kind || 'text';
+      var obj = { id: cid, kind: kind, left: 180, top: 160, scale: 100 };
+      if (kind === 'btn') { obj.text = '새 버튼'; obj.fs = 14; obj.color = '#ffffff'; obj.bg = '#d55576'; }
+      else if (kind === 'divider') { obj.bg = '#e5cdd6'; }
+      else { obj.text = '새 텍스트 (더블클릭 수정)'; obj.fs = 16; obj.color = '#212529'; obj.bg = '#ffffff'; }
+      all[b]._boxes.push(obj);
       renderCustomBoxes(all[b], false);
+    } else if (d.type === 'dia-edit-focus' && d.key) {
+      var it = ITEMS.filter(function(x){ return x[0] === d.key; })[0];
+      var el = it ? document.querySelector(it[2]) : null;
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        selectedKeys = [d.key];
+        notifySelect();
+      }
     } else if (d.type === 'dia-edit-reset-one') {
       var b = bp();
       var targets = (d.keys && d.keys.length) ? d.keys : (d.key ? [d.key] : selectedKeys);
@@ -10014,6 +10041,8 @@ window.창고읽기 = function(url){
     } else if (d.type === 'dia-edit-save') {
       store();
       if (window.parent) window.parent.postMessage({ type: 'dia-edit-saved', dev: bp() }, '*');
+    } else if (d.type === 'dia-edit-snapshot-load' && d.snap) {
+      all = JSON.parse(d.snap); apply(); if (selectedKeys.length) notifySelect();
     } else if (d.type === 'dia-edit-grid') {
       gridOn = !!d.on;
       gridEl.style.display = gridOn ? 'block' : 'none';
