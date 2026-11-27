@@ -212,6 +212,7 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   function finishLogin(nick){
+    if (window.DiaAuth && DiaAuth.linkGoogleMember) DiaAuth.linkGoogleMember(nick);
     try {
       localStorage.setItem('dia_login_member', nick);
       localStorage.setItem('dia_login_member_bak', nick);
@@ -366,6 +367,9 @@ document.addEventListener('DOMContentLoaded', function(){
 <script src="dia-members.js?v=2"></script>
 <script src="dia-fb.js?v=15"></script>
 <script src="dia-pin.js?v=3"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="dia-auth.js?v=1"></script>
 <script src="preview-cursor.js?v=2"></script>
 <script src="preview-live.js?v=1"></script>
 </body>
