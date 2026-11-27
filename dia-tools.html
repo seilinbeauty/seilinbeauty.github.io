@@ -28,7 +28,7 @@
   @media(max-width:560px){.suite-bar{padding:9px 14px;}.sb-chip{display:none;}.sb-name{font-size:13px;}}
 
   /* 앱 쉘: PC 2단 -> 태블릿/모바일 1단 */
-  .app-shell{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:236px minmax(0,1fr);gap:20px;padding:20px;}
+  .app-shell{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:244px minmax(0,1fr);gap:20px;padding:20px;}
   @media(max-width:960px){.app-shell{grid-template-columns:minmax(0,1fr);padding:14px;gap:14px;}}
   @media(max-width:560px){.app-shell{padding:10px 10px 56px;gap:10px;}}
 
@@ -36,10 +36,12 @@
   .side{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;height:fit-content;position:sticky;top:76px;box-shadow:var(--shadow);}
   .side-sec{font-size:11px;font-weight:700;color:#9ca3af;padding:6px 10px 8px;letter-spacing:.04em;}
   .side-nav{display:flex;flex-direction:column;gap:4px;}
-  .s-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:10px 12px;border-radius:10px;border:0;background:transparent;color:#374151;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;text-align:left;transition:all .12s;}
+  .s-btn{display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;padding:10px 12px;border-radius:10px;border:0;background:transparent;color:#374151;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;text-align:left;transition:all .12s;}
   .s-btn:hover{background:#f9fafb;color:var(--ink);}
   .s-btn.is-on{background:#111827;color:#fff;font-weight:700;}
-  .s-tag{font-size:10.5px;padding:2px 6px;border-radius:5px;background:rgba(255,255,255,.16);color:inherit;}
+  .s-btn.is-locked{color:#6b7280;background:#f9fafb;}
+  .s-btn.is-locked.is-on{background:#374151;color:#fff;}
+  .s-tag{font-size:10.5px;padding:2px 6px;border-radius:5px;background:rgba(255,255,255,.16);color:inherit;flex-shrink:0;}
   .s-btn:not(.is-on) .s-tag{background:#f3f4f6;color:#6b7280;}
   .side-card{margin-top:14px;padding:12px;border-radius:12px;background:linear-gradient(135deg,#fff1f2,#fff);border:1px solid #ffe4e6;}
   .side-card b{display:block;font-size:12px;color:#be123c;margin-bottom:3px;}
@@ -80,7 +82,8 @@
   .lbl{display:block;font-size:12px;font-weight:700;color:#374151;margin:12px 0 6px;}
   .inp,.sel,.ta{width:100%;border:1px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;color:var(--ink);background:#fff;transition:border-color .15s,box-shadow .15s;}
   .ta{min-height:210px;line-height:1.68;resize:vertical;}
-  @media(max-width:560px){.inp,.sel,.ta{font-size:14px;}.ta{min-height:170px;}}
+  .ta-sm{min-height:104px;}
+  @media(max-width:560px){.inp,.sel,.ta{font-size:14px;}.ta{min-height:170px;}.ta-sm{min-height:96px;}}
   .inp:focus,.sel:focus,.ta:focus{outline:none;border-color:#111827;box-shadow:0 0 0 3px rgba(17,24,39,.07);}
   .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   @media(max-width:560px){.g2{grid-template-columns:1fr;}}
@@ -98,17 +101,38 @@
   .flag b{color:#be123c;}
   .flag span{color:#059669;font-weight:700;}
   .ok-pill{padding:10px 12px;border-radius:10px;background:var(--mint-soft);border:1px solid #a7f3d0;color:#065f46;font-size:12px;font-weight:600;margin-top:10px;line-height:1.55;}
+  .ex-box{margin-top:10px;padding:12px 13px;border-radius:11px;background:#f8fafc;border:1px dashed #cbd5e1;font-size:12px;color:#334155;line-height:1.65;}
+  .ex-box b{color:#0f172a;display:block;margin-bottom:4px;}
 
   .out-box{padding:14px;border-radius:12px;background:#f9fafb;border:1px solid var(--line);font-size:13px;line-height:1.72;white-space:pre-wrap;word-break:break-word;margin-top:10px;}
   .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
   .btn-primary{padding:11px 16px;border:0;border-radius:10px;background:#111827;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex:1;min-width:130px;}
   .btn-primary:hover{background:#1f2937;}
+  .btn-primary:disabled{opacity:.6;cursor:not-allowed;}
   .btn-ghost{padding:10px 14px;border:1px solid #d1d5db;border-radius:10px;background:#fff;color:#374151;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;}
   .btn-ghost:hover{background:#f9fafb;}
 
   .chk-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
   @media(max-width:600px){.chk-grid{grid-template-columns:1fr;}}
   .chk-it{display:flex;align-items:flex-start;gap:8px;padding:10px 11px;border:1px solid var(--line);border-radius:10px;font-size:12.5px;cursor:pointer;background:#fff;line-height:1.45;}
+
+  /* 키워드 테이블 */
+  .kw-tbl-wrap{margin-top:10px;border:1px solid var(--line);border-radius:12px;overflow:hidden;overflow-x:auto;}
+  .kw-tbl{width:100%;border-collapse:collapse;font-size:12px;min-width:440px;}
+  .kw-tbl th{background:#f9fafb;color:#4b5563;font-weight:700;padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;}
+  .kw-tbl td{padding:9px 10px;border-bottom:1px solid #f3f4f6;color:#111827;white-space:nowrap;}
+  .kw-tbl tr:last-child td{border-bottom:0;}
+  .kw-comp{display:inline-block;padding:2px 7px;border-radius:999px;font-size:11px;font-weight:700;}
+  .kw-comp.hi{background:#fff1f2;color:#e11d48;}
+  .kw-comp.md{background:#fef3c7;color:#b45309;}
+  .kw-comp.lo{background:#ecfdf5;color:#059669;}
+
+  /* 잠금 패널 */
+  .lock-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:42px 24px;text-align:center;box-shadow:var(--shadow);max-width:560px;margin:18px auto;}
+  .lock-ico{width:64px;height:64px;border-radius:18px;background:#f3f4f6;color:#111827;display:grid;place-items:center;font-size:30px;margin:0 auto 14px;}
+  .lock-card h2{margin:0 0 8px;font-size:18px;font-weight:800;letter-spacing:-.02em;}
+  .lock-card p{margin:0;font-size:13px;color:var(--sub);line-height:1.65;}
+  .lock-pill{display:inline-block;margin-top:14px;padding:6px 14px;border-radius:999px;background:#111827;color:#fff;font-size:11.5px;font-weight:700;}
 
   #tlToast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);background:#111827;color:#fff;padding:10px 18px;border-radius:999px;font-size:12.5px;font-weight:700;opacity:0;pointer-events:none;transition:all .2s ease;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.2);}
   #tlToast.is-on{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -139,7 +163,7 @@
       <span class="sb-name">DIA MARKETING SUITE</span>
       <span class="sb-badge">PRO WORKSPACE</span>
     </div>
-    <span class="sb-chip">6종 통합 실무 도구</span>
+    <span class="sb-chip">9종 통합 실무 도구 · 실시간 API 연동</span>
   </div>
 </div>
 
@@ -149,18 +173,19 @@
   <aside class="side">
     <div class="side-sec">WORKSPACE TOOLS</div>
     <nav class="side-nav" id="tlTabs">
-      <button type="button" class="s-btn is-on" data-tab="seo"><span>블로그 SEO·광고법</span><span class="s-tag">실시간</span></button>
-      <button type="button" class="s-btn" data-tab="kw"><span>황금키워드·해시태그</span><span class="s-tag">조합</span></button>
-      <button type="button" class="s-btn" data-tab="rev"><span>플레이스 리뷰 답글</span><span class="s-tag">3톤</span></button>
-      <button type="button" class="s-btn" data-tab="copy"><span>릴스·인스타 카피</span><span class="s-tag">대본</span></button>
-      <button type="button" class="s-btn" data-tab="crm"><span>CRM 재방문 문자</span><span class="s-tag">노쇼방지</span></button>
+      <button type="button" class="s-btn is-on" data-tab="seo"><span>블로그 SEO·광고법</span><span class="s-tag">AI·실시간</span></button>
+      <button type="button" class="s-btn" data-tab="kw"><span>황금키워드·검색량</span><span class="s-tag">실제API</span></button>
+      <button type="button" class="s-btn" data-tab="rev"><span>플레이스 리뷰 답글</span><span class="s-tag">AI생성</span></button>
+      <button type="button" class="s-btn" data-tab="copy"><span>릴스·인스타 카피</span><span class="s-tag">AI대본</span></button>
+      <button type="button" class="s-btn" data-tab="crm"><span>CRM 재방문 문자</span><span class="s-tag">AI·노쇼</span></button>
       <button type="button" class="s-btn" data-tab="diag"><span>매장 진단 · ROAS</span><span class="s-tag">UTM</span></button>
       <button type="button" class="s-btn" data-tab="ba"><span>비포·애프터 이미지</span><span class="s-tag">워터마크</span></button>
       <button type="button" class="s-btn" data-tab="qr"><span>매장 예약 QR 생성</span><span class="s-tag">PNG</span></button>
+      <button type="button" class="s-btn is-locked" data-tab="macro"><span>🔒 인스타·블로그 매크로</span><span class="s-tag">잠금</span></button>
     </nav>
     <div class="side-card">
       <b>다이아 회원 전용</b>
-      <p>블로그·플레이스·인스타 실무 도구를 한 화면에서 바로 사용하세요.</p>
+      <p>실시간 네이버 검색량 조회와 AI 답글·카피 생성을 한 화면에서 바로 사용하세요.</p>
     </div>
   </aside>
 
@@ -187,6 +212,9 @@
           <textarea id="seoBody" class="ta">까치산 속눈썹펌을 찾아오시는 고객님들 중 절반 이상이 이전 샵에서 컬이 금방 풀렸거나 끝이 꺾여서 오십니다.
 
 눈매와 모질 두께를 보지 않고 일괄적인 롯드를 쓰면 시술 직후에는 올라가 보여도 2주 만에 지저분해지기 쉽습니다. 저희 샵은 최고 100% 맞춤 상담으로 자극을 줄여 진행합니다.</textarea>
+          <div class="btn-row">
+            <button type="button" class="btn-primary" id="btnAiBlog">AI로 1,800자 SEO 원고 확장 작성</button>
+          </div>
         </section>
 
         <section class="card">
@@ -199,24 +227,37 @@
           <div class="bar-row"><div class="bar-top"><span>키워드 자연 배치</span><span id="barKwTxt">0%</span></div><div class="bar-bg"><div class="bar-fill" id="barKw" style="width:0%;background:#059669"></div></div></div>
           <div id="seoFlags"></div>
           <div class="ok-pill" id="seoTip">소제목 6개 · 실제 시술 사진 6장 이상과 함께 발행하면 최적입니다.</div>
-          <div class="btn-row"><button type="button" class="btn-primary" id="btnSeoFixCopy">안전 표현으로 자동 정리 · 복사</button></div>
+          <div class="btn-row"><button type="button" class="btn-ghost" id="btnSeoFixCopy" style="width:100%;">안전 표현으로 자동 정리 · 복사</button></div>
         </section>
       </div>
     </section>
 
-    <!-- 2. 황금키워드 · 해시태그 -->
+    <!-- 2. 황금키워드 · 실시간 네이버 검색량 -->
     <section class="tl-panel" id="tab-kw">
       <div class="bench">
         <section class="card">
-          <div class="card-hd"><div><h2 class="card-t">지역 × 업종 키워드 설정</h2><p class="card-sub">지역명과 주력 시술을 넣으면 블로그·플레이스·인스타용 조합을 생성합니다.</p></div></div>
-          <label class="lbl">지역 / 역 이름</label><input id="kwLoc" class="inp" value="까치산" placeholder="예: 화곡동, 강남역, 부평">
-          <label class="lbl">업종 / 시술명</label><input id="kwBiz" class="inp" value="속눈썹펌" placeholder="예: 속눈썹펌, 네일, 반영구, 피부관리">
+          <div class="card-hd"><div><h2 class="card-t">네이버 실시간 검색량 · 연관 키워드</h2><p class="card-sub">네이버 검색광고 공식 API를 통해 월간 PC/모바일 검색수와 경쟁정도를 실시간 조회합니다.</p></div></div>
+          <label class="lbl">조회할 핵심 키워드 (띄어쓰기 없이 권장)</label>
+          <input id="kwLiveQuery" class="inp" value="속눈썹펌" placeholder="예: 속눈썹펌, 화곡동속눈썹, 젤네일">
           <div class="btn-row">
-            <button type="button" class="btn-primary" id="btnGenKw">키워드 · 태그 생성</button>
+            <button type="button" class="btn-primary" id="btnLiveKw">실시간 검색량 조회</button>
+          </div>
+          <div id="kwLiveStatus" style="font-size:12px;color:#6b7280;margin-top:8px;">검색 버튼을 누르면 네이버 검색광고 실시간 데이터가 불러와집니다.</div>
+          <div class="kw-tbl-wrap" id="kwLiveWrap" style="display:none;">
+            <table class="kw-tbl">
+              <thead><tr><th>연관 키워드</th><th>PC 검색</th><th>모바일 검색</th><th>총합</th><th>경쟁</th></tr></thead>
+              <tbody id="kwLiveBody"></tbody>
+            </table>
           </div>
         </section>
+
         <section class="card">
-          <div class="card-hd"><div><h2 class="card-t">생성 결과</h2><p class="card-sub">원클릭으로 복사해 제목·본문·인스타에 바로 붙여 넣으세요.</p></div></div>
+          <div class="card-hd"><div><h2 class="card-t">지역 × 업종 키워드 · 해시태그 조합</h2><p class="card-sub">블로그 제목과 인스타그램 해시태그를 한 번에 생성합니다.</p></div></div>
+          <div class="g2">
+            <div><label class="lbl">지역 / 역 이름</label><input id="kwLoc" class="inp" value="까치산" placeholder="예: 화곡동, 강남역"></div>
+            <div><label class="lbl">업종 / 시술명</label><input id="kwBiz" class="inp" value="속눈썹펌" placeholder="예: 속눈썹펌, 네일"></div>
+          </div>
+          <div class="btn-row"><button type="button" class="btn-ghost" id="btnGenKw" style="width:100%;">키워드 · 해시태그 생성</button></div>
           <label class="lbl">네이버 블로그 · 플레이스용 키워드 18선</label>
           <div id="kwOut" class="out-box"></div>
           <div class="btn-row"><button type="button" class="btn-ghost" id="btnCopyKw">키워드 복사</button></div>
@@ -227,48 +268,70 @@
       </div>
     </section>
 
-    <!-- 3. 플레이스 리뷰 답글 -->
+    <!-- 3. 플레이스 리뷰 답글 (AI 실시간 생성) -->
     <section class="tl-panel" id="tab-rev">
       <div class="bench">
         <section class="card">
-          <div class="card-hd"><div><h2 class="card-t">네이버 플레이스 리뷰 설정</h2><p class="card-sub">리뷰 유형에 맞는 다정·전문·CS 방어용 답글을 즉시 만듭니다.</p></div></div>
-          <label class="lbl">리뷰 유형</label>
-          <select id="revType" class="sel">
-            <option value="good">칭찬 리뷰 (5점 · 재방문 유도)</option>
-            <option value="short">짧은 리뷰 (사진/키워드만 남긴 경우)</option>
-            <option value="cs">아쉬움 · 컴플레인 리뷰 (CS 방어용)</option>
-          </select>
-          <label class="lbl">시술 / 매장 강점</label>
-          <input id="revMenu" class="inp" value="속눈썹펌" placeholder="예: 듀얼펌, 젤네일, 원장 1:1 시술">
-          <div class="btn-row"><button type="button" class="btn-primary" id="btnGenRev">답글 3종 생성</button></div>
+          <div class="card-hd"><div><h2 class="card-t">AI 네이버 플레이스 리뷰 답글</h2><p class="card-sub">고객이 남긴 실제 리뷰를 넣으면 AI가 문맥을 읽어 매번 새로운 3가지 톤 답글을 씁니다.</p></div></div>
+          <label class="lbl">고객 리뷰 원문 (붙여넣기)</label>
+          <textarea id="revCustomer" class="ta ta-sm" placeholder="예: 속눈썹펌 처음 받아봤는데 하나도 안 따갑고 컬이 자연스럽게 잘 올라갔어요! 원장님도 친절하세요.">속눈썹펌 처음 받아봤는데 눈 시림도 전혀 없고 유지력도 좋아서 너무 만족해요! 원장님 설명도 꼼꼼해서 다음에도 또 오려고요.</textarea>
+          <div class="g2">
+            <div>
+              <label class="lbl">리뷰 성격</label>
+              <select id="revType" class="sel">
+                <option value="good">칭찬 · 재방문 유도</option>
+                <option value="short">짧은 리뷰 · 키워드 리뷰</option>
+                <option value="cs">아쉬움 · 컴플레인 CS 방어</option>
+              </select>
+            </div>
+            <div>
+              <label class="lbl">매장 강점 / 시술명</label>
+              <input id="revMenu" class="inp" value="1:1 맞춤 속눈썹펌" placeholder="예: 듀얼펌, 젤네일">
+            </div>
+          </div>
+          <div class="btn-row"><button type="button" class="btn-primary" id="btnGenRev">AI 맞춤 답글 3종 새로 생성</button></div>
         </section>
         <section class="card">
-          <div class="card-hd"><div><h2 class="card-t">맞춤 답글 제안</h2><p class="card-sub">샵 분위기에 맞는 안을 골라 복사해 쓰세요.</p></div></div>
+          <div class="card-hd"><div><h2 class="card-t">생성된 맞춤 답글</h2><p class="card-sub">누를 때마다 리뷰 내용에 맞춰 새롭게 작성됩니다.</p></div></div>
           <div id="revOut" class="out-box"></div>
-          <div class="btn-row"><button type="button" class="btn-primary" id="btnCopyRev">답글 전체 복사</button></div>
+          <div class="btn-row"><button type="button" class="btn-ghost" id="btnCopyRev" style="width:100%;">답글 전체 복사</button></div>
         </section>
       </div>
     </section>
 
-    <!-- 4. 인스타 · 릴스 카피 -->
+    <!-- 4. 인스타 · 릴스 카피 (AI 실시간 생성) -->
     <section class="tl-panel" id="tab-copy">
       <div class="bench">
         <section class="card">
-          <div class="card-hd"><div><h2 class="card-t">릴스 · 인스타 · 스레드 기획</h2><p class="card-sub">목적과 주력 시술만 적으면 첫 줄 후킹부터 30초 릴스 대본까지 뽑아줍니다.</p></div></div>
-          <label class="lbl">콘텐츠 목적</label>
-          <select id="cpGoal" class="sel">
-            <option value="book">신규 예약 전환 (비포·애프터)</option>
-            <option value="edu">수강생 모집 (원데이·창업반)</option>
-            <option value="event">이달의 이벤트 · 첫방문 혜택</option>
-          </select>
+          <div class="card-hd"><div><h2 class="card-t">AI 릴스 · 인스타 · 스레드 카피</h2><p class="card-sub">목적과 시술 강점을 입력하면 AI가 클릭을 부르는 후킹과 30초 릴스 대본을 새로 써줍니다.</p></div></div>
+          <div class="g2">
+            <div>
+              <label class="lbl">콘텐츠 목적</label>
+              <select id="cpGoal" class="sel">
+                <option value="book">신규 예약 전환 (비포·애프터)</option>
+                <option value="edu">수강생 모집 (원데이·창업반)</option>
+                <option value="event">이달의 이벤트 · 첫방문 혜택</option>
+              </select>
+            </div>
+            <div>
+              <label class="lbl">톤 / 분위기</label>
+              <select id="cpTone" class="sel">
+                <option value="pro">전문적 · 신뢰감 있는 원장님</option>
+                <option value="trend">트렌디 · 솔직담백 스레드 감성</option>
+                <option value="warm">다정하고 친근한 1인샵 톤</option>
+              </select>
+            </div>
+          </div>
           <label class="lbl">지역 + 주력 시술</label>
           <input id="cpTopic" class="inp" value="화곡동 속눈썹펌" placeholder="예: 강남 반영구, 홍대 네일">
-          <div class="btn-row"><button type="button" class="btn-primary" id="btnGenCopy">대본 · 카피 생성</button></div>
+          <label class="lbl">강조하고 싶은 포인트 (선택)</label>
+          <input id="cpPoint" class="inp" value="눈매별 1:1 롯드 맞춤, 6주 유지력, 눈 시림 최소화" placeholder="예: 2시간 꼼꼼 케어, 주차 가능">
+          <div class="btn-row"><button type="button" class="btn-primary" id="btnGenCopy">AI 대본 · 카피 새로 생성</button></div>
         </section>
         <section class="card">
-          <div class="card-hd"><div><h2 class="card-t">생성된 후킹 · 대본</h2><p class="card-sub">릴스 자막과 피드 첫 줄에 바로 적용해 보세요.</p></div></div>
+          <div class="card-hd"><div><h2 class="card-t">생성된 후킹 · 대본</h2><p class="card-sub">릴스 자막, 피드 본문, 스레드까지 한 번에 확인하세요.</p></div></div>
           <div id="cpOut" class="out-box"></div>
-          <div class="btn-row"><button type="button" class="btn-primary" id="btnCopyCp">전체 복사</button></div>
+          <div class="btn-row"><button type="button" class="btn-ghost" id="btnCopyCp" style="width:100%;">전체 복사</button></div>
         </section>
       </div>
     </section>
@@ -277,21 +340,30 @@
     <section class="tl-panel" id="tab-crm">
       <div class="bench">
         <section class="card">
-          <div class="card-hd"><div><h2 class="card-t">CRM 자동 문자 템플릿</h2><p class="card-sub">노쇼를 줄이고 재방문율을 높이는 시점별 고객 안내 문구입니다.</p></div></div>
-          <label class="lbl">매장 이름</label><input id="crmShop" class="inp" value="세이린뷰티" placeholder="매장명">
-          <label class="lbl">발송 시점</label>
-          <select id="crmWhen" class="sel">
-            <option value="confirm">예약 확정 + 위치/노쇼 안내</option>
-            <option value="daybefore">방문 전날 리마인드</option>
-            <option value="after">시술 당일 관리법 안내</option>
-            <option value="revisit">시술 30일 후 재방문 유도</option>
-          </select>
-          <div class="btn-row"><button type="button" class="btn-primary" id="btnGenCrm">안내 문자 생성</button></div>
+          <div class="card-hd"><div><h2 class="card-t">CRM 자동 문자 · AI 다듬기</h2><p class="card-sub">노쇼를 줄이고 재방문율을 높이는 시점별 고객 안내 문구입니다.</p></div></div>
+          <div class="g2">
+            <div><label class="lbl">매장 이름</label><input id="crmShop" class="inp" value="세이린뷰티" placeholder="매장명"></div>
+            <div>
+              <label class="lbl">발송 시점</label>
+              <select id="crmWhen" class="sel">
+                <option value="confirm">예약 확정 + 위치/노쇼 안내</option>
+                <option value="daybefore">방문 전날 리마인드</option>
+                <option value="after">시술 당일 관리법 안내</option>
+                <option value="revisit">시술 30일 후 재방문 유도</option>
+              </select>
+            </div>
+          </div>
+          <label class="lbl">추가 안내 사항 / 혜택 (선택)</label>
+          <input id="crmExtra" class="inp" value="재방문 시 영양 케어 서비스" placeholder="예: 건물 뒤편 주차 가능, 첫방문 할인">
+          <div class="btn-row">
+            <button type="button" class="btn-primary" id="btnGenCrmAi">AI 맞춤 문자 생성</button>
+            <button type="button" class="btn-ghost" id="btnGenCrm">기본 템플릿</button>
+          </div>
         </section>
         <section class="card">
           <div class="card-hd"><div><h2 class="card-t">발송용 메시지</h2><p class="card-sub">카카오톡·문자에 그대로 붙여 넣어 발송하세요.</p></div></div>
           <div id="crmOut" class="out-box"></div>
-          <div class="btn-row"><button type="button" class="btn-primary" id="btnCopyCrm">문자 복사</button></div>
+          <div class="btn-row"><button type="button" class="btn-ghost" id="btnCopyCrm" style="width:100%;">문자 복사</button></div>
         </section>
       </div>
     </section>
@@ -307,10 +379,16 @@
         <section class="card">
           <div class="card-hd"><div><h2 class="card-t">광고 ROAS 계산 · UTM 링크</h2><p class="card-sub">집행 중인 광고 효율과 채널별 유입 추적 주소를 계산합니다.</p></div></div>
           <div class="g2">
-            <div><label class="lbl">월 광고비</label><input id="roasCost" type="number" class="inp" value="300000"></div>
-            <div><label class="lbl">신규 예약 × 객단가</label><div style="display:flex;gap:6px;"><input id="roasCnt" type="number" class="inp" value="15"><input id="roasPrice" type="number" class="inp" value="60000"></div></div>
+            <div><label class="lbl">월 광고비 (원)</label><input id="roasCost" type="number" class="inp" value="300000"></div>
+            <div><label class="lbl">신규 예약 × 객단가 (원)</label><div style="display:flex;gap:6px;"><input id="roasCnt" type="number" class="inp" value="15"><input id="roasPrice" type="number" class="inp" value="60000"></div></div>
           </div>
           <div id="roasOut" class="out-box"></div>
+          <div class="ex-box">
+            <b>💡 ROAS 사용 예시</b>
+            · 네이버 파워링크에 월 <b>300,000원</b>을 쓰고 신규 고객 <b>15명</b>(객단가 <b>60,000원</b>)이 오면 → 매출 900,000원 · <b>ROAS 300%</b>입니다.<br>
+            · 보통 뷰티샵은 <b>200% 이상</b>이면 손익분기 통과, <b>300% 이상</b>이면 광고비를 늘려도 되는 효율 좋은 구간입니다.
+          </div>
+
           <hr style="border:0;border-top:1px solid var(--line);margin:16px 0;">
           <div class="g2">
             <div><label class="lbl">대상 URL</label><input id="utmUrl" class="inp" value="https://seilinbeauty.github.io/"></div>
@@ -318,6 +396,12 @@
           </div>
           <div id="utmOut" class="out-box"></div>
           <div class="btn-row"><button type="button" class="btn-primary" id="btnGenUtm">UTM 생성</button><button type="button" class="btn-ghost" id="btnCopyUtm">링크 복사</button></div>
+          <div class="ex-box">
+            <b>💡 UTM 링크 사용 예시</b>
+            · <b>인스타그램 프로필 링크</b>에 넣을 때 → <code>instagram / profile</code> 입력 후 생성된 주소를 인스타 프로필 웹사이트에 등록<br>
+            · <b>네이버 블로그 본문 하단</b>에 넣을 때 → <code>naver_blog / post</code> 입력 후 생성된 주소를 글 하단 예약 배너에 연결<br>
+            · 이렇게 주소 꼬리표만 다르게 달아두면 구글 애널리틱스(GA4)에서 <b>인스타에서 온 사람 vs 블로그에서 온 사람</b>이 몇 명인지 정확히 구분됩니다.
+          </div>
         </section>
       </div>
     </section>
@@ -364,11 +448,23 @@
         </section>
       </div>
     </section>
+
+    <!-- 9. 인스타·블로그 자동좋어요·댓글·서이추 매크로 (잠금 탭) -->
+    <section class="tl-panel" id="tab-macro">
+      <div class="lock-card">
+        <div class="lock-ico">🔒</div>
+        <h2>인스타 · 블로그 자동좋어요 · 댓글 · 서이추 매크로</h2>
+        <p>현재 이 메뉴는 잠겨 있습니다.<br>인스타그램·네이버 블로그 자동 활동 기능은 관리자 승인 후 오픈됩니다.</p>
+        <span class="lock-pill">ACCESS LOCKED</span>
+      </div>
+    </section>
   </main>
 </div>
 
 <script>
 (function(){
+  var GAS = "https://script.google.com/macros/s/AKfycbxLu7nD0RH1FkCKdmgQkP7AybLKit34KN9ISnuW_pHwYrLW7EaqsWddNWBSGWfJ0S-V5A/exec";
+
   function toast(msg){
     var tt = document.getElementById("tlToast");
     if (!tt) return;
@@ -384,6 +480,15 @@
       var t = document.createElement("textarea"); t.value = txt; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove(); toast("복사되었습니다");
     }
   }
+  function callAi(prompt, onOk, onFail){
+    fetch(GAS + "?mode=ai&prompt=" + encodeURIComponent(prompt))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d && d.ok && d.text) onOk(d.text);
+        else onFail();
+      })
+      .catch(onFail);
+  }
 
   document.getElementById("tlTabs").addEventListener("click", function(e){
     var b = e.target.closest(".s-btn"); if (!b) return;
@@ -394,6 +499,7 @@
     if (p) p.classList.add("is-on");
   });
 
+  // 1. 블로그 SEO · 광고법
   var BANNED = [
     ["최고", "만족도 높은"], ["최초", "차별화된"], ["100%", "꼼꼼하게"],
     ["무조건", "맞춤형으로"], ["영구", "오래 유지되는"], ["완치", "개선에 도움을 주는"],
@@ -401,7 +507,6 @@
     ["보장", "목표로 관리"], ["1위", "많은 분들이 찾는"], ["기적", "자연스러운 변화"],
     ["즉각 효과", "시술 직후 확인 가능한"], ["성형 효과", "이미지 보완에 도움을 주는"]
   ];
-
   function runSeo(){
     var txt = document.getElementById("seoBody").value || "";
     var title = document.getElementById("seoTitle").value || "";
@@ -419,11 +524,8 @@
     document.getElementById("stKwSub").textContent = kwCnt > 12 ? "반복 과다 주의" : (kwCnt >= 3 ? "안전 구간" : "조금 더 배치");
 
     var warns = [];
-    BANNED.forEach(function(pair){
-      if (full.indexOf(pair[0]) >= 0) warns.push(pair);
-    });
-    var wc = document.getElementById("stWarnCnt");
-    var ws = document.getElementById("stWarnSub");
+    BANNED.forEach(function(pair){ if (full.indexOf(pair[0]) >= 0) warns.push(pair); });
+    var wc = document.getElementById("stWarnCnt"), ws = document.getElementById("stWarnSub");
     wc.textContent = warns.length + "건";
     wc.style.color = warns.length ? "#e11d48" : "#059669";
     ws.textContent = warns.length ? "발행 전 수정 권장" : "안전";
@@ -458,10 +560,62 @@
     var txt = document.getElementById("seoBody").value || "";
     BANNED.forEach(function(pair){ txt = txt.split(pair[0]).join(pair[1]); });
     document.getElementById("seoBody").value = txt;
-    runSeo();
-    cpTxt(txt);
+    runSeo(); cpTxt(txt);
+  });
+  document.getElementById("btnAiBlog").addEventListener("click", function(){
+    var btn = this;
+    var t = (document.getElementById("seoTitle").value || "").trim();
+    var kw = (document.getElementById("seoKw").value || "").trim();
+    var body = (document.getElementById("seoBody").value || "").trim();
+    btn.disabled = true; btn.textContent = "AI가 원고 작성 중...";
+    var prompt = "뷰티샵 네이버 블로그 SEO 원고 전문가입니다. 제목: '" + t + "', 목표 키워드: '" + kw + "'. 아래 초안을 바탕으로 소제목 5개 포함 공백 제외 약 1,600자 이상의 자연스럽고 전문적인 블로그 본문을 작성하세요. 주의: '최고, 최초, 100%, 무조건, 영구, 완치, 무통증, 1위, 보장' 같은 과장·의료광고법 금칙어는 절대 쓰지 말고, 키워드를 6~8회 자연스럽게 배치하세요. 마크다운 기호(** 등) 없이 순수 텍스트로만 출력하세요.\n\n초안:\n" + body;
+    callAi(prompt, function(res){
+      document.getElementById("seoBody").value = res.trim();
+      runSeo();
+      btn.disabled = false; btn.textContent = "AI로 1,800자 SEO 원고 확장 작성";
+      toast("AI 원고 작성 완료");
+    }, function(){
+      btn.disabled = false; btn.textContent = "AI로 1,800자 SEO 원고 확장 작성";
+      toast("잠시 후 다시 시도해 주세요");
+    });
   });
   runSeo();
+
+  // 2. 황금키워드 · 실시간 네이버 검색량 API
+  function loadLiveKw(){
+    var q = (document.getElementById("kwLiveQuery").value || "속눈썹펌").replace(/\s+/g, "").trim();
+    if (!q) return;
+    var btn = document.getElementById("btnLiveKw");
+    var st = document.getElementById("kwLiveStatus");
+    var wrap = document.getElementById("kwLiveWrap");
+    var tbody = document.getElementById("kwLiveBody");
+    btn.disabled = true; btn.textContent = "조회 중...";
+    st.textContent = "'" + q + "' 실시간 네이버 검색량 불러오는 중...";
+    fetch(GAS + "?mode=kw&q=" + encodeURIComponent(q))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        btn.disabled = false; btn.textContent = "실시간 검색량 조회";
+        if (!d || !d.ok || !d.list || !d.list.length) {
+          st.textContent = "조회 결과가 없거나 일시적 오류입니다. 띄어쓰기 없이 다시 조회해 주세요.";
+          wrap.style.display = "none"; return;
+        }
+        st.textContent = "조회 완료 · 총 " + d.list.length + "개 연관 키워드 (월간 검색수 기준)";
+        tbody.innerHTML = "";
+        d.list.forEach(function(row){
+          var pc = Number(row.pc || 0), mo = Number(row.mo || 0), tot = pc + mo;
+          var cls = row.comp === "높음" ? "hi" : (row.comp === "중간" ? "md" : "lo");
+          var tr = document.createElement("tr");
+          tr.innerHTML = "<td><b>" + row.k + "</b></td><td>" + pc.toLocaleString() + "</td><td>" + mo.toLocaleString() + "</td><td><b>" + tot.toLocaleString() + "</b></td><td><span class=\"kw-comp " + cls + "\">" + (row.comp || "-") + "</span></td>";
+          tbody.appendChild(tr);
+        });
+        wrap.style.display = "block";
+      })
+      .catch(function(){
+        btn.disabled = false; btn.textContent = "실시간 검색량 조회";
+        st.textContent = "네트워크 오류입니다. 잠시 후 다시 시도해 주세요.";
+      });
+  }
+  document.getElementById("btnLiveKw").addEventListener("click", loadLiveKw);
 
   function genKw(){
     var loc = (document.getElementById("kwLoc").value || "까치산").trim();
@@ -479,59 +633,112 @@
   document.getElementById("btnCopyTag").addEventListener("click", function(){ cpTxt(document.getElementById("tagOut").textContent); });
   genKw();
 
-  function genRev(){
+  // 3. 플레이스 리뷰 답글 (AI 생성 + 키워드 다변화 폴백)
+  function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+  function revFallback(cust, tp, menu){
+    var hits = [];
+    if (/시림|따갑|아프|눈/.test(cust)) hits.push("눈 시림 없이 편안하게 받으셨다니 정말 다행이에요");
+    if (/유지|오래|컬/.test(cust)) hits.push("예쁜 컬과 유지력까지 만족스러우셨다니 뿌듯합니다");
+    if (/친절|설명|꼼꼼/.test(cust)) hits.push("1:1 맞춤 설명과 케어를 좋게 봐주셔서 감사드려요");
+    var mid = hits.length ? hits[0] + ". " : "";
+    if (tp === "cs") {
+      return "[1안 · 정중 CS 방어형]\n" + pick(["소중한 시간 내어 방문해 주셨는데 기대에 못 미친 부분이 있었다니 죄송한 마음입니다.", "방문 후 불편함을 느끼셨다니 진심으로 사과드립니다."]) + " 말씀해 주신 부분은 내부적으로 꼼꼼히 점검해 바로 개선하겠습니다. 톡톡이나 매장 연락처로 편하게 말씀 주시면 책임감 있게 확인 후 안내드리겠습니다.\n\n[2안 · 보완 케어 제안형]\n불편을 드려 죄송합니다. " + menu + " 시술 후 컨디션이나 유지력에 아쉬운 점이 있으셨다면 7일 이내 연락 부탁드립니다. 상태 확인 후 정성껏 보완 도와드리겠습니다.";
+    }
+    var g1 = pick(["소중한 후기 남겨주셔서 진심으로 감사드려요 :)", "정성스러운 리뷰 정말 감사드립니다!", "기분 좋은 후기 덕분에 힘이 납니다 :)"]);
+    var g2 = pick(["다음 방문 때도 눈매 컨디션에 맞춰 꼼꼼히 관리해 드릴게요.", "다음 예약 때도 변함없이 편안한 시술로 뵙겠습니다.", "예쁜 유지력 오래가시길 바라며 다음 방문 때 반갑게 뵙겠습니다."]);
+    return "[1안 · 다정한 톤]\n" + g1 + " " + mid + menu + " 결과가 마음에 드셨다니 정말 뿌듯합니다. " + g2 + "\n\n[2안 · 전문적인 톤]\n방문 및 정성스러운 후기 감사드립니다. " + mid + menu + " 손상 최소화와 오랜 유지를 위해 안내드린 사후 관리도 가볍게 지켜봐 주시고, 다음 시기에 다시 뵙겠습니다.\n\n[3안 · 간결한 톤]\n찾아주셔서 감사합니다! " + menu + " 만족하셨다니 다행이에요. " + g2;
+  }
+  function genRev(useAi){
+    var cust = (document.getElementById("revCustomer").value || "").trim();
     var tp = document.getElementById("revType").value;
     var menu = (document.getElementById("revMenu").value || "시술").trim();
-    var out = "";
-    if (tp === "good") {
-      out = "[1안 · 다정한 톤]\n소중한 리뷰 남겨주셔서 진심으로 감사드려요 :) " + menu + " 시술 결과가 마음에 드셨다니 정말 뿌듯합니다! 다음 방문 때도 눈매/컨디션에 맞춰 꼼꼼히 관리해 드릴게요.\n\n[2안 · 전문적인 톤]\n방문 및 정성스러운 후기 감사드립니다. " + menu + " 유지력과 손상 최소화를 위해 시술 직후 관리법도 편하게 지켜봐 주시고, 다음 예약 시점에 다시 뵙겠습니다.\n\n[3안 · 간결한 톤]\n찾아주셔서 감사합니다! " + menu + " 만족하셨다니 다행이에요. 다음 방문 때도 변함없이 정성껏 케어해 드리겠습니다.";
-    } else if (tp === "short") {
-      out = "[1안 · 다정한 톤]\n바쁘신 와중에도 소중한 리뷰 남겨주셔서 감사합니다! " + menu + " 예쁘게 오래 유지되시길 바라며, 다음에 또 뵙겠습니다 :)\n\n[2안 · 재방문 유도 톤]\n방문 감사드립니다! 시술 관련 궁금하신 점 있으시면 언제든 톡톡이나 카톡으로 편하게 말씀해 주세요.";
-    } else {
-      out = "[1안 · CS 정중 방어형]\n소중한 시간 내어 방문해 주셨는데 기대에 못 미친 부분이 있었다니 죄송한 마음입니다. 남겨주신 의견은 내부적으로 꼼꼼히 점검해 바로 개선하겠습니다. 불편하셨던 부분을 톡톡/매장 연락처로 말씀해 주시면 책임감 있게 확인 후 안내드리겠습니다.\n\n[2안 · 재케어 제안형]\n불편함을 드려 진심으로 사과드립니다. " + menu + " 시술 후 유지력이나 컨디션에 아쉬운 점이 있으셨다면 7일 이내 편하게 연락 부탁드립니다. 상태 확인 후 보완 도와드리겠습니다.";
-    }
-    document.getElementById("revOut").textContent = out;
+    var out = document.getElementById("revOut");
+    if (!useAi) { out.textContent = revFallback(cust, tp, menu); return; }
+    var btn = document.getElementById("btnGenRev");
+    btn.disabled = true; btn.textContent = "AI가 답글 작성 중...";
+    var typeKor = tp === "good" ? "칭찬/재방문 유도" : (tp === "short" ? "짧은 리뷰 응대" : "아쉬움/컴플레인 CS 방어");
+    var prompt = "당신은 뷰티샵 네이버 플레이스 리뷰 답글 전문 마케터입니다.\n고객 리뷰: \"" + cust + "\"\n리뷰 성격: " + typeKor + "\n주력 시술/강점: " + menu + "\n요청 시드: " + Math.floor(Math.random()*9000+1000) + "\n위 고객 리뷰 속 구체적인 단어를 자연스럽게 언급하며 매번 완전히 다른 문장으로 [1안 · 다정한 톤], [2안 · 전문적인 톤], [3안 · 간결한 톤] 3가지를 작성해 주세요. 마크다운 볼드(**) 없이 깔끔한 텍스트로만 출력하세요.";
+    callAi(prompt, function(txt){
+      out.textContent = txt.trim();
+      btn.disabled = false; btn.textContent = "AI 맞춤 답글 3종 새로 생성";
+    }, function(){
+      out.textContent = revFallback(cust, tp, menu);
+      btn.disabled = false; btn.textContent = "AI 맞춤 답글 3종 새로 생성";
+    });
   }
-  document.getElementById("btnGenRev").addEventListener("click", genRev);
+  document.getElementById("btnGenRev").addEventListener("click", function(){ genRev(true); });
   document.getElementById("btnCopyRev").addEventListener("click", function(){ cpTxt(document.getElementById("revOut").textContent); });
-  genRev();
+  genRev(false);
 
-  function genCopy(){
-    var g = document.getElementById("cpGoal").value;
-    var tp = (document.getElementById("cpTopic").value || "속눈썹펌").trim();
-    var out = "";
-    if (g === "book") {
-      out = "[첫 줄 후킹 5선]\n1) " + tp + ", 막상 받고 나면 다 비슷해 보이지만 3주 뒤가 다릅니다.\n2) 뷰러 집다가 속눈썹 끊겨 오신 고객님, 40분 뒤 변화 보실래요?\n3) 화장 시간 10분 줄여주는 데일리 필수 관리, 바로 이거예요.\n4) 사진 보정 없는 실제 시술 직후 영상입니다.\n5) " + tp + " 실패 안 하려면 예약 전 딱 이 2가지만 보세요.\n\n[30초 릴스 대본]\n- 0~3초(훅): 시술 전 클로즈업 + 자막 '아침마다 뷰러 싸움 끝내는 법'\n- 3~15초(과정): 1:1 맞춤 롯드·디자인 과정 2배속\n- 15~25초(결과): 시술 직후 또렷한 변화 컷\n- 25~30초(CTA): '프로필 링크에서 이달 잔여 타임 확인하세요'\n\n[스레드용 짤막 변환]\n요즘 " + tp + " 예약 오시는 분들 공통점: '자연스러운데 오래 갔으면 좋겠어요'. 딱 그 기준에 맞춰 과한 컬 대신 눈매에 맞는 라인만 잡습니다.";
-    } else if (g === "edu") {
-      out = "[수강 모집 후킹 5선]\n1) 배웠는데 막상 손님 앞에 앉으면 손이 멈추는 이유, 딱 하나입니다.\n2) 이론 20% + 실제 모델 실무 80%, 바로 실전 투입되는 커리큘럼.\n3) " + tp + " 수강, 졸업 후 질문할 곳 없어서 포기하지 않게 끝까지 봅니다.\n4) 1인샵 창업 전 꼭 알아야 할 운영·재방문 세팅까지 전부 공개.\n5) 소수정예 1:1 밀착 피드백, 이번 달 잔여 자리 안내.\n\n[30초 릴스 대본]\n- 0~3초(훅): 수강생 실제 시술 장면 + '초보도 실전 가능할까?'\n- 3~18초(핵심): 1:1 자세 교정 · 롯드 선정 공식 장면\n- 18~30초(CTA): '커리큘럼 상세 내용은 프로필 링크 또는 DM 주세요'";
-    } else {
-      out = "[이벤트 후킹 5선]\n1) 이번 달 첫 방문 고객님만 챙겨가실 수 있는 혜택입니다.\n2) " + tp + " 고민만 하셨다면 이번 주가 가장 가벼운 타이밍!\n3) 마감 전 1분 만에 예약 잡는 법.\n4) 동반 예약 시 추가 케어 혜택까지 함께 챙겨드려요.\n5) 재방문율 높은 이유, 직접 경험해 보시라고 준비했습니다.";
+  // 4. 릴스·인스타 카피 (AI 생성 + 폴백)
+  function copyFallback(g, tp, pt){
+    if (g === "edu") {
+      return "[첫 줄 후킹 5선]\n1) 배웠는데 막상 손님 앞에 앉으면 손이 멈추는 이유, 딱 하나입니다.\n2) 이론 20% + 실제 모델 실무 80%, 바로 실전 투입되는 커리큘럼.\n3) " + tp + " 수강, 졸업 후 질문할 곳 없어서 포기하지 않게 끝까지 봅니다.\n4) " + pt + " 기준을 잡아야 단골이 쌓입니다.\n5) 소수정예 1:1 밀착 피드백, 이번 달 잔여 자리 안내.\n\n[30초 릴스 대본]\n- 0~3초(훅): 수강생 실제 시술 장면 + '초보도 실전 가능할까?'\n- 3~18초(핵심): 1:1 자세 교정 · 롯드 선정 공식 장면\n- 18~30초(CTA): '커리큘럼 상세 내용은 프로필 링크 또는 DM 주세요'";
     }
-    document.getElementById("cpOut").textContent = out;
+    return "[첫 줄 후킹 5선]\n1) " + tp + ", 막상 받고 나면 다 비슷해 보이지만 3주 뒤가 다릅니다.\n2) 뷰러 집다가 속눈썹 끊겨 오신 고객님, 40분 뒤 변화 보실래요?\n3) " + pt + " 기준으로 잡으면 아침 준비 시간이 10분 줄어듭니다.\n4) 사진 보정 없는 실제 시술 직후 영상입니다.\n5) " + tp + " 실패 안 하려면 예약 전 딱 이 2가지만 보세요.\n\n[30초 릴스 대본]\n- 0~3초(훅): 시술 전 클로즈업 + 자막 '아침마다 뷰러 싸움 끝내는 법'\n- 3~15초(과정): 1:1 맞춤 롯드·디자인 과정 2배속\n- 15~25초(결과): 시술 직후 또렷한 변화 컷\n- 25~30초(CTA): '프로필 링크에서 이달 잔여 타임 확인하세요'\n\n[스레드용 짤막 변환]\n요즘 " + tp + " 예약 오시는 분들 공통점: '자연스러운데 오래 갔으면 좋겠어요'. 딱 그 기준에 맞춰 눈매에 맞는 라인만 잡습니다.";
   }
-  document.getElementById("btnGenCopy").addEventListener("click", genCopy);
+  function genCopy(useAi){
+    var g = document.getElementById("cpGoal").value;
+    var tone = document.getElementById("cpTone").value;
+    var tp = (document.getElementById("cpTopic").value || "속눈썹펌").trim();
+    var pt = (document.getElementById("cpPoint").value || "1:1 맞춤 케어").trim();
+    var out = document.getElementById("cpOut");
+    if (!useAi) { out.textContent = copyFallback(g, tp, pt); return; }
+    var btn = document.getElementById("btnGenCopy");
+    btn.disabled = true; btn.textContent = "AI가 카피·대본 작성 중...";
+    var goalKor = g === "book" ? "신규 예약 전환(비포애프터)" : (g === "edu" ? "수강생 모집" : "이달의 이벤트/혜택");
+    var toneKor = tone === "pro" ? "전문적이고 신뢰감 있는 톤" : (tone === "trend" ? "트렌디하고 솔직담백한 스레드 감성" : "다정하고 친근한 1인샵 톤");
+    var prompt = "당신은 뷰티샵 SNS(릴스/인스타/스레드) 전문 카피라이터입니다.\n목적: " + goalKor + "\n톤앤매너: " + toneKor + "\n지역·주력시술: " + tp + "\n강조 포인트: " + pt + "\n요청 시드: " + Math.floor(Math.random()*9000+1000) + "\n\n아래 3가지 섹션을 매번 신선한 아이디어로 작성해 주세요:\n[첫 줄 후킹 5선]\n[30초 릴스 대본 (초단위 장면+자막)]\n[인스타 피드 본문 + 스레드용 2줄 요약]\n과장 광고 표현(최고/100%/영구/보장 등)은 피하고 마크다운 볼드(**) 없이 출력하세요.";
+    callAi(prompt, function(txt){
+      out.textContent = txt.trim();
+      btn.disabled = false; btn.textContent = "AI 대본 · 카피 새로 생성";
+    }, function(){
+      out.textContent = copyFallback(g, tp, pt);
+      btn.disabled = false; btn.textContent = "AI 대본 · 카피 새로 생성";
+    });
+  }
+  document.getElementById("btnGenCopy").addEventListener("click", function(){ genCopy(true); });
   document.getElementById("btnCopyCp").addEventListener("click", function(){ cpTxt(document.getElementById("cpOut").textContent); });
-  genCopy();
+  genCopy(false);
 
+  // 5. CRM 재방문 문자
   function genCrm(){
     var shop = (document.getElementById("crmShop").value || "저희 샵").trim();
     var w = document.getElementById("crmWhen").value;
+    var ex = (document.getElementById("crmExtra").value || "").trim();
     var msg = "";
     if (w === "confirm") {
-      msg = "[" + shop + " 예약 확정 안내]\n안녕하세요! 요청하신 일정으로 예약 확정되었습니다.\n\n- 당일 10분 이상 지각 시 다음 예약 고객님을 위해 시술이 제한될 수 있습니다.\n- 변경/취소는 최소 하루 전 미리 연락 부탁드립니다.\n- 오시는 길: (주소 입력)\n\n편안한 발걸음으로 뵙겠습니다 :)";
+      msg = "[" + shop + " 예약 확정 안내]\n안녕하세요! 요청하신 일정으로 예약 확정되었습니다.\n\n- 당일 10분 이상 지각 시 다음 예약 고객님을 위해 시술이 제한될 수 있습니다.\n- 변경/취소는 최소 하루 전 미리 연락 부탁드립니다.\n" + (ex ? "- 안내사항: " + ex + "\n" : "") + "\n편안한 발걸음으로 뵙겠습니다 :)";
     } else if (w === "daybefore") {
       msg = "[" + shop + " 내일 예약 안내]\n내일 예약 시간 잊지 않으셨죠? :)\n눈 화장(마스카라/뷰러)은 가급적 피하고 오시면 더욱 꼼꼼한 시술이 가능합니다. 내일 뵙겠습니다!";
     } else if (w === "after") {
       msg = "[" + shop + " 시술 후 관리법]\n오늘 방문 감사드립니다! 예쁜 유지력을 위해 아래 두 가지만 기억해 주세요.\n1) 시술 후 4~5시간은 물·세안·사우나를 피해 주세요.\n2) 세안 후 전용 에센스/브러시로 결 정리해 주시면 훨씬 오래 유지됩니다.";
     } else {
-      msg = "[" + shop + " 재방문 안내]\n안녕하세요! 지난 시술 받으신 지 어느덧 한 달이 지났어요 :)\n자라난 모발·결 정리와 함께 가장 예쁜 상태를 유지하실 타이밍입니다. 이번 주 예약 시 기존 고객 케어 혜택 도와드릴게요!";
+      msg = "[" + shop + " 재방문 안내]\n안녕하세요! 지난 시술 받으신 지 어느덧 한 달이 지났어요 :)\n자라난 모발·결 정리와 함께 가장 예쁜 상태를 유지하실 타이밍입니다. " + (ex ? "(" + ex + ") " : "") + "이번 주 예약 시 정성껏 케어 도와드릴게요!";
     }
     document.getElementById("crmOut").textContent = msg;
   }
   document.getElementById("btnGenCrm").addEventListener("click", genCrm);
+  document.getElementById("btnGenCrmAi").addEventListener("click", function(){
+    var btn = this;
+    var shop = (document.getElementById("crmShop").value || "저희 샵").trim();
+    var w = document.getElementById("crmWhen");
+    var whenTxt = w.options[w.selectedIndex].text;
+    var ex = (document.getElementById("crmExtra").value || "").trim();
+    btn.disabled = true; btn.textContent = "AI 작성 중...";
+    var prompt = "뷰티샵 CRM 고객 안내 문자를 작성해 주세요. 매장명: " + shop + ", 발송시점: " + whenTxt + ", 추가안내/혜택: " + ex + ". 고객이 부담 느끼지 않고 재방문·노쇼 방지에 효과적인 자연스러운 문자 1통을 마크다운 없이 깔끔하게 써주세요.";
+    callAi(prompt, function(txt){
+      document.getElementById("crmOut").textContent = txt.trim();
+      btn.disabled = false; btn.textContent = "AI 맞춤 문자 생성";
+    }, function(){
+      genCrm();
+      btn.disabled = false; btn.textContent = "AI 맞춤 문자 생성";
+    });
+  });
   document.getElementById("btnCopyCrm").addEventListener("click", function(){ cpTxt(document.getElementById("crmOut").textContent); });
   genCrm();
 
+  // 6. 매장 진단 · ROAS · UTM
   var CHECKS = [
     "네이버 플레이스 대표 키워드 5개 세팅",
     "플레이스 시술 사진 10장 이상 최신화",
@@ -651,7 +858,6 @@
     window.open("https://api.qrserver.com/v1/create-qr-code/?size=600x600&format=png&download=1&data=" + encodeURIComponent(u), "_blank");
   });
   genQr();
-
 })();
 </script>
 <script src="dia-sub-header.js?v=1"></script>
