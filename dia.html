@@ -2370,11 +2370,13 @@ window.창고읽기 = function(url){
         <button type="button" id="mcLoginBtn" class="mc-hero-login">내 품앗이</button>
         <a href="dia-course.html" id="mcCourseBtn">뷰티수강</a>
       </div>
-      <div class="mc-hero-right">
-        <button type="button" id="mcActBtn" class="mc-chat" hidden><span>내 활동 기록</span></button>
-        <a id="mcCourseEditBtn" class="mc-chat" href="dia-my-course.html" hidden>
-          <span>내 수강</span>
-        </a>
+      <div class="mc-hero-right" style="align-items:flex-start;">
+        <div style="display:flex;flex-direction:column;gap:5px;align-items:stretch;">
+          <a id="mcCourseEditBtn" class="mc-chat" href="dia-my-course.html" hidden>
+            <span>내 수강</span>
+          </a>
+          <button type="button" id="mcActBtn" class="mc-chat" hidden><span>내 활동</span></button>
+        </div>
         <a id="mcChatBtn" class="mc-chat" href="dia-chat.html" hidden>
           <span class="mc-chat-ico">💬</span><span>채팅</span>
           <span class="mc-chat-n" id="mcChatBadge" hidden>0</span>
