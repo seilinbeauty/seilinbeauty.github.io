@@ -3,8 +3,10 @@
    메뉴 11px 대문자 자간 .5px · 오른쪽 유틸 11.2px capitalize 25px 간격
    햄버거 'all' 아이콘 #ca5b5b · 로고 15px 700 자간 .5px */
 
+/* 본문 상단에 남아 있던 66px 여백 제거(원래 고정 헤더 자리) */
+body.dia-page{padding-top:0 !important;}
 .dia-header{
-  position:relative !important;
+  position:sticky !important;top:0 !important;z-index:60 !important;
   width:100% !important;
   height:55px !important;
   min-height:55px !important;
