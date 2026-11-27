@@ -3384,6 +3384,7 @@ document.addEventListener('DOMContentLoaded', function(){
               </div>
             </div>
             <div id="ops-visit-tb"></div>
+            <div id="ops-page-stats" style="margin-top:14px;"></div>
             <div class="ops-visit-mem" id="visit-members"></div>
             <div class="ops-visit-note">자체 집계는 같은 기기·회원 기준 30분에 1회를 방문으로 세고, 관리자(본점) 기기는 제외합니다. 조회수는 페이지가 열린 횟수입니다.</div>
             <button type="button" class="ops-ga4-btn" id="ops-ga4-btn" data-open="0" aria-controls="ops-ga4" aria-expanded="false">GA4 애널리틱스 보기</button>
@@ -6359,5 +6360,80 @@ document.addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 <script src="dia-sub-header.js?v=1"></script>
+<script src="dia-track.js?v=1" defer></script>
+
+<script>
+(function(){
+  var box = document.getElementById("ops-page-stats");
+  if (!box) return;
+  var LABELS = {
+    dia_home: "다이아 홈",
+    dia_shop: "샵매물",
+    dia_course: "뷰티수강",
+    dia_tools: "마케팅 도구",
+    dia_guide: "품앗이 가이드",
+    dia_qna: "Q&A 문의",
+    dia_mypage: "마이페이지",
+    dia_notice: "공지 · 알림",
+    dia_pass: "완료패스",
+    dia_rest: "휴식 공지",
+    dia_link: "참여 링크",
+    dia_info: "운영 센터",
+    academy_home: "아카데미 홈",
+    parking: "주차 안내"
+  };
+  var FB_DOC = "https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/course_views/dia_page_stats_v1?key=AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY";
+  fetch(FB_DOC)
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(doc){
+      var dMap = doc && doc.fields && doc.fields.days && doc.fields.days.mapValue && doc.fields.days.mapValue.fields;
+      if (!dMap) {
+        box.innerHTML = "<div style=\"font-size:11.5px;color:#b39aa4;padding:8px 0;\">카테고리 · 페이지별 통계는 지금부터 방문이 들어오는 대로 자동 집계됩니다.</div>";
+        return;
+      }
+      var now = new Date();
+      var kst = new Date(now.getTime() + 9 * 3600000);
+      var today = kst.toISOString().slice(0, 10);
+      var days7 = [];
+      for (var i = 0; i < 7; i++) {
+        days7.push(new Date(kst.getTime() - i * 86400000).toISOString().slice(0, 10));
+      }
+      var agg = {};
+      days7.forEach(function(d){
+        var pMap = dMap[d] && dMap[d].mapValue && dMap[d].mapValue.fields;
+        if (!pMap) return;
+        Object.keys(pMap).forEach(function(pk){
+          var it = pMap[pk] && pMap[pk].mapValue && pMap[pk].mapValue.fields;
+          if (!it) return;
+          var v = parseInt((it.v && it.v.integerValue) || "0", 10) || 0;
+          var u = parseInt((it.u && it.u.integerValue) || "0", 10) || 0;
+          if (!agg[pk]) agg[pk] = { todayU: 0, todayV: 0, weekV: 0 };
+          agg[pk].weekV += v;
+          if (d === today) {
+            agg[pk].todayU += u;
+            agg[pk].todayV += v;
+          }
+        });
+      });
+      var rows = Object.keys(agg).map(function(pk){
+        return { key: pk, name: LABELS[pk] || pk, todayU: agg[pk].todayU, todayV: agg[pk].todayV, weekV: agg[pk].weekV };
+      }).sort(function(a, b){ return (b.todayV - a.todayV) || (b.weekV - a.weekV); });
+
+      if (!rows.length) {
+        box.innerHTML = "<div style=\"font-size:11.5px;color:#b39aa4;padding:8px 0;\">카테고리 · 페이지별 통계는 지금부터 방문이 들어오는 대로 자동 집계됩니다.</div>";
+        return;
+      }
+      var html = "<div style=\"font-size:12px;font-weight:800;color:#8a7b81;margin-bottom:6px;\">카테고리 · 페이지별 방문 현황</div>";
+      html += "<table class=\"ops-visit-tb\"><thead><tr><th>페이지 / 카테고리</th><th>오늘 방문자</th><th>오늘 조회수</th><th>7일 조회수</th></tr></thead><tbody>";
+      rows.forEach(function(r){
+        html += "<tr><td>" + r.name + "</td><td>" + r.todayU + "명</td><td>" + r.todayV + "회</td><td>" + r.weekV + "회</td></tr>";
+      });
+      html += "</tbody></table>";
+      box.innerHTML = html;
+    })
+    .catch(function(){});
+})();
+</script>
+
 </body>
 </html>
