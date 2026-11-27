@@ -109,3 +109,8 @@
 @media (min-width:881px){
   header.dia-header .nav-links a.nav-dia{ display:none !important; }
 }
+
+/* PC 헤더: 로그인 글자 하나만 */
+@media (min-width:881px){
+  header.dia-header .nav-links{ margin-left:65px !important; }
+}
