@@ -3584,7 +3584,7 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
 .crs-kind{border-radius:2px !important;font-size:9.5px !important;padding:2px 5px !important;}
 .crs-badge-row{order:4;display:flex;flex-wrap:wrap;align-items:center;gap:3px;margin:2px 0 0;}
 .crs-badge-row .crs-benefit{margin:0 !important;}
-.crs-badge-row .crs-kind{margin:0 !important;background:#f7946d !important;color:#fff !important;font-weight:700 !important;}
+.crs-kind{display:none !important;}
 .crs-badge-row .crs-tag-mini{padding:2px 6px;border-radius:2px;font-size:9.5px;font-weight:700;background:#e8f4fd;color:#5a9bd4;}
 .crs-badge-row .crs-tag-mini.pink{background:#f797b5;color:#fff;}
 .crs-badge-row .crs-tag-mini.green{background:#76c893;color:#fff;}
@@ -3616,7 +3616,7 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
           row.appendChild(ben);
         }
         var kind = card.querySelector('.crs-kind');
-        if (kind) row.appendChild(kind);
+        if (kind) kind.remove();
         var tagsEl = card.querySelector('.crs-tags');
         if (tagsEl && tagsEl.textContent) {
           var parts = tagsEl.textContent.split('·').map(function(x){ return x.trim(); }).filter(Boolean);
