@@ -84,7 +84,7 @@
 
 /* ── PC 헤더: '내 품앗이'를 버튼 아닌 글자 메뉴로 (알로하 BEST·플리마켓 자리 느낌) ── */
 @media (min-width:881px){
-  .dia-header .nav-links{
+  header.dia-header .nav-links{
     display:flex !important; align-items:center !important;
     margin-left:65px !important; gap:0 !important; height:45px !important;
   }
@@ -97,7 +97,7 @@
     font-size:11px !important; font-weight:400 !important; letter-spacing:.5px !important;
   }
   .dia-header .nav-links a.nav-mypumasi:hover{ color:#a9566a !important; }
-  .dia-header.is-scrolled .nav-links,
+  header.dia-header.is-scrolled .nav-links,
   .dia-header.is-scrolled .nav-links a.nav-mypumasi{ height:55px !important; line-height:55px !important; }
   /* 히어로에 있던 '내 품앗이' 버튼은 PC에서 숨김(헤더 메뉴로 옮김) */
   @media (min-width:881px){
