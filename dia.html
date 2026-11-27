@@ -1658,10 +1658,12 @@
         .pc-hero-snow-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; border-radius: 14px; }
       .pc-hero-snow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 25; border-radius: 14px; }
       @media (max-width: 880px) {
-        .dia-hero .pr-card.only-mo,
+        body:not(.member-logged-in) .dia-hero .pr-card.only-mo,
         .dia-hero .quick-links,
         #moShortcutBtn { display: none !important; }
-        .dia-hero .dia-hero-l > .only-pc { display: block !important; }
+        body:not(.member-logged-in) .dia-hero .dia-hero-l > .only-pc { display: block !important; }
+        body.member-logged-in .dia-hero .pr-card.only-mo { display: flex !important; }
+        body.member-logged-in .dia-hero .dia-hero-l > .only-pc { display: none !important; }
         .dia-hero .pc-hero-datetime.only-pc { display: inline-flex !important; }
         .dia-hero-in { padding: 16px 16px 18px !important; }
         .dia-hero .plx-tag { font-size: 10px; }
@@ -2468,7 +2470,7 @@ window.창고읽기 = function(url){
         <a href="dia-board-notice.html" id="mcNoticeBtn">공지사항</a>
       </div>
       <div class="mc-hero-right" style="display:flex;flex-direction:row;align-items:center;gap:8px;">
-        <a id="mcHeroAv" href="dia-mypage.html" hidden title="마이페이지" style="width:44px;height:44px;border-radius:50%;overflow:hidden;border:1.5px solid #efd5de;background:linear-gradient(135deg,#fdeef3,#f8d6e2);color:#c2456a;font-size:18px;font-weight:900;display:none;align-items:center;justify-content:center;flex-shrink:0;text-decoration:none;position:relative;">💎</a>
+        <a id="mcHeroAv" href="dia-mypage.html" hidden title="마이페이지" style="display:none !important;width:44px;height:44px;border-radius:50%;overflow:hidden;border:1.5px solid #efd5de;background:linear-gradient(135deg,#fdeef3,#f8d6e2);color:#c2456a;font-size:18px;font-weight:900;display:none;align-items:center;justify-content:center;flex-shrink:0;text-decoration:none;position:relative;">💎</a>
         <div style="display:flex;flex-direction:column;gap:5px;align-items:stretch;">
           <a id="mcChatBtn" class="mc-chat" href="dia-chat.html" hidden>
             <span class="mc-chat-ico">💬</span><span>채팅</span>
@@ -2495,7 +2497,7 @@ window.창고읽기 = function(url){
         if(!actBtn || !st || !ch) return;
         function renderAv(){
           var av = document.getElementById('mcHeroAv');
-          if(!av) return;
+          if(!av || true){ if(av){ av.hidden = true; av.style.display = "none"; } return; }
           if(ch.hidden){ av.hidden = true; av.style.display = 'none'; return; }
           var rawMem = '';
           try{ rawMem = localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak') || ''; }catch(e){}
@@ -3865,7 +3867,7 @@ window.창고읽기 = function(url){
                 var parts = String(m.n || '').split('/').map(function(x){ return x.trim(); }).filter(Boolean);
                 return parts.length > 1 ? parts[1] : m.n;
               }
-              var AVATARS = ["153_beautynail", "5wol_lash", "_.b_x_b._", "_brown.brow", "_clover_lash", "_eye.bari_", "_soybrow", "a.__muse", "andbeauty__", "beau_onne", "beauty_days2", "beautyellido_nail", "beu_ty_j", "binsbrow_", "bonnie_extension", "brow.uu", "brow_luin", "brow_n.me", "dareuming.beauty", "ddumi_nail", "deepin_row", "dene.studio", "domely_beauty", "dyeon.seoul", "ella_beauty._", "eveof_studio", "eye_lavin", "haute_ob", "hbbeauty_official", "idreamiin", "j.myu_", "jio.ink", "joy_de_nail", "jvelynail", "lash_n_plan", "lash_yeogi", "le.belle_lash", "leeji_nail", "lehee.studio", "line__novar", "llenar._.waxing", "long_bou_tique", "lumi_point_", "lusom_beauty", "m.beautylab_", "m__jbrow", "monde6eauty", "moon_lash.beauty", "myua.brow", "n.b._.lash", "n.de_nuel", "nail_jiand", "nail_leego", "nail_n_plan", "nailming_", "nailndd", "nailneedu", "nue.atelier_", "once_lash", "onii.day_", "pium.au", "reby_beauty_", "seilin_beauty", "seilin_beauty.chu", "sina.br__", "sio_lashhh", "soie.studios", "star___beauty_", "studio_2um", "studio__yale", "uni.salon", "year.seoul", "yoonbrow__", "yoony_salon", "youux153"];
+              var AVATARS = ["153_beautynail", "5wol_lash", "_.b_x_b._", "_brown.brow", "_clover_lash", "_eye.bari_", "_soybrow", "a.__muse", "andbeauty__", "beau_onne", "beauty_days2", "beautyellido_nail", "beu_ty_j", "binsbrow_", "bonnie_extension", "brow.uu", "brow_luin", "brow_n.me", "dareuming.beauty", "ddumi_nail", "deepin_row", "dene.studio", "domely_beauty", "dyeon.seoul", "ella_beauty._", "eveof_studio", "eye_lavin", "haute_ob", "hbbeauty_official", "idreamiin", "j.myu_", "jio.ink", "joy_de_nail", "jvelynail", "lash_n_plan", "lash_yeogi", "le.belle_lash", "leeji_nail", "lehee.studio", "line__novar", "llenar._.waxing", "long_bou_tique", "lumi_point_", "lusom_beauty", "m.beautylab_", "m__jbrow", "monde6eauty", "moon_lash.beauty", "myua.brow", "n.b._.lash", "n.de_nuel", "nail_jiand", "nail_leego", "nail_n_plan", "nailming_", "nailndd", "nailneedu", "nue.atelier_", "once_lash", "onii.day_", "pium.au", "reby_beauty_", "seilin_beauty", "seilin_beauty.chu", "seilin_beauty.dia", "sina.br__", "sio_lashhh", "soie.studios", "star___beauty_", "studio_2um", "studio__yale", "uni.salon", "year.seoul", "yoonbrow__", "yoony_salon", "youux153"];
               var BEAUTY_NEWS = {};
               function 종목뉴스풀(cat){
                 var c = String(cat || '');
@@ -3948,7 +3950,7 @@ window.창고읽기 = function(url){
               var AV_FALLBACK = {'2':'seilin_beauty'};
               function 아바타파일(m){
                 if(!m) return '';
-                var id = m.i || AV_FALLBACK[String(m.no)] || '';
+                var id = String(m.i || AV_FALLBACK[String(m.no)] || '').trim().replace(/^@+/, '');
                 if(!id) return '';
                 return AVATARS.indexOf(id) >= 0 ? id : '';
               }
@@ -3959,7 +3961,7 @@ window.창고읽기 = function(url){
                 try { sns = JSON.parse(localStorage.getItem('dia_sns_auth') || 'null'); } catch(e){}
                 var customPic = (cp && cp.photo) ? cp.photo : '';
                 var snsPic = (sns && sns.photo && (sns.nick === m.n || sns.ig === m.i)) ? sns.photo : '';
-                var src = customPic || (f ? ('avatars/' + f + '.jpg') : '') || snsPic;
+                var src = customPic || (f ? ('avatars/' + f + '.jpg?v=2') : '') || snsPic;
                 var fb = (!customPic && f && snsPic) ? snsPic : '';
                 var inner = src
                   ? '💎<img src="' + src + '" alt="' + (m.n || '') + ' 프로필 사진"' + (fb ? ' data-fb="' + fb + '"' : '') + ' onerror="var b=this.getAttribute('data-fb');if(b){this.removeAttribute('data-fb');this.src=b;}else{this.remove();}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;">'
@@ -4018,6 +4020,7 @@ window.창고읽기 = function(url){
                 if(!lgBtn) return;
                 if(pingTimer){ clearInterval(pingTimer); pingTimer = null; }
                 if(m){
+                  document.body.classList.add('member-logged-in');
                   lgBtn.classList.add('on');
                   lgBtn.textContent = '로그아웃';
                   if(lgBox) lgBox.hidden = true;
@@ -4029,6 +4032,7 @@ window.창고읽기 = function(url){
                   try{ if(window.diaAuthChanged) window.diaAuthChanged(); }catch(_e){}
                   pingTimer = setInterval(function(){ if(!document.hidden) 접속핑(m.n, false); }, 15000);
                 } else {
+                  document.body.classList.remove('member-logged-in');
                   lgBtn.classList.remove('on');
                   lgBtn.textContent = '내 품앗이';
                   if(heroClock) heroClock.hidden = true;
