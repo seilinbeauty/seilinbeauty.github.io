@@ -10266,6 +10266,43 @@ window.창고읽기 = function(url){
 })();
 </script>
 
+<script>
+(function(){
+  function syncHdrAuth(){
+    var lg = document.getElementById('hdrLogin');
+    var jn = document.querySelector('header.dia-header .nav-join');
+    if (!lg) return;
+    var logged = false;
+    try { logged = !!(localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak')); } catch(e){}
+    if (logged) {
+      if (jn) jn.style.display = 'none';
+      lg.textContent = '로그아웃';
+      lg.setAttribute('href', '#logout');
+      if (!lg._boundLogout) {
+        lg._boundLogout = true;
+        lg.addEventListener('click', function(e){
+          if (lg.getAttribute('href') !== '#logout') return;
+          e.preventDefault();
+          try {
+            localStorage.removeItem('dia_login_member');
+            localStorage.removeItem('dia_login_member_bak');
+            localStorage.removeItem('dia_no_track');
+          } catch(err){}
+          location.reload();
+        });
+      }
+    } else {
+      if (jn) jn.style.display = '';
+      lg.textContent = '로그인';
+      lg.setAttribute('href', 'dia-preview-login.html');
+    }
+  }
+  window.addEventListener('storage', syncHdrAuth);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncHdrAuth);
+  else syncHdrAuth();
+  setTimeout(syncHdrAuth, 500);
+})();
+</script>
 <script src="dia-staff.js?v=5" defer></script>
 <script>
 /* 상단 헤더 — 스크롤하면 알로하 클로젯처럼 55px 띠 + 로고 위치 이동 (PC) */
