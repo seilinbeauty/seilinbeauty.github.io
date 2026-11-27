@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>샵인샵 — 다이아 커뮤니티</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root{ --pink:#d55576; --pink-deep:#c6506f; --pink-soft:#fdf3f7; --line:#f0e2e7; --txt:#333; --mute:#9a9a9a; }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#fafafa;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--txt);}
+  header{background:#fff;border-bottom:1px solid var(--line);}
+  header .inner{max-width:1080px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;}
+  header .brand{font-size:16px;font-weight:900;color:var(--pink);letter-spacing:-.02em;text-decoration:none;}
+  header .back{font-size:12.5px;font-weight:700;color:#8a7b81;text-decoration:none;}
+  main{max-width:1080px;margin:0 auto;padding:28px 20px 70px;}
+  .hero-tag{font-size:11px;font-weight:900;letter-spacing:.14em;color:var(--pink);}
+  h1{margin:6px 0 4px;font-size:24px;font-weight:900;letter-spacing:-.03em;}
+  .sub{margin:0 0 22px;font-size:13px;color:var(--mute);}
+  /* 개발 중 화면 */
+  #shop-soon{border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 10px 30px rgba(198,69,106,.07);
+    padding:64px 24px;text-align:center;}
+  #shop-soon .ico{font-size:40px;line-height:1;margin-bottom:16px;}
+  #shop-soon .t{font-size:20px;font-weight:900;letter-spacing:-.03em;margin-bottom:10px;}
+  #shop-soon .d{font-size:13.5px;color:var(--mute);line-height:1.7;margin-bottom:22px;}
+  #shop-soon .bar{width:60px;height:3px;border-radius:99px;background:linear-gradient(90deg,#ef9ab4,#d55576);margin:0 auto 22px;}
+  .soon-foot{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+  .soon-foot a,.soon-foot button{display:inline-block;padding:10px 18px;border-radius:10px;border:1px solid var(--line);
+    background:#fff;color:#8a7b81;font-size:12.5px;font-weight:800;text-decoration:none;cursor:pointer;font-family:inherit;}
+  .soon-foot .on{border:0;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;}
+  /* 관리자 화면 */
+  #shop-admin{display:none;}
+  .gate{max-width:340px;margin:50px auto;border:1px solid var(--line);border-radius:16px;background:#fff;padding:28px 22px;text-align:center;}
+  .gate input{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;font-size:14px;text-align:center;letter-spacing:3px;outline:none;margin-bottom:10px;}
+  .gate button{width:100%;padding:12px;border:0;border-radius:10px;cursor:pointer;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;font-size:14px;font-weight:800;font-family:inherit;}
+  .gate .m{font-size:12px;color:var(--pink);margin-top:9px;min-height:15px;}
+  .note{border:1px dashed #f3c7d6;background:var(--pink-soft);border-radius:12px;padding:16px 18px;font-size:13px;color:#a3566d;line-height:1.7;}
+</style>
+</head>
+<body>
+<header>
+  <div class="inner">
+    <a class="brand" href="dia.html">다이아 커뮤니티</a>
+    <a class="back" href="dia.html">← 다이아로 돌아가기</a>
+  </div>
+</header>
+
+<main>
+  <div class="hero-tag">SHOP IN SHOP</div>
+  <h1>🏪 샵인샵</h1>
+  <p class="sub">샵인샵 자리를 구하고 내놓는 곳 — 전국 지역별로 모읍니다.</p>
+
+  <section id="shop-soon">
+    <div class="ico">🛠️</div>
+    <div class="t">더 좋은 서비스를 위해 개발 중입니다</div>
+    <div class="bar"></div>
+    <div class="d">곧 새로운 모습으로 찾아뵙겠습니다.<br>전국 샵인샵 정보를 한곳에서 보실 수 있도록 준비하고 있습니다.</div>
+    <div class="soon-foot">
+      <a class="on" href="dia.html">다이아 커뮤니티</a>
+      <a href="dia-course.html">뷰티수강</a>
+    </div>
+  </section>
+
+  <section id="shop-admin">
+    <div id="shop-gate" class="gate">
+      <div style="font-size:24px;margin-bottom:8px;">🔒</div>
+      <div style="font-size:15px;font-weight:800;margin-bottom:4px;">관리자 화면</div>
+      <div style="font-size:12px;color:#9a9a9a;margin-bottom:16px;">관계자만 열람할 수 있습니다.</div>
+      <input id="shop-pw" type="password" inputmode="numeric" placeholder="비밀번호">
+      <button type="button" id="shop-go">열기</button>
+      <div class="m" id="shop-m"></div>
+    </div>
+    <div id="shop-list" style="display:none;">
+      <div class="note">
+        아직 등록된 샵인샵 글이 없습니다.<br>
+        전국 카페에서 <b>샵인샵 구해요 · 내놔요</b> 글을 지역별로 모아 오면 여기에 쌓입니다.<br>
+        이 화면은 관리자용이라 일반 방문자에게는 <b>개발 중</b> 화면만 보입니다.
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var KEY = atob('MDQyMw==');
+  var admin = false;
+  try { admin = localStorage.getItem('dia_shop_admin') === '1'; } catch(e){}
+  var soon = document.getElementById('shop-soon');
+  var wrap = document.getElementById('shop-admin');
+  var gate = document.getElementById('shop-gate');
+  var list = document.getElementById('shop-list');
+
+  function showAdmin(){
+    wrap.style.display = '';
+    gate.style.display = 'none';
+    list.style.display = '';
+    soon.style.display = 'none';
+  }
+  if (admin) { showAdmin(); }
+
+  function go(){
+    var v = (document.getElementById('shop-pw').value || '').trim();
+    if (v === KEY) {
+      try { localStorage.setItem('dia_shop_admin', '1'); } catch(e){}
+      showAdmin();
+    } else {
+      document.getElementById('shop-m').textContent = '비밀번호가 맞지 않습니다.';
+    }
+  }
+  document.getElementById('shop-go').addEventListener('click', go);
+  document.getElementById('shop-pw').addEventListener('keydown', function(e){ if (e.key === 'Enter') go(); });
+
+  // 관리자 진입: 주소 뒤 #admin
+  if (location.hash === '#admin') {
+    wrap.style.display = '';
+    soon.style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>
