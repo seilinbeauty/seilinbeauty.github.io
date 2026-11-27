@@ -3568,7 +3568,7 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
 .crs-photos .crs-ph-empty{display:flex !important;align-items:center;justify-content:center;aspect-ratio:3/4.3 !important;border-radius:0 !important;border:1px solid #eee !important;background:#faf8f9 !important;}
 .crs-aloha-bar{order:-2;display:flex;justify-content:flex-end;gap:3px;margin:0 0 5px;}
 .crs-aloha-bar i{display:block;width:11px;height:3px;border-radius:0;}
-.crs-head{order:0;gap:5px !important;margin-bottom:3px !important;align-items:flex-start !important;}
+.crs-head{order:0;display:flex !important;justify-content:space-between !important;gap:6px !important;margin-bottom:3px !important;align-items:center !important;}
 .crs-av{display:none !important;}
 .crs-nick{font-size:13px !important;font-weight:800 !important;color:#111 !important;line-height:1.35 !important;display:block !important;overflow:visible !important;-webkit-line-clamp:unset !important;}
 .crs-tags{font-size:12px !important;font-weight:800 !important;color:#111 !important;margin-top:2px !important;}
@@ -3576,7 +3576,7 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
 .crs-ribbon{order:2;margin:0 0 5px !important;border-radius:2px !important;padding:2px 6px !important;font-size:9.5px !important;font-weight:700 !important;background:#f4a261 !important;color:#fff !important;align-self:flex-start;}
 .crs-benefit{order:4;display:inline-block !important;margin:0 3px 3px 0 !important;padding:2px 6px !important;border-radius:2px !important;font-size:9.5px !important;font-weight:700 !important;background:#ffecec !important;color:#d6456b !important;border:0 !important;line-height:1.3 !important;width:fit-content !important;max-width:100% !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;}
 .crs-ribbon{display:none !important;}
-.crs-links{order:1;gap:3px !important;flex-wrap:wrap;margin:2px 0 4px !important;}
+.crs-links{display:none !important;}
 .crs-links a[href*="instagram.com"]{display:none !important;}
 .crs-ig{padding:2px 6px !important;font-size:9.5px !important;font-weight:700 !important;border-radius:2px !important;background:#e8f4fd !important;border:0 !important;color:#5a9bd4 !important;}
 .crs-ig:nth-of-type(2n){background:#f7946d !important;color:#fff !important;}
@@ -3585,13 +3585,13 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
 .crs-kind{border-radius:2px !important;font-size:9.5px !important;padding:2px 5px !important;}
 .crs-badge-row{order:4;display:flex;flex-wrap:wrap;align-items:center;gap:3px;margin:2px 0 0;}
 .crs-badge-row .crs-benefit{order:-1;margin:0 !important;}
-.crs-chat-slot{order:-1;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px;margin:0 0 5px;}
+.crs-chat-slot{display:none !important;}
 .crs-chat-slot .crs-chat{font-size:10px !important;padding:3px 8px !important;border-radius:3px !important;}
 .crs-kind{display:none !important;}
 .crs-badge-row .crs-tag-mini{padding:2px 6px;border-radius:2px;font-size:9.5px;font-weight:700;background:#e8f4fd;color:#5a9bd4;}
 .crs-badge-row .crs-tag-mini.pink{background:#f797b5;color:#fff;}
 .crs-badge-row .crs-tag-mini.green{background:#76c893;color:#fff;}
-.crs-actions{display:none !important;order:5;margin-top:6px !important;gap:4px !important;}
+.crs-actions{display:flex !important;order:1;margin:4px 0 5px !important;gap:4px !important;}
 .crs-act{height:25px !important;border-radius:3px !important;font-size:10px !important;background:#fff !important;border:1px solid #e4d8da !important;color:#1e1a1b !important;}
 </style>
 <script>
@@ -3657,32 +3657,12 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
     }
     var cards2 = document.querySelectorAll('.crs-grid > .crs-card');
     for (var c = 0; c < cards2.length; c++) {
-      var barEl = cards2[c].querySelector('.crs-aloha-bar');
+      var headEl = cards2[c].querySelector('.crs-head');
       var chatEl = cards2[c].querySelector('.crs-chat');
-      if (barEl && chatEl && !chatEl.closest('.crs-chat-slot')) {
-        var slot = cards2[c].querySelector('.crs-chat-slot');
-        if (!slot) {
-          slot = document.createElement('div');
-          slot.className = 'crs-chat-slot';
-          barEl.parentNode.insertBefore(slot, barEl.nextSibling);
-        }
-        slot.appendChild(chatEl);
-        var extLinks = cards2[c].querySelectorAll('.crs-links a:not(.crs-chat), .crs-actions a');
-        for (var ex = 0; ex < extLinks.length; ex++) {
-          var href = extLinks[ex].getAttribute('href') || '';
-          var txt = (extLinks[ex].textContent || '').trim();
-          if (href.indexOf('instagram.com') >= 0 || txt === '인스타그램') continue;
-          if (!slot.querySelector('a[href="' + href + '"]')) {
-            var sm = document.createElement('a');
-            sm.href = href;
-            sm.target = '_blank';
-            sm.rel = 'noopener';
-            sm.className = 'crs-ig';
-            sm.textContent = txt;
-            sm.style.cssText = 'font-size:10px;padding:3px 7px;border-radius:3px;background:#f5f3f4;color:#444;text-decoration:none;font-weight:700;';
-            slot.appendChild(sm);
-          }
-        }
+      if (headEl && chatEl && chatEl.parentNode !== headEl) {
+        chatEl.style.marginLeft = 'auto';
+        chatEl.style.flexShrink = '0';
+        headEl.appendChild(chatEl);
       }
     }
   }
