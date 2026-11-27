@@ -2179,20 +2179,19 @@
       body.dia-page #mcHeroStatus .mc-act-hd { margin: 4px 2px 3px; }
       body.dia-page #mcHeroStatus .mc-kpis { margin-top: 4px; gap: 5px; }
       body.dia-page #mcHeroStatus .mc-k { padding: 5px 8px; }
-      .dia-hero .quick-links { max-width: 420px; gap: 8px; }
-      .dia-hero .quick-links > * { min-height: 38px; padding: 8px 14px; font-size: 13px; }
+      .dia-hero .quick-links { display: inline-flex !important; flex-wrap: nowrap; max-width: none; width: auto; gap: 6px; margin: 0; }
+      .dia-hero .quick-links > * { width: auto !important; min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; }
+      .dia-hero .quick-links > .mc-hero-login { padding: 7px 11px !important; font-size: 12px !important; }
+      .dia-hero .mc-chat { min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; box-sizing: border-box; }
       .pc-hero-datetime {
-        display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-        padding: 9px 18px; border-radius: 12px;
-        background: linear-gradient(180deg, #fff9fb, #fdf2f6);
-        border: 1px solid #f2dce4;
-        box-shadow: 0 1px 4px rgba(198, 69, 106, .05);
+        display: inline-flex !important; flex-direction: row; align-items: baseline; justify-content: center; gap: 6px;
+        padding: 0; border: 0; background: none; box-shadow: none;
         margin: 0 auto; flex-shrink: 0; white-space: nowrap;
       }
-      .pc-hero-date { font-size: 12px; font-weight: 700; color: #8c586a; letter-spacing: -0.2px; }
+      .pc-hero-date { font-size: 12px; font-weight: 700; color: #8c6b77; letter-spacing: -0.2px; }
       .pc-hero-time {
-        font-size: 17px; font-weight: 900; color: #b35172;
-        font-variant-numeric: tabular-nums; letter-spacing: -0.3px; line-height: 1.15;
+        font-size: 13.5px; font-weight: 800; color: #b35172;
+        font-variant-numeric: tabular-nums; letter-spacing: -0.2px; line-height: 1.2;
       }
       body.dia-page .plx-section { padding: 16px 20px 64px !important; }
       body.dia-page .plx-inner { max-width: 1200px; grid-template-columns: 220px minmax(0, 1fr); gap: 20px;
@@ -2694,7 +2693,7 @@ window.창고읽기 = function(url){
               }
               /* PC: 남은 시간 배지가 우측 버튼 위로 겹치지 않게 흐름 안에 둔다 */
               @media (min-width:881px){
-                .dia-hero .mc-hero-right{position:static;margin:0 0 0 auto;align-self:center;}
+                .dia-hero .mc-hero-right{position:static;margin:0;align-self:center;gap:6px;}
                 .dia-hero .mc-hero-clock{position:static;margin:0;align-self:center;}
                 .dia-hero-in:has(#mcHeroClock:not([hidden])) .pr-card{padding-right:0 !important;}
               }
