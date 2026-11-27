@@ -179,7 +179,7 @@
 
 <div class="app-shell" id="tlAppShell">
   <aside class="side">
-    <a href="dia-workspace.html" class="s-btn" style="text-decoration:none;"><span>다이아 워크스페이스</span></a>
+    <button type="button" class="s-btn" data-tab="workspace"><span>다이아 워크스페이스</span></button>
     <div style="height:1px;background:#f3f4f6;margin:6px 4px;"></div>
     <div class="side-sec">WORKSPACE TOOLS</div>
     <nav class="side-nav" id="tlTabs">
@@ -204,6 +204,73 @@
   </aside>
 
   <main>
+    <!-- 0. 다이아 워크스페이스 (내 샵 통합 분석) -->
+    <section class="tl-panel" id="tab-workspace">
+      <div class="work-grid">
+        <div class="card">
+          <h3>내 매장 프로필 · 통합 분석</h3>
+          <p class="card-sub">계정에 저장된 인스타·지역·업종으로 모든 마케팅 지표를 한 번에 분석합니다.</p>
+          <div class="row2">
+            <div><label class="lbl">내 매장명</label><input id="wsShop" class="inp" placeholder="예: 세이린뷰티"></div>
+            <div><label class="lbl">인스타 아이디 (@)</label><input id="wsIg" class="inp" placeholder="예: seilin_beauty.pr"></div>
+          </div>
+          <div class="row2">
+            <div><label class="lbl">지역 / 역명</label><input id="wsLoc" class="inp" value="화곡동" placeholder="예: 화곡동, 강남역"></div>
+            <div><label class="lbl">주력 업종</label>
+              <select id="wsBiz" class="sel">
+                <option value="속눈썹펌" selected>속눈썹펌</option>
+                <option value="속눈썹연장">속눈썹연장</option>
+                <option value="반영구">반영구</option>
+                <option value="네일아트">네일아트</option>
+                <option value="피부관리">피부관리</option>
+                <option value="왁싱">왁싱</option>
+              </select>
+            </div>
+          </div>
+          <div class="row2">
+            <div><label class="lbl">방문자 리뷰 수</label><input id="wsVis" type="number" class="inp" value="120"></div>
+            <div><label class="lbl">블로그 리뷰 수</label><input id="wsBlog" type="number" class="inp" value="45"></div>
+          </div>
+          <div class="row2">
+            <div><label class="lbl">주력 시술 단가 (원)</label><input id="wsPrice" type="number" class="inp" value="50000"></div>
+            <div><label class="lbl">월 고정비 (원)</label><input id="wsFixed" type="number" class="inp" value="1800000"></div>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn-primary" id="btnWsRun">통합 분석 실행</button>
+            <a href="#" target="_blank" rel="noopener" class="btn-ghost" id="btnWsIgOpen" style="text-decoration:none;">인스타 ↗</a>
+            <a href="#" target="_blank" rel="noopener" class="btn-ghost" id="btnWsMapOpen" style="text-decoration:none;">네이버 지도 ↗</a>
+          </div>
+          <div class="kpi-row" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-top:14px;">
+            <div class="kpi"><div class="kpi-l">상권 월간 검색량</div><div class="kpi-v" id="kWsSearch">-</div><div class="kpi-d" id="kWsTotal">총 수요 -</div></div>
+            <div class="kpi"><div class="kpi-l">1건당 순마진</div><div class="kpi-v" id="kWsMargin">-</div><div class="kpi-d" id="kWsBepSub">손익분기 월 -건</div></div>
+            <div class="kpi"><div class="kpi-l">플레이스 리뷰</div><div class="kpi-v" id="kWsRev">-</div><div class="kpi-d" id="kWsRevSub">방문자 · 블로그</div></div>
+          </div>
+          <div class="bar-row" style="margin-top:14px;">
+            <div class="bar-top"><span>방문자 리뷰 확보율 (목표 300건)</span><span id="wsVisPct">0%</span></div>
+            <div class="bar-bg"><div class="bar-fill" id="wsVisBar"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-top"><span>블로그 리뷰 확보율 (목표 100건)</span><span id="wsBlogPct">0%</span></div>
+            <div class="bar-bg"><div class="bar-fill" id="wsBlogBar"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>실시간 상권 · AI 종합 보고서</h3>
+          <p class="card-sub">검색광고 API 키워드와 매장 지표를 결합해 이번 주 실행 전략을 자동 작성합니다.</p>
+          <div class="kw-tbl-wrap" style="max-height:210px;overflow-y:auto;">
+            <table class="kw-tbl">
+              <thead><tr><th>키워드</th><th>PC</th><th>모바일</th><th>월 합계</th><th>경쟁</th></tr></thead>
+              <tbody id="wsKwBody"><tr><td colspan="5" style="color:#6b7280;text-align:center;padding:18px;">워크스페이스 탭 진입 시 실시간 분석됩니다.</td></tr></tbody>
+            </table>
+          </div>
+          <div id="wsReport" class="out-box">통합 분석 데이터를 불러오는 중입니다...</div>
+          <div class="btn-row">
+            <button type="button" class="btn-ghost" id="btnWsCopy">보고서 복사</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- 1. 블로그 SEO · 광고법 -->
     <section class="tl-panel is-on" id="tab-seo">
       <div class="kpi-row">
@@ -798,18 +865,27 @@
       .catch(onFail);
   }
 
-  document.getElementById("tlTabs").addEventListener("click", function(e){
-    var b = e.target.closest(".s-btn"); if (!b) return;
+  function openTabByName(tabId){
+    var b = document.querySelector('.side .s-btn[data-tab="' + tabId + '"]');
+    if (!b) return;
     document.querySelectorAll(".s-btn").forEach(function(x){ x.classList.remove("is-on"); });
     document.querySelectorAll(".tl-panel").forEach(function(x){ x.classList.remove("is-on"); });
     b.classList.add("is-on");
-    var tabId = b.getAttribute("data-tab");
     var p = document.getElementById("tab-" + tabId);
     if (p) p.classList.add("is-on");
     var isLocked = (tabId === "macro" || tabId === "plc_lock" || tabId === "ig_lock");
     logTool(tabId, isLocked ? "locked_click" : "tab_open");
+    if (tabId === "workspace" && typeof window.__diaWsAuto === "function") window.__diaWsAuto();
+  }
+  document.querySelector(".side").addEventListener("click", function(e){
+    var b = e.target.closest(".s-btn[data-tab]"); if (!b) return;
+    openTabByName(b.getAttribute("data-tab"));
   });
-  if (authed) logTool("seo", "tab_open");
+  if (location.hash === "#workspace") {
+    openTabByName("workspace");
+  } else if (authed) {
+    logTool("seo", "tab_open");
+  }
 
   // 1. 블로그 SEO · 광고법
   var BANNED = [
@@ -1496,6 +1572,157 @@
   var btnCopyMg = document.getElementById("btnCopyMg");
   if (btnCopyMg) btnCopyMg.addEventListener("click", function(){ cpTxt(mgOut.textContent); });
   calcMargin();
+
+  // 0. 다이아 워크스페이스 (통합 분석)
+  (function(){
+    var elShop = document.getElementById("wsShop");
+    var elIg = document.getElementById("wsIg");
+    var elLoc = document.getElementById("wsLoc");
+    var elBiz = document.getElementById("wsBiz");
+    var elVis = document.getElementById("wsVis");
+    var elBlog = document.getElementById("wsBlog");
+    var elPrice = document.getElementById("wsPrice");
+    var elFixed = document.getElementById("wsFixed");
+    if (!elShop) return;
+    function readJson(k){ try { return JSON.parse(localStorage.getItem(k) || "null"); } catch(e){ return null; } }
+    var mem = readJson("dia_login_member");
+    var sns = readJson("dia_sns_user");
+    var uid = (mem && (mem.i || mem.insta)) || (sns && (sns.ig || sns.email)) || "guest";
+    var storeKey = "dia_ws_profile_" + String(uid).replace(/[^a-zA-Z0-9_.-]/g, "_");
+    var saved = readJson(storeKey) || {};
+    elShop.value = saved.shop || (mem && mem.n) || (sns && sns.name) || "우리 뷰티샵";
+    elIg.value = saved.ig || (mem && (mem.i || mem.insta)) || (sns && sns.ig) || "";
+    elLoc.value = saved.loc || (mem && mem.r) || "화곡동";
+    if (saved.biz) elBiz.value = saved.biz;
+    else if (mem && mem.c) {
+      for (var i=0; i<elBiz.options.length; i++){ if (mem.c.indexOf(elBiz.options[i].value) >= 0) elBiz.selectedIndex = i; }
+    }
+    if (saved.vis !== undefined) elVis.value = saved.vis;
+    if (saved.blog !== undefined) elBlog.value = saved.blog;
+    if (saved.price !== undefined) elPrice.value = saved.price;
+    if (saved.fixed !== undefined) elFixed.value = saved.fixed;
+
+    function syncLinks(){
+      var igClean = (elIg.value || "").replace(/^@/, "").trim();
+      document.getElementById("btnWsIgOpen").href = igClean ? ("https://www.instagram.com/" + encodeURIComponent(igClean) + "/") : "https://www.instagram.com/";
+      document.getElementById("btnWsMapOpen").href = "https://map.naver.com/p/search/" + encodeURIComponent((elLoc.value || "화곡동") + " " + (elBiz.value || "속눈썹펌"));
+    }
+    function saveProf(){
+      try {
+        localStorage.setItem(storeKey, JSON.stringify({
+          shop: elShop.value.trim(), ig: elIg.value.trim(), loc: elLoc.value.trim(), biz: elBiz.value,
+          vis: parseInt(elVis.value || "0", 10) || 0, blog: parseInt(elBlog.value || "0", 10) || 0,
+          price: parseInt(elPrice.value || "0", 10) || 0, fixed: parseInt(elFixed.value || "0", 10) || 0
+        }));
+      } catch(e){}
+      syncLinks();
+    }
+    [elShop, elIg, elLoc, elBiz, elVis, elBlog, elPrice, elFixed].forEach(function(el){
+      el.addEventListener("input", saveProf);
+      el.addEventListener("change", saveProf);
+    });
+    syncLinks();
+
+    function calcLocal(){
+      var p = parseFloat(elPrice.value || "50000") || 50000;
+      var fix = parseFloat(elFixed.value || "1800000") || 1800000;
+      var unit = Math.max(0, p - 3500 - Math.round(p * 0.035));
+      var bep = unit > 0 ? Math.ceil(fix / unit) : 0;
+      document.getElementById("kWsMargin").textContent = unit.toLocaleString() + "원";
+      document.getElementById("kWsBepSub").textContent = "손익분기 월 " + bep + "건";
+      var vis = parseInt(elVis.value || "0", 10) || 0;
+      var blog = parseInt(elBlog.value || "0", 10) || 0;
+      var vp = Math.min(100, Math.round((vis / 300) * 100));
+      var bp = Math.min(100, Math.round((blog / 100) * 100));
+      document.getElementById("kWsRev").textContent = (vis + blog).toLocaleString() + "건";
+      document.getElementById("kWsRevSub").textContent = "방문자 " + vis + " · 블로그 " + blog;
+      document.getElementById("wsVisPct").textContent = vp + "% (" + vis + "/300)";
+      document.getElementById("wsVisBar").style.width = vp + "%";
+      document.getElementById("wsBlogPct").textContent = bp + "% (" + blog + "/100)";
+      document.getElementById("wsBlogBar").style.width = bp + "%";
+      return { unit: unit, bep: bep, vis: vis, blog: blog };
+    }
+    calcLocal();
+
+    var ranOnce = false;
+    function runWs(){
+      ranOnce = true;
+      saveProf();
+      var m = calcLocal();
+      var btn = document.getElementById("btnWsRun");
+      var rep = document.getElementById("wsReport");
+      var tbody = document.getElementById("wsKwBody");
+      var shop = elShop.value.trim() || "우리 매장";
+      var ig = elIg.value.trim() || "미입력";
+      var loc = elLoc.value.trim() || "화곡동";
+      var biz = elBiz.value;
+      var q = (loc + biz).replace(/\s+/g, "");
+      btn.disabled = true; btn.textContent = "통합 분석 중...";
+      rep.textContent = "'" + shop + "' 기준 실시간 상권 검색량·리뷰·마진을 종합 분석 중입니다...";
+      logTool("workspace", "workspace_run", q);
+
+      fetch(GAS + "?mode=kw&q=" + encodeURIComponent(q))
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          var list = (d && d.ok && d.list) ? d.list.slice(0, 8) : [];
+          var mainKw = list[0] ? list[0].k : (loc + " " + biz);
+          var mTot = 0, sumAll = 0, sumMo = 0;
+          if (list.length) {
+            mTot = (Number(list[0].pc)||0) + (Number(list[0].mo)||0);
+            tbody.innerHTML = "";
+            list.forEach(function(row){
+              var pcN = Number(row.pc), moN = Number(row.mo);
+              if (!isNaN(pcN)) sumAll += pcN;
+              if (!isNaN(moN)) { sumAll += moN; sumMo += moN; }
+              var pcS = isNaN(pcN) ? (row.pc || "<10") : pcN.toLocaleString();
+              var moS = isNaN(moN) ? (row.mo || "<10") : moN.toLocaleString();
+              var totS = (isNaN(pcN) && isNaN(moN)) ? "<20" : ((isNaN(pcN)?0:pcN) + (isNaN(moN)?0:moN)).toLocaleString();
+              var cls = row.comp === "높음" ? "hi" : (row.comp === "중간" ? "md" : "lo");
+              var tr = document.createElement("tr");
+              tr.innerHTML = "<td><b>" + row.k + "</b></td><td>" + pcS + "</td><td>" + moS + "</td><td><b>" + totS + "</b></td><td><span class=\"kw-comp " + cls + "\">" + (row.comp || "-") + "</span></td>";
+              tbody.appendChild(tr);
+            });
+          } else {
+            tbody.innerHTML = '<tr><td colspan="5" style="color:#6b7280;text-align:center;padding:16px;">검색량 데이터가 적어 기본 분석으로 진행합니다.</td></tr>';
+          }
+          var mobPct = sumAll > 0 ? Math.round((sumMo / sumAll) * 100) : 85;
+          document.getElementById("kWsSearch").textContent = list.length ? (mTot > 0 ? mTot.toLocaleString() + "회" : "<20") : "-";
+          document.getElementById("kWsTotal").textContent = list.length ? ("총 " + sumAll.toLocaleString() + "회 · 모바일 " + mobPct + "%") : "총 수요 -";
+
+          var kwSumTxt = list.slice(0, 5).map(function(x){ return x.k + "(" + ((Number(x.pc)||0)+(Number(x.mo)||0)) + ")"; }).join(", ");
+          var fbReport = "[" + shop + " (@" + ig.replace(/^@/,"") + ") 통합 분석 보고서]\n"
+            + "1. 상권 수요: '" + loc + " " + biz + "' 관련 상위 키워드 월 총 수요 " + sumAll.toLocaleString() + "회 (모바일 " + mobPct + "%)\n"
+            + "2. 플레이스 현황: 방문자 리뷰 " + m.vis + "건 / 블로그 리뷰 " + m.blog + "건\n"
+            + "3. 수익성: 1건당 순마진 " + m.unit.toLocaleString() + "원 · 손익분기 월 " + m.bep + "건\n\n"
+            + "[이번 주 우선 실행 3가지]\n"
+            + "• 플레이스: 방문자 영수증 리뷰 주 5건 확보 + 대표 키워드('" + mainKw + "') 상세소개 반영\n"
+            + "• 블로그: '" + loc + " " + biz + " 유지력/추천' 키워드로 실사 8장 포함 포스팅 1건 발행\n"
+            + "• 인스타: 시술 전후 릴스 1건 업로드 + 상단 하이라이트 정비";
+          var pr = "뷰티샵 전담 마케팅 디렉터로서 아래 매장의 통합 데이터를 분석해 종합 보고서를 작성해줘.\n"
+            + "- 매장명: " + shop + " / 인스타: @" + ig.replace(/^@/,"") + "\n"
+            + "- 지역/업종: " + loc + " " + biz + "\n"
+            + "- 실시간 상권 검색량: " + (kwSumTxt || (loc + " " + biz)) + " (모바일 비중 " + mobPct + "%)\n"
+            + "- 플레이스 리뷰: 방문자 " + m.vis + "건, 블로그 " + m.blog + "건\n"
+            + "- 수익 구조: 시술가 " + elPrice.value + "원, 1건 순마진 " + m.unit + "원, 손익분기 월 " + m.bep + "건\n"
+            + "1) 종합 진단 점수(100점)와 병목 지점\n2) 이번 주 실행 3가지\n3) 추천 블로그 제목 2개\n4) 추천 릴스 주제 2개";
+          callAi(pr, function(txt){
+            btn.disabled = false; btn.textContent = "통합 분석 실행";
+            rep.textContent = txt;
+          }, function(){
+            btn.disabled = false; btn.textContent = "통합 분석 실행";
+            rep.textContent = fbReport;
+          });
+        })
+        .catch(function(){
+          btn.disabled = false; btn.textContent = "통합 분석 실행";
+          rep.textContent = "네트워크 오류입니다. 다시 시도해 주세요.";
+        });
+    }
+    document.getElementById("btnWsRun").addEventListener("click", runWs);
+    document.getElementById("btnWsCopy").addEventListener("click", function(){ cpTxt(document.getElementById("wsReport").textContent); });
+    window.__diaWsAuto = function(){ if (!ranOnce) runWs(); };
+    if (location.hash === "#workspace" && authed) runWs();
+  })();
 })();
 </script>
 <script src="dia-sub-header.js?v=1"></script>
