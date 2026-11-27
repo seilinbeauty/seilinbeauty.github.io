@@ -3567,6 +3567,7 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
 .crs-photos .crs-ph{display:none !important;aspect-ratio:3/4.3 !important;border-radius:0 !important;background:#f5f3f4 !important;}
 .crs-photos .crs-ph:first-child{display:block !important;}
 .crs-card:not([data-benefit="1"]) .crs-ph{cursor:default !important;}
+.crs-card:not([data-benefit="1"]) .crs-chat{display:none !important;}
 .crs-photos .crs-ph-empty{display:flex !important;align-items:center;justify-content:center;aspect-ratio:3/4.3 !important;border-radius:0 !important;border:1px solid #eee !important;background:#faf8f9 !important;}
 .crs-aloha-bar{order:-2;display:flex;justify-content:flex-end;gap:3px;margin:0 0 5px;}
 .crs-aloha-bar i{display:block;width:11px;height:3px;border-radius:0;}
@@ -3702,6 +3703,7 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
         headEl.appendChild(chatEl);
       }
       if (card.getAttribute('data-benefit') !== '1' && !card.querySelector('.crs-benefit')) {
+        if (chatEl) chatEl.remove();
         var phs = card.querySelectorAll('.crs-ph');
         for (var pi = 0; pi < phs.length; pi++) {
           if (phs[pi].tagName === 'A') {
