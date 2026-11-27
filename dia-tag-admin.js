@@ -49,9 +49,7 @@
       '<div class="tg-btns"><button type="button" class="tg-save" id="tgSave">저장</button><button type="button" class="tg-reset" id="tgReset">처음 모양으로</button></div>' +
       '<div class="tg-msg" id="tgMsg"></div>' +
     '</div>';
-  var host = document.getElementById('ops-banner') || document.getElementById('ops-members');
-  if(!host || !host.parentNode) return;
-  host.parentNode.insertBefore(sec, host.nextSibling);
+  games.parentNode.insertBefore(sec, games.nextSibling);
 
   var $ = function(id){ return document.getElementById(id); };
   function nextNewYear(){ var k = new Date(Date.now() + 9 * 3600 * 1000); return new Date(Date.UTC(k.getUTCFullYear() + 1, 0, 1, 3)); }
@@ -98,7 +96,7 @@
   });
 
   // 탭 전환: 기존 탭 코드는 그대로 두고, 이 탭만 따로 켜고 끈다
-  var others = ['ops-stats', 'ops-members', 'ops-course', 'ops-course-req', 'ops-notice', 'ops-banner'];
+  var others = ['ops-stats', 'ops-members', 'ops-course'];
   btn.addEventListener('click', function(){
     [].forEach.call(nav.querySelectorAll('.ops-nav-item'), function(b){ b.setAttribute('data-on', b === btn ? '1' : '0'); });
     others.forEach(function(id){ var el = document.getElementById(id); if(el) el.style.display = 'none'; });
