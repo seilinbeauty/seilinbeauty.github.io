@@ -74,6 +74,7 @@
     </div>
     <div class="ed-right">
       <span class="ed-msg" id="d_msg"></span>
+      <button type="button" class="ed-btn" id="d_addtxt">T 텍스트 추가</button>
       <button type="button" class="ed-btn" id="d_grid">📐 그리드</button>
       <button type="button" class="ed-btn" id="d_reset">이 기기 원래대로</button>
       <button type="button" class="ed-save" id="d_save">💾 저장하기</button>
@@ -156,6 +157,7 @@
       frame.contentWindow.postMessage({ type: 'dia-edit-reset-one', key: selKey, keys: selKeys }, '*');
     });
 
+    document.getElementById('d_addtxt').addEventListener('click', function(){ if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'dia-edit-add-text' }, '*'); });
     var gridBtn = document.getElementById('d_grid');
     gridBtn.addEventListener('click', function(){
       gridOn = !gridOn;
