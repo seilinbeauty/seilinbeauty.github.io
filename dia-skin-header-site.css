@@ -147,8 +147,12 @@
   .dia-header .brand-sub{ display:none !important; }
   .dia-header .brand-logo{
     color:#000 !important;
+    -webkit-text-fill-color:#000 !important;
+    background:none !important;
     font-family:Arial,'Nanum Barun Gothic',"맑은 고딕",돋움,sans-serif !important;
+    font-size:15px !important;
     font-weight:700 !important;
+    letter-spacing:.5px !important;
   }
   #moCatBtn{
     background:#fff !important;
