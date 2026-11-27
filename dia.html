@@ -2430,7 +2430,7 @@ window.창고읽기 = function(url){
               if (lx >= 0 && lx < tw) {
                 for (var y = 0; y < th; y++) {
                   if (img[(y * tw + lx) * 4 + 3] > 55) {
-                    surfaceY[x] = baseTop + y + 1;
+                    surfaceY[x] = baseTop + y - 0.5;
                     pileY[x] = surfaceY[x];
                     break;
                   }
@@ -2528,7 +2528,7 @@ window.창고읽기 = function(url){
             if (surfaceY[x] >= 0 && pileY[x] < surfaceY[x] - 0.2) {
               var h = surfaceY[x] - pileY[x];
               ctx.fillStyle = '#c5d6e6';
-              ctx.fillRect(x, pileY[x] - 0.8, 1.3, h + 1);
+              ctx.fillRect(x, pileY[x] - 0.8, 1.3, h + 0.8);
               ctx.fillStyle = '#ffffff';
               ctx.fillRect(x, pileY[x], 1.2, h);
             }
