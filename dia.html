@@ -2395,6 +2395,7 @@ window.창고읽기 = function(url){
         var sparkles = [];
         var snowballs = [];
         var snowmen = [];
+        var lamps = [];
         var mouse = { x: -999, y: -999, px: -999, py: -999, vx: 0, vy: 0, inside: false };
         hero.addEventListener('mousemove', function(e){
           if (window.innerWidth <= 880) return;
@@ -2775,7 +2776,33 @@ window.창고읽기 = function(url){
               santa.y += (curRoad - santa.y) * 0.28;
             }
 
-            // 세워진 미니 눈사람 그리기 (서서히 녹음)
+            // 세워진 미니 가로등 그리기 (노란 불빛 반짝 + 오래되면 회수)
+            for (var li = lamps.length - 1; li >= 0; li--) {
+              var lp = lamps[li];
+              lp.life--;
+              if (lp.life <= 0) { lamps.splice(li, 1); continue; }
+              var lsc = Math.min(1, lp.life / 45) * Math.min(1, lp.build / 24);
+              ctx.save();
+              ctx.translate(lp.x, lp.y);
+              ctx.scale(lsc, lsc);
+              // 따뜻한 불빛 글로우
+              var glow = 0.28 + Math.sin(Date.now() / 320 + li) * 0.06;
+              var grd = ctx.createRadialGradient(0, -15, 1, 0, -15, 13);
+              grd.addColorStop(0, 'rgba(255, 232, 130, ' + (glow * 1.4).toFixed(2) + ')');
+              grd.addColorStop(1, 'rgba(255, 232, 130, 0)');
+              ctx.fillStyle = grd;
+              ctx.beginPath(); ctx.arc(0, -15, 13, 0, Math.PI * 2); ctx.fill();
+              // 기둥 & 갓
+              ctx.strokeStyle = '#3b3236'; ctx.lineWidth = 1.6;
+              ctx.beginPath(); ctx.moveTo(-2.5, 0); ctx.lineTo(2.5, 0); ctx.moveTo(0, 0); ctx.lineTo(0, -14); ctx.stroke();
+              ctx.fillStyle = '#fde68a';
+              ctx.beginPath(); ctx.arc(0, -15, 2.2, 0, Math.PI * 2); ctx.fill();
+              ctx.fillStyle = '#3b3236';
+              ctx.beginPath(); ctx.moveTo(-3.4, -16.2); ctx.lineTo(3.4, -16.2); ctx.lineTo(0, -19.2); ctx.closePath(); ctx.fill();
+              ctx.restore();
+            }
+
+            // 세워진 미니 눈사람 그리기 (오래되면 회수)
             for (var sm = snowmen.length - 1; sm >= 0; sm--) {
               var mn = snowmen[sm];
               mn.life--;
@@ -2833,35 +2860,51 @@ window.창고읽기 = function(url){
                 santa.state = 'sit_rest';
                 santa.timer = 0;
               } else if (santa.timer > 45) {
-                // 자유의지: 쌓인 곳 후보를 모아두고 직전 작업과 다른 곳(특히 버튼 쪽)도 골고루 선택
-                var cands = [];
-                if ((maxTop >= 2.8 || totalTop >= 85) && bestTopX >= 0) cands.push('top');
-                if ((maxSub >= 2.3 || totalSub >= 95) && bestSubX >= 0) cands.push('road');
-                if ((maxBtn >= 2.0 || totalBtn >= 45) && bestBtnX >= 0) cands.push('btn');
+                // 너무 오래 꺼내져 있는 눈사람·가로등이 있으면 직접 다가가서 주머니에 회수
+                var oldItem = null;
+                for (var oi = 0; oi < lamps.length; oi++) {
+                  if (lamps[oi].life < 220 && lamps[oi].y >= roadY - 6 && lamps[oi].x <= walkMaxX) { oldItem = { type: 'lamp', idx: oi, x: lamps[oi].x }; break; }
+                }
+                if (!oldItem) {
+                  for (var oj = 0; oj < snowmen.length; oj++) {
+                    if (snowmen[oj].life < 220 && snowmen[oj].y >= roadY - 6 && snowmen[oj].x <= walkMaxX) { oldItem = { type: 'snowman', idx: oj, x: snowmen[oj].x }; break; }
+                  }
+                }
+                if (oldItem) {
+                  santa.state = 'walk_to'; santa.targetMode = 'pack_' + oldItem.type; santa.targetX = oldItem.x;
+                } else {
+                  var cands = [];
+                  if ((maxTop >= 2.8 || totalTop >= 85) && bestTopX >= 0) cands.push('top');
+                  if ((maxSub >= 2.3 || totalSub >= 95) && bestSubX >= 0 && bestSubX <= walkMaxX) cands.push('road');
+                  if ((maxBtn >= 2.0 || totalBtn >= 45) && bestBtnX >= 0) cands.push('btn');
 
-                if (cands.length > 0) {
-                  var filtered = cands.filter(function(c){ return c !== santa.lastJob; });
-                  var chosen = (filtered.length > 0) ? filtered[Math.floor(Math.random() * filtered.length)] : cands[Math.floor(Math.random() * cands.length)];
-                  if (cands.indexOf('btn') >= 0 && santa.lastJob !== 'btn' && Math.random() < 0.55) chosen = 'btn';
-                  santa.lastJob = chosen;
-                  santa.boredom = 0;
-                  if (chosen === 'top') { santa.state = 'walk_to'; santa.targetMode = 'top'; santa.targetX = Math.min(walkMaxX, bestTopX); }
-                  else if (chosen === 'road') { santa.state = 'walk_to'; santa.targetMode = 'road'; santa.targetX = Math.min(walkMaxX, bestSubX); }
-                  else { santa.state = 'summon_sleigh'; santa.timer = 0; santa.targetX = bestBtnX; }
-                } else if (santa.boredom > 150) {
-                  santa.boredom = 0;
-                  var pick = Math.random();
-                  if (pick < 0.34 && snowmen.length < 2 && walkMaxX > sLeft + 50) {
-                    santa.state = 'walk_to'; santa.targetMode = 'snowman';
-                    santa.targetX = sLeft + 25 + Math.random() * Math.max(20, (walkMaxX - sLeft - 45));
-                  } else if (pick < 0.68) {
-                    santa.state = 'snowball'; santa.timer = 0;
-                  } else if (dtRight > dtLeft + 10) {
-                    santa.wipeWait = 0; santa.state = 'walk_to'; santa.targetMode = 'wipe';
-                    santa.targetX = Math.min(walkMaxX, dtLeft + 14 + Math.random() * Math.max(10, (dtRight - dtLeft - 28)));
-                  } else {
-                    santa.state = 'walk_to'; santa.targetMode = 'roam';
-                    santa.targetX = sLeft + 20 + Math.random() * Math.max(20, (walkMaxX - sLeft - 35));
+                  if (cands.length > 0) {
+                    var filtered = cands.filter(function(c){ return c !== santa.lastJob; });
+                    var chosen = (filtered.length > 0) ? filtered[Math.floor(Math.random() * filtered.length)] : cands[Math.floor(Math.random() * cands.length)];
+                    if (cands.indexOf('btn') >= 0 && santa.lastJob !== 'btn' && Math.random() < 0.55) chosen = 'btn';
+                    santa.lastJob = chosen;
+                    santa.boredom = 0;
+                    if (chosen === 'top') { santa.state = 'walk_to'; santa.targetMode = 'top'; santa.targetX = Math.min(walkMaxX, bestTopX); }
+                    else if (chosen === 'road') { santa.state = 'walk_to'; santa.targetMode = 'road'; santa.targetX = Math.min(walkMaxX, bestSubX); }
+                    else { santa.state = 'summon_sleigh'; santa.timer = 0; santa.targetX = bestBtnX; }
+                  } else if (santa.boredom > 150) {
+                    santa.boredom = 0;
+                    var pick = Math.random();
+                    if (pick < 0.26 && lamps.length < 2 && walkMaxX > sLeft + 50) {
+                      santa.state = 'walk_to'; santa.targetMode = 'lamp';
+                      santa.targetX = sLeft + 25 + Math.random() * Math.max(20, (walkMaxX - sLeft - 45));
+                    } else if (pick < 0.52 && snowmen.length < 2 && walkMaxX > sLeft + 50) {
+                      santa.state = 'walk_to'; santa.targetMode = 'snowman';
+                      santa.targetX = sLeft + 25 + Math.random() * Math.max(20, (walkMaxX - sLeft - 45));
+                    } else if (pick < 0.76) {
+                      santa.state = 'snowball'; santa.timer = 0;
+                    } else if (dtRight > dtLeft + 10) {
+                      santa.wipeWait = 0; santa.state = 'walk_to'; santa.targetMode = 'wipe';
+                      santa.targetX = Math.min(walkMaxX, dtLeft + 14 + Math.random() * Math.max(10, (dtRight - dtLeft - 28)));
+                    } else {
+                      santa.state = 'walk_to'; santa.targetMode = 'roam';
+                      santa.targetX = sLeft + 20 + Math.random() * Math.max(20, (walkMaxX - sLeft - 35));
+                    }
                   }
                 }
               }
@@ -2893,13 +2936,34 @@ window.창고읽기 = function(url){
               }
             } else if (santa.state === 'snowman') {
               santa.timer++;
-              if (santa.timer === 1) {
-                snowmen.push({ x: santa.x + santa.dir * 9, y: santa.y, build: 1, life: 2200 });
-              } else if (snowmen.length > 0 && santa.timer <= 65) {
-                snowmen[snowmen.length - 1].build = Math.min(30, santa.timer * 0.5);
+              if (santa.timer === 24) {
+                snowmen.push({ x: santa.x + santa.dir * 8, y: santa.y, build: 1, life: 950 });
+              } else if (snowmen.length > 0 && santa.timer > 24 && santa.timer <= 65) {
+                snowmen[snowmen.length - 1].build = Math.min(30, (santa.timer - 24) * 0.8);
               }
-              if (santa.timer >= 85) {
-                santa.energy = Math.max(0, santa.energy - 8);
+              if (santa.timer >= 80) {
+                santa.energy = Math.max(0, santa.energy - 6);
+                santa.state = 'idle'; santa.timer = 0;
+              }
+            } else if (santa.state === 'place_lamp') {
+              santa.timer++;
+              if (santa.timer === 22) {
+                lamps.push({ x: santa.x + santa.dir * 8, y: santa.y, build: 1, life: 950 });
+              } else if (lamps.length > 0 && santa.timer > 22 && santa.timer <= 50) {
+                lamps[lamps.length - 1].build = Math.min(24, (santa.timer - 22) * 0.9);
+              }
+              if (santa.timer >= 60) {
+                santa.energy = Math.max(0, santa.energy - 4);
+                santa.state = 'idle'; santa.timer = 0;
+              }
+            } else if (santa.state === 'pack_item') {
+              santa.timer++;
+              if (santa.timer === 20) {
+                if (santa.targetMode === 'pack_lamp' && lamps.length > 0) lamps.shift();
+                else if (santa.targetMode === 'pack_snowman' && snowmen.length > 0) snowmen.shift();
+                if (sparkles.length < 20) sparkles.push({ x: santa.x + santa.dir * 6, y: santa.y - 8, life: 0.9 });
+              }
+              if (santa.timer >= 34) {
                 santa.state = 'idle'; santa.timer = 0;
               }
             } else if (santa.state === 'summon_sleigh') {
@@ -2975,6 +3039,10 @@ window.창고읽기 = function(url){
                 if (maxBtn >= 1.8 && bestBtnX >= 0) {
                   santa.targetX = bestBtnX;
                 } else {
+                  if (lamps.length + snowmen.length < 2 && Math.random() < 0.25) {
+                    if (Math.random() < 0.5) lamps.push({ x: santa.x, y: santa.y, build: 1, life: 800 });
+                    else snowmen.push({ x: santa.x, y: santa.y, build: 1, life: 800 });
+                  }
                   santa.state = 'fly_back';
                   santa.flyFromX = santa.x;
                   santa.flyFromY = santa.y;
@@ -3035,17 +3103,33 @@ window.창고읽기 = function(url){
                     }
                   }
                 } else {
-                  if (maxSub >= 1.8 && bestSubX >= 0) {
+                  if (maxSub >= 1.8 && bestSubX >= 0 && bestSubX <= walkMaxX) {
                     santa.targetX = bestSubX;
                   } else if (maxTop >= 2.2 && bestTopX >= 0) {
-                    santa.targetMode = 'top'; santa.targetX = bestTopX;
+                    santa.targetMode = 'top'; santa.targetX = Math.min(walkMaxX, bestTopX);
                   } else if (dtRight > dtLeft + 10 && santa.wipeWait > 180) {
                     santa.wipeWait = 0;
                     santa.targetMode = 'wipe';
-                    santa.targetX = dtLeft + 14 + Math.random() * Math.max(10, (dtRight - dtLeft - 28));
+                    santa.targetX = Math.min(walkMaxX, dtLeft + 14 + Math.random() * Math.max(10, (dtRight - dtLeft - 28)));
                   } else {
                     santa.state = 'return';
                   }
+                }
+              } else if (santa.targetMode === 'lamp') {
+                if (Math.abs(dxMove) > 4) {
+                  santa.dir = dxMove > 0 ? 1 : -1;
+                  santa.x += santa.dir * 0.78;
+                  santa.walk += 0.22;
+                } else {
+                  santa.state = 'place_lamp'; santa.timer = 0;
+                }
+              } else if (santa.targetMode === 'pack_lamp' || santa.targetMode === 'pack_snowman') {
+                if (Math.abs(dxMove) > 8) {
+                  santa.dir = dxMove > 0 ? 1 : -1;
+                  santa.x += santa.dir * 0.85;
+                  santa.walk += 0.24;
+                } else {
+                  santa.state = 'pack_item'; santa.timer = 0;
                 }
               } else if (santa.targetMode === 'snowman') {
                 if (Math.abs(dxMove) > 4) {
@@ -3230,8 +3314,9 @@ window.창고읽기 = function(url){
             var isPutChair = (santa.state === 'sit_rest' && santa.timer > 150);
             var isSitting = (santa.state === 'sit_rest' && santa.timer > 42 && santa.timer <= 150);
             var isPullBridge = (santa.state === 'btn_bridge' && (santa.timer <= 58 || santa.timer > 86));
-            var isRummage = ((santa.state === 'summon_sleigh' && santa.timer <= 26) || (santa.state === 'sit_rest' && santa.timer <= 24) || (santa.state === 'btn_bridge' && santa.timer <= 18));
-            var isBagAction = (santa.state === 'summon_sleigh' || isPullChair || isPutChair || isPullBridge);
+            var isBagLamp = (santa.state === 'place_lamp' || santa.state === 'pack_item' || (santa.state === 'snowman' && santa.timer <= 35));
+            var isRummage = ((santa.state === 'summon_sleigh' && santa.timer <= 26) || (santa.state === 'sit_rest' && santa.timer <= 24) || (santa.state === 'btn_bridge' && santa.timer <= 18) || (santa.state === 'place_lamp' && santa.timer <= 20) || (santa.state === 'snowman' && santa.timer <= 20) || (santa.state === 'pack_item' && santa.timer <= 18));
+            var isBagAction = (santa.state === 'summon_sleigh' || isPullChair || isPutChair || isPullBridge || isBagLamp);
             var isCrouch = ((santa.state === 'snowball' && santa.timer < 28) || (santa.state === 'snowman' && santa.timer < 65));
             var bob = isWalking ? Math.abs(Math.sin(santa.walk)) * 1.1 : (isFlying ? Math.sin(santa.flyT * Math.PI * 4) * 1.2 : (santa.state === 'greet' && santa.timer < 20 ? Math.sin((santa.timer / 20) * Math.PI) * 7 : 0));
             var seatDrop = isSitting ? 2.4 : (isCrouch ? 2.2 : 0);
