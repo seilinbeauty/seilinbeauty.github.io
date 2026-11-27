@@ -36,6 +36,7 @@
   .rule{height:1px;background:var(--line);margin:34px 0 30px;}
 
   .field{margin-bottom:16px;}
+  .field label .opt{font-size:9px;letter-spacing:1px;color:#c3b8ba;margin-left:4px;text-transform:none;}
   .field label{display:block;font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;
     color:var(--ink-mute);margin-bottom:7px;}
   .field input,.field select{width:100%;padding:13px 14px;border:1px solid var(--line);
@@ -129,20 +130,20 @@
     <div class="rule"></div>
 
     <div class="field">
-      <label>이메일</label>
+      <label>이메일 <span class="opt">선택</span></label>
       <input type="email" placeholder="name@example.com" autocomplete="email">
     </div>
     <div class="field">
-      <label>비밀번호</label>
+      <label>비밀번호 <span class="opt">선택</span></label>
       <input type="password" placeholder="8자 이상, 영문·숫자 조합" autocomplete="new-password">
       <p class="hint">대소문자를 구분합니다.</p>
     </div>
     <div class="field">
-      <label>이름</label>
+      <label>이름 <span class="opt">선택</span></label>
       <input type="text" placeholder="실명으로 입력해 주세요" autocomplete="name">
     </div>
     <div class="field">
-      <label>휴대폰</label>
+      <label>휴대폰 <span class="opt">선택</span></label>
       <input type="tel" placeholder="010-0000-0000" autocomplete="tel">
     </div>
     <div class="field">
