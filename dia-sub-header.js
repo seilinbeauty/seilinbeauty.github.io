@@ -55,6 +55,7 @@
             '<a href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" class="mcd-link" id="moCatKakao">💬 마케팅 오픈채팅 입장하기</a>' +
             '<div class="mcd-sep"></div>' +
             '<a href="dia-info.html" class="mcd-link">⚙️ 운영 센터</a>' +
+            '<a href="dia-mypage.html" class="mcd-link">👤 마이페이지</a>' +
           '</div>' +
         '</div>';
       document.body.appendChild(d);
