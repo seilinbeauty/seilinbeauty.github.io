@@ -163,7 +163,7 @@
       '<button type="button" class="sn-save" id="w_pc">PC</button>' +
       '<button type="button" class="sn-save" id="w_tb" style="background:#fff;color:#c2456a;border:1px solid #e6b8c8;">태블릿</button>' +
       '<button type="button" class="sn-save" id="w_mo" style="background:#fff;color:#c2456a;border:1px solid #e6b8c8;">모바일</button>' +
-      '<button type="button" class="sn-reset" id="w_reset" style="margin-left:auto;">이 기기 원래대로</button>' +
+      '<button type="button" class="sn-save" id="w_full" style="margin-left:auto;background:#fff;color:#4a3f44;border:1px solid #d9cfd4;">⛶ 크게 보기</button><button type="button" class="sn-reset" id="w_reset">이 기기 원래대로</button>' +
     '</div>' +
     '<div id="w_props" style="margin-top:10px;padding:10px 12px;border:1px solid #f0dde4;border-radius:10px;background:#fff9fb;display:none;flex-wrap:wrap;gap:10px 14px;align-items:center;font-size:12px;color:#4a3f44;">' +
       '<strong id="wp_name" style="color:#b62d47;min-width:110px;">선택됨</strong>' +
@@ -201,7 +201,7 @@
   var wpBg = document.getElementById('wp_bg');
   var wpOneReset = document.getElementById('wp_one_reset');
 
-  var DEV = { pc: [1200, 'PC (1200px)'], tb: [920, '태블릿 (920px)'], mo: [390, '모바일 (390px)'] };
+  var DEV = { pc: [920, 'PC'], tb: [890, '태블릿'], mo: [390, '모바일'] };
   var curDev = 'pc';
   var selKey = '';
 
@@ -306,5 +306,28 @@
       btn2.setAttribute('data-on', '0');
     }
   });
+  var isFull = false;
+  var fullBtn = document.getElementById('w_full');
+  function applyFull(){
+    if (isFull) {
+      wrap.style.position = 'fixed';
+      wrap.style.inset = '12px';
+      wrap.style.zIndex = '9999';
+      wrap.style.margin = '0';
+      wrap.style.overflow = 'auto';
+      wrap.style.boxShadow = '0 20px 60px rgba(0,0,0,.28)';
+      fullBtn.textContent = '✕ 축소하기';
+    } else {
+      wrap.style.position = '';
+      wrap.style.inset = '';
+      wrap.style.zIndex = '';
+      wrap.style.margin = '';
+      wrap.style.overflow = '';
+      wrap.style.boxShadow = '';
+      fullBtn.textContent = '⛶ 크게 보기';
+    }
+    setTimeout(fitFrame, 20);
+  }
+  if (fullBtn) fullBtn.addEventListener('click', function(){ isFull = !isFull; applyFull(); });
   setDev('pc');
 })();
