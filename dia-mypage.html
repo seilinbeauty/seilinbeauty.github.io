@@ -125,8 +125,11 @@
       <div class="mp-hd">내가 올린 샵매물 <a href="dia-shop-write.html" class="mp-shop-add">+ 매물 등록</a></div>
       <div id="mpShopList" class="mp-shop-list"><div style="font-size:12.5px;color:#9c9194;">불러오는 중...</div></div>
     </section>
-    <section class="mp-links">
-      <a class="mp-lbtn" href="dia-my-course.html">🎓 내 수강</a>
+    <section class="mp-card" id="mpCourseCard">
+      <div class="mp-hd">내가 올린 수강 <a href="dia-my-course.html" class="mp-shop-add">+ 수강 등록</a></div>
+      <div id="mpCourseList" class="mp-shop-list"><div style="font-size:12.5px;color:#9c9194;">불러오는 중...</div></div>
+    </section>
+    <section class="mp-links" style="grid-template-columns:repeat(2,1fr);">
       <a class="mp-lbtn" href="dia-chat.html">💬 채팅</a>
       <a class="mp-lbtn primary" href="dia.html">🏠 홈으로</a>
     </section>
@@ -307,6 +310,43 @@
       drawMyShops(Array.isArray(arr) ? arr : []);
     }).catch(function(){
       listEl.innerHTML = '<div style="font-size:12.5px;color:#9c9194;">등록 매물을 불러오지 못했습니다.</div>';
+    });
+  })();
+
+  (function loadMyCourses(){
+    var listEl = document.getElementById('mpCourseList');
+    var nick = String(m.n || m.i || '').trim();
+    if (!nick) { listEl.innerHTML = '<div style="font-size:12.5px;color:#9c9194;padding:8px 0;">아직 등록한 수강이 없습니다.</div>'; return; }
+    var docId = encodeURIComponent(nick.split('/').join('|'));
+    var base = 'https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/';
+    function readDoc(coll){
+      return fetch(base + coll + '/' + docId + '?t=' + Date.now()).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+    }
+    Promise.all([readDoc('course_approved'), readDoc('course_submissions')]).then(function(res){
+      var items = [];
+      res.forEach(function(doc, idx){
+        if (!doc || !doc.fields) return;
+        var f = doc.fields;
+        var g = function(k){ return f[k] && f[k].stringValue ? f[k].stringValue : ''; };
+        var title = g('course') || g('title') || g('intro') || (g('area') + ' ' + g('job') + ' 수강');
+        var st = idx === 0 ? '노출 중' : (g('status') || '검토 중');
+        items.push({ title: title, area: g('area'), job: g('job'), benefit: g('benefit'), status: st });
+      });
+      if (!items.length) {
+        listEl.innerHTML = '<div style="font-size:12.5px;color:#9c9194;padding:8px 0;">아직 등록한 수강이 없습니다.</div>';
+        return;
+      }
+      listEl.innerHTML = items.map(function(c){
+        return '<div class="mp-shop-item">' +
+          '<div class="mp-shop-info">' +
+            '<a href="dia-my-course.html" class="mp-shop-title">['+esc(c.status)+'] '+esc(c.title)+'</a>' +
+            '<div class="mp-shop-meta">'+esc([c.area, c.job, c.benefit].filter(Boolean).join(' · ') || '내 수강 관리에서 수정할 수 있어요')+'</div>' +
+          '</div>' +
+          '<a href="dia-my-course.html" class="mp-shop-del" style="color:#1e1a1b;border-color:#e4d8da;">수정</a>' +
+        '</div>';
+      }).join('');
+    }).catch(function(){
+      listEl.innerHTML = '<div style="font-size:12.5px;color:#9c9194;padding:8px 0;">아직 등록한 수강이 없습니다.</div>';
     });
   })();
 })();
