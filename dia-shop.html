@@ -213,16 +213,22 @@
     .item-desc{font-size:11px;-webkit-line-clamp:3;}
   }
 </style>
+<link rel="stylesheet" href="dia-sub-header.css?v=1">
 </head>
 <body data-dev="1">
 
 <header class="dia-header">
-  <div class="pv-left">
-    <a href="dia.html" class="brand"><span class="brand-logo">DIA COMMUNITY</span></a>
-  </div>
-  <div class="pv-util">
-    <a href="dia-preview-login.html" id="shopAuthBtn">로그인</a>
-    <a href="dia-preview-join.html" id="shopJoinBtn">회원가입</a>
+  <a href="dia.html" class="brand">
+    <span class="brand-logo">DIA COMMUNITY</span><span class="brand-sub">속눈썹·반영구·네일아트·피부관리·왁싱·붙임머리</span>
+  </a>
+  <nav class="nav-links">
+    <a href="dia-preview-login.html" class="nav-mypumasi" id="hdrLogin">로그인</a>
+    <a href="dia-preview-join.html" class="nav-mypumasi nav-join">회원가입</a>
+    <a href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" class="nav-dia">마케팅 오픈채팅 입장하기</a>
+    <a href="dia-info.html" class="nav-dia">운영 센터</a>
+  </nav>
+  <div class="nav-mobile-links">
+    <button type="button" id="moCatBtn" class="nav-mobile-link" aria-label="카테고리" title="카테고리" aria-expanded="false">☰ 카테고리</button>
   </div>
 </header>
 
@@ -617,26 +623,9 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   updatePills(); render(); loadRemoteShop();
-  (function(){
-    var ab = document.getElementById('shopAuthBtn');
-    var jb = document.getElementById('shopJoinBtn');
-    var hasMem = false;
-    try { hasMem = !!(localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak')); } catch(e){}
-    if (ab && hasMem) {
-      ab.textContent = '로그아웃';
-      ab.href = '#logout';
-      if (jb) jb.style.setProperty('display', 'none', 'important');
-      ab.addEventListener('click', function(ev){
-        ev.preventDefault();
-        try {
-          ['dia_login_member','dia_login_member_bak','dia_no_track','dia_sns_need_ig','dia_sns_linked_ig','dia_sns_joined_ts','dia_sns_user'].forEach(function(k){ localStorage.removeItem(k); });
-        } catch(e){}
-        location.reload();
-      });
-    }
-  })();
 });
 </script>
+<script src="dia-sub-header.js?v=1"></script>
 <script src="dia-track.js?v=1" defer></script>
 </body>
 </html>
