@@ -3591,7 +3591,7 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
 .crs-badge-row .crs-tag-mini{padding:2px 6px;border-radius:2px;font-size:9.5px;font-weight:700;background:#e8f4fd;color:#5a9bd4;}
 .crs-badge-row .crs-tag-mini.pink{background:#f797b5;color:#fff;}
 .crs-badge-row .crs-tag-mini.green{background:#76c893;color:#fff;}
-.crs-actions{order:5;margin-top:6px !important;gap:4px !important;}
+.crs-actions{display:none !important;order:5;margin-top:6px !important;gap:4px !important;}
 .crs-act{height:25px !important;border-radius:3px !important;font-size:10px !important;background:#fff !important;border:1px solid #e4d8da !important;color:#1e1a1b !important;}
 </style>
 <script>
@@ -3667,6 +3667,22 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
           barEl.parentNode.insertBefore(slot, barEl.nextSibling);
         }
         slot.appendChild(chatEl);
+        var extLinks = cards2[c].querySelectorAll('.crs-links a:not(.crs-chat), .crs-actions a');
+        for (var ex = 0; ex < extLinks.length; ex++) {
+          var href = extLinks[ex].getAttribute('href') || '';
+          var txt = (extLinks[ex].textContent || '').trim();
+          if (href.indexOf('instagram.com') >= 0 || txt === '인스타그램') continue;
+          if (!slot.querySelector('a[href="' + href + '"]')) {
+            var sm = document.createElement('a');
+            sm.href = href;
+            sm.target = '_blank';
+            sm.rel = 'noopener';
+            sm.className = 'crs-ig';
+            sm.textContent = txt;
+            sm.style.cssText = 'font-size:10px;padding:3px 7px;border-radius:3px;background:#f5f3f4;color:#444;text-decoration:none;font-weight:700;';
+            slot.appendChild(sm);
+          }
+        }
       }
     }
   }
