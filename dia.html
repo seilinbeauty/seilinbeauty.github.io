@@ -2381,10 +2381,10 @@ window.창고읽기 = function(url){
         var ctx = cv.getContext('2d');
         var W = 0, H = 0, dpr = 1;
         var surfaceY = null, pileY = null;
-        var tLeft = 0, tRight = 0, titleBaseY = 20;
+        var tLeft = 0, tRight = 0, titleBaseY = 20, titleBottomY = 48;
         var flakes = [];
         var puffs = [];
-        var santa = { x: 40, dir: 1, walk: 0, y: 20 };
+        var santa = { x: 40, dir: 1, walk: 0, y: 50, state: 'idle', timer: 0, targetX: 40, tapCount: 0, broomSwing: 0 };
         var colors = ['rgba(239,184,201,0.85)','rgba(224,234,244,0.92)','rgba(244,212,223,0.88)','rgba(255,255,255,0.95)'];
 
         function buildSurface(){
@@ -2420,8 +2420,9 @@ window.창고읽기 = function(url){
           pileY = new Float32Array(W);
           var baseTop = tr.top - hr.top;
           titleBaseY = baseTop + Math.max(0, topOff) + 2;
-          if (santa.x < tLeft || santa.x > tRight) santa.x = tLeft + 10;
-          santa.y = titleBaseY;
+          titleBottomY = Math.min(H - 4, Math.round(tr.bottom - hr.top + 18));
+          if (santa.x < tLeft || santa.x > tRight) santa.x = tLeft + 14;
+          santa.y = titleBottomY;
           for (var x = 0; x < W; x++) {
             surfaceY[x] = -1;
             pileY[x] = -1;
@@ -2534,77 +2535,146 @@ window.창고읽기 = function(url){
             }
           }
 
-          // 미니 산타 이동 및 빗자루 눈 쓸기
+          // 미니 산타: 아래에서 기다리다가 눈이 쌓이면 긴 빗자루로 탁탁 쳐서 떨어뜨림
           if (tRight > tLeft + 20) {
-            santa.x += santa.dir * 0.42;
-            santa.walk += 0.18;
-            if (santa.x >= tRight - 4) { santa.x = tRight - 4; santa.dir = -1; }
-            if (santa.x <= tLeft + 4) { santa.x = tLeft + 4; santa.dir = 1; }
-
-            var sx = Math.round(santa.x);
-            var targetY = (surfaceY[sx] >= 0) ? surfaceY[sx] : titleBaseY;
-            santa.y += (targetY - santa.y) * 0.25;
-
-            // 산타가 지나가는 자리(빗자루 쪽) 눈 쓸어 치우기
-            var sweepX = Math.round(santa.x + santa.dir * 5);
-            for (var dx = -6; dx <= 6; dx++) {
-              var cx = sweepX + dx;
-              if (cx >= tLeft && cx <= tRight && surfaceY[cx] >= 0 && pileY[cx] < surfaceY[cx] - 0.3) {
-                var cleared = surfaceY[cx] - pileY[cx];
-                pileY[cx] = Math.min(surfaceY[cx], pileY[cx] + 1.1);
-                if (cleared > 1.2 && Math.random() < 0.22 && puffs.length < 24) {
-                  puffs.push({
-                    x: cx, y: pileY[cx] - 1,
-                    vx: santa.dir * (0.7 + Math.random() * 0.9),
-                    vy: -0.7 - Math.random() * 0.9,
-                    life: 1
-                  });
-                }
+            var idleX = tLeft + 14;
+            var totalSnow = 0, maxSnow = 0, bestX = -1;
+            for (var sx = tLeft; sx <= tRight; sx++) {
+              if (surfaceY[sx] >= 0) {
+                var sh = surfaceY[sx] - pileY[sx];
+                if (sh > 0.4) totalSnow += sh;
+                if (sh > maxSnow) { maxSnow = sh; bestX = sx; }
               }
             }
 
-            // 쓸려 날아가는 작은 눈 가루
+            santa.y += (titleBottomY - santa.y) * 0.2;
+
+            if (santa.state === 'idle') {
+              santa.dir = 1;
+              santa.broomSwing *= 0.85;
+              santa.timer++;
+              // 눈이 충분히 쌓이면(최대 3.6px 이상 또는 전체 적설량 충분) 출동!
+              if ((maxSnow >= 3.6 || totalSnow >= 120) && bestX >= 0) {
+                santa.state = 'walk_to';
+                santa.targetX = bestX;
+              }
+            } else if (santa.state === 'walk_to') {
+              var dxMove = santa.targetX - santa.x;
+              if (Math.abs(dxMove) > 3) {
+                santa.dir = dxMove > 0 ? 1 : -1;
+                santa.x += santa.dir * 0.75;
+                santa.walk += 0.22;
+              } else {
+                santa.state = 'tap';
+                santa.timer = 0;
+                santa.tapCount = 0;
+              }
+            } else if (santa.state === 'tap') {
+              santa.timer++;
+              // 18프레임 주기로 탁! 탁! 위로 치는 동작
+              var phase = santa.timer % 20;
+              if (phase < 7) {
+                santa.broomSwing = (phase / 7);
+              } else {
+                santa.broomSwing = Math.max(0, 1 - (phase - 7) / 6);
+              }
+              if (phase === 7) {
+                santa.tapCount++;
+                // 타격 순간 주변 눈 덩어리들이 아래로 우르르 떨어짐!
+                var hitX = Math.round(santa.x + santa.dir * 3);
+                for (var dx = -14; dx <= 14; dx++) {
+                  var cx = hitX + dx;
+                  if (cx >= tLeft && cx <= tRight && surfaceY[cx] >= 0 && pileY[cx] < surfaceY[cx] - 0.3) {
+                    var dropH = surfaceY[cx] - pileY[cx];
+                    var count = Math.min(3, Math.ceil(dropH / 1.4));
+                    for (var c = 0; c < count; c++) {
+                      if (puffs.length < 70) {
+                        puffs.push({
+                          x: cx + (Math.random() - 0.5) * 3,
+                          y: pileY[cx] + Math.random() * dropH,
+                          vx: (Math.random() - 0.5) * 1.1,
+                          vy: -0.5 + Math.random() * 0.8,
+                          r: 1.4 + Math.random() * 1.6,
+                          life: 1
+                        });
+                      }
+                    }
+                    pileY[cx] = surfaceY[cx];
+                  }
+                }
+              }
+              if (santa.tapCount >= 2 && phase === 19) {
+                if (maxSnow >= 2.2 && bestX >= 0) {
+                  santa.state = 'walk_to';
+                  santa.targetX = bestX;
+                } else {
+                  santa.state = 'return';
+                }
+              }
+            } else if (santa.state === 'return') {
+              santa.broomSwing *= 0.85;
+              var dxBack = idleX - santa.x;
+              if (Math.abs(dxBack) > 2.5) {
+                santa.dir = dxBack > 0 ? 1 : -1;
+                santa.x += santa.dir * 0.7;
+                santa.walk += 0.2;
+              } else {
+                santa.x = idleX;
+                santa.dir = 1;
+                santa.state = 'idle';
+                santa.timer = 0;
+              }
+            }
+
+            // 탁탁 쳐서 아래로 떨어지는 눈 덩어리들
             for (var p = puffs.length - 1; p >= 0; p--) {
               var pf = puffs[p];
               pf.x += pf.vx;
               pf.y += pf.vy;
-              pf.vy += 0.08;
-              pf.life -= 0.045;
-              if (pf.life <= 0) { puffs.splice(p, 1); continue; }
-              ctx.fillStyle = 'rgba(255,255,255,' + pf.life.toFixed(2) + ')';
+              pf.vy += 0.14;
+              pf.life -= 0.022;
+              if (pf.life <= 0 || pf.y > H + 6) { puffs.splice(p, 1); continue; }
+              ctx.fillStyle = 'rgba(255,255,255,' + Math.min(1, pf.life * 1.2).toFixed(2) + ')';
+              ctx.strokeStyle = 'rgba(197,214,230,' + (pf.life * 0.8).toFixed(2) + ')';
+              ctx.lineWidth = 0.6;
               ctx.beginPath();
-              ctx.arc(pf.x, pf.y, 1.3, 0, Math.PI * 2);
+              ctx.arc(pf.x, pf.y, pf.r || 1.6, 0, Math.PI * 2);
               ctx.fill();
+              ctx.stroke();
             }
 
             // 귀여운 미니 산타 그리기 (발 위치 = santa.y)
             ctx.save();
-            var bob = Math.abs(Math.sin(santa.walk)) * 1.1;
+            var isWalking = (santa.state === 'walk_to' || santa.state === 'return');
+            var bob = isWalking ? Math.abs(Math.sin(santa.walk)) * 1.1 : Math.sin(Date.now() / 420) * 0.4;
             ctx.translate(santa.x, santa.y - bob);
             ctx.scale(santa.dir, 1);
 
-            // 빗자루 (쓱싹쓱싹 흔들기)
-            var sw = Math.sin(santa.walk * 1.6) * 0.22;
+            // 긴 청소 막대기 빗자루 (탁탁 칠 때 위로 쭉 뻗음!)
             ctx.save();
-            ctx.translate(3, -7);
-            ctx.rotate(sw);
+            ctx.translate(3, -8);
+            var baseAng = (santa.state === 'tap') ? (-0.25 - santa.broomSwing * 0.65) : 0.35;
+            var liftY = (santa.state === 'tap') ? (-santa.broomSwing * 14) : 0;
+            ctx.translate(0, liftY);
+            ctx.rotate(baseAng);
             ctx.strokeStyle = '#9c6b3b';
-            ctx.lineWidth = 1.4;
+            ctx.lineWidth = 1.5;
             ctx.beginPath();
-            ctx.moveTo(-2, -4);
-            ctx.lineTo(5, 6);
+            ctx.moveTo(0, 6);
+            ctx.lineTo(2, -16);
             ctx.stroke();
             ctx.fillStyle = '#e7c16b';
             ctx.beginPath();
-            ctx.moveTo(3.5, 4.5);
-            ctx.lineTo(7.5, 6.8);
-            ctx.lineTo(4.2, 8.2);
+            ctx.moveTo(0, -15);
+            ctx.lineTo(4.8, -15);
+            ctx.lineTo(5.8, -20.5);
+            ctx.lineTo(-1, -20.5);
             ctx.closePath();
             ctx.fill();
             ctx.restore();
 
-            // 다리 (아장아장)
-            var leg = Math.sin(santa.walk) * 1.6;
+            // 다리
+            var leg = isWalking ? Math.sin(santa.walk) * 1.7 : 0;
             ctx.strokeStyle = '#2d2226';
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
