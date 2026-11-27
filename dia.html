@@ -2205,15 +2205,14 @@
       .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links { display: inline-flex !important; flex-wrap: nowrap; max-width: none; width: auto; gap: 6px; margin: 0; flex-shrink: 0; }
       .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links > * { width: auto !important; min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; }
       .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links > .mc-hero-login { padding: 7px 11px !important; font-size: 12px !important; }
-      body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) {
-        padding-bottom: 76px !important;
-      }
       body.dia-page .dia-hero-in > #mcLoginBox {
-        position: absolute !important; top: 92px; right: 24px;
-        width: 318px; max-width: calc(100vw - 48px) !important; margin: 0 !important;
-        padding: 0; background: transparent; border: 0; box-shadow: none; z-index: 30; text-align: center;
+        position: absolute !important; top: 82px; right: 24px;
+        width: max-content; min-width: 300px; max-width: calc(100vw - 32px) !important; margin: 0 !important;
+        padding: 10px 14px; background: rgba(255, 255, 255, 0.97);
+        border: 1px solid #f0d6df; border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(179, 81, 114, 0.10); z-index: 40; text-align: center;
       }
-      body.dia-page .dia-hero-in > #mcLoginBox .mc-hint { font-size: 10.5px !important; margin-top: 4px !important; white-space: nowrap; }
+      body.dia-page .dia-hero-in > #mcLoginBox .mc-hint { font-size: 11px !important; margin-top: 5px !important; white-space: nowrap !important; }
       body.dia-page .dia-hero-in > #mcLoginBox[hidden] { display: none !important; }
       .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .mc-chat { min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; box-sizing: border-box; }
       /* 로그인 후(#mcHeroStatus 노출 시)에는 어제 원래 버튼 크기·폭 그대로 */
@@ -6397,6 +6396,18 @@ window.창고읽기 = function(url){
                     picked = null; lgIn.value = ''; lgPick.innerHTML = '';
                     lgMsg.textContent = '회원목록에서 본인 이름을 검색해 누르고 암호 4자리를 넣으면 열립니다.';
                     lgMsg.style.color = '#8a7b81';
+                    if (window.innerWidth >= 881 && lgBox.parentElement) {
+                      var hr = lgBox.parentElement.getBoundingClientRect();
+                      var br = lgBtn.getBoundingClientRect();
+                      var bw = lgBox.offsetWidth || 380;
+                      var targetLeft = (br.left + br.width / 2 - hr.left) - bw / 2;
+                      var clampedLeft = Math.max(8, Math.min(targetLeft, hr.width - bw - 8));
+                      lgBox.style.left = Math.round(clampedLeft) + 'px';
+                      lgBox.style.right = 'auto';
+                      lgBox.style.top = Math.round(br.bottom - hr.top + 8) + 'px';
+                    } else {
+                      lgBox.style.left = ''; lgBox.style.right = ''; lgBox.style.top = '';
+                    }
                     lgIn.focus();
                   }
                 });
