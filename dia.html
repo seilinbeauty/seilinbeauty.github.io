@@ -7230,10 +7230,13 @@ window.창고읽기 = function(url){
             cv.width = W * dpr;
             cv.height = H * dpr;
           }
+          /* 캔버스를 화면 px 로 고정한다. 히어로가 늘어나도(검색창 열림 등) 그림이 늘어나 깨지지 않게. */
+          cv.style.width = W + 'px'; cv.style.height = H + 'px'; cv.style.inset = '0 auto auto 0';
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
           if (bgCv && bgCtx) {
             bgCv.width = W * dpr;
             bgCv.height = H * dpr;
+            bgCv.style.width = W + 'px'; bgCv.style.height = H + 'px'; bgCv.style.inset = '0 auto auto 0';
             bgCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
           }
 
@@ -9556,5 +9559,170 @@ window.창고읽기 = function(url){
         window.addEventListener('resize', function(){ buildSurface(); });
       })();
       </script>
+<script>
+/* 다이아 섹션: 화면을 그대로 복제해 끌어서 배치하는 편집기 (PC·태블릿·모바일 따로 저장) */
+(function(){
+  var WKEY = 'dia_world_layout_v1';
+  var ITEMS = [
+    ['title',  '다이아 커뮤니티 제목', '#plxTitleText'],
+    ['clock',  '날짜·시계',           '#pcHeroDatetime'],
+    ['login',  '내 품앗이 버튼',      '#mcLoginBtn'],
+    ['course', '뷰티수강 버튼',       '#mcCourseBtn'],
+    ['search', '검색창',              '#mcLoginBox'],
+    ['banner', '상단 소개 배너',      '.brand-inline']
+  ];
+  var KEYS = ITEMS.map(function(it){ return it[0]; });
+
+  function bp(){
+    var w = window.innerWidth;
+    return w <= 767 ? 'mo' : (w <= 1024 ? 'tb' : 'pc');
+  }
+  function loadAll(){
+    var raw = {};
+    try { raw = JSON.parse(localStorage.getItem(WKEY)) || {}; } catch(e){ raw = {}; }
+    var legacy = false;
+    KEYS.forEach(function(k){ if (raw[k]) legacy = true; });
+    if (legacy) raw = { pc: raw };
+    if (!raw.pc) raw.pc = {};
+    if (!raw.tb) raw.tb = {};
+    if (!raw.mo) raw.mo = {};
+    return raw;
+  }
+  var all = loadAll();
+
+  function 로그인상태(){
+    try { return !!localStorage.getItem('dia_login_member'); } catch(e){ return false; }
+  }
+  function apply(){
+    var c = all[bp()] || {};
+    /* 저장한 위치는 로그인 전 화면에만 적용한다. 로그인 후 화면은 원래 배치 그대로. */
+    var 잠금 = 로그인상태() && !window.__diaLayoutEdit;
+    ITEMS.forEach(function(it){
+      var el = document.querySelector(it[2]); if (!el) return;
+      if (잠금) { el.style.removeProperty('translate'); return; }
+      var v = c[it[0]] || {};
+      var x = Number(v.x) || 0, y = Number(v.y) || 0;
+      if (!x && !y) { el.style.removeProperty('translate'); return; }
+      el.style.setProperty('translate', x + 'px ' + y + 'px', 'important');
+    });
+  }
+  function store(){
+    try { localStorage.setItem(WKEY, JSON.stringify(all)); } catch(e){}
+  }
+  apply();
+  window.addEventListener('load', function(){ apply(); setTimeout(apply, 120); setTimeout(apply, 400); });
+  window.addEventListener('resize', apply);
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(function(){ apply(); }); }
+
+  /* 화면 전체를 감시하면 다시 칠할 때마다 스스로를 깨워 느려지므로, 로그인 직후 몇 번만 맞춘다. */
+  function settle(){
+    apply();
+    setTimeout(apply, 300);
+    setTimeout(apply, 1200);
+  }
+  try { window.addEventListener('dia:login', settle); } catch(e){}
+
+  var editing = false;
+  var inFrame = location.search.indexOf('edit=1') > -1;
+
+  var bar = document.createElement('div');
+  bar.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:3000;display:flex;gap:8px;align-items:center;font-family:inherit;';
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = '🎨 다이아 섹션';
+  btn.style.cssText = 'padding:10px 16px;border-radius:999px;border:0;background:#d55576;color:#fff;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(180,60,100,.3);font-family:inherit;';
+  var undo = document.createElement('button');
+  undo.type = 'button';
+  undo.textContent = '이 화면 원래대로';
+  undo.style.cssText = 'display:none;padding:9px 13px;border-radius:999px;border:1px solid #e6d7dc;background:#fff;color:#7a6d72;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 6px 16px rgba(150,80,105,.16);font-family:inherit;';
+  bar.appendChild(undo); bar.appendChild(btn);
+  document.body.appendChild(bar);
+
+  var moved = false;
+  function bind(el, key){
+    el.style.cursor = 'grab';
+    el.style.touchAction = 'none';
+    el.addEventListener('pointerdown', function(e){
+      if (!editing) return;
+      e.preventDefault(); e.stopPropagation();
+      var b = bp();
+      var cur = all[b][key] || { x: 0, y: 0 };
+      var sx = e.clientX, sy = e.clientY, bx = cur.x || 0, by = cur.y || 0;
+      moved = false;
+      el.style.cursor = 'grabbing';
+      function onMove(ev){
+        var dx = ev.clientX - sx, dy = ev.clientY - sy;
+        if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
+        all[b][key] = { x: Math.round(bx + dx), y: Math.round(by + dy) };
+        el.style.setProperty('translate', all[b][key].x + 'px ' + all[b][key].y + 'px', 'important');
+      }
+      function onUp(){
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+        el.style.cursor = 'grab';
+        store();
+      }
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup', onUp);
+    }, true);
+  }
+
+  function setup(){
+    ITEMS.forEach(function(it){
+      var el = document.querySelector(it[2]);
+      if (el && !el.__diaDragBound) { el.__diaDragBound = 1; bind(el, it[0]); }
+    });
+  }
+  setup();
+  window.addEventListener('load', setup);
+
+  function setEditing(v){
+    editing = v;
+    document.body.style.userSelect = v ? 'none' : '';
+    btn.textContent = v ? '✅ 편집 끝내기' : '🎨 다이아 섹션';
+    btn.style.background = v ? '#16a34a' : '#d55576';
+    undo.style.display = v ? '' : 'none';
+    ITEMS.forEach(function(it){
+      var el = document.querySelector(it[2]); if (!el) return;
+      if (v) { el.style.outline = '1.5px dashed rgba(213,85,118,.55)'; el.style.outlineOffset = '2px'; }
+      else { el.style.outline = ''; el.style.outlineOffset = ''; }
+    });
+    setup();
+  }
+  btn.addEventListener('click', function(){ setEditing(!editing); });
+
+  document.addEventListener('click', function(e){
+    if (!editing || !moved) return;
+    var t = e.target;
+    ITEMS.forEach(function(it){
+      var el = document.querySelector(it[2]);
+      if (el && el.contains(t)) { e.preventDefault(); e.stopPropagation(); }
+    });
+  }, true);
+
+  undo.addEventListener('click', function(){
+    all[bp()] = {};
+    ITEMS.forEach(function(it){
+      var el = document.querySelector(it[2]); if (!el) return;
+      el.style.removeProperty('translate');
+    });
+    store();
+    undo.textContent = '되돌렸어요';
+    setTimeout(function(){ undo.textContent = '이 화면 원래대로'; }, 1400);
+  });
+
+  /* 운영센터 다이아 섹션 탭에서 불러오면 바로 편집 모드 */
+  if (inFrame) {
+    window.__diaLayoutEdit = true;
+    bar.style.display = 'none';
+    apply();
+    window.addEventListener('load', function(){ setEditing(true); });
+  }
+  window.diaReloadLayout = function(){
+    all = loadAll();
+    apply();
+  };
+})();
+</script>
 </body>
 </html>
