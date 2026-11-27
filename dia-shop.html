@@ -93,26 +93,27 @@
     background:var(--ink);color:#fff;border:0;border-radius:999px;font-size:12.5px;font-weight:700;cursor:pointer;}
   .bar2 .add:hover{background:#3c3537;}
 
-  /* 알로하 쇼핑몰 스타일 매물 카드 그리드 */
-  .list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px 14px;padding-bottom:70px;}
-  .item{background:#fff;display:flex;flex-direction:column;cursor:pointer;transition:transform .16s ease;}
-  .item:hover .thumb img{transform:scale(1.04);}
-  .thumb{position:relative;width:100%;aspect-ratio:4/5;border-radius:10px;overflow:hidden;background:#f5f3f4;border:1px solid var(--line);}
+  /* 알로하 클로젯 의류 쇼핑몰 스타일 매물 카드 그리드 */
+  .list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px 12px;padding-bottom:70px;}
+  .item{background:#fff;display:flex;flex-direction:column;cursor:pointer;}
+  .item:hover .thumb img{transform:scale(1.03);}
+  .thumb{position:relative;width:100%;aspect-ratio:3/4.3;border-radius:0;overflow:hidden;background:#f5f3f4;}
   .thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .28s ease;}
-  .thumb .badges{position:absolute;top:8px;left:8px;display:flex;gap:4px;flex-wrap:wrap;}
-  .thumb .b-tag{font-size:10.5px;padding:3px 8px;border-radius:6px;font-weight:800;backdrop-filter:blur(4px);letter-spacing:-.01em;}
-  .thumb .b-tag.give{background:rgba(30,26,27,.82);color:#fff;}
-  .thumb .b-tag.want{background:rgba(61,102,143,.88);color:#fff;}
-  .thumb .b-tag.kind{background:rgba(255,255,255,.92);color:var(--ink);}
-  .thumb .pic-cnt{position:absolute;right:8px;bottom:8px;font-size:10.5px;font-weight:700;color:#fff;
-    background:rgba(0,0,0,.55);padding:3px 7px;border-radius:999px;backdrop-filter:blur(4px);}
-  .item-info{padding:10px 2px 2px;display:flex;flex-direction:column;gap:4px;}
-  .item-meta{font-size:11.5px;color:var(--ink-mute);font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:6px;}
-  .item h3{margin:0;font-size:13.5px;font-weight:700;line-height:1.42;letter-spacing:-.02em;color:var(--ink);
+  .item-info{padding:8px 2px 4px;display:flex;flex-direction:column;gap:4px;}
+  .item-swatches{display:flex;justify-content:flex-end;gap:3px;min-height:8px;margin-bottom:2px;}
+  .item-swatches span{width:8px;height:4px;display:inline-block;}
+  .item h3{margin:0;font-size:13px;font-weight:700;line-height:1.38;letter-spacing:-.02em;color:#111;
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-  .item-price{font-size:14px;font-weight:800;color:var(--ink);letter-spacing:-.02em;margin-top:2px;}
-  .item-key{font-size:11.5px;color:var(--accent);font-weight:700;}
-  .item-sub{font-size:11px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .item-price{font-size:13px;font-weight:700;color:#111;letter-spacing:-.01em;margin-top:1px;}
+  .item-desc{font-size:11.5px;line-height:1.45;color:#8c8c8c;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .item-badges{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
+  .al-badge{font-size:9.5px;font-weight:800;padding:2px 5px;border-radius:2px;line-height:1.2;letter-spacing:-.02em;}
+  .al-badge.new{background:#9fd4f5;color:#fff;}
+  .al-badge.give{background:#f0a878;color:#fff;}
+  .al-badge.want{background:#9eb6e6;color:#fff;}
+  .al-badge.hot{background:#ee9cb5;color:#fff;}
+  .al-badge.free{background:#8bd1a8;color:#fff;}
 
   /* 쇼핑몰 상품 상세 모달 */
   .dmodal{position:fixed;inset:0;background:rgba(20,16,18,.58);display:none;align-items:center;justify-content:center;padding:16px;z-index:350;backdrop-filter:blur(3px);}
@@ -177,15 +178,17 @@
     .list{grid-template-columns:repeat(3,minmax(0,1fr));}
   }
   @media (max-width:760px){
+    .wrap{padding:0 6px;}
     .headline{padding:22px 0 14px;}
     .headline h1{font-size:22px;}
     .flt-sticky{top:45px;padding:10px 0;}
     .search-box{min-width:100%;}
     .type-seg{width:100%;justify-content:stretch;}
     .type-seg button{flex:1;padding:8px 0;}
-    .list{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 10px;}
-    .item h3{font-size:13px;}
-    .item-price{font-size:13px;}
+    .list{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 6px;}
+    .item h3{font-size:12.5px;}
+    .item-price{font-size:12.5px;}
+    .item-desc{font-size:11px;-webkit-line-clamp:3;}
   }
 </style>
 </head>
@@ -284,7 +287,7 @@
   <div class="dbox" id="dbox"></div>
 </div>
 
-<script src="dia-shop-data.js?v=1"></script>
+<script src="dia-shop-data.js?v=2"></script>
 <script src="dia-staff.js?v=5" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
@@ -492,21 +495,24 @@ document.addEventListener('DOMContentLoaded', function(){
       var imgs = Array.isArray(it.imgs) && it.imgs.length ? it.imgs : [];
       var cover = imgs[0] || '';
       var priceStr = (it.depTxt || man(it.dep)) + ' / 월 ' + (it.rentTxt || man(it.rent));
-      var keyStr = it.keyTxt ? ('권리금 ' + it.keyTxt) : (Number(it.key)>0 ? ('권리금 ' + man(it.key)) : '무권리');
+      var keyBadge = it.keyTxt === '없음' ? '<span class="al-badge free">무권리</span>' : (it.key > 0 ? '<span class="al-badge hot">권리 '+esc(it.keyTxt)+'</span>' : '');
+      var isNew = it.at >= '2026-11-25';
+      var swColors = it.type === 'give' ? ['#f5e5e2','#d55576','#2b2527'] : ['#e4eef8','#6d96c4','#2b2527'];
       return '<article class="item" data-id="'+esc(it.id)+'">'+
         '<div class="thumb">'+
           (cover ? '<img src="'+esc(cover)+'" alt="'+esc(it.title)+'" loading="lazy">' : '')+
-          '<div class="badges">'+
-            '<span class="b-tag '+(it.type==='give'?'give':'want')+'">'+(it.type==='give'?'양도':'구함')+'</span>'+
-            '<span class="b-tag kind">'+esc(it.kind||'샵매매')+'</span>'+
-          '</div>'+
-          (imgs.length > 1 ? '<span class="pic-cnt">📷 '+imgs.length+'</span>' : '')+
         '</div>'+
         '<div class="item-info">'+
-          '<div class="item-meta"><span>'+esc(it.area)+' · '+esc(it.job)+'</span><span>'+esc(it.at||'')+'</span></div>'+
-          '<h3>'+esc(it.title)+'</h3>'+
+          '<div class="item-swatches">'+swColors.map(function(c){ return '<span style="background:'+c+'"></span>'; }).join('')+'</div>'+
+          '<h3>['+esc(it.area)+'/'+esc(it.job)+'] '+esc(it.title)+'</h3>'+
           '<div class="item-price">'+esc(priceStr)+'</div>'+
-          '<div class="item-key">'+esc(keyStr)+'</div>'+
+          '<div class="item-desc">'+esc(it.summary || it.body || '')+'</div>'+
+          '<div class="item-badges">'+
+            (isNew ? '<span class="al-badge new">NEW♡</span>' : '')+
+            '<span class="al-badge '+(it.type==='give'?'give':'want')+'">'+(it.type==='give'?'양도추천':'구함')+'</span>'+
+            '<span class="al-badge hot">'+esc(it.kind||'샵매매')+'</span>'+
+            keyBadge+
+          '</div>'+
         '</div>'+
       '</article>';
     }).join('');
