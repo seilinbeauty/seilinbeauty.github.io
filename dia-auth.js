@@ -144,7 +144,12 @@
         saveSnsRecord(rec),
         new Promise(function(res){ setTimeout(res, 1500); })
       ]).then(function(){
-        location.href = 'dia.html';
+        var _nxt = 'dia.html';
+        try {
+          var _sn = sessionStorage.getItem('dia_login_next');
+          if (_sn && /^[a-zA-Z0-9_.-]+\.html(\?.*)?$/.test(_sn)) { _nxt = _sn; sessionStorage.removeItem('dia_login_next'); }
+        } catch(e) {}
+        location.href = _nxt;
       });
     });
   }

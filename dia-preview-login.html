@@ -212,8 +212,14 @@ document.addEventListener('DOMContentLoaded', function(){
     return null;
   }
 
+  try {
+    var _np = new URLSearchParams(location.search).get('next');
+    if (_np && /^[a-zA-Z0-9_.-]+\.html(\?.*)?$/.test(_np)) sessionStorage.setItem('dia_login_next', _np);
+  } catch(e) {}
+
   function finishLogin(nick){
     if (window.DiaAuth && DiaAuth.linkGoogleMember) DiaAuth.linkGoogleMember(nick);
+    var nextUrl = 'dia.html';
     try {
       localStorage.setItem('dia_login_member', nick);
       localStorage.setItem('dia_login_member_bak', nick);
@@ -221,8 +227,13 @@ document.addEventListener('DOMContentLoaded', function(){
       if (nick === 'STAFF' || nick === '세이린뷰티 본점') {
         localStorage.setItem('dia_no_track', '1');
       }
+      var savedNext = sessionStorage.getItem('dia_login_next');
+      if (savedNext && /^[a-zA-Z0-9_.-]+\.html(\?.*)?$/.test(savedNext)) {
+        nextUrl = savedNext;
+        sessionStorage.removeItem('dia_login_next');
+      }
     } catch(e) {}
-    location.href = 'dia.html';
+    location.href = nextUrl;
   }
 
   var busy = false;
