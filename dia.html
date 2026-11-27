@@ -2169,6 +2169,14 @@
       body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) > .mc-hero-right { z-index: 3; }
       .pc-hero-snow-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; border-radius: 14px; }
       .pc-hero-snow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 25; border-radius: 14px; }
+      /* 산타가 한글 제목을 트리처럼 꾸미는 장식 */
+      .mc-tree-deco { position: absolute; z-index: 26; pointer-events: none; }
+      .mc-tree-bulb { position: absolute; width: 5px; height: 5px; border-radius: 50%; box-shadow: 0 0 5px currentColor, 0 0 10px currentColor; animation: mcBulbTwinkle 1.5s ease-in-out infinite; }
+      @keyframes mcBulbTwinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .22; transform: scale(.6); } }
+      .mc-tree-star { position: absolute; font-size: 13px; line-height: 1; filter: drop-shadow(0 0 5px #fde68a); animation: mcTreeStar 2.2s ease-in-out infinite; }
+      @keyframes mcTreeStar { 0%, 100% { transform: scale(1) rotate(-7deg); } 50% { transform: scale(1.2) rotate(7deg); } }
+      .mc-tree-orn { position: absolute; width: 6px; height: 6px; border-radius: 50%; box-shadow: inset -1px -1px 2px rgba(0,0,0,.28); animation: mcTreeOrn 2.6s ease-in-out infinite; }
+      @keyframes mcTreeOrn { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
       .pc-snow-flake {
         position: absolute; top: -18px; user-select: none;
         color: #efb8c9; opacity: 0; line-height: 1;
@@ -2209,10 +2217,12 @@
       @media (min-width: 881px) { body.dia-page .dia-hero-in .quick-links > a[href="dia-notice.html"] { display: none !important; } }
       /* PC: 카드 크기는 그대로 두고, 카드 안 빈 공간 가운데에 겹쳐 띄운다 */
       body.dia-page .plx-main > .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) { justify-content: flex-start !important; }
-      body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) { padding-bottom: 64px !important; }
+      body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) > #mcLoginBox { order: 1 !important; }
+      body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) > .quick-links { order: 2 !important; }
+      body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) > .mc-hero-right { order: 3 !important; }
       body.dia-page .dia-hero-in > #mcLoginBox {
-        position: absolute !important; top: auto !important; bottom: 8px !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important;
-        width: 300px; max-width: calc(100vw - 32px) !important; margin: 0 !important;
+        position: relative !important; top: auto !important; bottom: auto !important; left: auto !important; right: auto !important; transform: none !important;
+        width: 300px; max-width: calc(100vw - 32px) !important; margin: 2px auto !important;
         padding: 0; background: transparent; border: 0; box-shadow: none; z-index: 40; text-align: center;
       }
       body.dia-page .dia-hero-in > #mcLoginBox #mcLoginIn { height: 42px !important; font-size: 9.5px !important; border-radius: 6px !important; padding: 0 6px !important; }
@@ -2415,6 +2425,64 @@ window.창고읽기 = function(url){
         var subSurfaceY = null, subPileY = null;
         var btnSurfaceY = null, btnPileY = null;
         var tLeft = 0, tRight = 0, sLeft = 0, sRight = 0, dtLeft = 0, dtRight = 0, dtTop = 20;
+        var treeDecoTimer = null;
+        function clearTreeDeco(){
+          var old = hero.querySelector('.mc-tree-deco');
+          if (old && old.parentNode) old.parentNode.removeChild(old);
+          if (treeDecoTimer) { clearTimeout(treeDecoTimer); treeDecoTimer = null; }
+          if (titleEl) { titleEl.style.textShadow = ''; titleEl.style.filter = ''; }
+        }
+        function decorateTitleTree(){
+          if (!hero || !titleEl) return;
+          clearTreeDeco();
+          var hrT = hero.getBoundingClientRect();
+          var trT = titleEl.getBoundingClientRect();
+          var leftT = trT.left - hrT.left, topT = trT.top - hrT.top;
+          var wT = trT.width, hT = trT.height;
+          var wrap = document.createElement('div');
+          wrap.className = 'mc-tree-deco';
+          wrap.style.left = leftT + 'px'; wrap.style.top = topT + 'px';
+          wrap.style.width = wT + 'px'; wrap.style.height = hT + 'px';
+          var cols = ['#fda4af', '#fef08a', '#7dd3fc', '#86efac', '#f9a8d4', '#fcd34d', '#c4b5fd'];
+          var nBulb = Math.max(6, Math.round(wT / 24));
+          function addBulb(x, y, i){
+            var b = document.createElement('span');
+            b.className = 'mc-tree-bulb';
+            b.style.left = x + 'px'; b.style.top = y + 'px';
+            var c = cols[i % cols.length];
+            b.style.background = c; b.style.color = c;
+            b.style.animationDelay = ((i % 7) * 0.19).toFixed(2) + 's';
+            wrap.appendChild(b);
+          }
+          for (var i = 0; i < nBulb; i++) {
+            var xB = (wT * (i + 0.5)) / nBulb - 2.5;
+            addBulb(xB, -6, i);
+            addBulb(xB, hT + 1, i + 3);
+          }
+          for (var g = 0; g < nBulb; g++) {
+            var xG = (wT * (g + 0.5)) / nBulb - 2.5;
+            addBulb(xG, hT * 0.5 + (g % 2 ? -1 : 1) * hT * 0.22, g + 5);
+          }
+          var star = document.createElement('span');
+          star.className = 'mc-tree-star'; star.textContent = '⭐';
+          star.style.left = (wT / 2 - 7) + 'px'; star.style.top = (-19) + 'px';
+          wrap.appendChild(star);
+          var ornCols = ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#ec4899'];
+          for (var o = 0; o < 5; o++) {
+            var orn = document.createElement('span');
+            orn.className = 'mc-tree-orn';
+            orn.style.left = (wT * (o + 0.5)) / 5 - 3;
+            orn.style.top = (hT + 5 + (o % 2) * 3) + 'px';
+            orn.style.background = ornCols[o];
+            orn.style.animationDelay = (o * 0.25).toFixed(2) + 's';
+            wrap.appendChild(orn);
+          }
+          hero.appendChild(wrap);
+          titleEl.style.transition = 'text-shadow .5s ease, filter .5s ease';
+          titleEl.style.textShadow = '0 0 9px rgba(253,224,71,.55), 0 0 20px rgba(236,72,153,.35)';
+          titleEl.style.filter = 'saturate(1.15) brightness(1.06)';
+          treeDecoTimer = setTimeout(clearTreeDeco, 22000);
+        }
         var bLeft = 0, bRight = 0, lastBtnSig = '';
         var titleBaseY = 20, roadY = 58;
         var flakes = [];
@@ -3104,6 +3172,11 @@ window.창고읽기 = function(url){
                       santa.state = 'walk_to'; santa.targetMode = 'snowman';
                       santa.targetX = sLeft + 25 + Math.random() * Math.max(20, (walkMaxX - sLeft - 45));
                       setMood('🎵', 60);
+                    } else if (!hero.querySelector('.mc-tree-deco') && tRight > tLeft + 40 && walkMaxX > sLeft + 40 && Math.random() < 0.22) {
+                      /* 가끔 한글 제목으로 걸어가 트리처럼 전구·오너먼트로 꾸민다 */
+                      santa.state = 'walk_to'; santa.targetMode = 'decorate';
+                      santa.targetX = Math.max(sLeft + 18, Math.min(walkMaxX - 10, (tLeft + tRight) / 2));
+                      setMood('🎄', 90);
                     } else if (totalSub >= 1.5 && pick < w7) {
                       santa.state = 'snow_angel'; santa.timer = 0; santa.targetZ = 0.45;
                       setMood('❄️', 85);
@@ -3700,6 +3773,14 @@ window.창고읽기 = function(url){
                 } else {
                   santa.state = 'snowman'; santa.timer = 0;
                 }
+              } else if (santa.targetMode === 'decorate') {
+                if (Math.abs(dxMove) > 5) {
+                  santa.dir = dxMove > 0 ? 1 : -1;
+                  santa.x += santa.dir * 0.8;
+                  santa.walk += 0.22;
+                } else {
+                  santa.state = 'decorate_text'; santa.timer = 0; setMood('🎄', 90);
+                }
               } else if (santa.targetMode === 'roam') {
                 if (Math.abs(dxMove) > 4) {
                   santa.dir = dxMove > 0 ? 1 : -1;
@@ -3727,6 +3808,22 @@ window.창고읽기 = function(url){
                   santa.timer = 0;
                   santa.tapCount = 0;
                 }
+              }
+            } else if (santa.state === 'decorate_text') {
+              santa.timer++;
+              santa.dir = (santa.x < (tLeft + tRight) / 2) ? 1 : -1;
+              santa.headLook = -0.5;
+              if (santa.timer === 40) {
+                decorateTitleTree();
+                for (var dcs = 0; dcs < 6 && sparkles.length < 20; dcs++) {
+                  sparkles.push({ x: (tLeft + tRight) / 2 + (Math.random() - 0.5) * 60, y: Math.max(8, titleBaseY - Math.random() * 14), life: 1 });
+                }
+              }
+              if (santa.timer > 40 && santa.timer % 30 === 0 && sparkles.length < 20) {
+                sparkles.push({ x: santa.x + santa.dir * 5, y: santa.y - 14, life: 1 });
+              }
+              if (santa.timer >= 250) {
+                santa.state = 'return';
               }
             } else if (santa.state === 'wipe') {
               santa.timer++;
@@ -3985,6 +4082,7 @@ window.창고읽기 = function(url){
             if (santa.state === 'idle' && Math.random() < 0.02) santa.targetZ = (Math.random() - 0.5) * 1.4;
             else if (santa.state === 'wipe' || santa.state === 'house_rest') santa.targetZ = 0.55;
             else if (santa.state === 'walk_to' && santa.targetMode === 'top') santa.targetZ = -0.35;
+            else if ((santa.state === 'walk_to' && santa.targetMode === 'decorate') || santa.state === 'decorate_text') santa.targetZ = -0.35;
             santa.depthZ += (santa.targetZ - santa.depthZ) * 0.06;
             var zScale = 1 + santa.depthZ * 0.15;
             var zY = santa.depthZ * 2.8;
