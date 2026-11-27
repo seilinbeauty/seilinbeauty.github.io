@@ -2454,7 +2454,7 @@ window.창고읽기 = function(url){
           } else if (cy > 18 && cy < H - 4) {
             santa.boredom = 0;
             var maxWalkX = (bLeft > sLeft + 40) ? Math.min(sRight - 15, bLeft - 14) : (sRight - 15);
-            if (Math.random() < 0.5) {
+            if (snowballs.length === 0 && Math.random() < 0.5) {
               santa.dir = (cx >= santa.x) ? 1 : -1;
               snowballs.push({ x: santa.x + santa.dir * 6, y: santa.y - 12, vx: (cx - santa.x) * 0.038, vy: -2.4 });
             } else if (santa.state === 'idle' && cx <= maxWalkX + 10) {
@@ -2463,7 +2463,7 @@ window.창고읽기 = function(url){
             }
           }
         });
-        var santa = { x: 40, dir: 1, walk: 0, y: 58, vx: 0, vy: 0, state: 'idle', timer: 0, targetX: 40, targetMode: 'top', tapCount: 0, broomSwing: 0, wipeWait: 0, flyFromX: 40, flyFromY: 58, flyToX: 40, flyToY: 58, flyT: 0, bridgeX1: 0, bridgeX2: 0, bridgeY: 0, energy: 100, boredom: 0, headLook: 0, lastJob: '', playful: 65, laziness: 45, playStreak: 0, moodIcon: '', moodTimer: 0, callOk: true };
+        var santa = { x: 40, dir: 1, turn: 1, depthZ: 0, targetZ: 0, walk: 0, y: 58, vx: 0, vy: 0, state: 'idle', timer: 0, targetX: 40, targetMode: 'top', tapCount: 0, broomSwing: 0, wipeWait: 0, flyFromX: 40, flyFromY: 58, flyToX: 40, flyToY: 58, flyT: 0, bridgeX1: 0, bridgeX2: 0, bridgeY: 0, energy: 100, boredom: 0, headLook: 0, lastJob: '', playful: 65, laziness: 45, playStreak: 0, moodIcon: '', moodTimer: 0, callOk: true };
         var friend = { active: false, x: 40, y: -12, dir: -1, walk: 0, state: 'drop_in', timer: 0, mode: 'work', targetX: 40, broomSwing: 0, moodIcon: '', moodTimer: 0 };
         function setMood(ic, dur){ santa.moodIcon = ic; santa.moodTimer = dur || 65; }
         var colors = ['rgba(255,255,255,0.96)','rgba(240,246,252,0.95)','rgba(225,235,245,0.92)'];
@@ -2838,7 +2838,7 @@ window.창고읽기 = function(url){
               ctx.restore();
             }
 
-            // 날아가는 눈덩이 그리기 (+ 커서로 치면 튕겨나감 + 세워진 눈사람에 맞으면 눈가루 팡!)
+            // 날아가는 눈덩이 그리기 (하나씩만 던지고, 제목·길·버튼·눈사람에 맞으면 그 표면에 눈이 딱 붙음!)
             for (var sb = snowballs.length - 1; sb >= 0; sb--) {
               var b = snowballs[sb];
               b.x += b.vx; b.y += b.vy; b.vy += 0.12;
@@ -2846,19 +2846,27 @@ window.창고읽기 = function(url){
                 b.vx = Math.max(-4.5, Math.min(4.5, mouse.vx * 0.35));
                 b.vy = Math.max(-4.0, Math.min(2.0, mouse.vy * 0.3 - 1.2));
               }
+              var bxi = Math.round(b.x);
+              var hitTop = (b.vy > 0 && bxi >= tLeft && bxi <= tRight && surfaceY[bxi] >= 0 && Math.abs(b.y - pileY[bxi]) < 4.2);
+              var hitBtn = (b.vy > 0 && bxi >= bLeft && bxi <= bRight && btnSurfaceY[bxi] >= 0 && Math.abs(b.y - btnPileY[bxi]) < 4.2);
               var hitSm = false;
               for (var hsi = 0; hsi < snowmen.length; hsi++) {
-                if (Math.hypot(b.x - snowmen[hsi].x, b.y - (snowmen[hsi].y - 5)) < 6.5) { hitSm = true; break; }
+                if (Math.hypot(b.x - snowmen[hsi].x, b.y - (snowmen[hsi].y - 6)) < 7.5) { hitSm = true; break; }
               }
-              if (hitSm || b.y > H + 6 || b.x < 0 || b.x > W || b.y >= roadY) {
-                for (var k = 0; k < (hitSm ? 8 : 5); k++) {
-                  if (puffs.length < 75) puffs.push({ x: b.x, y: Math.min(roadY, b.y), vx: (Math.random() - 0.5) * 2.0, vy: -0.7 - Math.random() * 1.0, r: 1.3, life: 0.75 });
+              var hitRoad = (b.y >= roadY && bxi >= sLeft && bxi <= sRight && subSurfaceY[bxi] >= 0);
+              if (hitTop || hitBtn || hitSm || hitRoad || b.y > H + 6 || b.x < 0 || b.x > W) {
+                for (var dxP = -3; dxP <= 3; dxP++) {
+                  var px = bxi + dxP;
+                  var amt = 2.4 - Math.abs(dxP) * 0.5;
+                  if (hitTop && px >= tLeft && px <= tRight && surfaceY[px] >= 0) pileY[px] = Math.max(surfaceY[px] - 7, pileY[px] - amt);
+                  if (hitBtn && px >= bLeft && px <= bRight && btnSurfaceY[px] >= 0) btnPileY[px] = Math.max(btnSurfaceY[px] - 6, btnPileY[px] - amt);
+                  if (hitRoad && px >= sLeft && px <= sRight && subSurfaceY[px] >= 0) subPileY[px] = Math.max(subSurfaceY[px] - 6.5, subPileY[px] - amt);
                 }
                 if (hitSm) setMood('🎵', 55);
                 snowballs.splice(sb, 1); continue;
               }
               ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#c5d6e6'; ctx.lineWidth = 0.7;
-              ctx.beginPath(); ctx.arc(b.x, b.y, 2.1, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+              ctx.beginPath(); ctx.arc(b.x, b.y, 2.3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
             }
 
             if (santa.state === 'idle') {
@@ -3068,7 +3076,7 @@ window.창고읽기 = function(url){
               // 눈사람이 있으면 눈사람 방향을 겨냥해서 눈덩이 던지기!
               var sbAimX = (snowmen.length > 0 && Math.random() < 0.75) ? snowmen[0].x : (santa.x + 70);
               if (santa.timer === 1) santa.dir = (sbAimX >= santa.x) ? 1 : -1;
-              if (santa.timer === 42) {
+              if (santa.timer === 42 && snowballs.length === 0) {
                 var dvx = (snowmen.length > 0) ? ((snowmen[0].x - santa.x) * 0.042) : (2.3 + Math.random() * 1.1);
                 snowballs.push({
                   x: santa.x + santa.dir * 6, y: santa.y - 12,
@@ -3446,6 +3454,8 @@ window.창고읽기 = function(url){
               }
             } else if (santa.state === 'wipe') {
               santa.timer++;
+              if (dtRight > dtLeft) santa.dir = (((dtLeft + dtRight) / 2) >= santa.x) ? 1 : -1;
+              santa.headLook = -0.52;
               santa.broomSwing = Math.sin(santa.timer * 0.26);
               if (santa.timer % 24 === 12 && sparkles.length < 12) {
                 sparkles.push({
@@ -3601,7 +3611,16 @@ window.창고읽기 = function(url){
               santa.x = bLeft - 16;
               if (santa.dir > 0) santa.dir = -1;
             }
-            // 인체 관절 기반 미니 산타 그리기 (발 위치 = santa.y)
+            // 3D 좌우 부드러운 회전(turn) + 앞뒤 원근(depthZ) 업데이트
+            santa.turn += (santa.dir - santa.turn) * 0.18;
+            if (Math.abs(santa.turn) < 0.08) santa.turn = (santa.dir >= 0 ? 0.08 : -0.08);
+            if (santa.state === 'idle' && Math.random() < 0.02) santa.targetZ = (Math.random() - 0.5) * 1.4;
+            else if (santa.state === 'wipe' || santa.state === 'house_rest') santa.targetZ = 0.55;
+            else if (santa.state === 'walk_to' && santa.targetMode === 'top') santa.targetZ = -0.35;
+            santa.depthZ += (santa.targetZ - santa.depthZ) * 0.06;
+            var zScale = 1 + santa.depthZ * 0.15;
+            var zY = santa.depthZ * 2.8;
+            // 인체 관절 기반 3D 미니 산타 그리기 (발 위치 = santa.y)
             ctx.save();
             var isWalking = (santa.state === 'walk_to' || santa.state === 'return' || santa.state === 'sweep_btn' || (santa.state === 'btn_bridge' && santa.timer > 58 && santa.timer <= 86) || (santa.state === 'blower' && santa.timer > 30 && santa.timer <= 92));
             var isFlying = (santa.state === 'fly_to_btn' || santa.state === 'fly_back');
@@ -3618,8 +3637,8 @@ window.창고읽기 = function(url){
             var isCrouch = (santa.state === 'hurt' || (santa.state === 'snowball' && santa.timer < 28) || (santa.state === 'snowman' && santa.timer < 65));
             var bob = isWalking ? Math.abs(Math.sin(santa.walk)) * 1.1 : (isFlying ? Math.sin(santa.flyT * Math.PI * 4) * 1.2 : ((santa.state === 'greet' || santa.state === 'busted') && santa.timer < 20 ? Math.sin((santa.timer / 20) * Math.PI) * 7.5 : 0));
             var seatDrop = isSitting ? 2.4 : (isCrouch ? 2.2 : 0);
-            ctx.translate(santa.x, santa.y - bob + seatDrop);
-            ctx.scale(santa.dir * 1.4, 1.4);
+            ctx.translate(santa.x, santa.y - bob + seatDrop + zY);
+            ctx.scale(santa.turn * 1.4 * zScale, 1.4 * zScale);
 
             if (isHouseOut) {
               var hp = (santa.timer <= 40) ? ((santa.timer - 22) / 18) : (santa.timer > 505 ? Math.max(0, 1 - (santa.timer - 505) / 25) : 1);
@@ -3848,43 +3867,92 @@ window.창고읽기 = function(url){
               drawLimb(1.8, -4.4, 2.0, -2.3, 2.0, -0.3, '#d93848', '#2d2226', 2.0);
             }
 
+            // 3D 바닥 그림자
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.16)';
+            ctx.beginPath(); ctx.ellipse(0, 0.8, 5.2, 1.4, 0, 0, Math.PI * 2); ctx.fill();
+
             var lean = (santa.state === 'knockback') ? (-santa.vx * 0.12) : (santa.state === 'hurt' ? -0.18 : (isSitting ? -0.14 : (isBagAction ? 0.25 : (isCrouch ? 0.28 : (isWalking ? 0.08 : 0)))));
             ctx.save();
             ctx.translate(0, -4.4);
             ctx.rotate(lean);
 
-            ctx.fillStyle = '#d93848';
+            // 3D 입체 몸통 그라데이션
+            var bodyGrd = ctx.createRadialGradient(-1.5, -4.2, 0.8, 0, -2.5, 6.5);
+            bodyGrd.addColorStop(0, '#ff6b7a');
+            bodyGrd.addColorStop(0.55, '#d93848');
+            bodyGrd.addColorStop(1, '#8f1622');
+            ctx.fillStyle = bodyGrd;
             ctx.beginPath();
-            ctx.roundRect ? ctx.roundRect(-4.2, -5.6, 8.4, 5.8, 2) : ctx.fillRect(-4.2, -5.6, 8.4, 5.8);
+            ctx.roundRect ? ctx.roundRect(-4.2, -5.6, 8.4, 5.8, 2.2) : ctx.fillRect(-4.2, -5.6, 8.4, 5.8);
             ctx.fill();
+            var faceOx = (santa.targetZ - santa.depthZ > 0.25) ? 0 : (santa.targetZ - santa.depthZ < -0.25 ? 2 : 1.1);
+            var isBackView = (santa.depthZ < -0.35 && santa.state !== 'wipe' && santa.state !== 'greet');
+            var isFrontView = (!isBackView && santa.depthZ > 0.28 && santa.state !== 'walk_to' && santa.state !== 'blower');
             ctx.fillStyle = '#2d2226'; ctx.fillRect(-4.2, -2.2, 8.4, 1.3);
-            ctx.fillStyle = '#f3c44d'; ctx.fillRect(-1, -2.4, 2, 1.7);
-            // 배 앞 도라에몽 4차원 미니 반원 주머니
-            ctx.fillStyle = '#ffffff';
-            ctx.strokeStyle = '#e5d4d9'; ctx.lineWidth = 0.6;
-            ctx.beginPath(); ctx.arc(1.2, -1.6, 2.2, 0, Math.PI); ctx.closePath(); ctx.fill(); ctx.stroke();
+            if (!isBackView) {
+              ctx.fillStyle = '#facc15'; ctx.fillRect(isFrontView ? -1.0 : -0.4, -2.4, 2, 1.7);
+              // 배 앞 도라에몽 4차원 미니 반원 주머니 (3D 명암)
+              var pokGrd = ctx.createRadialGradient(0.8, -1.3, 0.2, 1.2, -1.6, 2.5);
+              pokGrd.addColorStop(0, '#ffffff');
+              pokGrd.addColorStop(1, '#e2e8f0');
+              ctx.fillStyle = pokGrd;
+              ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 0.6;
+              ctx.beginPath(); ctx.arc(isFrontView ? 0 : 1.2, -1.6, 2.2, 0, Math.PI); ctx.closePath(); ctx.fill(); ctx.stroke();
+            }
 
             ctx.save();
             ctx.translate(0, -5.8);
-            ctx.rotate(santa.state === 'idle' ? santa.headLook * 0.6 : 0);
-            ctx.fillStyle = '#ffd9c2';
-            ctx.beginPath(); ctx.arc(0, -2.1, 3.1, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath(); ctx.arc(0, -0.7, 2.7, 0, Math.PI); ctx.fill();
-            ctx.fillStyle = '#2d2226';
-            ctx.beginPath(); ctx.arc(1.1, -2.6, 0.55, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#d93848';
-            ctx.beginPath(); ctx.moveTo(-3.4, -3.9); ctx.quadraticCurveTo(0, -9.8, 3.5, -6.3); ctx.lineTo(2.8, -3.9); ctx.closePath(); ctx.fill();
-            ctx.fillStyle = '#ffffff'; ctx.fillRect(-3.8, -4.5, 7.2, 1.8);
-            ctx.beginPath(); ctx.arc(3.8, -6.3, 1.5, 0, Math.PI * 2); ctx.fill();
+            ctx.rotate((santa.state === 'idle' || santa.state === 'wipe') ? santa.headLook * 0.65 : 0);
+            if (isBackView) {
+              // 4방향 뒷모습: 머리카락/모자 뒤 + 뒤로 넘긴 흰 방울
+              var hatBackGrd = ctx.createLinearGradient(-3, -9, 3, -4);
+              hatBackGrd.addColorStop(0, '#ff6b7a'); hatBackGrd.addColorStop(0.6, '#d93848'); hatBackGrd.addColorStop(1, '#8f1622');
+              ctx.fillStyle = hatBackGrd;
+              ctx.beginPath(); ctx.arc(0, -2.4, 3.15, 0, Math.PI * 2); ctx.fill();
+              ctx.fillStyle = '#ffffff'; ctx.fillRect(-3.6, -4.4, 7.2, 1.7);
+              ctx.beginPath(); ctx.arc(0, -5.5, 1.6, 0, Math.PI * 2); ctx.fill();
+            } else {
+              // 3D 입체 얼굴 그라데이션 + 볼터치 (정면일 땐 두 눈, 측면일 땐 한 눈!)
+              var faceGrd = ctx.createRadialGradient(-1.0, -3.0, 0.5, 0, -2.1, 3.6);
+              faceGrd.addColorStop(0, '#ffeadc');
+              faceGrd.addColorStop(0.65, '#ffd4ba');
+              faceGrd.addColorStop(1, '#e8a888');
+              ctx.fillStyle = faceGrd;
+              ctx.beginPath(); ctx.arc(0, -2.1, 3.1, 0, Math.PI * 2); ctx.fill();
+              ctx.fillStyle = 'rgba(244, 114, 182, 0.38)';
+              if (isFrontView) {
+                ctx.beginPath(); ctx.arc(-1.6, -1.8, 0.7, 0, Math.PI * 2); ctx.arc(1.6, -1.8, 0.7, 0, Math.PI * 2); ctx.fill();
+              } else {
+                ctx.beginPath(); ctx.arc(1.6, -1.8, 0.8, 0, Math.PI * 2); ctx.fill();
+              }
+              var brdGrd = ctx.createRadialGradient(-0.5, -0.5, 0.4, 0, -0.2, 3.0);
+              brdGrd.addColorStop(0, '#ffffff'); brdGrd.addColorStop(1, '#e2e8f0');
+              ctx.fillStyle = brdGrd;
+              ctx.beginPath(); ctx.arc(0, -0.7, 2.7, 0, Math.PI); ctx.fill();
+              ctx.fillStyle = '#2d2226';
+              if (isFrontView) {
+                ctx.beginPath(); ctx.arc(-1.05, -2.6, 0.52, 0, Math.PI * 2); ctx.arc(1.05, -2.6, 0.52, 0, Math.PI * 2); ctx.fill();
+              } else {
+                ctx.beginPath(); ctx.arc(1.1, -2.6, 0.55, 0, Math.PI * 2); ctx.fill();
+              }
+              var hatGrd = ctx.createLinearGradient(-3, -9, 3, -4);
+              hatGrd.addColorStop(0, '#ff6b7a'); hatGrd.addColorStop(0.6, '#d93848'); hatGrd.addColorStop(1, '#8f1622');
+              ctx.fillStyle = hatGrd;
+              ctx.beginPath(); ctx.moveTo(-3.4, -3.9); ctx.quadraticCurveTo(0, -9.8, isFrontView ? 1.5 : 3.5, -6.3); ctx.lineTo(2.8, -3.9); ctx.closePath(); ctx.fill();
+              ctx.fillStyle = brdGrd; ctx.fillRect(-3.8, -4.5, 7.2, 1.8);
+              ctx.beginPath(); ctx.arc(isFrontView ? 1.8 : 3.8, -6.3, 1.5, 0, Math.PI * 2); ctx.fill();
+            }
             ctx.restore();
 
             if (santa.state === 'wipe') {
-              var wx = Math.sin(santa.timer * 0.28) * 4.5;
-              var wy = Math.cos(santa.timer * 0.28) * 2.2 - 9.5;
-              drawLimb(2.5, -4.2, 4.5, -6.5, 3 + wx * 0.7, wy, '#d93848', '#ffffff', 1.9);
-              ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#d0dce8'; ctx.lineWidth = 0.8;
-              ctx.beginPath(); ctx.roundRect ? ctx.roundRect(wx, wy - 2, 6, 4.5, 1.5) : ctx.fillRect(wx, wy - 2, 6, 4.5); ctx.fill(); ctx.stroke();
+              // 긴 손잡이 하늘색 유리창 스퀴지로 위쪽 시계(2026.11.27)를 좌우로 크게 쓱싹쓱싹 닦기!
+              var wx = Math.sin(santa.timer * 0.22) * 7.5;
+              var wy = -16.5 + Math.cos(santa.timer * 0.22) * 1.2;
+              drawLimb(2.2, -4.2, 4.5, -6.5, 4.2 + wx * 0.4, -9.2, '#d93848', '#ffffff', 1.9);
+              ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1.4;
+              ctx.beginPath(); ctx.moveTo(4.2 + wx * 0.4, -9.2); ctx.lineTo(wx + 2, wy); ctx.stroke();
+              ctx.fillStyle = '#38bdf8'; ctx.strokeStyle = '#0284c7'; ctx.lineWidth = 0.7;
+              ctx.beginPath(); ctx.roundRect ? ctx.roundRect(wx - 3.5, wy - 2.2, 11, 2.6, 1) : ctx.fillRect(wx - 3.5, wy - 2.2, 11, 2.6); ctx.fill(); ctx.stroke();
             } else if (santa.state === 'snowball') {
               var tSb = santa.timer;
               var hx = 4, hy = -2;
@@ -4142,7 +4210,7 @@ window.창고읽기 = function(url){
             } else if (friend.state === 'play_fun') {
               // 대장 산타랑 같이 눈싸움 · 점프 하이파이브 · 수다!
               friend.dir = (santa.x >= friend.x) ? 1 : -1;
-              if (friend.timer === 30 || friend.timer === 95) {
+              if ((friend.timer === 30 || friend.timer === 95) && snowballs.length === 0) {
                 snowballs.push({ x: friend.x + friend.dir * 5, y: friend.y - 10, vx: friend.dir * 2.2, vy: -2.0 });
                 friend.moodIcon = '💬'; friend.moodTimer = 45;
               }
@@ -4204,15 +4272,21 @@ window.창고읽기 = function(url){
               }
               ctx.save();
               ctx.scale(friend.dir, 1);
+              ctx.fillStyle = 'rgba(15, 23, 42, 0.16)';
+              ctx.beginPath(); ctx.ellipse(0, 0.8, 4.8, 1.3, 0, 0, Math.PI * 2); ctx.fill();
               var fLeg = (friend.state === 'work_sweep' || (friend.state === 'bye' && friend.byeMode === 'walk' && friend.timer > 28)) ? Math.sin(friend.walk) * 2.4 : 0;
               ctx.fillStyle = '#0f172a';
               ctx.beginPath(); ctx.ellipse(-2.0 - fLeg * 0.5, 0.2, 1.9, 1.1, 0, 0, Math.PI * 2); ctx.ellipse(2.0 + fLeg * 0.5, 0.2, 1.9, 1.1, 0, 0, Math.PI * 2); ctx.fill();
-              ctx.fillStyle = '#0284c7';
+              var fbGrd = ctx.createRadialGradient(-1.2, -5.5, 0.6, 0, -4.4, 4.5);
+              fbGrd.addColorStop(0, '#38bdf8'); fbGrd.addColorStop(0.6, '#0284c7'); fbGrd.addColorStop(1, '#075985');
+              ctx.fillStyle = fbGrd;
               ctx.beginPath(); ctx.ellipse(0, -4.4, 3.8, 3.6, 0, 0, Math.PI * 2); ctx.fill();
               ctx.fillStyle = '#ffffff'; ctx.fillRect(-3.6, -2.1, 7.2, 1.3);
-              ctx.fillStyle = '#ffe0c4'; ctx.beginPath(); ctx.arc(0, -10, 3.0, 0, Math.PI * 2); ctx.fill();
+              var ffGrd = ctx.createRadialGradient(-0.9, -10.8, 0.4, 0, -10, 3.2);
+              ffGrd.addColorStop(0, '#ffeadc'); ffGrd.addColorStop(0.7, '#ffd4ba'); ffGrd.addColorStop(1, '#e8a888');
+              ctx.fillStyle = ffGrd; ctx.beginPath(); ctx.arc(0, -10, 3.0, 0, Math.PI * 2); ctx.fill();
               ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(0, -8.3, 2.7, 2.0, 0, 0, Math.PI); ctx.fill();
-              ctx.fillStyle = '#0284c7'; ctx.beginPath(); ctx.moveTo(-3.4, -11); ctx.quadraticCurveTo(0, -17.5, 4.0, -14.5); ctx.lineTo(3.4, -11); ctx.closePath(); ctx.fill();
+              ctx.fillStyle = fbGrd; ctx.beginPath(); ctx.moveTo(-3.4, -11); ctx.quadraticCurveTo(0, -17.5, 4.0, -14.5); ctx.lineTo(3.4, -11); ctx.closePath(); ctx.fill();
               ctx.fillStyle = '#ffffff'; ctx.fillRect(-3.6, -11.7, 7.2, 1.5);
               ctx.beginPath(); ctx.arc(4.0, -14.5, 1.3, 0, Math.PI * 2); ctx.fill();
               ctx.fillStyle = '#2b1b17'; ctx.beginPath(); ctx.arc(1.2, -10.3, 0.7, 0, Math.PI * 2); ctx.fill();
