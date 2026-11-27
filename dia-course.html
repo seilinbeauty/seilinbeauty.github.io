@@ -3505,7 +3505,7 @@ document.addEventListener('click', function(e){
       '전북':'전라', '전남':'전라', '경북':'경상', '경남':'경상', '제주':'제주' };
     return map[h] || '기타';
   }
-  fetch('dia-course-data.json?v=2')
+  fetch('dia-course-data.json?v=3')
     .then(function(r){ return r.json(); })
     .then(function(list){
       if(!list || !list.length) return;
