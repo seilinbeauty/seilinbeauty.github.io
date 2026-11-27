@@ -119,3 +119,42 @@ nav a,.nav-sub-link,.board-nav-link{letter-spacing:-.1px;font-weight:400;}
 
 /* 스크롤 영역 */
 .reg-scroll{scrollbar-width:thin;}
+
+/* ── v2 · 결을 확실히 (알로하 감성) ── */
+html,body{background:#fbf8f6 !important;color:#2f2a2b !important;}
+
+/* 상단 바: 연한 살구빛 띠 */
+header,.top,#topbar{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;}
+header a,header button,nav a{color:#3a3234 !important;font-size:11.5px !important;
+  letter-spacing:1.4px !important;text-transform:uppercase;font-weight:400 !important;}
+
+/* 제목: 얇고 넓게 */
+h1,h2,h3,h4,.panel-name,.sec-title{font-weight:300 !important;letter-spacing:-.5px !important;}
+h1{letter-spacing:-1.2px !important;}
+
+/* 카드·상자: 흰 바탕 + 1px 실선 + 그림자 거의 없이 */
+.home-panel,.fb-box,.card,[class*="panel"]{background:#fff !important;
+  border:1px solid #efe7e4 !important;border-radius:5px !important;
+  box-shadow:0 1px 8px rgba(180,158,155,.05) !important;}
+.panel-head{border-bottom:1px solid #f3ece9 !important;}
+.panel-item{border-bottom:1px solid #f8f3f1 !important;padding-top:15px !important;padding-bottom:15px !important;}
+.panel-item:hover{background:#fdf9f8 !important;}
+
+/* 버튼: 납작하고 얇게 */
+button,.btn,[class*="btn"]{border-radius:3px !important;box-shadow:none !important;
+  font-weight:400 !important;letter-spacing:.8px !important;}
+
+/* 배지·태그 */
+[class*="badge"],[class*="tag"]{border-radius:999px !important;font-weight:400 !important;
+  letter-spacing:.9px !important;}
+
+/* 표 */
+table{border-color:#efe7e4 !important;}
+th{background:#fdf8f7 !important;font-weight:500 !important;letter-spacing:.5px !important;}
+td,th{border-color:#f3ece9 !important;}
+
+/* 여백을 조금 더 */
+section,[class*="section"]{padding-top:6px;padding-bottom:6px;}
+
+/* 스크롤바 */
+::-webkit-scrollbar-thumb{background:#e8ddda !important;}
