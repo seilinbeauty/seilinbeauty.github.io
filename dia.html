@@ -9626,5 +9626,30 @@ window.창고읽기 = function(url){
   else if(mq && mq.addListener) mq.addListener(place);
 })();
 </script>
+<script>
+/* 다이아 월드 배치: 운영센터에서 저장한 요소별 X·Y 오프셋 적용 */
+(function(){
+  var WKEY = 'dia_world_layout_v1';
+  var MAP = { title:'#plxTitleText', clock:'#pcHeroDatetime', login:'#mcLoginBtn', course:'#mcCourseBtn', search:'#mcLoginBox', banner:'.brand-inline' };
+  var cfg = {};
+  try { cfg = JSON.parse(localStorage.getItem(WKEY)) || {}; } catch(e){ cfg = {}; }
+  var has = false;
+  Object.keys(cfg).forEach(function(k){ if (cfg[k] && (cfg[k].x || cfg[k].y)) has = true; });
+  if (!has) return;
+  function apply(){
+    Object.keys(MAP).forEach(function(k){
+      var v = cfg[k]; if (!v) return;
+      var el = document.querySelector(MAP[k]); if (!el) return;
+      var x = Number(v.x) || 0, y = Number(v.y) || 0;
+      if (!x && !y) { el.style.removeProperty('translate'); return; }
+      el.style.setProperty('translate', x + 'px ' + y + 'px', 'important');
+    });
+  }
+  apply();
+  window.addEventListener('load', apply);
+  window.addEventListener('resize', apply);
+  document.addEventListener('click', function(){ setTimeout(apply, 30); }, true);
+})();
+</script>
 </body>
 </html>

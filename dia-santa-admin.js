@@ -152,6 +152,73 @@
     document.getElementById('sn_msg').textContent = '저장 완료! 다이아 커뮤니티 새로고침 시 바로 적용됩니다.';
   });
 
+  /* ── 다이아 월드 배치 편집기 (요소별 X·Y 미세 조정) ── */
+  var WKEY = 'dia_world_layout_v1';
+  var WITEMS = [
+    ['title', '다이아 커뮤니티 제목'],
+    ['clock', '날짜·시계'],
+    ['login', '내 품앗이 버튼'],
+    ['course', '뷰티수강 버튼'],
+    ['search', '검색창'],
+    ['banner', '상단 소개 배너']
+  ];
+  function loadW(){
+    try { return JSON.parse(localStorage.getItem(WKEY)) || {}; } catch(e){ return {}; }
+  }
+  var wcur = loadW();
+  var wrap = document.createElement('div');
+  wrap.className = 'sn'; wrap.style.marginTop = '18px';
+  var html = '<div class="sn-h"><span>🖼 다이아 월드 배치</span></div>' +
+    '<div class="sn-d">상단(다이아 월드) 요소를 좌우·상하로 조금씩 옮겨 자리를 맞출 수 있어요. 저장하면 다이아 커뮤니티 화면에 그대로 적용됩니다.</div>';
+  WITEMS.forEach(function(it){
+    var k = it[0], label = it[1];
+    var v = wcur[k] || { x: 0, y: 0 };
+    html += '<div class="sn-box">' +
+      '<div class="sn-bt">' + label + '</div>' +
+      '<div class="sn-row"><div class="sn-top"><span>좌우</span><span class="sn-val" id="wv_x_' + k + '">' + (v.x || 0) + 'px</span></div>' +
+      '<input type="range" id="w_x_' + k + '" min="-200" max="200" step="1" value="' + (v.x || 0) + '"></div>' +
+      '<div class="sn-row"><div class="sn-top"><span>상하</span><span class="sn-val" id="wv_y_' + k + '">' + (v.y || 0) + 'px</span></div>' +
+      '<input type="range" id="w_y_' + k + '" min="-140" max="140" step="1" value="' + (v.y || 0) + '"></div>' +
+      '</div>';
+  });
+  html += '<div class="sn-acts"><span class="sn-msg" id="w_msg"></span>' +
+    '<button type="button" class="sn-reset" id="w_reset">전체 0으로</button>' +
+    '<button type="button" class="sn-save" id="w_save">배치 저장</button></div>';
+  wrap.innerHTML = html;
+  sec.appendChild(wrap);
+
+  WITEMS.forEach(function(it){
+    var k = it[0];
+    ['x', 'y'].forEach(function(ax){
+      var el = document.getElementById('w_' + ax + '_' + k);
+      if (!el) return;
+      el.addEventListener('input', function(){
+        if (!wcur[k]) wcur[k] = { x: 0, y: 0 };
+        wcur[k][ax] = parseInt(el.value, 10) || 0;
+        var vl = document.getElementById('wv_' + ax + '_' + k);
+        if (vl) vl.textContent = wcur[k][ax] + 'px';
+      });
+    });
+  });
+  document.getElementById('w_save').addEventListener('click', function(){
+    try { localStorage.setItem(WKEY, JSON.stringify(wcur)); } catch(e){}
+    document.getElementById('w_msg').textContent = '저장 완료! 다이아 커뮤니티 새로고침 시 적용됩니다.';
+  });
+  document.getElementById('w_reset').addEventListener('click', function(){
+    wcur = {};
+    WITEMS.forEach(function(it){
+      var k = it[0];
+      ['x', 'y'].forEach(function(ax){
+        var el = document.getElementById('w_' + ax + '_' + k);
+        if (el) el.value = 0;
+        var vl = document.getElementById('wv_' + ax + '_' + k);
+        if (vl) vl.textContent = '0px';
+      });
+    });
+    try { localStorage.setItem(WKEY, '{}'); } catch(e){}
+    document.getElementById('w_msg').textContent = '전체 0으로 되돌렸어요. 화면을 새로고침해 주세요.';
+  });
+
   // 다른 탭과 상호 전환 연결
   nav.addEventListener('click', function(e){
     var t = e.target.closest('.ops-nav-item');
