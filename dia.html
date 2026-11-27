@@ -2205,6 +2205,8 @@
       .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links { display: inline-flex !important; flex-wrap: nowrap; max-width: none; width: auto; gap: 6px; margin: 0; flex-shrink: 0; }
       .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links > * { width: auto !important; min-height: 34px; padding: 7px 14px; font-size: 14px !important; font-weight: 800 !important; letter-spacing: -0.4px !important; white-space: nowrap; }
       .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links > .mc-hero-login { padding: 7px 14px !important; font-size: 14px !important; font-weight: 800 !important; letter-spacing: -0.4px !important; line-height: 1.2 !important; }
+      /* PC에서는 상단 버튼에서 공지사항을 빼고 2개만 둔다 (모바일은 그대로) */
+      body.dia-page .dia-hero-in .quick-links > a[href="dia-notice.html"] { display: none !important; }
       body.dia-page .dia-hero-in > #mcLoginBox {
         position: absolute !important; top: 82px; left: 0; right: auto;
         width: 344px; max-width: calc(100vw - 32px) !important; margin: 0 !important;
@@ -6400,7 +6402,7 @@ window.창고읽기 = function(url){
                       var hr = lgBox.parentElement.getBoundingClientRect();
                       var br = lgBtn.getBoundingClientRect();
                       var bw = lgBox.offsetWidth || 380;
-                      var targetLeft = (br.left + br.width / 2 - hr.left) - bw / 2;
+                      var targetLeft = (hr.width - bw) / 2;
                       var clampedLeft = Math.max(8, Math.min(targetLeft, hr.width - bw - 8));
                       lgBox.style.left = Math.round(clampedLeft) + 'px';
                       lgBox.style.right = 'auto';
