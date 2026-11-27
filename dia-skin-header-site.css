@@ -52,3 +52,23 @@
   .dia-header > .brand ~ *:not(.nav-links){ margin-left:auto !important; }
   .dia-header > .nav-links ~ *:not(.nav-links) ~ *{ margin-left:8px !important; }
 }
+
+/* ── 스크롤하면 알로하 클로젯처럼: 띠 55px · 로고를 (가운데 1350 컨테이너 + 좌우 50) 위치로 (PC) ── */
+@media (min-width:881px){
+  .dia-header{ transition:height .22s ease, padding-left .22s ease, padding-right .22s ease, box-shadow .22s ease; }
+  .dia-header.is-scrolled{
+    height:55px !important; min-height:55px !important; line-height:55px !important;
+    padding-left:max(50px, calc((100vw - 1350px) / 2 + 50px)) !important;
+    padding-right:max(50px, calc((100vw - 1350px) / 2 + 50px)) !important;
+    background:#f5e5e2 !important;
+    box-shadow:0 1px 0 rgba(200,160,155,.35), 0 3px 12px rgba(150,110,105,.08) !important;
+  }
+  .dia-header.is-scrolled .brand,
+  .dia-header.is-scrolled .brand-logo{
+    height:55px !important; line-height:55px !important;
+    font-size:15px !important; font-weight:700 !important; letter-spacing:.5px !important;
+  }
+  .dia-header.is-scrolled #pcShortcutBtn{
+    right:max(50px, calc((100vw - 1350px) / 2 + 50px)) !important;
+  }
+}

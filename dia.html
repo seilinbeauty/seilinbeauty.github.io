@@ -2326,7 +2326,7 @@ window.창고읽기 = function(url){
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="images/dia-app-icon-192.png">
   <link rel="icon" type="image/png" href="images/dia-app-icon-192.png">
-<link rel="stylesheet" href="dia-skin-header-site.css?v=4">
+<link rel="stylesheet" href="dia-skin-header-site.css?v=5">
 </head>
 <body class="dia-page">
   <header class="dia-header">
@@ -10262,5 +10262,20 @@ window.창고읽기 = function(url){
 </script>
 
 <script src="dia-staff.js?v=1" defer></script>
+<script>
+/* 상단 헤더 — 스크롤하면 알로하 클로젯처럼 55px 띠 + 로고 위치 이동 (PC) */
+(function(){
+  var hd = document.querySelector('header.dia-header');
+  if(!hd) return;
+  var on = false;
+  function upd(){
+    var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    var want = y > 40;
+    if(want !== on){ on = want; hd.classList.toggle('is-scrolled', want); }
+  }
+  window.addEventListener('scroll', upd, {passive:true});
+  upd();
+})();
+</script>
 </body>
 </html>
