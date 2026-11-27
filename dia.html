@@ -2466,18 +2466,13 @@ window.창고읽기 = function(url){
         <a href="dia-course.html" id="mcCourseBtn">뷰티수강</a>
         <a href="dia-board-notice.html" id="mcNoticeBtn">공지사항</a>
       </div>
-      <div class="mc-hero-right" style="align-items:flex-start;">
-        <div style="display:flex;flex-direction:column;gap:5px;align-items:stretch;">
-          <a id="mcCourseEditBtn" class="mc-chat" href="dia-my-course.html" hidden>
-            <span>내 수강</span>
-          </a>
-          <a id="mcActBtn" class="mc-chat" href="dia-mypage.html" hidden><span>마이페이지</span></a>
-        </div>
+      <div class="mc-hero-right" style="align-items:flex-end;">
         <div style="display:flex;flex-direction:column;gap:5px;align-items:stretch;">
           <a id="mcChatBtn" class="mc-chat" href="dia-chat.html" hidden>
             <span class="mc-chat-ico">💬</span><span>채팅</span>
             <span class="mc-chat-n" id="mcChatBadge" hidden>0</span>
           </a>
+          <a id="mcActBtn" class="mc-chat" href="dia-mypage.html" hidden><span>마이페이지</span></a>
         </div>
       </div>
       <div class="mc-login-box" id="mcLoginBox" hidden style="margin:8px auto 0;max-width:440px;text-align:center;">
@@ -2494,14 +2489,14 @@ window.창고읽기 = function(url){
       (function(){
         var actBtn = document.getElementById('mcActBtn');
         var st = document.getElementById('mcHeroStatus');
-        var my = document.getElementById('mcCourseEditBtn');
-        if(!actBtn || !st || !my) return;
+        var ch = document.getElementById('mcChatBtn');
+        if(!actBtn || !st || !ch) return;
         function sync(){
           st.hidden = true;
-          if(my.hidden){ actBtn.hidden = true; return; }
+          if(ch.hidden){ actBtn.hidden = true; return; }
           actBtn.hidden = false;
         }
-        if(window.MutationObserver){ try{ new MutationObserver(sync).observe(my, {attributes:true, attributeFilter:['hidden']}); }catch(e){} }
+        if(window.MutationObserver){ try{ new MutationObserver(sync).observe(ch, {attributes:true, attributeFilter:['hidden']}); }catch(e){} }
         setInterval(sync, 1200);
         sync();
       })();
