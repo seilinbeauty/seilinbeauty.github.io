@@ -2159,7 +2159,8 @@
       body.dia-page .dia-hero-in:has(#mcHeroStatus:not([hidden])) {
         position: relative; overflow: hidden;
         max-width: 1200px; margin: 0 auto; padding: 18px 24px !important;
-        background: #fff; border: 1px solid #ede4e7; border-radius: 14px;
+        background: linear-gradient(180deg, #fffcfd 0%, #fff 100%);
+        border: 1px solid #ede4e7; border-top: 2px solid #e6a8bc; border-radius: 14px;
         box-shadow: 0 2px 10px rgba(180, 130, 145, .05); box-sizing: border-box;
         flex-wrap: wrap; gap: 10px 14px !important;
       }
@@ -2203,7 +2204,14 @@
       .dia-hero .quick-links > .mc-hero-login { padding: 7px 11px !important; font-size: 12px !important; }
       .dia-hero .mc-chat { min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; box-sizing: border-box; }
       .plx-title-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 6px 0 5px; }
-      .plx-title-row .plx-title { margin: 0; }
+      .plx-title-row .plx-title {
+        margin: 0; position: relative; display: inline-block;
+        text-shadow: 0 -2px 0 rgba(255,255,255,.95), 0 -3px 4px rgba(212,226,238,.7);
+      }
+      .plx-title-snow {
+        position: absolute; top: -5px; left: -2px; width: 100%; height: 11px;
+        pointer-events: none; overflow: visible;
+      }
       .pc-hero-datetime {
         display: inline-flex !important; flex-direction: row; align-items: baseline; justify-content: flex-start; gap: 6px;
         padding: 0; border: 0; background: none; box-shadow: none;
@@ -2327,19 +2335,21 @@ window.창고읽기 = function(url){
       (function(){
         var wrap = document.getElementById('pcHeroSnow');
         if (!wrap) return;
-        var glyphs = ['❄','•','❅','•','✻','•'];
-        for (var i = 0; i < 20; i++) {
+        var glyphs = ['❄','•','❅','✦','✻','•','❆'];
+        var colors = ['#efb8c9','#e5b7c6','#e3be6f','#9dc4ae','#f0c4d2'];
+        for (var i = 0; i < 38; i++) {
           var el = document.createElement('span');
           el.className = 'pc-snow-flake';
           el.textContent = glyphs[i % glyphs.length];
-          var left = (i * 5.1 + (i % 3) * 1.3) % 98;
-          var size = (i % 2 === 0) ? (9 + (i % 4) * 2) : (10 + (i % 3) * 2);
-          var dur = 5.5 + (i % 5) * 1.25;
-          var delay = -((i * 1.1) % dur);
-          var dx = ((i % 2 === 0 ? 1 : -1) * (8 + (i % 4) * 5)) + 'px';
-          var op = (0.38 + (i % 4) * 0.14).toFixed(2);
+          var left = (i * 2.65 + (i % 4) * 0.9) % 98;
+          var size = (i % 3 === 0) ? (10 + (i % 4) * 2) : (8 + (i % 3) * 2);
+          var dur = 4.6 + (i % 6) * 1.1;
+          var delay = -((i * 0.85) % dur);
+          var dx = ((i % 2 === 0 ? 1 : -1) * (10 + (i % 5) * 4)) + 'px';
+          var op = (0.45 + (i % 4) * 0.14).toFixed(2);
           el.style.left = left.toFixed(1) + '%';
           el.style.fontSize = size + 'px';
+          el.style.color = colors[i % colors.length];
           el.style.animationDuration = dur + 's';
           el.style.animationDelay = delay + 's';
           el.style.setProperty('--dx', dx);
@@ -2360,7 +2370,7 @@ window.창고읽기 = function(url){
         <div class="only-pc">
           <span class="plx-tag">DIA COMMUNITY</span>
           <div class="plx-title-row">
-            <div class="plx-title">다이아 커뮤니티</div>
+            <div class="plx-title">다이아 커뮤니티<svg class="plx-title-snow only-pc" viewBox="0 0 160 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2,11 C7,2 16,2 22,8 C27,3 35,3 40,8 C47,1 58,2 64,9 C70,3 82,2 88,8 C94,2 106,3 112,8 C119,1 131,2 138,8 C144,3 153,4 158,10 L158,12 C148,10 138,12 128,10 C116,12 102,10 90,11 C78,12 66,10 54,11 C40,12 24,10 12,11 Z" fill="#ffffff" stroke="#dbe5ee" stroke-width="1.2"/></svg></div>
             <div class="pc-hero-datetime only-pc" id="pcHeroDatetime" aria-live="off">
               <div class="pc-hero-date" id="pcHeroDate"></div>
               <div class="pc-hero-time" id="pcHeroTime"></div>
