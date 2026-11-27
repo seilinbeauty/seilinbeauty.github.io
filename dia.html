@@ -2483,10 +2483,9 @@ window.창고읽기 = function(url){
         <p class="ig-b-title">인스타그램 아이디 연동</p>
         <p class="ig-b-sub">간편 로그인으로 입장하셨습니다. 뷰티 마케팅과 활동 통계, 수강 등록까지 모든 기능을 이용하시려면 인스타그램을 연동해 주세요.</p>
         <div class="ig-b-row">
-          <input type="text" id="snsIgInput" placeholder="@인스타그램 아이디 또는 샵 이름(초성) 검색" autocomplete="off">
+          <input type="text" id="snsIgInput" placeholder="인스타그램 아이디 입력 (예: @seilin_beauty)" autocomplete="off">
           <button type="button" class="ig-b-btn" id="snsIgSave">인스타그램 연동</button>
         </div>
-        <div class="ig-b-sug" id="snsIgSug"></div>
       </div>
     </div>
   </section>
@@ -10374,57 +10373,13 @@ window.창고읽기 = function(url){
 
     var inp = document.getElementById('snsIgInput');
     var btn = document.getElementById('snsIgSave');
-    var sug = document.getElementById('snsIgSug');
-    if (!inp || !btn || !sug || inp._boundIg) return;
+    if (!inp || !btn || inp._boundIg) return;
     inp._boundIg = true;
-
-    function norm(v){ return String(v || '').trim().replace(/^@+/, '').toLowerCase(); }
-    inp.addEventListener('input', function(){
-      var raw = inp.value.trim();
-      var mems = window.DIA_MEMBERS || [];
-      if (!raw || !mems.length){ sug.style.display = 'none'; return; }
-      var q = norm(raw);
-      var hits = [];
-      for (var i = 0; i < mems.length; i++){
-        var m = mems[i];
-        var t = (m.n || '') + ' ' + (m.i || '');
-        var matched = t.toLowerCase().indexOf(q) >= 0;
-        if (!matched && window.DIA_SEARCH && DIA_SEARCH.match){
-          matched = DIA_SEARCH.match(m.n || '', raw) || DIA_SEARCH.match(m.i || '', raw);
-        }
-        if (matched) hits.push(m);
-        if (hits.length >= 15) break;
-      }
-      if (!hits.length){ sug.style.display = 'none'; return; }
-      sug.innerHTML = '';
-      hits.forEach(function(m){
-        var b = document.createElement('button');
-        b.type = 'button';
-        b.innerHTML = '<span></span><span style="color:#999;"></span>';
-        b.children[0].textContent = m.n;
-        b.children[1].textContent = m.i ? ('@' + m.i) : '';
-        b.addEventListener('click', function(){
-          inp.value = m.i || m.n;
-          inp.dataset.nick = m.n;
-          sug.style.display = 'none';
-        });
-        sug.appendChild(b);
-      });
-      sug.style.display = 'block';
-    });
 
     btn.addEventListener('click', function(){
       var v = inp.value.trim().replace(/^@+/, '');
-      if (!v){ inp.focus(); return; }
-      var nick = inp.dataset.nick || '';
-      var mems2 = window.DIA_MEMBERS || [];
-      if (!nick && mems2.length){
-        var q = norm(v);
-        for (var i = 0; i < mems.length; i++){
-          if (norm(명부[i].i) === q || norm(명부[i].n) === q){ nick = 명부[i].n; break; }
-        }
-      }
-      if (!nick) nick = '@' + v;
+      if (!v){ alert('인스타그램 아이디를 입력해 주세요.'); inp.focus(); return; }
+      var nick = localStorage.getItem('dia_login_member') || ('@' + v);
       try {
         var u = JSON.parse(localStorage.getItem('dia_sns_user') || 'null');
         if (u && u.key){
