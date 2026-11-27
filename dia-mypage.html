@@ -233,7 +233,7 @@
   var avSrc = customProf.photo ? customProf.photo : (m.i ? ('avatars/' + esc(m.i) + '.jpg') : (snsInfo && snsInfo.photo ? snsInfo.photo : ''));
   var snsFallback = (!customProf.photo && snsInfo && snsInfo.photo) ? snsInfo.photo : '';
   var avHtml = avSrc
-    ? '💎<img id="mpAvImg" src="' + esc(avSrc) + '" alt="' + esc(m.n) + '" onerror="var fb=this.getAttribute('data-fb');if(fb){this.removeAttribute('data-fb');this.src=fb;}else{this.remove();}"' + (snsFallback && avSrc !== snsFallback ? ' data-fb="' + esc(snsFallback) + '"' : '') + '>'
+    ? '💎<img id="mpAvImg" src="' + esc(avSrc) + '" alt="' + esc(m.n) + '" onerror="var fb=this.getAttribute(&#39;data-fb&#39;);if(fb){this.removeAttribute(&#39;data-fb&#39;);this.src=fb;}else{this.remove();}"' + (snsFallback && avSrc !== snsFallback ? ' data-fb="' + esc(snsFallback) + '"' : '') + '>'
     : '💎';
 
   var badges = [];
