@@ -495,8 +495,19 @@ document.addEventListener('DOMContentLoaded', function(){
       var imgs = Array.isArray(it.imgs) && it.imgs.length ? it.imgs : [];
       var cover = imgs[0] || '';
       var priceStr = (it.depTxt || man(it.dep)) + ' / 월 ' + (it.rentTxt || man(it.rent));
-      var keyBadge = it.keyTxt === '없음' ? '<span class="al-badge free">무권리</span>' : (it.key > 0 ? '<span class="al-badge hot">권리 '+esc(it.keyTxt)+'</span>' : '');
-      var isNew = it.at >= '2026-11-25';
+      var fullTxt = (it.title + ' ' + (it.body || '') + ' ' + (it.summary || ''));
+      var badges = [];
+      badges.push('<span class="al-badge '+(it.type==='give'?'give':'want')+'">'+(it.type==='give'?'양도중':'구하는중')+'</span>');
+      badges.push('<span class="al-badge hot">'+esc(it.kind||'샵매매')+'</span>');
+      if (it.keyTxt === '없음') badges.push('<span class="al-badge free">무권리</span>');
+      else if (it.key > 0) badges.push('<span class="al-badge hot">권리 '+esc(it.keyTxt)+'</span>');
+      if (/역세권|도보\s*\d+분|출구/.test(fullTxt)) badges.push('<span class="al-badge new">역세권</span>');
+      if (/단독룸|단독\s*룸|개인룸/.test(fullTxt)) badges.push('<span class="al-badge free">단독룸</span>');
+      if (/사업자\s*가능|사업자등록/.test(fullTxt)) badges.push('<span class="al-badge new">사업자가능</span>');
+      if (/빠른\s*입주|바로\s*가능|즉시\s*입주|바로영업/.test(fullTxt)) badges.push('<span class="al-badge give">즉시입주</span>');
+      if (/주차/.test(fullTxt)) badges.push('<span class="al-badge want">주차가능</span>');
+      if (/1인\s*샵|1인\s*뷰티/.test(fullTxt)) badges.push('<span class="al-badge free">1인샵</span>');
+      if (/인테리어|몸만|집기/.test(fullTxt)) badges.push('<span class="al-badge hot">풀세팅</span>');
       var swColors = it.type === 'give' ? ['#f5e5e2','#d55576','#2b2527'] : ['#e4eef8','#6d96c4','#2b2527'];
       return '<article class="item" data-id="'+esc(it.id)+'">'+
         '<div class="thumb">'+
@@ -507,12 +518,7 @@ document.addEventListener('DOMContentLoaded', function(){
           '<h3>['+esc(it.area)+'/'+esc(it.job)+'] '+esc(it.title)+'</h3>'+
           '<div class="item-price">'+esc(priceStr)+'</div>'+
           '<div class="item-desc">'+esc(it.summary || it.body || '')+'</div>'+
-          '<div class="item-badges">'+
-            (isNew ? '<span class="al-badge new">NEW♡</span>' : '')+
-            '<span class="al-badge '+(it.type==='give'?'give':'want')+'">'+(it.type==='give'?'양도추천':'구함')+'</span>'+
-            '<span class="al-badge hot">'+esc(it.kind||'샵매매')+'</span>'+
-            keyBadge+
-          '</div>'+
+          '<div class="item-badges">'+badges.slice(0, 5).join('')+'</div>'+
         '</div>'+
       '</article>';
     }).join('');
