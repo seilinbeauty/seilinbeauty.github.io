@@ -1,0 +1,40 @@
+/* 다이아 — 상단 헤더만 알로하 클로젯 방식 (커비 · 2026-11-27)
+   연한 살구빛 띠 · 얇은 실선 · 영문 대문자 넓은 자간 · 오른쪽 로그인/회원가입 */
+.dia-header{
+  background:#f5e5e2 !important;
+  border-bottom:1px solid #eccfc9 !important;
+  box-shadow:none !important;
+  padding:0 26px !important;
+  min-height:45px !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:26px !important;
+}
+.dia-header .brand{gap:12px !important;align-items:center !important;}
+.brand-logo{font-size:12px !important;font-weight:500 !important;
+  letter-spacing:.22em !important;text-transform:uppercase;color:#3a3234 !important;}
+.brand-sub{font-size:9px !important;font-weight:400 !important;
+  letter-spacing:.14em !important;color:#8a7f81 !important;}
+.nav-links{display:flex !important;align-items:center !important;gap:22px !important;}
+.nav-links a{font-size:10.5px !important;font-weight:400 !important;
+  letter-spacing:.16em !important;text-transform:uppercase;
+  color:#3a3234 !important;padding:0 !important;text-decoration:none !important;}
+.nav-links a:hover{color:#a9566a !important;}
+
+.pv-util{margin-left:auto;display:flex;align-items:center;gap:22px;}
+.pv-util a{font-size:10.5px !important;font-weight:400 !important;
+  letter-spacing:.16em !important;text-transform:uppercase;
+  color:#3a3234 !important;text-decoration:none !important;white-space:nowrap;}
+.pv-util a:hover{color:#a9566a !important;}
+.pv-util a.pv-ico{font-size:13px !important;letter-spacing:0 !important;color:#6f6668 !important;}
+
+@media (max-width:820px){
+  .dia-header{padding:0 14px !important;gap:14px !important;min-height:45px !important;}
+  .brand-logo{font-size:10.5px !important;letter-spacing:.14em !important;}
+  .brand-sub{display:none !important;}
+  .nav-links a{font-size:9.5px !important;letter-spacing:.1em !important;}
+  .nav-links{gap:12px !important;}
+  .pv-util{gap:12px;}
+  .pv-util a{font-size:9.5px !important;}
+  .pv-util a.pv-ico{display:none;}
+}
