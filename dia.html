@@ -3009,13 +3009,15 @@ window.창고읽기 = function(url){
                     santa.laziness = Math.min(100, santa.laziness + 14);
                     if ((chosen === 'top' || chosen === 'road') && !friend.active && Math.random() < 0.25 && walkMaxX > sLeft + 55) {
                       santa.state = 'call_friend'; santa.timer = 0; santa.callOk = (Math.random() < 0.72); friend.mode = 'work'; setMood('📞', 65);
-                    } else if (mustWork && (chosen === 'top' || chosen === 'road')) {
+                    } else if (mustWork && chosen === 'road') {
                       if (Math.random() < 0.6) {
                         santa.state = 'blower'; santa.timer = 0;
                       } else {
                         santa.state = 'walk_to'; santa.targetMode = 'shovel';
                         santa.targetX = Math.min(walkMaxX, bestSubX >= 0 ? bestSubX : santa.x);
                       }
+                    } else if (chosen === 'top' && Math.random() < 0.72) {
+                      santa.state = 'walk_to'; santa.targetMode = 'top'; santa.targetX = Math.min(walkMaxX, bestTopX);
                     } else if ((chosen === 'top' || chosen === 'road') && Math.random() < 0.35) {
                       santa.state = 'blower'; santa.timer = 0;
                     } else if (chosen === 'top') { santa.state = 'walk_to'; santa.targetMode = 'top'; santa.targetX = Math.min(walkMaxX, bestTopX); }
@@ -3035,7 +3037,7 @@ window.창고읽기 = function(url){
                       santa.state = 'walk_to'; santa.targetMode = 'lamp';
                       santa.targetX = Math.max(sLeft + 18, Math.min(walkMaxX, snowmen[0].x + (snowmen[0].x > walkMaxX - 24 ? -14 : 14)));
                       setMood('💡', 65);
-                    } else if (pick < 0.14 && walkMaxX > sLeft + 70) {
+                    } else if (pick < 0.30 && walkMaxX > sLeft + 70) {
                       // 보이지 않는 백스테이지 문 열고 들어가 계단 오르내리며 글자·시계 유지보수!
                       santa.state = 'walk_to'; santa.targetMode = 'backstage';
                       santa.bsDoorX = Math.max(sLeft + 45, Math.min(walkMaxX - 24, (tRight + dtLeft) / 2 || (sLeft + 140)));
@@ -3043,7 +3045,7 @@ window.창고읽기 = function(url){
                       var bsModes = ['clock', 'panel', 'title', 'switch_clock', 'boiler'];
                       santa.bsMode = bsModes[Math.floor(Math.random() * bsModes.length)];
                       setMood(santa.bsMode === 'boiler' ? '🔥' : '🔧', 75);
-                    } else if (!friend.active && pick < 0.24 && walkMaxX > sLeft + 55) {
+                    } else if (!friend.active && pick < 0.38 && walkMaxX > sLeft + 55) {
                       santa.state = 'call_friend'; santa.timer = 0; santa.callOk = (Math.random() < 0.72); friend.mode = (Math.random() < 0.55 ? 'work' : 'play'); setMood('📞', 65);
                     } else if (pick < 0.30 && walkMaxX > sLeft + 70) {
                       santa.state = 'magic_car'; santa.timer = 0; setMood('💡', 65);
