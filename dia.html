@@ -1780,6 +1780,11 @@
     max-width: none !important;
     box-sizing: border-box !important;
   }
+  body:not(.sns-need-ig) .dia-hero-in > #mcHeroStatus:has(#diaLinkBox:not([hidden])) > *:not(#diaLinkBox) {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
   #snsIgBanner .ig-b-title { font-size: 16px; font-weight: 800; color: #2b1d22; margin: 0 0 6px; }
   #snsIgBanner .ig-b-sub { font-size: 12.5px; color: #7a5c65; margin: 0 0 14px; }
   #snsIgBanner .ig-b-row { display: flex; gap: 8px; align-items: center; }
@@ -3998,7 +4003,7 @@ window.창고읽기 = function(url){
                   try{ linkedIg = localStorage.getItem('dia_sns_linked_ig') || ''; }catch(_e){}
                   var sm = 회원찾기(saved.n) || 회원찾기(saved.i || '') || (linkedIg ? 회원찾기(linkedIg) : null);
                   if(!sm && linkedIg){
-                    sm = { n: linkedIg, i: linkedIg, c: '뷰티', p: 0, s: 0, l: 0, g: 0, b: 0 };
+                    sm = { n: linkedIg, no: 0, r: '미상', c: '뷰티', o: '신규회원', i: linkedIg, b: 0, l: 0, p: 0, d: 0, w: [-1, -1, -1, -1, -1, -1, -1], mc: 0, rk: 0, lw: 0, tot: 0, sk: 0, nw: 1, vl: 0, vlt: '', pl: 0, pk: '', pr: '', pd: '' };
                   }
                   if(sm){
                     로그인저장(sm);
