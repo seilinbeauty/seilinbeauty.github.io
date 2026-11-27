@@ -1770,6 +1770,16 @@
     border: 0 !important;
     padding: 0 !important;
   }
+  body:not(.sns-need-ig) .dia-hero-in > #mcHeroStatus:has(#diaLinkBox:not([hidden])) > #diaLinkBox {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+  body:not(.sns-need-ig) .dia-hero-in > #mcHeroStatus:has(#diaLinkBox:not([hidden])) > #diaLinkBox .dl {
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+  }
   #snsIgBanner .ig-b-title { font-size: 16px; font-weight: 800; color: #2b1d22; margin: 0 0 6px; }
   #snsIgBanner .ig-b-sub { font-size: 12.5px; color: #7a5c65; margin: 0 0 14px; }
   #snsIgBanner .ig-b-row { display: flex; gap: 8px; align-items: center; }
