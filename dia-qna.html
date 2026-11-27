@@ -2254,17 +2254,17 @@
             </div>
             <div style="display:flex;gap:7px;align-items:center;">
               <button type="button" id="qnaAdminBtn" style="padding:8px 12px;border-radius:10px;border:1px solid #ecd8df;background:#fff;color:#7a6069;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">관리자</button>
-              <button type="button" id="qnaWriteToggle" style="padding:9px 16px;border-radius:10px;border:0;background:#d55576;color:#fff;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;">🔒 문의하기</button>
+              <button type="button" id="qnaWriteToggle" style="padding:9px 16px;border-radius:10px;border:0;background:#d55576;color:#fff;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;">🔒 글쓰기</button>
             </div>
           </div>
 
           <div id="qnaWriteBox" style="display:none;margin-bottom:16px;padding:16px;border:1px solid #f0d7e0;border-radius:14px;background:#fffafc;">
             <div style="font-size:13.5px;font-weight:900;color:#33262a;margin-bottom:10px;">🔒 비밀 문의 작성</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-              <input type="text" id="qnaAuthor" class="bd-ed-t" placeholder="작성자 (닉네임/인스타 ID)" maxlength="30">
+              <input type="text" id="qnaAuthor" class="bd-ed-t" placeholder="작성자" readonly style="background:#f9f4f6;color:#6d5860;">
               <input type="password" id="qnaPin" class="bd-ed-t" placeholder="비밀글 암호 (4자리 이상)" maxlength="12" inputmode="numeric">
             </div>
-            <input type="text" id="qnaTitle" class="bd-ed-t" placeholder="문의 제목을 입력해 주세요" maxlength="80" style="margin-bottom:8px;">
+            <input type="text" id="qnaTitle" class="bd-ed-t" value="문의합니다" readonly style="margin-bottom:8px;background:#f9f4f6;color:#33262a;font-weight:700;">
             <textarea id="qnaContent" class="bd-ed-b" placeholder="문의 내용을 입력해 주세요 (비밀글로 저장되어 작성자와 관리자만 볼 수 있습니다)"></textarea>
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;flex-wrap:wrap;">
               <span id="qnaWriteMsg" class="bd-ed-msg"></span>
@@ -2372,14 +2372,15 @@
               var admBtn = document.getElementById("qnaAdminBtn");
               if (admBtn) admBtn.textContent = adm ? "관리자 인증됨" : "관리자";
               if (!items.length){
-                box.innerHTML = "<div class=\"bd-empty\">아직 등록된 비밀 문의가 없습니다. 위 <b>🔒 문의하기</b> 버튼으로 문의를 남겨 주세요.</div>";
+                box.innerHTML = "<div class=\"bd-empty\">아직 등록된 비밀 문의가 없습니다. 위 <b>🔒 글쓰기</b> 버튼으로 문의를 남겨 주세요.</div>";
                 return;
               }
               box.innerHTML = "";
               items.forEach(function(it, idx){
                 var wrap = document.createElement("div");
                 wrap.className = "bd-item";
-                var openOk = adm || !!unlockedIds[it.id];
+                var meNick = ""; try { meNick = (localStorage.getItem("dia_login_member") || "").trim().toLowerCase(); } catch(e){}
+                var openOk = adm || !!unlockedIds[it.id] || (meNick && String(it.author || "").trim().toLowerCase() === meNick);
                 var statusBadge = it.reply
                   ? "<span style=\"display:inline-block;padding:2px 7px;border-radius:999px;background:#eaf8ef;color:#1b7a43;font-size:11px;font-weight:800;\">답변완료</span>"
                   : "<span style=\"display:inline-block;padding:2px 7px;border-radius:999px;background:#fff2f5;color:#c2456a;font-size:11px;font-weight:800;\">답변대기</span>";
@@ -2388,7 +2389,7 @@
                 btn.type = "button";
                 btn.className = "bd-row";
                 btn.style.gridTemplateColumns = window.innerWidth <= 560 ? "1fr auto" : "52px 1fr 88px 82px";
-                var showTitle = openOk ? ("🔓 " + esc(it.title)) : ("🔒 비밀 문의글입니다.");
+                var showTitle = (openOk ? "🔓 " : "🔒 ") + esc(it.title || "문의합니다");
                 var showAuthor = openOk ? esc(it.author) : esc(maskName(it.author));
                 btn.innerHTML =
                   "<span class=\"bd-no\">" + (items.length - idx) + "</span>" +
@@ -2481,7 +2482,20 @@
               if (curNick) document.getElementById("qnaAuthor").value = curNick;
             } catch(e){}
 
+            function getLoginNick(){
+              try { return (localStorage.getItem("dia_login_member") || "").trim(); } catch(e){ return ""; }
+            }
             if (wToggle) wToggle.addEventListener("click", function(){
+              var nick = getLoginNick();
+              if (!nick){
+                if (confirm("로그인한 회원만 글을 쓸 수 있습니다.\n로그인 페이지로 이동할까요?")){
+                  var pcQ = /(?:\?|&)pc=1(?:&|$)/.test(location.search) ? "?pc=1" : "";
+                  location.href = "dia-preview-login.html" + pcQ;
+                }
+                return;
+              }
+              document.getElementById("qnaAuthor").value = nick;
+              document.getElementById("qnaTitle").value = "문의합니다";
               wBox.style.display = (wBox.style.display === "none") ? "block" : "none";
             });
             if (wCancel) wCancel.addEventListener("click", function(){
@@ -2499,7 +2513,8 @@
               }
             });
             if (wSubmit) wSubmit.addEventListener("click", function(){
-              var author = (document.getElementById("qnaAuthor").value || "").trim();
+              var author = getLoginNick();
+              if (!author) { wMsg.textContent = "로그인 후 작성해 주세요."; return; }
               var pin = (document.getElementById("qnaPin").value || "").trim();
               var title = (document.getElementById("qnaTitle").value || "").trim();
               var bodyTxt = (document.getElementById("qnaContent").value || "").trim();
@@ -2524,7 +2539,7 @@
               saveItems().then(function(ok){
                 wSubmit.disabled = false;
                 if (ok){
-                  document.getElementById("qnaTitle").value = "";
+                  document.getElementById("qnaTitle").value = "문의합니다";
                   document.getElementById("qnaContent").value = "";
                   document.getElementById("qnaPin").value = "";
                   wMsg.textContent = "";
