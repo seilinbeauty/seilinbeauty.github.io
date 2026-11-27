@@ -2210,14 +2210,14 @@
         margin: 0; flex-shrink: 0; white-space: nowrap;
       }
       .pc-hero-date {
-        font-family: 'Playfair Display', Georgia, 'Pretendard', serif;
-        font-size: 13px; font-weight: 700; color: #cc5278;
-        font-variant-numeric: tabular-nums; letter-spacing: 0.1px;
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 15px; font-weight: 700; color: #cc5278;
+        font-variant-numeric: tabular-nums; letter-spacing: 0.2px; line-height: 1.1;
       }
       .pc-hero-time {
         font-family: 'Playfair Display', Georgia, serif;
-        font-size: 16px; font-weight: 700; color: #b62d47;
-        font-variant-numeric: tabular-nums; letter-spacing: 0.3px; line-height: 1.1;
+        font-size: 15px; font-weight: 700; color: #b62d47;
+        font-variant-numeric: tabular-nums; letter-spacing: 0.2px; line-height: 1.1;
       }
       body.dia-page .plx-section { padding: 16px 20px 64px !important; }
       body.dia-page .plx-inner { max-width: 1200px; grid-template-columns: 220px minmax(0, 1fr); gap: 20px;
@@ -2382,12 +2382,11 @@ window.창고읽기 = function(url){
           var y = kst.getFullYear();
           var m = String(kst.getMonth() + 1).padStart(2, '0');
           var d = String(kst.getDate()).padStart(2, '0');
-          var w = days[kst.getDay()];
           var h24 = kst.getHours();
           var hh = String(h24).padStart(2, '0');
           var mm = String(kst.getMinutes()).padStart(2, '0');
           var ss = String(kst.getSeconds()).padStart(2, '0');
-          dEl.textContent = y + '.' + m + '.' + d + ' (' + w + ')';
+          dEl.textContent = y + '.' + m + '.' + d;
           tEl.textContent = hh + ':' + mm + ':' + ss;
         }
         tick();
