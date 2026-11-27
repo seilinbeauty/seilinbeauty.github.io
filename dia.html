@@ -1922,6 +1922,19 @@
     .plx-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; }
     .plx-cta-t { font-size: 12px; color: #868e96; }
     .only-pc { display: block; }
+    /* 로그인 후 화면은 11/26 상태 그대로 — 오늘 상단에서 손댄 것은 로그인 전 화면에만 */
+    body.dia-page:has(#mcHeroStatus:not([hidden])) header.dia-header .brand-inline { display: none !important; }
+    @media (min-width: 881px) {
+      body.dia-page:has(#mcHeroStatus:not([hidden])) .dia-hero-in .quick-links > a[href="dia-notice.html"] { display: inline-flex !important; }
+    }
+    body.dia-page:has(#mcHeroStatus:not([hidden])) .dia-hero-in .quick-links { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 8px !important; max-width: 420px !important; width: auto !important; padding: 0 !important; }
+    body.dia-page:has(#mcHeroStatus:not([hidden])) .dia-hero-in .quick-links > * { width: 100% !important; min-width: 0 !important; min-height: 38px !important;
+      padding: 8px 14px !important; font-size: 13px !important; font-weight: 700 !important; letter-spacing: normal !important; border-radius: 8px !important; }
+    body.dia-page:has(#mcHeroStatus:not([hidden])) .dia-hero-in .quick-links > .mc-hero-login { padding: 8px 14px !important; font-size: 13px !important; }
+    body.dia-page:has(#mcHeroStatus:not([hidden])) .dia-hero-in > .mc-hero-right { position: static !important; margin: 0 0 0 auto !important; align-self: center !important; }
+    body.dia-page:has(#mcHeroStatus:not([hidden])) .dia-hero-in > #mcLoginBox { position: static !important; top: auto !important; left: auto !important;
+      transform: none !important; width: auto !important; max-width: 440px !important; margin: 8px auto 0 !important; }
     .only-mo { display: none; }
     .side-set { display: block; margin-top: 12px; padding: 12px 11px 11px; border: 1px solid #f1e3e9; border-radius: 12px;
       background: linear-gradient(180deg, #fffdfd, #fdf7f9); box-shadow: 0 2px 6px rgba(180,140,155,.06); }
