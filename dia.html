@@ -2164,9 +2164,9 @@
         box-shadow: 0 2px 10px rgba(180, 130, 145, .05); box-sizing: border-box;
         flex-wrap: wrap; gap: 10px 14px !important;
       }
-      body.dia-page .dia-hero-in > *:not(.pc-hero-snow):not(.pc-hero-snow-bg) { position: relative; z-index: 2; }
-      body.dia-page .dia-hero-in > .quick-links,
-      body.dia-page .dia-hero-in > .mc-hero-right { z-index: 3; }
+      body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) > *:not(.pc-hero-snow):not(.pc-hero-snow-bg) { position: relative; z-index: 2; }
+      body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) > .quick-links,
+      body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) > .mc-hero-right { z-index: 3; }
       .pc-hero-snow-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; border-radius: 14px; }
       .pc-hero-snow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 25; border-radius: 14px; }
       .pc-snow-flake {
@@ -2202,16 +2202,19 @@
       body.dia-page #mcHeroStatus .mc-act-hd { margin: 4px 2px 3px; }
       body.dia-page #mcHeroStatus .mc-kpis { margin-top: 4px; gap: 5px; }
       body.dia-page #mcHeroStatus .mc-k { padding: 5px 8px; }
-      .dia-hero .quick-links { display: inline-flex !important; flex-wrap: nowrap; max-width: none; width: auto; gap: 6px; margin: 0; flex-shrink: 0; }
-      .dia-hero .quick-links > * { width: auto !important; min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; }
-      .dia-hero .quick-links > .mc-hero-login { padding: 7px 11px !important; font-size: 12px !important; }
+      .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links { display: inline-flex !important; flex-wrap: nowrap; max-width: none; width: auto; gap: 6px; margin: 0; flex-shrink: 0; }
+      .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links > * { width: auto !important; min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; }
+      .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links > .mc-hero-login { padding: 7px 11px !important; font-size: 12px !important; }
       body.dia-page .dia-hero-in > #mcLoginBox {
         position: absolute !important; top: 62px; right: 24px;
         width: 320px; max-width: calc(100vw - 48px) !important; margin: 0 !important;
         padding: 0; background: transparent; border: 0; box-shadow: none; z-index: 30; text-align: center;
       }
       body.dia-page .dia-hero-in > #mcLoginBox[hidden] { display: none !important; }
-      .dia-hero .mc-chat { min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; box-sizing: border-box; }
+      .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .mc-chat { min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; box-sizing: border-box; }
+      /* 로그인 후(#mcHeroStatus 노출 시)에는 어제 원래 버튼 크기·폭 그대로 */
+      body.dia-page .dia-hero-in:has(#mcHeroStatus:not([hidden])) .quick-links { max-width: 420px; gap: 8px; }
+      body.dia-page .dia-hero-in:has(#mcHeroStatus:not([hidden])) .quick-links > * { min-height: 38px; padding: 8px 14px; font-size: 13px; }
       .plx-title-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 6px 0 5px; }
       .plx-title-row .plx-title {
         margin: 0; position: relative; display: inline-block; z-index: 1;
