@@ -155,6 +155,8 @@
       <button type="button" class="s-btn" data-tab="copy"><span>릴스·인스타 카피</span><span class="s-tag">대본</span></button>
       <button type="button" class="s-btn" data-tab="crm"><span>CRM 재방문 문자</span><span class="s-tag">노쇼방지</span></button>
       <button type="button" class="s-btn" data-tab="diag"><span>매장 진단 · ROAS</span><span class="s-tag">UTM</span></button>
+      <button type="button" class="s-btn" data-tab="ba"><span>비포·애프터 이미지</span><span class="s-tag">워터마크</span></button>
+      <button type="button" class="s-btn" data-tab="qr"><span>매장 예약 QR 생성</span><span class="s-tag">PNG</span></button>
     </nav>
     <div class="side-card">
       <b>다이아 회원 전용</b>
@@ -316,6 +318,49 @@
           </div>
           <div id="utmOut" class="out-box"></div>
           <div class="btn-row"><button type="button" class="btn-primary" id="btnGenUtm">UTM 생성</button><button type="button" class="btn-ghost" id="btnCopyUtm">링크 복사</button></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- 7. 비포 · 애프터 카드뉴스 & 워터마크 -->
+    <section class="tl-panel" id="tab-ba">
+      <div class="bench">
+        <section class="card">
+          <div class="card-hd"><div><h2 class="card-t">비포 · 애프터 카드 &amp; 워터마크 제작</h2><p class="card-sub">시술 전/후 사진 2장을 올리면 샵 아이디 워터마크가 박힌 인스타용 이미지를 바로 만듭니다.</p></div></div>
+          <div class="g2">
+            <div><label class="lbl">Before 사진</label><input type="file" id="baFile1" accept="image/*" class="inp"></div>
+            <div><label class="lbl">After 사진</label><input type="file" id="baFile2" accept="image/*" class="inp"></div>
+          </div>
+          <div class="g2">
+            <div><label class="lbl">샵 워터마크 (인스타 ID)</label><input id="baWm" class="inp" value="@seilin_beauty"></div>
+            <div><label class="lbl">상단 제목 문구</label><input id="baCap" class="inp" value="BEFORE & AFTER"></div>
+          </div>
+          <div class="btn-row"><button type="button" class="btn-primary" id="btnBaMake">이미지 만들기</button><button type="button" class="btn-ghost" id="btnBaDown">PNG 저장</button></div>
+        </section>
+        <section class="card">
+          <div class="card-hd"><div><h2 class="card-t">미리보기</h2><p class="card-sub">1080 × 1080 정사각형 피드 규격으로 저장됩니다.</p></div></div>
+          <canvas id="baCanvas" width="1080" height="1080" style="width:100%;max-width:420px;border-radius:12px;border:1px solid var(--line);display:block;margin:0 auto;background:#f9fafb;"></canvas>
+        </section>
+      </div>
+    </section>
+
+    <!-- 8. 매장 예약 QR코드 생성기 -->
+    <section class="tl-panel" id="tab-qr">
+      <div class="bench">
+        <section class="card">
+          <div class="card-hd"><div><h2 class="card-t">매장 예약 · 인스타 QR코드 생성</h2><p class="card-sub">네이버 예약, 인스타, 카톡 채널 링크를 고화질 QR 이미지로 만듭니다.</p></div></div>
+          <label class="lbl">연결할 주소 (URL)</label>
+          <input id="qrUrl" class="inp" value="https://seilinbeauty.github.io/">
+          <label class="lbl">하단 안내 문구 (선택)</label>
+          <input id="qrLabel" class="inp" value="예약 · 안내 바로가기">
+          <div class="btn-row"><button type="button" class="btn-primary" id="btnQrGen">QR코드 생성</button><button type="button" class="btn-ghost" id="btnQrDown">이미지 저장</button></div>
+        </section>
+        <section class="card" style="text-align:center;">
+          <div class="card-hd" style="justify-content:center;"><div><h2 class="card-t">QR코드 미리보기</h2><p class="card-sub">매장 카운터·배너 인쇄용으로 바로 쓰실 수 있습니다.</p></div></div>
+          <div id="qrBox" style="padding:14px;display:inline-block;border:1px solid var(--line);border-radius:14px;background:#fff;">
+            <img id="qrImg" alt="QR코드" style="width:220px;height:220px;display:block;">
+            <div id="qrTxt" style="margin-top:8px;font-size:13px;font-weight:800;color:#111827;">예약 · 안내 바로가기</div>
+          </div>
         </section>
       </div>
     </section>
@@ -535,6 +580,78 @@
   document.getElementById("btnGenUtm").addEventListener("click", genUtm);
   document.getElementById("btnCopyUtm").addEventListener("click", function(){ cpTxt(document.getElementById("utmOut").textContent); });
   genUtm();
+
+  // 7. 비포·애프터 Canvas 생성
+  var baImg1 = null, baImg2 = null;
+  function loadFileImg(inp, cb){
+    var f = inp && inp.files && inp.files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function(ev){
+      var im = new Image();
+      im.onload = function(){ cb(im); drawBa(); };
+      im.src = ev.target.result;
+    };
+    rd.readAsDataURL(f);
+  }
+  function drawBa(){
+    var cv = document.getElementById("baCanvas"); if (!cv) return;
+    var ctx = cv.getContext("2d");
+    ctx.fillStyle = "#181316"; ctx.fillRect(0, 0, 1080, 1080);
+    function drawHalf(im, x, label){
+      if (im) {
+        var r = Math.max(536 / im.width, 940 / im.height);
+        var w = im.width * r, h = im.height * r;
+        ctx.save();
+        ctx.beginPath(); ctx.rect(x, 90, 536, 940); ctx.clip();
+        ctx.drawImage(im, x + (536 - w) / 2, 90 + (940 - h) / 2, w, h);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = "#2b2226"; ctx.fillRect(x, 90, 536, 940);
+        ctx.fillStyle = "#9ca3af"; ctx.font = "bold 30px sans-serif"; ctx.textAlign = "center";
+        ctx.fillText(label + " 사진 선택", x + 268, 560);
+      }
+      ctx.fillStyle = "rgba(17,24,39,0.72)";
+      ctx.fillRect(x + 20, 114, 150, 44);
+      ctx.fillStyle = "#fff"; ctx.font = "bold 22px sans-serif"; ctx.textAlign = "center";
+      ctx.fillText(label, x + 95, 144);
+    }
+    drawHalf(baImg1, 0, "BEFORE");
+    drawHalf(baImg2, 544, "AFTER");
+    ctx.fillStyle = "#fff"; ctx.font = "bold 30px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText((document.getElementById("baCap").value || "BEFORE & AFTER").trim(), 540, 58);
+    ctx.fillStyle = "rgba(255,255,255,0.88)"; ctx.font = "bold 26px sans-serif";
+    ctx.fillText((document.getElementById("baWm").value || "@seilin_beauty").trim(), 540, 1064);
+  }
+  var f1 = document.getElementById("baFile1"), f2 = document.getElementById("baFile2");
+  if (f1) f1.addEventListener("change", function(){ loadFileImg(f1, function(im){ baImg1 = im; }); });
+  if (f2) f2.addEventListener("change", function(){ loadFileImg(f2, function(im){ baImg2 = im; }); });
+  var bMake = document.getElementById("btnBaMake"), bDown = document.getElementById("btnBaDown");
+  if (bMake) bMake.addEventListener("click", drawBa);
+  if (bDown) bDown.addEventListener("click", function(){
+    drawBa();
+    var cv = document.getElementById("baCanvas");
+    var a = document.createElement("a"); a.download = "before-after.png"; a.href = cv.toDataURL("image/png"); a.click();
+  });
+  drawBa();
+
+  // 8. QR 생성
+  function genQr(){
+    var u = (document.getElementById("qrUrl").value || "").trim();
+    var lb = (document.getElementById("qrLabel").value || "").trim();
+    var img = document.getElementById("qrImg");
+    var txt = document.getElementById("qrTxt");
+    if (img && u) img.src = "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=" + encodeURIComponent(u);
+    if (txt) txt.textContent = lb;
+  }
+  var bQr = document.getElementById("btnQrGen"), bQrD = document.getElementById("btnQrDown");
+  if (bQr) bQr.addEventListener("click", genQr);
+  if (bQrD) bQrD.addEventListener("click", function(){
+    var u = (document.getElementById("qrUrl").value || "").trim();
+    if (!u) return;
+    window.open("https://api.qrserver.com/v1/create-qr-code/?size=600x600&format=png&download=1&data=" + encodeURIComponent(u), "_blank");
+  });
+  genQr();
+
 })();
 </script>
 <script src="dia-sub-header.js?v=1"></script>
