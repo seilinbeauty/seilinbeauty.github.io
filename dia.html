@@ -9628,19 +9628,23 @@ window.창고읽기 = function(url){
 })();
 </script>
 <script>
-/* 다이아 월드 배치: 운영센터에서 저장한 요소별 X·Y 오프셋 적용 */
+/* 다이아 섹션: 화면에서 직접 끌어서 위치를 옮기는 드래그 편집기 */
 (function(){
   var WKEY = 'dia_world_layout_v1';
-  var MAP = { title:'#plxTitleText', clock:'#pcHeroDatetime', login:'#mcLoginBtn', course:'#mcCourseBtn', search:'#mcLoginBox', banner:'.brand-inline' };
+  var ITEMS = [
+    ['title',  '다이아 커뮤니티 제목', '#plxTitleText'],
+    ['clock',  '날짜·시계',           '#pcHeroDatetime'],
+    ['login',  '내 품앗이 버튼',      '#mcLoginBtn'],
+    ['course', '뷰티수강 버튼',       '#mcCourseBtn'],
+    ['search', '검색창',              '#mcLoginBox'],
+    ['banner', '상단 소개 배너',      '.brand-inline']
+  ];
   var cfg = {};
   try { cfg = JSON.parse(localStorage.getItem(WKEY)) || {}; } catch(e){ cfg = {}; }
-  var has = false;
-  Object.keys(cfg).forEach(function(k){ if (cfg[k] && (cfg[k].x || cfg[k].y)) has = true; });
-  if (!has) return;
   function apply(){
-    Object.keys(MAP).forEach(function(k){
-      var v = cfg[k]; if (!v) return;
-      var el = document.querySelector(MAP[k]); if (!el) return;
+    ITEMS.forEach(function(it){
+      var el = document.querySelector(it[2]); if (!el) return;
+      var v = cfg[it[0]] || {};
       var x = Number(v.x) || 0, y = Number(v.y) || 0;
       if (!x && !y) { el.style.removeProperty('translate'); return; }
       el.style.setProperty('translate', x + 'px ' + y + 'px', 'important');
@@ -9649,7 +9653,89 @@ window.창고읽기 = function(url){
   apply();
   window.addEventListener('load', apply);
   window.addEventListener('resize', apply);
-  document.addEventListener('click', function(){ setTimeout(apply, 30); }, true);
+
+  var editing = false;
+  var moved = false;
+
+  var bar = document.createElement('div');
+  bar.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:3000;display:flex;gap:8px;align-items:center;font-family:inherit;';
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = '🎨 다이아 섹션';
+  btn.style.cssText = 'padding:10px 16px;border-radius:999px;border:0;background:#d55576;color:#fff;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(180,60,100,.3);font-family:inherit;';
+  var undo = document.createElement('button');
+  undo.type = 'button';
+  undo.textContent = '원래대로';
+  undo.style.cssText = 'display:none;padding:9px 13px;border-radius:999px;border:1px solid #e6d7dc;background:#fff;color:#7a6d72;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 6px 16px rgba(150,80,105,.16);font-family:inherit;';
+  bar.appendChild(undo); bar.appendChild(btn);
+  document.body.appendChild(bar);
+
+  function bind(el, key){
+    el.style.cursor = 'grab';
+    el.style.touchAction = 'none';
+    el.addEventListener('pointerdown', function(e){
+      if (!editing) return;
+      e.preventDefault(); e.stopPropagation();
+      var base = cfg[key] || { x: 0, y: 0 };
+      var sx = e.clientX, sy = e.clientY, bx = base.x || 0, by = base.y || 0;
+      moved = false;
+      el.style.cursor = 'grabbing';
+      function onMove(ev){
+        var dx = ev.clientX - sx, dy = ev.clientY - sy;
+        if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
+        cfg[key] = { x: Math.round(bx + dx), y: Math.round(by + dy) };
+        el.style.setProperty('translate', cfg[key].x + 'px ' + cfg[key].y + 'px', 'important');
+      }
+      function onUp(){
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+        el.style.cursor = 'grab';
+        try { localStorage.setItem(WKEY, JSON.stringify(cfg)); } catch(err){}
+      }
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup', onUp);
+    }, true);
+  }
+
+  function setup(){
+    ITEMS.forEach(function(it){
+      var el = document.querySelector(it[2]);
+      if (el && !el.__diaDragBound) { el.__diaDragBound = 1; bind(el, it[0]); }
+    });
+  }
+  setup();
+  window.addEventListener('load', setup);
+
+  document.addEventListener('click', function(e){
+    if (!editing || !moved) return;
+    var t = document.querySelector('.brand-inline, #mcLoginBtn, #mcCourseBtn, #mcLoginBox');
+    if (t && t.contains(e.target)) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+
+  btn.addEventListener('click', function(){
+    editing = !editing;
+    document.body.style.userSelect = editing ? 'none' : '';
+    btn.textContent = editing ? '✅ 편집 끝내기' : '🎨 다이아 섹션';
+    btn.style.background = editing ? '#16a34a' : '#d55576';
+    undo.style.display = editing ? '' : 'none';
+    ITEMS.forEach(function(it){
+      var el = document.querySelector(it[2]); if (!el) return;
+      if (editing) { el.style.outline = '1.5px dashed rgba(213,85,118,.55)'; el.style.outlineOffset = '2px'; }
+      else { el.style.outline = ''; el.style.outlineOffset = ''; }
+    });
+    setup();
+  });
+
+  undo.addEventListener('click', function(){
+    cfg = {};
+    ITEMS.forEach(function(it){
+      var el = document.querySelector(it[2]); if (!el) return;
+      el.style.removeProperty('translate');
+    });
+    try { localStorage.setItem(WKEY, '{}'); } catch(e){}
+    undo.textContent = '되돌렸어요';
+    setTimeout(function(){ undo.textContent = '원래대로'; }, 1400);
+  });
 })();
 </script>
 </body>
