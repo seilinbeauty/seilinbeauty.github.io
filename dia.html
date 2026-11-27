@@ -2612,26 +2612,42 @@ window.창고읽기 = function(url){
               }
             } else if (santa.state === 'walk_to') {
               var dxMove = santa.targetX - santa.x;
-              if (Math.abs(dxMove) > 3) {
-                santa.dir = dxMove > 0 ? 1 : -1;
-                santa.x += santa.dir * 0.8;
-                santa.walk += 0.22;
-                if (santa.targetMode === 'road') {
-                  var fx = Math.round(santa.x + santa.dir * 4);
-                  for (var ddx = -5; ddx <= 5; ddx++) {
+              if (santa.targetMode === 'road') {
+                // 바닥 길은 걸어가면서 빗자루를 아래로 대고 쓱싹쓱싹 쓸어 치움
+                if (Math.abs(dxMove) > 4) {
+                  santa.dir = dxMove > 0 ? 1 : -1;
+                  santa.x += santa.dir * 0.85;
+                  santa.walk += 0.25;
+                  santa.broomSwing = Math.sin(santa.walk * 1.4);
+                  var fx = Math.round(santa.x + santa.dir * 6);
+                  for (var ddx = -8; ddx <= 8; ddx++) {
                     var cx0 = fx + ddx;
-                    if (cx0 >= sLeft && cx0 <= sRight && subSurfaceY[cx0] >= 0 && subPileY[cx0] < subSurfaceY[cx0] - 0.3) {
-                      subPileY[cx0] = Math.min(subSurfaceY[cx0], subPileY[cx0] + 0.9);
-                      if (Math.random() < 0.16 && puffs.length < 70) {
-                        puffs.push({ x: cx0, y: subPileY[cx0] - 1, vx: santa.dir * 0.8, vy: -0.6 - Math.random() * 0.7, r: 1.3, life: 0.9 });
+                    if (cx0 >= sLeft && cx0 <= sRight && subSurfaceY[cx0] >= 0 && subPileY[cx0] < subSurfaceY[cx0] - 0.2) {
+                      subPileY[cx0] = Math.min(subSurfaceY[cx0], subPileY[cx0] + 1.3);
+                      if (Math.random() < 0.28 && puffs.length < 70) {
+                        puffs.push({ x: cx0, y: subPileY[cx0] - 1, vx: santa.dir * (0.9 + Math.random() * 0.8), vy: -0.5 - Math.random() * 0.7, r: 1.2, life: 0.85 });
                       }
                     }
                   }
+                } else {
+                  if (maxSub >= 1.8 && bestSubX >= 0) {
+                    santa.targetX = bestSubX;
+                  } else if (maxTop >= 2.2 && bestTopX >= 0) {
+                    santa.targetMode = 'top'; santa.targetX = bestTopX;
+                  } else {
+                    santa.state = 'return';
+                  }
                 }
               } else {
-                santa.state = 'tap';
-                santa.timer = 0;
-                santa.tapCount = 0;
+                if (Math.abs(dxMove) > 3) {
+                  santa.dir = dxMove > 0 ? 1 : -1;
+                  santa.x += santa.dir * 0.8;
+                  santa.walk += 0.22;
+                } else {
+                  santa.state = 'tap';
+                  santa.timer = 0;
+                  santa.tapCount = 0;
+                }
               }
             } else if (santa.state === 'tap') {
               santa.timer++;
@@ -2707,9 +2723,9 @@ window.창고읽기 = function(url){
             ctx.save();
             ctx.translate(3, -8);
             var isTopTap = (santa.state === 'tap' && santa.targetMode === 'top');
-            var isRoadSweep = (santa.state === 'tap' && santa.targetMode === 'road');
-            var baseAng = isTopTap ? (-0.25 - santa.broomSwing * 0.65) : (isRoadSweep ? (1.8 + santa.broomSwing * 0.5) : 0.35);
-            var liftY = isTopTap ? (-santa.broomSwing * 14) : 0;
+            var isRoadSweep = (santa.state === 'walk_to' && santa.targetMode === 'road');
+            var baseAng = isTopTap ? (-0.25 - santa.broomSwing * 0.65) : (isRoadSweep ? (2.15 + santa.broomSwing * 0.35) : 0.35);
+            var liftY = isTopTap ? (-santa.broomSwing * 14) : (isRoadSweep ? 4 : 0);
             ctx.translate(0, liftY);
             ctx.rotate(baseAng);
             ctx.strokeStyle = '#9c6b3b'; ctx.lineWidth = 1.5;
