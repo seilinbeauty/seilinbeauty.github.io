@@ -72,11 +72,12 @@
         '<div class="sn-row"><div class="sn-top"><span>제목 빗자루 탁탁 치기</span><span class="sn-val" id="sn_v_topBroom"></span></div><input type="range" id="sn_topBroom" min="0" max="100" step="5"></div>' +
         '<div class="sn-row"><div class="sn-top"><span>송풍기 사용 (나머지는 제설 삽)</span><span class="sn-val" id="sn_v_blower"></span></div><input type="range" id="sn_blower" min="0" max="100" step="5"></div>' +
         '<div class="sn-row"><div class="sn-top"><span>친구 산타 전화로 일 시키기</span><span class="sn-val" id="sn_v_callWork"></span></div><input type="range" id="sn_callWork" min="0" max="100" step="5"></div>' +
+        '<div class="sn-row"><div class="sn-top"><span>백스테이지 문 열고 유지보수</span><span class="sn-val" id="sn_v_backstageW"></span></div><input type="range" id="sn_backstageW" min="0" max="100" step="2"></div>' +
+        '<div class="sn-row"><div class="sn-top"><span>페인트 롤러로 글자·시계 칠하기</span><span class="sn-val" id="sn_v_paintW"></span></div><input type="range" id="sn_paintW" min="0" max="100" step="2"></div>' +
       '</div>' +
       '<div class="sn-box">' +
         '<div class="sn-bt">🎮 놀이·자유의지 세부 가중치</div>' +
-        '<div class="sn-row"><div class="sn-top"><span>주머니 아이템 11종 (드론·페인트·보드 등)</span><span class="sn-val" id="sn_v_toyW"></span></div><input type="range" id="sn_toyW" min="0" max="100" step="2"></div>' +
-        '<div class="sn-row"><div class="sn-top"><span>백스테이지 문 열고 유지보수</span><span class="sn-val" id="sn_v_backstageW"></span></div><input type="range" id="sn_backstageW" min="0" max="100" step="2"></div>' +
+        '<div class="sn-row"><div class="sn-top"><span>주머니 아이템 10종 (드론·초코·보드 등)</span><span class="sn-val" id="sn_v_toyW"></span></div><input type="range" id="sn_toyW" min="0" max="100" step="2"></div>' +
         '<div class="sn-row"><div class="sn-top"><span>친구 산타 부르기 (놀기·눈싸움)</span><span class="sn-val" id="sn_v_friendW"></span></div><input type="range" id="sn_friendW" min="0" max="100" step="2"></div>' +
         '<div class="sn-row"><div class="sn-top"><span>스노우 엔젤 (눈 천사)</span><span class="sn-val" id="sn_v_angelW"></span></div><input type="range" id="sn_angelW" min="0" max="100" step="2"></div>' +
         '<div class="sn-row"><div class="sn-top"><span>눈사람 · 가로등 설치</span><span class="sn-val" id="sn_v_propW"></span></div><input type="range" id="sn_propW" min="0" max="100" step="2"></div>' +
@@ -94,13 +95,13 @@
   if (!host) return;
   host.appendChild(sec);
 
-  var keys = ['workRatio', 'topBroom', 'blower', 'callWork', 'toyW', 'backstageW', 'friendW', 'angelW', 'propW', 'rideW', 'housePct'];
+  var keys = ['workRatio', 'topBroom', 'blower', 'callWork', 'backstageW', 'paintW', 'toyW', 'friendW', 'angelW', 'propW', 'rideW', 'housePct'];
   function render(c){
-    var playKeys = ['toyW', 'backstageW', 'friendW', 'angelW', 'propW', 'rideW'];
+    var playKeys = ['toyW', 'friendW', 'angelW', 'propW', 'rideW'];
     /* 놀이 안에서만 합이 100%가 되게 */
     var playSum = playKeys.reduce(function(acc, pk){ return acc + (Number(c[pk]) || 0); }, 0);
     if (playSum <= 0) playSum = 1;
-    var cleanKeys = ['topBroom', 'blower', 'callWork'];
+    var cleanKeys = ['topBroom', 'blower', 'callWork', 'backstageW', 'paintW'];
     var cleanSum = cleanKeys.reduce(function(acc, ck){ return acc + (Number(c[ck]) || 0); }, 0);
     if (cleanSum <= 0) cleanSum = 1;
     keys.forEach(function(k){
@@ -111,6 +112,7 @@
       if (k === 'workRatio') vl.textContent = '일 ' + c[k] + '% : 휴식 ' + (100 - c[k]) + '%';
       else if (k === 'blower') vl.textContent = '청소 중 ' + (Math.round(((Number(c[k]) || 0) / cleanSum) * 1000) / 10) + '% (송풍기 ' + c[k] + ' / 삽 ' + (100 - c[k]) + ')' ;
       else if (k === 'housePct') vl.textContent = c[k] + '%';
+      else if (k === 'paintW' || k === 'backstageW') vl.textContent = (Math.round(((Number(c[k]) || 0) / cleanSum) * 1000) / 10) + '%';
       else if (k === 'topBroom' || k === 'callWork') vl.textContent = (Math.round(((Number(c[k]) || 0) / cleanSum) * 1000) / 10) + '%';
       else {
         var pct = Math.round(((Number(c[k]) || 0) / playSum) * 1000) / 10;
