@@ -3705,7 +3705,7 @@ window.창고읽기 = function(url){
                 var q = 정규(s);
                 if(!q || q.length < 2) return null;
                 for(var i = 0; i < 명부.length; i++){
-                  var m = 명부[i];
+                  var m = mems[i];
                   if((m.i && 정규(m.i) === q) || 정규(m.n) === q) return m;
                   var parts = String(m.n || '').split('/');
                   for(var p = 0; p < parts.length; p++){
@@ -10366,7 +10366,7 @@ window.창고읽기 = function(url){
       var curMem = localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak') || '';
       if (curMem) {
         if (localStorage.getItem('dia_sns_need_ig') === '1') need = true;
-        else if (typeof 명부 !== 'undefined' && !명부.some(function(m){ return m.n === curMem; })) need = true;
+        else if (window.DIA_MEMBERS && !window.DIA_MEMBERS.some(function(m){ return m.n === curMem; })) need = true;
       }
     } catch(e){}
     if (need) document.body.classList.add('sns-need-ig');
@@ -10375,16 +10375,18 @@ window.창고읽기 = function(url){
     var inp = document.getElementById('snsIgInput');
     var btn = document.getElementById('snsIgSave');
     var sug = document.getElementById('snsIgSug');
-    if (!inp || !btn || !sug) return;
+    if (!inp || !btn || !sug || inp._boundIg) return;
+    inp._boundIg = true;
 
     function norm(v){ return String(v || '').trim().replace(/^@+/, '').toLowerCase(); }
     inp.addEventListener('input', function(){
       var raw = inp.value.trim();
-      if (!raw || typeof 명부 === 'undefined'){ sug.style.display = 'none'; return; }
+      var mems = window.DIA_MEMBERS || [];
+      if (!raw || !mems.length){ sug.style.display = 'none'; return; }
       var q = norm(raw);
       var hits = [];
-      for (var i = 0; i < 명부.length; i++){
-        var m = 명부[i];
+      for (var i = 0; i < mems.length; i++){
+        var m = mems[i];
         var t = (m.n || '') + ' ' + (m.i || '');
         var matched = t.toLowerCase().indexOf(q) >= 0;
         if (!matched && window.DIA_SEARCH && DIA_SEARCH.match){
@@ -10415,9 +10417,10 @@ window.창고읽기 = function(url){
       var v = inp.value.trim().replace(/^@+/, '');
       if (!v){ inp.focus(); return; }
       var nick = inp.dataset.nick || '';
-      if (!nick && typeof 명부 !== 'undefined'){
+      var mems2 = window.DIA_MEMBERS || [];
+      if (!nick && mems2.length){
         var q = norm(v);
-        for (var i = 0; i < 명부.length; i++){
+        for (var i = 0; i < mems.length; i++){
           if (norm(명부[i].i) === q || norm(명부[i].n) === q){ nick = 명부[i].n; break; }
         }
       }
@@ -10467,6 +10470,7 @@ window.창고읽기 = function(url){
   setTimeout(initSnsIgBanner, 400);
 })();
 </script>
+<script src="dia-members.js?v=2"></script>
 <script src="dia-staff.js?v=5" defer></script>
 <script>
 /* 상단 헤더 — 스크롤하면 알로하 클로젯처럼 55px 띠 + 로고 위치 이동 (PC) */
