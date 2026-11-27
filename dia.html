@@ -2897,7 +2897,7 @@ window.창고읽기 = function(url){
 
               if (santa.energy < 28 || santa.laziness > 88) {
                 santa.laziness = Math.max(20, santa.laziness - 35);
-                if (Math.random() < 0.55 && bLeft > Math.max(tRight, dtRight) + 54) {
+                if (Math.random() < 0.15 && bLeft > Math.max(tRight, dtRight) + 54) {
                   santa.state = 'walk_to'; santa.targetMode = 'house';
                   santa.targetX = Math.min(bLeft - 32, (Math.max(tRight, dtRight) + bLeft) / 2 - 10);
                 } else {
@@ -2981,12 +2981,7 @@ window.창고읽기 = function(url){
                       santa.state = 'snowball'; santa.timer = 0;
                       setMood('🎵', 55);
                     } else if (pick < 0.93) {
-                      if (Math.random() < 0.55 && bLeft > Math.max(tRight, dtRight) + 54) {
-                        santa.state = 'walk_to'; santa.targetMode = 'house';
-                        santa.targetX = Math.min(bLeft - 32, (Math.max(tRight, dtRight) + bLeft) / 2 - 10);
-                      } else {
-                        santa.state = 'sit_rest'; santa.timer = 0; setMood('💤', 75);
-                      }
+                      santa.state = 'sit_rest'; santa.timer = 0; setMood('💤', 75);
                     } else {
                       santa.state = 'walk_to'; santa.targetMode = 'roam';
                       santa.targetX = sLeft + 20 + Math.random() * Math.max(20, (walkMaxX - sLeft - 35));
@@ -3499,7 +3494,7 @@ window.창고읽기 = function(url){
               }
               if (santa.tapCount >= 2 && phase === 19) {
                 if (santa.energy < 28) {
-                  if (Math.random() < 0.55 && bLeft > Math.max(tRight, dtRight) + 54) {
+                  if (Math.random() < 0.15 && bLeft > Math.max(tRight, dtRight) + 54) {
                     santa.state = 'walk_to'; santa.targetMode = 'house';
                     santa.targetX = Math.min(bLeft - 32, (Math.max(tRight, dtRight) + bLeft) / 2 - 10);
                   } else {
