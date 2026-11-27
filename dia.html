@@ -2454,7 +2454,8 @@ window.창고읽기 = function(url){
             }
           }
         });
-        var santa = { x: 40, dir: 1, walk: 0, y: 58, state: 'idle', timer: 0, targetX: 40, targetMode: 'top', tapCount: 0, broomSwing: 0, wipeWait: 0, flyFromX: 40, flyFromY: 58, flyToX: 40, flyToY: 58, flyT: 0, bridgeX1: 0, bridgeX2: 0, bridgeY: 0, energy: 100, boredom: 0, headLook: 0, lastJob: '' };
+        var santa = { x: 40, dir: 1, walk: 0, y: 58, state: 'idle', timer: 0, targetX: 40, targetMode: 'top', tapCount: 0, broomSwing: 0, wipeWait: 0, flyFromX: 40, flyFromY: 58, flyToX: 40, flyToY: 58, flyT: 0, bridgeX1: 0, bridgeX2: 0, bridgeY: 0, energy: 100, boredom: 0, headLook: 0, lastJob: '', playful: 65, laziness: 45, moodIcon: '', moodTimer: 0 };
+        function setMood(ic, dur){ santa.moodIcon = ic; santa.moodTimer = dur || 65; }
         var colors = ['rgba(255,255,255,0.96)','rgba(240,246,252,0.95)','rgba(225,235,245,0.92)'];
 
         function scanElementSurface(el, hr, outSurf, outPile, yOffset){
@@ -2821,14 +2822,19 @@ window.창고읽기 = function(url){
               ctx.restore();
             }
 
-            // 날아가는 눈덩이 그리기
+            // 날아가는 눈덩이 그리기 (+ 세워진 눈사람에 맞으면 눈가루 팡!)
             for (var sb = snowballs.length - 1; sb >= 0; sb--) {
               var b = snowballs[sb];
               b.x += b.vx; b.y += b.vy; b.vy += 0.12;
-              if (b.y > H + 6 || b.x < 0 || b.x > W || b.y >= roadY) {
-                for (var k = 0; k < 5; k++) {
-                  if (puffs.length < 75) puffs.push({ x: b.x, y: Math.min(roadY, b.y), vx: (Math.random() - 0.5) * 1.6, vy: -0.6 - Math.random() * 0.9, r: 1.2, life: 0.7 });
+              var hitSm = false;
+              for (var hsi = 0; hsi < snowmen.length; hsi++) {
+                if (Math.hypot(b.x - snowmen[hsi].x, b.y - (snowmen[hsi].y - 5)) < 6.5) { hitSm = true; break; }
+              }
+              if (hitSm || b.y > H + 6 || b.x < 0 || b.x > W || b.y >= roadY) {
+                for (var k = 0; k < (hitSm ? 8 : 5); k++) {
+                  if (puffs.length < 75) puffs.push({ x: b.x, y: Math.min(roadY, b.y), vx: (Math.random() - 0.5) * 2.0, vy: -0.7 - Math.random() * 1.0, r: 1.3, life: 0.75 });
                 }
+                if (hitSm) setMood('🎵', 55);
                 snowballs.splice(sb, 1); continue;
               }
               ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#c5d6e6'; ctx.lineWidth = 0.7;
@@ -2856,9 +2862,12 @@ window.창고읽기 = function(url){
                 santa.dir = (Math.random() < 0.6) ? 1 : -1;
               }
 
-              if (santa.energy < 28) {
-                santa.state = (Math.random() < 0.5) ? 'house_rest' : 'sit_rest';
+              if (santa.energy < 28 || santa.laziness > 88) {
+                santa.state = (Math.random() < 0.55) ? 'house_rest' : 'sit_rest';
                 santa.timer = 0;
+                santa.laziness = Math.max(20, santa.laziness - 35);
+                setMood('💤', 75);
+              } else if (santa.timer > 12) {
               } else if (santa.timer > 12) {
                 // 너무 오래 꺼내져 있는 눈사람·가로등이 있으면 직접 다가가서 주머니에 회수
                 var oldItem = null;
@@ -2879,35 +2888,50 @@ window.창고읽기 = function(url){
                   if ((maxBtn >= 2.4 || totalBtn >= 60) && bestBtnX >= 0) cands.push('btn');
                   var mustWork = (maxTop >= 4.4 || maxSub >= 3.8 || maxBtn >= 3.2);
 
-                  // 일하는 것보다 노는 걸 좋아하는 산타: 정말 많이 쌓이지 않으면 65% 확률로 딴짓/일탈 먼저!
-                  if (cands.length > 0 && (mustWork || Math.random() < 0.35)) {
+                  // 내면 욕구(playful·laziness) 기반 자율 판단
+                  var wantPlay = !mustWork && (santa.playful > 45 || Math.random() < 0.65);
+                  if (cands.length > 0 && !wantPlay) {
                     var filtered = cands.filter(function(c){ return c !== santa.lastJob; });
                     var chosen = (filtered.length > 0) ? filtered[Math.floor(Math.random() * filtered.length)] : cands[Math.floor(Math.random() * cands.length)];
                     if (cands.indexOf('btn') >= 0 && santa.lastJob !== 'btn' && Math.random() < 0.55) chosen = 'btn';
                     santa.lastJob = chosen;
                     santa.boredom = 0;
+                    santa.playful = Math.min(100, santa.playful + 14);
+                    santa.laziness = Math.min(100, santa.laziness + 12);
+                    setMood('💦', 55);
                     if (chosen === 'top') { santa.state = 'walk_to'; santa.targetMode = 'top'; santa.targetX = Math.min(walkMaxX, bestTopX); }
                     else if (chosen === 'road') { santa.state = 'walk_to'; santa.targetMode = 'road'; santa.targetX = Math.min(walkMaxX, bestSubX); }
                     else { santa.state = 'summon_sleigh'; santa.timer = 0; santa.targetX = bestBtnX; }
                   } else {
                     santa.boredom = 0;
+                    santa.playful = Math.max(25, santa.playful - 16);
                     var pick = Math.random();
-                    if (pick < 0.24 && lamps.length < 2 && walkMaxX > sLeft + 50) {
+                    // 사물 연계: 눈사람이 있는데 가로등이 없으면 눈사람 옆에 가로등 놓아주기!
+                    if (snowmen.length > 0 && lamps.length === 0 && walkMaxX > sLeft + 50 && Math.random() < 0.45) {
+                      santa.state = 'walk_to'; santa.targetMode = 'lamp';
+                      santa.targetX = Math.max(sLeft + 18, Math.min(walkMaxX, snowmen[0].x + (snowmen[0].x > walkMaxX - 24 ? -14 : 14)));
+                      setMood('💡', 65);
+                    } else if (pick < 0.24 && lamps.length < 2 && walkMaxX > sLeft + 50) {
                       santa.state = 'walk_to'; santa.targetMode = 'lamp';
                       santa.targetX = sLeft + 25 + Math.random() * Math.max(20, (walkMaxX - sLeft - 45));
+                      setMood('💡', 60);
                     } else if (pick < 0.48 && snowmen.length < 2 && walkMaxX > sLeft + 50) {
                       santa.state = 'walk_to'; santa.targetMode = 'snowman';
                       santa.targetX = sLeft + 25 + Math.random() * Math.max(20, (walkMaxX - sLeft - 45));
-                    } else if (pick < 0.72) {
+                      setMood('🎵', 60);
+                    } else if (pick < 0.74) {
                       santa.state = 'snowball'; santa.timer = 0;
-                    } else if (pick < 0.86) {
+                      setMood('🎵', 55);
+                    } else if (pick < 0.87) {
                       santa.state = (Math.random() < 0.5) ? 'house_rest' : 'sit_rest'; santa.timer = 0;
-                    } else if (dtRight > dtLeft + 10 && Math.random() < 0.5) {
+                      setMood('💤', 75);
+                    } else if (dtRight > dtLeft + 10 && Math.random() < 0.45) {
                       santa.wipeWait = 0; santa.state = 'walk_to'; santa.targetMode = 'wipe';
                       santa.targetX = Math.min(walkMaxX, dtLeft + 14 + Math.random() * Math.max(10, (dtRight - dtLeft - 28)));
                     } else {
                       santa.state = 'walk_to'; santa.targetMode = 'roam';
                       santa.targetX = sLeft + 20 + Math.random() * Math.max(20, (walkMaxX - sLeft - 35));
+                      setMood('🎵', 45);
                     }
                   }
                 }
@@ -2938,12 +2962,15 @@ window.창고읽기 = function(url){
               }
             } else if (santa.state === 'snowball') {
               santa.timer++;
-              santa.dir = 1;
+              // 눈사람이 있으면 눈사람 방향을 겨냥해서 눈덩이 던지기!
+              var sbAimX = (snowmen.length > 0 && Math.random() < 0.75) ? snowmen[0].x : (santa.x + 70);
+              if (santa.timer === 1) santa.dir = (sbAimX >= santa.x) ? 1 : -1;
               if (santa.timer === 42) {
+                var dvx = (snowmen.length > 0) ? ((snowmen[0].x - santa.x) * 0.042) : (2.3 + Math.random() * 1.1);
                 snowballs.push({
-                  x: santa.x + 6, y: santa.y - 12,
-                  vx: 2.3 + Math.random() * 1.1,
-                  vy: -2.2 - Math.random() * 0.8
+                  x: santa.x + santa.dir * 6, y: santa.y - 12,
+                  vx: Math.max(-3.5, Math.min(3.5, dvx)),
+                  vy: -2.2 - Math.random() * 0.6
                 });
                 santa.energy = Math.max(0, santa.energy - 4);
               }
@@ -3100,6 +3127,13 @@ window.창고읽기 = function(url){
                 santa.state = 'idle'; santa.timer = 0;
               }
             } else if (santa.state === 'walk_to') {
+              // 중간 변덕 인터럽트: 일하러 가다가도 마우스가 가까이 오거나 장난기가 치솟으면 잠깐 멈춤/딴짓!
+              if (mouse.inside && Math.hypot(mouse.x - santa.x, mouse.y - (santa.y - 10)) < 26 && Math.random() < 0.08) {
+                santa.dir = (mouse.x >= santa.x) ? 1 : -1;
+                santa.state = 'greet'; santa.timer = 0; setMood('❗', 55);
+              } else if ((santa.targetMode === 'top' || santa.targetMode === 'road') && santa.playful > 75 && Math.random() < 0.008) {
+                santa.state = 'snowball'; santa.timer = 0; setMood('🎵', 55);
+              }
               var dxMove = santa.targetX - santa.x;
               if (santa.targetMode === 'road') {
                 // 바닥 길은 걸어가면서 빗자루를 아래로 대고 쓱싹쓱싹 쓸어 치움
@@ -3562,6 +3596,17 @@ window.창고읽기 = function(url){
               ctx.restore();
             } else {
               drawLimb(2.2, -4.2, 4.5, -3.8, 6.2, -3.5, '#d93848', '#ffffff', 1.8);
+            }
+
+            // 머리 위 작은 감정 기호 (🎵 💤 ❗ 💦 💡)
+            if (santa.moodTimer > 0 && santa.moodIcon) {
+              santa.moodTimer--;
+              ctx.save();
+              ctx.scale(santa.dir, 1);
+              ctx.globalAlpha = Math.min(1, santa.moodTimer / 18);
+              ctx.font = '9px sans-serif';
+              ctx.fillText(santa.moodIcon, -4, -19 - Math.sin(santa.moodTimer * 0.12) * 1.2);
+              ctx.restore();
             }
 
             ctx.restore();
