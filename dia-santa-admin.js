@@ -167,8 +167,8 @@
   }
   var wcur = loadW();
   var wrap = document.createElement('div');
-  wrap.className = 'sn'; wrap.style.marginTop = '18px';
-  var html = '<div class="sn-h"><span>🖼 다이아 월드 배치</span></div>' +
+  wrap.className = 'sn'; wrap.style.marginTop = '0';
+  var html = '<div class="sn-h"><span>🖼 다이아 배너</span></div>' +
     '<div class="sn-d">상단(다이아 월드) 요소를 좌우·상하로 조금씩 옮겨 자리를 맞출 수 있어요. 저장하면 다이아 커뮤니티 화면에 그대로 적용됩니다.</div>';
   WITEMS.forEach(function(it){
     var k = it[0], label = it[1];
@@ -185,7 +185,18 @@
     '<button type="button" class="sn-reset" id="w_reset">전체 0으로</button>' +
     '<button type="button" class="sn-save" id="w_save">배치 저장</button></div>';
   wrap.innerHTML = html;
-  sec.appendChild(wrap);
+
+  var btn2 = document.createElement('button');
+  btn2.type = 'button'; btn2.className = 'ops-nav-item'; btn2.setAttribute('data-bannertab', '1');
+  btn2.textContent = '🖼 다이아 배너';
+  nav.appendChild(btn2);
+  var sec2 = document.createElement('div');
+  sec2.id = 'ops-banner'; sec2.style.display = 'none';
+  var style2 = document.createElement('style');
+  style2.textContent = sec.querySelector('style').textContent;
+  sec2.appendChild(style2);
+  sec2.appendChild(wrap);
+  host.appendChild(sec2);
 
   WITEMS.forEach(function(it){
     var k = it[0];
@@ -223,15 +234,18 @@
   nav.addEventListener('click', function(e){
     var t = e.target.closest('.ops-nav-item');
     if (!t) return;
-    if (t === btn) {
-      nav.querySelectorAll('.ops-nav-item').forEach(function(x){ x.setAttribute('data-on', x === btn ? '1' : '0'); });
+    var mine = (t === btn) ? sec : (t === btn2 ? sec2 : null);
+    nav.querySelectorAll('.ops-nav-item').forEach(function(x){ x.setAttribute('data-on', x === t ? '1' : '0'); });
+    if (mine) {
       Array.from(host.children).forEach(function(ch){
-        if (ch.id === 'ops-santa') ch.style.display = '';
+        if (ch.id === 'ops-santa' || ch.id === 'ops-banner') ch.style.display = (ch === mine ? '' : 'none');
         else if (ch.id && ch.id.indexOf('ops-') === 0) ch.style.display = 'none';
       });
     } else {
       sec.style.display = 'none';
+      sec2.style.display = 'none';
       btn.setAttribute('data-on', '0');
+      btn2.setAttribute('data-on', '0');
     }
   });
 })();
