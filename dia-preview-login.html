@@ -131,6 +131,7 @@
   <div class="field"><input type="password" id="pin" placeholder="비밀번호 4자리" inputmode="numeric" maxlength="4" autocomplete="current-password" style="letter-spacing:.45em;"></div>
   <label class="saveid"><input type="checkbox" id="saveId"> 인스타그램 아이디 저장 (다음에 자동 입력)</label>
   <p class="hint">가입할 때 쓴 인스타그램 아이디를 적어 주세요. 비밀번호는 숫자 4자리입니다.</p>
+  <p class="lg-err" id="lgErr" style="display:none;margin:0 0 10px;font-size:12px;color:#c95050;"></p>
   <button class="btn" type="button" id="loginBtn">로그인</button>
 
 
@@ -180,9 +181,82 @@ document.addEventListener('DOMContentLoaded', function(){
     }catch(e){}
   });
 
-  if (btn) btn.addEventListener('click', function(){
-    if (saveBox && saveBox.checked){ try{ localStorage.setItem(SAVE_KEY, (ig ? ig.value : '').trim()); }catch(e){} }
-  });
+  var pinEl = document.getElementById('pin');
+  var errEl = document.getElementById('lgErr');
+  function showErr(msg){
+    if (!errEl) return;
+    errEl.textContent = msg || '';
+    errEl.style.display = msg ? 'block' : 'none';
+  }
+  if (pinEl) {
+    pinEl.addEventListener('input', function(){
+      pinEl.value = pinEl.value.replace(/[^0-9]/g, '').slice(0, 4);
+      showErr('');
+    });
+    pinEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') doLogin(); });
+  }
+
+  function normQ(v){ return String(v || '').trim().replace(/^@+/, '').toLowerCase(); }
+  function findMember(raw){
+    var q = normQ(raw);
+    if (!q) return null;
+    for (var i = 0; i < list.length; i++){
+      var m = list[i];
+      if (normQ(m.i) === q || normQ(m.n) === q) return m;
+      var segs = String(m.n || '').split('/');
+      for (var k = 0; k < segs.length; k++){
+        if (normQ(segs[k]) === q) return m;
+      }
+    }
+    return null;
+  }
+
+  function finishLogin(nick){
+    try {
+      localStorage.setItem('dia_login_member', nick);
+      localStorage.setItem('dia_login_member_bak', nick);
+      if (nick === 'STAFF' || nick === '세이린뷰티 본점') {
+        localStorage.setItem('dia_no_track', '1');
+      }
+    } catch(e) {}
+    location.href = 'dia.html';
+  }
+
+  var busy = false;
+  function doLogin(){
+    if (busy) return;
+    showErr('');
+    var rawId = ig ? ig.value.trim() : '';
+    var pinVal = pinEl ? pinEl.value.trim() : '';
+    if (!rawId){ showErr('인스타그램 아이디 또는 샵 이름을 입력해 주세요.'); if (ig) ig.focus(); return; }
+    if (!/^\d{4}$/.test(pinVal)){ showErr('비밀번호 숫자 4자리를 입력해 주세요.'); if (pinEl) pinEl.focus(); return; }
+    if (saveBox && saveBox.checked){ try{ localStorage.setItem(SAVE_KEY, rawId.replace(/^@+/, '')); }catch(e){} }
+
+    var m = findMember(rawId);
+    if (!m){ showErr('명부에서 회원을 찾지 못했습니다. 오른쪽 목록에서 선택해 주세요.'); if (ig) ig.focus(); return; }
+
+    if (!window.DiaPin || !DiaPin.check){ finishLogin(m.n); return; }
+    busy = true;
+    if (btn){ btn.disabled = true; btn.textContent = '확인 중...'; }
+    DiaPin.check(m.n, pinVal).then(function(res){
+      busy = false;
+      if (btn){ btn.disabled = false; btn.textContent = '로그인'; }
+      if (res && res.ok){
+        if (DiaPin.remember) DiaPin.remember(m.n, pinVal);
+        finishLogin(m.n);
+      } else if (res && res.reason === '틀림'){
+        showErr('비밀번호 4자리가 맞지 않습니다.');
+        if (pinEl){ pinEl.value = ''; pinEl.focus(); }
+      } else {
+        showErr('서버 연결을 확인한 뒤 다시 시도해 주세요.');
+      }
+    }).catch(function(){
+      busy = false;
+      if (btn){ btn.disabled = false; btn.textContent = '로그인'; }
+      showErr('로그인 확인 중 오류가 발생했습니다.');
+    });
+  }
+  if (btn) btn.addEventListener('click', doLogin);
 
   // ── 명부 초성·아이디 자동검색 (오른쪽 쭈르륵) ──
   var sug = document.getElementById('igSug');
@@ -291,6 +365,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <script src="dia-search.js?v=3"></script>
 <script src="dia-members.js?v=2"></script>
 <script src="dia-fb.js?v=15"></script>
+<script src="dia-pin.js?v=3"></script>
 <script src="preview-cursor.js?v=2"></script>
 <script src="preview-live.js?v=1"></script>
 </body>
