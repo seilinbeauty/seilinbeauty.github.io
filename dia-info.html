@@ -2128,8 +2128,16 @@ window.창고읽기 = function(url){
       color: #0f172a !important; font-weight: 800 !important;
     }
     html body.dia-page:has(#ops-section:not([style*="display: none"])) .plx-side,
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) .plx-nav {
+    html body.dia-page:has(#ops-section:not([style*="display: none"])) .plx-nav,
+    html body.dia-page:has(#ops-section:not([style*="display: none"])) aside.board-nav,
+    html body.dia-page:has(#ops-section:not([style*="display: none"])) .board-nav {
       display: none !important;
+    }
+    html body.dia-page:has(#ops-section:not([style*="display: none"])) .board-layout {
+      display: block !important; grid-template-columns: 1fr !important; max-width: none !important; width: 100% !important;
+    }
+    html body.dia-page:has(#ops-section:not([style*="display: none"])) .board-content {
+      max-width: none !important; width: 100% !important; padding: 0 !important; margin: 0 !important;
     }
     html body.dia-page:has(#ops-section:not([style*="display: none"])) #ops-section,
     html body.dia-page:has(#ops-section:not([style*="display: none"])) #ops-section .section-inner,
