@@ -9666,7 +9666,7 @@ window.창고읽기 = function(url){
   }
 
   var editing = false;
-  var selectedKey = '';
+  var selectedKeys = [];
   var moved = false;
 
   function rgb2hex(rgb){
@@ -9675,28 +9675,37 @@ window.창고읽기 = function(url){
     if (!m) return '';
     return '#' + [m[1], m[2], m[3]].map(function(n){ return ('0' + parseInt(n, 10).toString(16)).slice(-2); }).join('');
   }
-  function notifySelect(key){
-    selectedKey = key;
-    var it = ITEMS.filter(function(x){ return x[0] === key; })[0];
-    var el = it ? document.querySelector(it[2]) : null;
+  function refreshOutlines(){
     ITEMS.forEach(function(x){
       var node = document.querySelector(x[2]); if (!node) return;
-      if (x[0] === key) {
+      if (selectedKeys.indexOf(x[0]) > -1) {
         node.style.outline = '2px solid #2563eb';
         node.style.outlineOffset = '2px';
       } else if (editing) {
         node.style.outline = '1.5px dashed rgba(213,85,118,.55)';
         node.style.outlineOffset = '2px';
+      } else {
+        node.style.outline = '';
+        node.style.outlineOffset = '';
       }
     });
-    if (!el || !window.parent) return;
+  }
+  function notifySelect(){
+    refreshOutlines();
+    if (!selectedKeys.length || !window.parent) return;
+    var key = selectedKeys[selectedKeys.length - 1];
+    var it = ITEMS.filter(function(x){ return x[0] === key; })[0];
+    var el = it ? document.querySelector(it[2]) : null;
+    if (!el) return;
     var cs = getComputedStyle(el);
     var v = (all[bp()] && all[bp()][key]) || {};
+    var label = selectedKeys.length > 1 ? (selectedKeys.length + '개 선택됨') : it[1];
     window.parent.postMessage({
       type: 'dia-edit-select',
       dev: bp(),
       key: key,
-      label: it[1],
+      keys: selectedKeys.slice(),
+      label: label,
       data: Object.assign({ x: 0, y: 0, scale: 100, fs: 0, color: '', bg: '' }, v),
       computed: {
         fs: Math.round(parseFloat(cs.fontSize) || 14),
@@ -9713,26 +9722,44 @@ window.창고읽기 = function(url){
       if (!editing) return;
       e.preventDefault(); e.stopPropagation();
       var b = bp();
-      if (!all[b][key]) all[b][key] = {};
-      var cur = all[b][key];
-      var sx = e.clientX, sy = e.clientY, bx = Number(cur.x) || 0, by = Number(cur.y) || 0;
+      if (e.shiftKey) {
+        var idx = selectedKeys.indexOf(key);
+        if (idx > -1) {
+          if (selectedKeys.length > 1) selectedKeys.splice(idx, 1);
+        } else {
+          selectedKeys.push(key);
+        }
+      } else {
+        if (selectedKeys.indexOf(key) === -1) selectedKeys = [key];
+      }
+      var targets = selectedKeys.length ? selectedKeys.slice() : [key];
+      var basePos = {};
+      targets.forEach(function(k){
+        if (!all[b][k]) all[b][k] = {};
+        basePos[k] = { x: Number(all[b][k].x) || 0, y: Number(all[b][k].y) || 0 };
+      });
+      var sx = e.clientX, sy = e.clientY;
       moved = false;
       el.style.cursor = 'grabbing';
-      notifySelect(key);
+      notifySelect();
       function onMove(ev){
         var dx = ev.clientX - sx, dy = ev.clientY - sy;
         if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
-        cur.x = Math.round(bx + dx);
-        cur.y = Math.round(by + dy);
-        applyOne(el, cur, false);
-        notifySelect(key);
+        targets.forEach(function(k){
+          var nx = basePos[k].x + dx, ny = basePos[k].y + dy;
+          if (gridOn) { nx = Math.round(nx / 10) * 10; ny = Math.round(ny / 10) * 10; }
+          else { nx = Math.round(nx); ny = Math.round(ny); }
+          all[b][k].x = nx; all[b][k].y = ny;
+          var it = ITEMS.filter(function(x){ return x[0] === k; })[0];
+          if (it) applyOne(document.querySelector(it[2]), all[b][k], false);
+        });
+        notifySelect();
       }
       function onUp(){
         document.removeEventListener('pointermove', onMove);
         document.removeEventListener('pointerup', onUp);
         el.style.cursor = 'grab';
-        store();
-        notifySelect(key);
+        notifySelect();
       }
       document.addEventListener('pointermove', onMove);
       document.addEventListener('pointerup', onUp);
@@ -9748,15 +9775,7 @@ window.창고읽기 = function(url){
   function setEditing(v){
     editing = v;
     document.body.style.userSelect = v ? 'none' : '';
-    ITEMS.forEach(function(it){
-      var el = document.querySelector(it[2]); if (!el) return;
-      if (v) {
-        el.style.outline = (it[0] === selectedKey) ? '2px solid #2563eb' : '1.5px dashed rgba(213,85,118,.55)';
-        el.style.outlineOffset = '2px';
-      } else {
-        el.style.outline = ''; el.style.outlineOffset = '';
-      }
-    });
+    refreshOutlines();
     setup();
   }
 
@@ -9769,26 +9788,67 @@ window.창고읽기 = function(url){
     });
   }, true);
 
+  document.addEventListener('keydown', function(e){
+    if (!editing || !selectedKeys.length) return;
+    var step = e.shiftKey ? 10 : 1;
+    var dx = 0, dy = 0;
+    if (e.key === 'ArrowLeft') dx = -step;
+    else if (e.key === 'ArrowRight') dx = step;
+    else if (e.key === 'ArrowUp') dy = -step;
+    else if (e.key === 'ArrowDown') dy = step;
+    else return;
+    e.preventDefault();
+    var b = bp();
+    selectedKeys.forEach(function(k){
+      if (!all[b][k]) all[b][k] = {};
+      all[b][k].x = (Number(all[b][k].x) || 0) + dx;
+      all[b][k].y = (Number(all[b][k].y) || 0) + dy;
+      var it = ITEMS.filter(function(x){ return x[0] === k; })[0];
+      if (it) applyOne(document.querySelector(it[2]), all[b][k], false);
+    });
+    notifySelect();
+  });
+
+  var gridOn = false;
+  var gridEl = document.createElement('div');
+  gridEl.id = 'diaEditGrid';
+  gridEl.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2500;display:none;' +
+    'background-image:linear-gradient(to right, rgba(213,85,118,0.18) 1px, transparent 1px),' +
+    'linear-gradient(to bottom, rgba(213,85,118,0.18) 1px, transparent 1px),' +
+    'linear-gradient(to right, rgba(37,99,235,0.28) 1px, transparent 1px);' +
+    'background-size:20px 20px, 20px 20px, 50% 100%;' +
+    'background-position:0 0, 0 0, 50% 0;';
+  document.body.appendChild(gridEl);
+
   window.addEventListener('message', function(e){
     var d = e.data || {};
-    if (d.type === 'dia-edit-update' && d.key) {
+    if (d.type === 'dia-edit-update') {
       var b = bp();
-      all[b][d.key] = Object.assign({}, all[b][d.key] || {}, d.data || {});
-      var it = ITEMS.filter(function(x){ return x[0] === d.key; })[0];
-      if (it) applyOne(document.querySelector(it[2]), all[b][d.key], false);
-      store();
-    } else if (d.type === 'dia-edit-reset-one' && d.key) {
+      var targets = (d.keys && d.keys.length) ? d.keys : (d.key ? [d.key] : selectedKeys);
+      targets.forEach(function(k){
+        all[b][k] = Object.assign({}, all[b][k] || {}, d.data || {});
+        var it = ITEMS.filter(function(x){ return x[0] === k; })[0];
+        if (it) applyOne(document.querySelector(it[2]), all[b][k], false);
+      });
+    } else if (d.type === 'dia-edit-reset-one') {
       var b = bp();
-      delete all[b][d.key];
-      var it = ITEMS.filter(function(x){ return x[0] === d.key; })[0];
-      if (it) applyOne(document.querySelector(it[2]), null, false);
-      store();
-      notifySelect(d.key);
+      var targets = (d.keys && d.keys.length) ? d.keys : (d.key ? [d.key] : selectedKeys);
+      targets.forEach(function(k){
+        delete all[b][k];
+        var it = ITEMS.filter(function(x){ return x[0] === k; })[0];
+        if (it) applyOne(document.querySelector(it[2]), null, false);
+      });
+      notifySelect();
     } else if (d.type === 'dia-edit-reset-all') {
       all[bp()] = {};
       apply();
+      if (selectedKeys.length) notifySelect();
+    } else if (d.type === 'dia-edit-save') {
       store();
-      if (selectedKey) notifySelect(selectedKey);
+      if (window.parent) window.parent.postMessage({ type: 'dia-edit-saved', dev: bp() }, '*');
+    } else if (d.type === 'dia-edit-grid') {
+      gridOn = !!d.on;
+      gridEl.style.display = gridOn ? 'block' : 'none';
     }
   });
 

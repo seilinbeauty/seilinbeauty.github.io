@@ -163,7 +163,7 @@
       '<button type="button" class="sn-save" id="w_pc">PC</button>' +
       '<button type="button" class="sn-save" id="w_tb" style="background:#fff;color:#c2456a;border:1px solid #e6b8c8;">태블릿</button>' +
       '<button type="button" class="sn-save" id="w_mo" style="background:#fff;color:#c2456a;border:1px solid #e6b8c8;">모바일</button>' +
-      '<button type="button" class="sn-save" id="w_full" style="margin-left:auto;background:#fff;color:#4a3f44;border:1px solid #d9cfd4;">⛶ 크게 보기</button><button type="button" class="sn-reset" id="w_reset">이 기기 원래대로</button>' +
+      '<button type="button" class="sn-save" id="w_grid" style="margin-left:auto;background:#fff;color:#4a3f44;border:1px solid #d9cfd4;">📐 그리드</button><button type="button" class="sn-save" id="w_full" style="background:#fff;color:#4a3f44;border:1px solid #d9cfd4;">⛶ 크게 보기</button><button type="button" class="sn-save" id="w_save">💾 저장하기</button><button type="button" class="sn-reset" id="w_reset">이 기기 원래대로</button>' +
     '</div>' +
     '<div id="w_props" style="margin-top:10px;padding:10px 12px;border:1px solid #f0dde4;border-radius:10px;background:#fff9fb;display:none;flex-wrap:wrap;gap:10px 14px;align-items:center;font-size:12px;color:#4a3f44;">' +
       '<strong id="wp_name" style="color:#b62d47;min-width:110px;">선택됨</strong>' +
@@ -204,6 +204,7 @@
   var DEV = { pc: [920, 'PC'], tb: [890, '태블릿'], mo: [390, '모바일'] };
   var curDev = 'pc';
   var selKey = '';
+  var selKeys = [];
 
   function fitFrame(){
     var targetW = DEV[curDev][0];
@@ -250,6 +251,7 @@
     var d = e.data || {};
     if (d.type !== 'dia-edit-select' || !d.key) return;
     selKey = d.key;
+    selKeys = d.keys || [d.key];
     propsEl.style.display = 'flex';
     wpName.textContent = d.label + ' (' + d.data.x + ', ' + d.data.y + ')';
     var sc = Number(d.data.scale) || 100;
@@ -263,7 +265,7 @@
 
   function sendPatch(patch){
     if (!selKey || !frame.contentWindow) return;
-    frame.contentWindow.postMessage({ type: 'dia-edit-update', key: selKey, data: patch }, '*');
+    frame.contentWindow.postMessage({ type: 'dia-edit-update', key: selKey, keys: selKeys, data: patch }, '*');
   }
   wpScale.addEventListener('input', function(){
     var v = parseInt(wpScale.value, 10) || 100;
@@ -279,7 +281,7 @@
   wpBg.addEventListener('input', function(){ sendPatch({ bg: wpBg.value }); });
   wpOneReset.addEventListener('click', function(){
     if (!selKey || !frame.contentWindow) return;
-    frame.contentWindow.postMessage({ type: 'dia-edit-reset-one', key: selKey }, '*');
+    frame.contentWindow.postMessage({ type: 'dia-edit-reset-one', key: selKey, keys: selKeys }, '*');
   });
 
   document.getElementById('w_reset').addEventListener('click', function(){
@@ -329,5 +331,26 @@
     setTimeout(fitFrame, 20);
   }
   if (fullBtn) fullBtn.addEventListener('click', function(){ isFull = !isFull; applyFull(); });
+  var gridOn = false;
+  var gridBtn = document.getElementById('w_grid');
+  if (gridBtn) gridBtn.addEventListener('click', function(){
+    gridOn = !gridOn;
+    gridBtn.style.background = gridOn ? '#2563eb' : '#fff';
+    gridBtn.style.color = gridOn ? '#fff' : '#4a3f44';
+    if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'dia-edit-grid', on: gridOn }, '*');
+  });
+  var saveBtn = document.getElementById('w_save');
+  if (saveBtn) saveBtn.addEventListener('click', function(){
+    if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'dia-edit-save' }, '*');
+  });
+  window.addEventListener('message', function(e){
+    var d = e.data || {};
+    if (d.type === 'dia-edit-saved') {
+      msgEl.textContent = DEV[curDev][1] + ' 저장 완료! 실제 다이아 커뮤니티에 반영되었습니다.';
+    }
+  });
+  frame.addEventListener('load', function(){
+    if (gridOn && frame.contentWindow) frame.contentWindow.postMessage({ type: 'dia-edit-grid', on: true }, '*');
+  });
   setDev('pc');
 })();
