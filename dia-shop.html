@@ -111,9 +111,8 @@
     <a href="dia.html" class="brand"><span class="brand-logo">DIA COMMUNITY</span></a>
   </div>
   <div class="pv-util">
-    <a href="dia-preview-login.html?staff=1">login</a>
-    <a href="dia-preview-join.html?staff=1&amp;mode=join">join</a>
-    <a href="dia-link.html">my page</a>
+    <a href="dia-preview-login.html" id="shopAuthBtn">로그인</a>
+    <a href="dia-preview-join.html" id="shopJoinBtn">회원가입</a>
   </div>
 </header>
 
@@ -193,8 +192,8 @@
     <h4>로그인이 필요합니다</h4>
     <p>매물을 등록하려면 인스타그램 아이디로 로그인해 주세요.<br>아직 아이디가 없으면 회원가입부터 하시면 됩니다.</p>
     <div class="btns">
-      <a class="primary" href="dia-preview-login.html?staff=1">로그인</a>
-      <a class="ghost" href="dia-preview-join.html?staff=1&amp;mode=join">회원가입</a>
+      <a class="primary" href="dia-preview-login.html">로그인</a>
+      <a class="ghost" href="dia-preview-join.html">회원가입</a>
       <button type="button" class="close" data-close="1">닫기</button>
     </div>
   </div>
@@ -343,6 +342,24 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   build(); render();
+  (function(){
+    var ab = document.getElementById('shopAuthBtn');
+    var jb = document.getElementById('shopJoinBtn');
+    var hasMem = false;
+    try { hasMem = !!(localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak')); } catch(e){}
+    if (ab && hasMem) {
+      ab.textContent = '로그아웃';
+      ab.href = '#logout';
+      if (jb) jb.style.setProperty('display', 'none', 'important');
+      ab.addEventListener('click', function(ev){
+        ev.preventDefault();
+        try {
+          ['dia_login_member','dia_login_member_bak','dia_no_track','dia_sns_need_ig','dia_sns_linked_ig','dia_sns_joined_ts','dia_sns_user'].forEach(function(k){ localStorage.removeItem(k); });
+        } catch(e){}
+        location.reload();
+      });
+    }
+  })();
 });
 </script>
 </body>
