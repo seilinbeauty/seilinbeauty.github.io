@@ -268,20 +268,41 @@
   }
 
   function handleNaverCallback(){
-    if (location.hash.indexOf('access_token=') < 0) return;
-    var n = initNaverHidden();
-    if (!n) return;
+    var m = location.hash.match(/access_token=([^&]+)/);
+    if (!m) return;
+    var tok = decodeURIComponent(m[1]);
+    try { history.replaceState(null, '', location.pathname); } catch(e){}
     showMsg('네이버 로그인 확인 중입니다...', true);
-    n.getLoginStatus(function(status){
-      if (status && n.user) {
-        var name = n.user.getNickName() || n.user.getName() || '네이버회원';
-        var email = n.user.getEmail() || '';
-        var id = n.user.getId() || email || name;
+    var cb = '__diaNaverCb_' + Date.now();
+    var done = false;
+    window[cb] = function(d){
+      if (done) return;
+      done = true;
+      try { delete window[cb]; } catch(e){}
+      if (d && d.resultcode === '00' && d.response) {
+        var r = d.response;
+        var name = r.nickname || r.name || '네이버회원';
+        var email = r.email || '';
+        var id = r.id || email || name;
         completeSnsLogin('naver', 'naver:' + id, name, email);
       } else {
         showMsg('네이버 로그인 정보를 불러오지 못했습니다. (개발 중 상태에서는 등록된 관리자/테스터 계정만 로그인됩니다.)');
       }
-    });
+    };
+    var s = document.createElement('script');
+    s.src = 'https://openapi.naver.com/v1/nid/getUserProfile.json?response_type=json&access_token=' + encodeURIComponent(tok) + '&oauth_callback=' + cb;
+    s.onerror = function(){
+      if (done) return;
+      done = true;
+      showMsg('네이버 로그인 확인 중 오류가 발생했습니다. 다시 시도해 주세요.');
+    };
+    document.head.appendChild(s);
+    setTimeout(function(){
+      if (!done) {
+        done = true;
+        showMsg('네이버 로그인 응답 시간이 초과되었습니다. 다시 시도해 주세요.');
+      }
+    }, 6000);
   }
 
   function bind(){
