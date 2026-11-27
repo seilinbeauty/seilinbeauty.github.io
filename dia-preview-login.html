@@ -34,6 +34,7 @@
   input:focus{border-color:#dccbc9;}
   input::placeholder{color:#c3b8ba;}
 
+  .hint{margin:8px 2px 0;font-size:10.5px;letter-spacing:.02em;color:#a79b9e;}
   .btn{width:100%;height:44px;margin-top:14px;background:#2f2a2b;color:#fff;border:0;
     border-radius:2px;font-family:inherit;font-size:11px;letter-spacing:.22em;
     text-transform:uppercase;cursor:pointer;}
@@ -95,8 +96,9 @@
   <div class="eyebrow">Login</div>
   <h1>다시 오셨네요</h1>
 
-  <div class="field"><input type="email" placeholder="이메일" autocomplete="email"></div>
+  <div class="field"><input type="text" placeholder="인스타그램 아이디 (@ 없이)" autocomplete="username" autocapitalize="off" spellcheck="false" inputmode="text"></div>
   <div class="field"><input type="password" placeholder="비밀번호" autocomplete="current-password"></div>
+  <p class="hint">가입할 때 쓴 인스타그램 아이디를 적어 주세요.</p>
   <button class="btn" type="button">로그인</button>
 
   <div class="links">
