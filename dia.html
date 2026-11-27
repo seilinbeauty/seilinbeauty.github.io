@@ -2238,7 +2238,7 @@
         width: 250px; max-width: calc(100vw - 32px) !important; margin: 0 !important;
         padding: 0; background: transparent; border: 0; box-shadow: none; z-index: 40; text-align: center;
       }
-      body.dia-page .dia-hero-in > #mcLoginBox #mcLoginIn { height: 32px !important; font-size: 9.5px !important; border-radius: 6px !important; padding: 0 5px !important; }
+      body.dia-page .dia-hero-in > #mcLoginBox #mcLoginIn { height: 26px !important; font-size: 9px !important; border-radius: 6px !important; padding: 0 5px !important; }
       body.dia-page .dia-hero-in > #mcLoginBox #mcLoginPick { position: absolute !important; left: 0; right: 0; top: calc(100% + 4px) !important; bottom: auto !important;
         margin-top: 0 !important; gap: 4px !important; max-height: none; overflow: visible; padding: 0;
         background: transparent; border: 0; box-shadow: none; z-index: 60; text-align: left; }
@@ -6567,7 +6567,7 @@ window.창고읽기 = function(url){
                         var tr = tEl.getBoundingClientRect();
                         var bh = lgBox.offsetHeight || 62;
                         if (tr.height > 0) {
-                          var alignTop = (tr.top - hr.top) + (tr.height - bh) / 2;
+                          var alignTop = tr.top - hr.top;
                           lgBox.style.setProperty('top', Math.round(alignTop) + 'px', 'important');
                         }
                       }
