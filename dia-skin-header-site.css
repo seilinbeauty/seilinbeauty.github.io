@@ -104,3 +104,8 @@
     #mcLoginBtn{ display:none !important; }
   }
 }
+
+/* PC 헤더에는 '내 품앗이' 하나만 — 입장하기·운영 센터 링크는 헤더에서 숨김 */
+@media (min-width:881px){
+  header.dia-header .nav-links a.nav-dia{ display:none !important; }
+}
