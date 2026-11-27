@@ -2345,7 +2345,7 @@ window.창고읽기 = function(url){
               <div class="pc-hero-time" id="pcHeroTime"></div>
             </div>
           </div>
-          <div class="plx-sub">속눈썹·반영구·네일 원장님들의 정보 공유와 마케팅 커뮤니티입니다.</div>
+          <div class="plx-sub" id="plxSubText">속눈썹·반영구·네일 원장님들의 정보 공유와 마케팅 커뮤니티입니다.</div>
           <span class="plx-ask" style="margin-top:8px;">참여 비밀번호는 인스타그램 DM으로 문의해 주세요.</span>
         </div>
       </div>
@@ -2377,21 +2377,56 @@ window.창고읽기 = function(url){
         var cv = document.getElementById('pcSnowCanvas');
         var hero = cv && cv.parentElement;
         var titleEl = document.getElementById('plxTitleText');
-        if (!cv || !hero || !titleEl) return;
+        var subEl = document.getElementById('plxSubText');
+        if (!cv || !hero || !titleEl || !subEl) return;
         var ctx = cv.getContext('2d');
         var W = 0, H = 0, dpr = 1;
         var surfaceY = null, pileY = null;
-        var tLeft = 0, tRight = 0, titleBaseY = 20, titleBottomY = 48;
+        var subSurfaceY = null, subPileY = null;
+        var tLeft = 0, tRight = 0, sLeft = 0, sRight = 0;
+        var titleBaseY = 20, roadY = 58;
         var flakes = [];
         var puffs = [];
-        var santa = { x: 40, dir: 1, walk: 0, y: 50, state: 'idle', timer: 0, targetX: 40, tapCount: 0, broomSwing: 0 };
+        var santa = { x: 40, dir: 1, walk: 0, y: 58, state: 'idle', timer: 0, targetX: 40, targetMode: 'top', tapCount: 0, broomSwing: 0 };
         var colors = ['rgba(239,184,201,0.85)','rgba(224,234,244,0.92)','rgba(244,212,223,0.88)','rgba(255,255,255,0.95)'];
+
+        function scanElementSurface(el, hr, outSurf, outPile, yOffset){
+          var r = el.getBoundingClientRect();
+          if (!r.width || !r.height) return { left: 0, right: 0, topY: 40 };
+          var left = Math.max(0, Math.floor(r.left - hr.left));
+          var right = Math.min(W - 1, Math.ceil(r.right - hr.left));
+          var tw = Math.max(1, Math.ceil(r.width));
+          var th = Math.max(1, Math.ceil(r.height));
+          var off = document.createElement('canvas');
+          off.width = tw; off.height = th;
+          var octx = off.getContext('2d');
+          var cs = getComputedStyle(el);
+          octx.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+          octx.textBaseline = 'top';
+          octx.fillStyle = '#000';
+          var topOff = (th - parseFloat(cs.fontSize)) * 0.45;
+          octx.fillText(el.textContent, 0, Math.max(0, topOff));
+          var img = octx.getImageData(0, 0, tw, th).data;
+          var baseTop = r.top - hr.top;
+          for (var x = left; x <= right; x++) {
+            var lx = x - left;
+            if (lx >= 0 && lx < tw) {
+              for (var y = 0; y < th; y++) {
+                if (img[(y * tw + lx) * 4 + 3] > 50) {
+                  outSurf[x] = baseTop + y + yOffset;
+                  outPile[x] = outSurf[x];
+                  break;
+                }
+              }
+            }
+          }
+          return { left: left, right: right, topY: baseTop + Math.max(0, topOff) };
+        }
 
         function buildSurface(){
           if (window.innerWidth <= 880) { W = 0; return; }
           var hr = hero.getBoundingClientRect();
-          var tr = titleEl.getBoundingClientRect();
-          if (!hr.width || !hr.height || !tr.width) return;
+          if (!hr.width || !hr.height) return;
           dpr = Math.min(window.devicePixelRatio || 1, 2);
           W = Math.round(hr.width);
           H = Math.round(hr.height);
@@ -2399,46 +2434,23 @@ window.창고읽기 = function(url){
           cv.height = H * dpr;
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-          tLeft = Math.max(0, Math.floor(tr.left - hr.left));
-          tRight = Math.min(W - 1, Math.ceil(tr.right - hr.left));
-          var tw = Math.max(1, Math.ceil(tr.width));
-          var th = Math.max(1, Math.ceil(tr.height));
-
-          var off = document.createElement('canvas');
-          off.width = tw;
-          off.height = th;
-          var octx = off.getContext('2d');
-          var cs = getComputedStyle(titleEl);
-          octx.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
-          octx.textBaseline = 'top';
-          octx.fillStyle = '#000';
-          var topOff = (th - parseFloat(cs.fontSize)) * 0.45;
-          octx.fillText(titleEl.textContent, 0, Math.max(0, topOff));
-
-          var img = octx.getImageData(0, 0, tw, th).data;
           surfaceY = new Float32Array(W);
           pileY = new Float32Array(W);
-          var baseTop = tr.top - hr.top;
-          titleBaseY = baseTop + Math.max(0, topOff) + 2;
-          titleBottomY = Math.min(H - 4, Math.round(tr.bottom - hr.top + 18));
-          if (santa.x < tLeft || santa.x > tRight) santa.x = tLeft + 14;
-          santa.y = titleBottomY;
+          subSurfaceY = new Float32Array(W);
+          subPileY = new Float32Array(W);
           for (var x = 0; x < W; x++) {
-            surfaceY[x] = -1;
-            pileY[x] = -1;
-            if (x >= tLeft && x <= tRight) {
-              var lx = x - tLeft;
-              if (lx >= 0 && lx < tw) {
-                for (var y = 0; y < th; y++) {
-                  if (img[(y * tw + lx) * 4 + 3] > 55) {
-                    surfaceY[x] = baseTop + y - 0.5;
-                    pileY[x] = surfaceY[x];
-                    break;
-                  }
-                }
-              }
-            }
+            surfaceY[x] = -1; pileY[x] = -1;
+            subSurfaceY[x] = -1; subPileY[x] = -1;
           }
+
+          var tInfo = scanElementSurface(titleEl, hr, surfaceY, pileY, -0.5);
+          tLeft = tInfo.left; tRight = tInfo.right; titleBaseY = tInfo.topY + 2;
+
+          var sInfo = scanElementSurface(subEl, hr, subSurfaceY, subPileY, -0.5);
+          sLeft = sInfo.left; sRight = sInfo.right; roadY = sInfo.topY + 1;
+
+          if (santa.x < sLeft || santa.x > sRight) santa.x = sLeft + 14;
+          santa.y = roadY;
         }
 
         function spawn(randY){
@@ -2459,24 +2471,27 @@ window.창고읽기 = function(url){
           for (var i = 0; i < 65; i++) flakes.push(spawn(true));
         }
 
-        function relaxPile(){
-          if (!pileY || !surfaceY) return;
+        function relaxOne(sArr, pArr, l, r){
+          if (!pArr || !sArr) return;
           for (var k = 0; k < 2; k++) {
-            for (var x = tLeft + 1; x < tRight; x++) {
-              if (surfaceY[x] < 0) continue;
-              var cur = pileY[x];
-              if (surfaceY[x - 1] >= 0 && pileY[x - 1] - cur > 1.3) {
-                var d1 = (pileY[x - 1] - cur - 1.3) * 0.35;
-                pileY[x] += d1;
-                pileY[x - 1] -= d1;
+            for (var x = l + 1; x < r; x++) {
+              if (sArr[x] < 0) continue;
+              var cur = pArr[x];
+              if (sArr[x - 1] >= 0 && pArr[x - 1] - cur > 1.3) {
+                var d1 = (pArr[x - 1] - cur - 1.3) * 0.35;
+                pArr[x] += d1; pArr[x - 1] -= d1;
               }
-              if (surfaceY[x + 1] >= 0 && pileY[x + 1] - cur > 1.3) {
-                var d2 = (pileY[x + 1] - cur - 1.3) * 0.35;
-                pileY[x] += d2;
-                pileY[x + 1] -= d2;
+              if (sArr[x + 1] >= 0 && pArr[x + 1] - cur > 1.3) {
+                var d2 = (pArr[x + 1] - cur - 1.3) * 0.35;
+                pArr[x] += d2; pArr[x + 1] -= d2;
               }
             }
           }
+        }
+
+        function relaxPile(){
+          relaxOne(surfaceY, pileY, tLeft, tRight);
+          relaxOne(subSurfaceY, subPileY, sLeft, sRight);
         }
 
         function step(){
@@ -2492,18 +2507,32 @@ window.창고읽기 = function(url){
             f.y += f.vy;
 
             var ix = Math.round(f.x);
+            var hit = false;
             if (ix >= tLeft && ix <= tRight && surfaceY[ix] >= 0) {
-              var sy = surfaceY[ix];
-              var py = pileY[ix];
+              var sy = surfaceY[ix], py = pileY[ix];
               if (f.y + f.r >= py && f.y - f.r <= sy + 3) {
                 if (sy - py < 5.5) {
                   pileY[ix] = Math.max(sy - 5.5, py - 0.85);
                   if (ix - 1 >= tLeft && surfaceY[ix - 1] >= 0) pileY[ix - 1] = Math.max(surfaceY[ix - 1] - 5.5, pileY[ix - 1] - 0.35);
                   if (ix + 1 <= tRight && surfaceY[ix + 1] >= 0) pileY[ix + 1] = Math.max(surfaceY[ix + 1] - 5.5, pileY[ix + 1] - 0.35);
                 }
-                flakes[i] = spawn(false);
-                continue;
+                hit = true;
               }
+            }
+            if (!hit && ix >= sLeft && ix <= sRight && subSurfaceY[ix] >= 0) {
+              var ssy = subSurfaceY[ix], spy = subPileY[ix];
+              if (f.y + f.r >= spy && f.y - f.r <= ssy + 3) {
+                if (ssy - spy < 4.5) {
+                  subPileY[ix] = Math.max(ssy - 4.5, spy - 0.8);
+                  if (ix - 1 >= sLeft && subSurfaceY[ix - 1] >= 0) subPileY[ix - 1] = Math.max(subSurfaceY[ix - 1] - 4.5, subPileY[ix - 1] - 0.3);
+                  if (ix + 1 <= sRight && subSurfaceY[ix + 1] >= 0) subPileY[ix + 1] = Math.max(subSurfaceY[ix + 1] - 4.5, subPileY[ix + 1] - 0.3);
+                }
+                hit = true;
+              }
+            }
+            if (hit) {
+              flakes[i] = spawn(false);
+              continue;
             }
 
             if (f.y > H + 8 || f.x < -10 || f.x > W + 10) {
@@ -2524,7 +2553,7 @@ window.창고읽기 = function(url){
 
           relaxPile();
 
-          // 글자 획 위에 쌓인 눈 그리기
+          // 글자 획 위에 쌓인 눈 그리기 (제목 + 아래 설명 길)
           for (var x = tLeft; x <= tRight; x++) {
             if (surfaceY[x] >= 0 && pileY[x] < surfaceY[x] - 0.2) {
               var h = surfaceY[x] - pileY[x];
@@ -2534,36 +2563,71 @@ window.창고읽기 = function(url){
               ctx.fillRect(x, pileY[x], 1.2, h);
             }
           }
+          for (var x = sLeft; x <= sRight; x++) {
+            if (subSurfaceY[x] >= 0 && subPileY[x] < subSurfaceY[x] - 0.2) {
+              var sh2 = subSurfaceY[x] - subPileY[x];
+              ctx.fillStyle = '#c5d6e6';
+              ctx.fillRect(x, subPileY[x] - 0.7, 1.2, sh2 + 0.7);
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(x, subPileY[x], 1.1, sh2);
+            }
+          }
 
-          // 미니 산타: 아래에서 기다리다가 눈이 쌓이면 긴 빗자루로 탁탁 쳐서 떨어뜨림
-          if (tRight > tLeft + 20) {
-            var idleX = tLeft + 14;
-            var totalSnow = 0, maxSnow = 0, bestX = -1;
+          // 미니 산타: 아래쪽 긴 텍스트 길 위를 걸어 다니며 위·아래 눈을 모두 청소
+          if (sRight > sLeft + 20) {
+            var idleX = sLeft + 14;
+            var totalTop = 0, maxTop = 0, bestTopX = -1;
             for (var sx = tLeft; sx <= tRight; sx++) {
               if (surfaceY[sx] >= 0) {
                 var sh = surfaceY[sx] - pileY[sx];
-                if (sh > 0.4) totalSnow += sh;
-                if (sh > maxSnow) { maxSnow = sh; bestX = sx; }
+                if (sh > 0.4) totalTop += sh;
+                if (sh > maxTop) { maxTop = sh; bestTopX = sx; }
+              }
+            }
+            var totalSub = 0, maxSub = 0, bestSubX = -1;
+            for (var sx2 = sLeft; sx2 <= sRight; sx2++) {
+              if (subSurfaceY[sx2] >= 0) {
+                var ssh = subSurfaceY[sx2] - subPileY[sx2];
+                if (ssh > 0.4) totalSub += ssh;
+                if (ssh > maxSub) { maxSub = ssh; bestSubX = sx2; }
               }
             }
 
-            santa.y += (titleBottomY - santa.y) * 0.2;
+            var rx = Math.round(santa.x);
+            var curRoad = (rx >= sLeft && rx <= sRight && subSurfaceY[rx] >= 0) ? subSurfaceY[rx] : roadY;
+            santa.y += (curRoad - santa.y) * 0.28;
 
             if (santa.state === 'idle') {
               santa.dir = 1;
               santa.broomSwing *= 0.85;
               santa.timer++;
-              // 눈이 충분히 쌓이면(최대 3.6px 이상 또는 전체 적설량 충분) 출동!
-              if ((maxSnow >= 3.6 || totalSnow >= 120) && bestX >= 0) {
+              if ((maxTop >= 3.4 || totalTop >= 110) && bestTopX >= 0) {
                 santa.state = 'walk_to';
-                santa.targetX = bestX;
+                santa.targetMode = 'top';
+                santa.targetX = bestTopX;
+              } else if ((maxSub >= 2.8 || totalSub >= 130) && bestSubX >= 0) {
+                santa.state = 'walk_to';
+                santa.targetMode = 'road';
+                santa.targetX = bestSubX;
               }
             } else if (santa.state === 'walk_to') {
               var dxMove = santa.targetX - santa.x;
               if (Math.abs(dxMove) > 3) {
                 santa.dir = dxMove > 0 ? 1 : -1;
-                santa.x += santa.dir * 0.75;
+                santa.x += santa.dir * 0.8;
                 santa.walk += 0.22;
+                if (santa.targetMode === 'road') {
+                  var fx = Math.round(santa.x + santa.dir * 4);
+                  for (var ddx = -5; ddx <= 5; ddx++) {
+                    var cx0 = fx + ddx;
+                    if (cx0 >= sLeft && cx0 <= sRight && subSurfaceY[cx0] >= 0 && subPileY[cx0] < subSurfaceY[cx0] - 0.3) {
+                      subPileY[cx0] = Math.min(subSurfaceY[cx0], subPileY[cx0] + 0.9);
+                      if (Math.random() < 0.16 && puffs.length < 70) {
+                        puffs.push({ x: cx0, y: subPileY[cx0] - 1, vx: santa.dir * 0.8, vy: -0.6 - Math.random() * 0.7, r: 1.3, life: 0.9 });
+                      }
+                    }
+                  }
+                }
               } else {
                 santa.state = 'tap';
                 santa.timer = 0;
@@ -2571,42 +2635,42 @@ window.창고읽기 = function(url){
               }
             } else if (santa.state === 'tap') {
               santa.timer++;
-              // 18프레임 주기로 탁! 탁! 위로 치는 동작
               var phase = santa.timer % 20;
-              if (phase < 7) {
-                santa.broomSwing = (phase / 7);
-              } else {
-                santa.broomSwing = Math.max(0, 1 - (phase - 7) / 6);
-              }
+              santa.broomSwing = (phase < 7) ? (phase / 7) : Math.max(0, 1 - (phase - 7) / 6);
               if (phase === 7) {
                 santa.tapCount++;
-                // 타격 순간 주변 눈 덩어리들이 아래로 우르르 떨어짐!
                 var hitX = Math.round(santa.x + santa.dir * 3);
-                for (var dx = -14; dx <= 14; dx++) {
-                  var cx = hitX + dx;
-                  if (cx >= tLeft && cx <= tRight && surfaceY[cx] >= 0 && pileY[cx] < surfaceY[cx] - 0.3) {
-                    var dropH = surfaceY[cx] - pileY[cx];
-                    var count = Math.min(3, Math.ceil(dropH / 1.4));
-                    for (var c = 0; c < count; c++) {
-                      if (puffs.length < 70) {
-                        puffs.push({
-                          x: cx + (Math.random() - 0.5) * 3,
-                          y: pileY[cx] + Math.random() * dropH,
-                          vx: (Math.random() - 0.5) * 1.1,
-                          vy: -0.5 + Math.random() * 0.8,
-                          r: 1.4 + Math.random() * 1.6,
-                          life: 1
-                        });
+                if (santa.targetMode === 'top') {
+                  for (var dx = -14; dx <= 14; dx++) {
+                    var cx = hitX + dx;
+                    if (cx >= tLeft && cx <= tRight && surfaceY[cx] >= 0 && pileY[cx] < surfaceY[cx] - 0.3) {
+                      var dropH = surfaceY[cx] - pileY[cx];
+                      var count = Math.min(3, Math.ceil(dropH / 1.4));
+                      for (var c = 0; c < count; c++) {
+                        if (puffs.length < 70) {
+                          puffs.push({ x: cx + (Math.random() - 0.5) * 3, y: pileY[cx] + Math.random() * dropH, vx: (Math.random() - 0.5) * 1.1, vy: -0.5 + Math.random() * 0.8, r: 1.4 + Math.random() * 1.6, life: 1 });
+                        }
                       }
+                      pileY[cx] = surfaceY[cx];
                     }
-                    pileY[cx] = surfaceY[cx];
+                  }
+                } else {
+                  for (var dx2 = -15; dx2 <= 15; dx2++) {
+                    var cx2 = hitX + dx2;
+                    if (cx2 >= sLeft && cx2 <= sRight && subSurfaceY[cx2] >= 0 && subPileY[cx2] < subSurfaceY[cx2] - 0.3) {
+                      if (puffs.length < 70 && Math.random() < 0.45) {
+                        puffs.push({ x: cx2, y: subPileY[cx2] - 1, vx: santa.dir * (0.6 + Math.random() * 0.9), vy: -0.8 - Math.random() * 0.8, r: 1.3 + Math.random() * 1.2, life: 0.95 });
+                      }
+                      subPileY[cx2] = subSurfaceY[cx2];
+                    }
                   }
                 }
               }
               if (santa.tapCount >= 2 && phase === 19) {
-                if (maxSnow >= 2.2 && bestX >= 0) {
-                  santa.state = 'walk_to';
-                  santa.targetX = bestX;
+                if (maxTop >= 2.2 && bestTopX >= 0) {
+                  santa.state = 'walk_to'; santa.targetMode = 'top'; santa.targetX = bestTopX;
+                } else if (maxSub >= 2.0 && bestSubX >= 0) {
+                  santa.state = 'walk_to'; santa.targetMode = 'road'; santa.targetX = bestSubX;
                 } else {
                   santa.state = 'return';
                 }
@@ -2616,31 +2680,21 @@ window.창고읽기 = function(url){
               var dxBack = idleX - santa.x;
               if (Math.abs(dxBack) > 2.5) {
                 santa.dir = dxBack > 0 ? 1 : -1;
-                santa.x += santa.dir * 0.7;
+                santa.x += santa.dir * 0.75;
                 santa.walk += 0.2;
               } else {
-                santa.x = idleX;
-                santa.dir = 1;
-                santa.state = 'idle';
-                santa.timer = 0;
+                santa.x = idleX; santa.dir = 1; santa.state = 'idle'; santa.timer = 0;
               }
             }
 
-            // 탁탁 쳐서 아래로 떨어지는 눈 덩어리들
             for (var p = puffs.length - 1; p >= 0; p--) {
               var pf = puffs[p];
-              pf.x += pf.vx;
-              pf.y += pf.vy;
-              pf.vy += 0.14;
-              pf.life -= 0.022;
+              pf.x += pf.vx; pf.y += pf.vy; pf.vy += 0.14; pf.life -= 0.022;
               if (pf.life <= 0 || pf.y > H + 6) { puffs.splice(p, 1); continue; }
               ctx.fillStyle = 'rgba(255,255,255,' + Math.min(1, pf.life * 1.2).toFixed(2) + ')';
               ctx.strokeStyle = 'rgba(197,214,230,' + (pf.life * 0.8).toFixed(2) + ')';
               ctx.lineWidth = 0.6;
-              ctx.beginPath();
-              ctx.arc(pf.x, pf.y, pf.r || 1.6, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.stroke();
+              ctx.beginPath(); ctx.arc(pf.x, pf.y, pf.r || 1.6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
             }
 
             // 귀여운 미니 산타 그리기 (발 위치 = santa.y)
@@ -2650,76 +2704,45 @@ window.창고읽기 = function(url){
             ctx.translate(santa.x, santa.y - bob);
             ctx.scale(santa.dir, 1);
 
-            // 긴 청소 막대기 빗자루 (탁탁 칠 때 위로 쭉 뻗음!)
             ctx.save();
             ctx.translate(3, -8);
-            var baseAng = (santa.state === 'tap') ? (-0.25 - santa.broomSwing * 0.65) : 0.35;
-            var liftY = (santa.state === 'tap') ? (-santa.broomSwing * 14) : 0;
+            var isTopTap = (santa.state === 'tap' && santa.targetMode === 'top');
+            var isRoadSweep = (santa.state === 'tap' && santa.targetMode === 'road');
+            var baseAng = isTopTap ? (-0.25 - santa.broomSwing * 0.65) : (isRoadSweep ? (1.8 + santa.broomSwing * 0.5) : 0.35);
+            var liftY = isTopTap ? (-santa.broomSwing * 14) : 0;
             ctx.translate(0, liftY);
             ctx.rotate(baseAng);
-            ctx.strokeStyle = '#9c6b3b';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(0, 6);
-            ctx.lineTo(2, -16);
-            ctx.stroke();
+            ctx.strokeStyle = '#9c6b3b'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(0, 6); ctx.lineTo(2, -16); ctx.stroke();
             ctx.fillStyle = '#e7c16b';
-            ctx.beginPath();
-            ctx.moveTo(0, -15);
-            ctx.lineTo(4.8, -15);
-            ctx.lineTo(5.8, -20.5);
-            ctx.lineTo(-1, -20.5);
-            ctx.closePath();
-            ctx.fill();
+            ctx.beginPath(); ctx.moveTo(0, -15); ctx.lineTo(4.8, -15); ctx.lineTo(5.8, -20.5); ctx.lineTo(-1, -20.5); ctx.closePath(); ctx.fill();
             ctx.restore();
 
-            // 다리
             var leg = isWalking ? Math.sin(santa.walk) * 1.7 : 0;
-            ctx.strokeStyle = '#2d2226';
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#2d2226'; ctx.lineWidth = 2; ctx.lineCap = 'round';
             ctx.beginPath();
             ctx.moveTo(-2, -4); ctx.lineTo(-2 - leg, -0.5);
             ctx.moveTo(2, -4); ctx.lineTo(2 + leg, -0.5);
             ctx.stroke();
 
-            // 빨간 몸통 + 벨트
             ctx.fillStyle = '#d93848';
             ctx.beginPath();
             ctx.roundRect ? ctx.roundRect(-4.2, -9.5, 8.4, 5.8, 2) : ctx.fillRect(-4.2, -9.5, 8.4, 5.8);
             ctx.fill();
-            ctx.fillStyle = '#2d2226';
-            ctx.fillRect(-4.2, -6.2, 8.4, 1.3);
-            ctx.fillStyle = '#f3c44d';
-            ctx.fillRect(-1, -6.4, 2, 1.7);
+            ctx.fillStyle = '#2d2226'; ctx.fillRect(-4.2, -6.2, 8.4, 1.3);
+            ctx.fillStyle = '#f3c44d'; ctx.fillRect(-1, -6.4, 2, 1.7);
 
-            // 얼굴 + 수염
             ctx.fillStyle = '#ffd9c2';
-            ctx.beginPath();
-            ctx.arc(0, -11.8, 3.1, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.beginPath(); ctx.arc(0, -11.8, 3.1, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.arc(0, -10.4, 2.7, 0, Math.PI);
-            ctx.fill();
+            ctx.beginPath(); ctx.arc(0, -10.4, 2.7, 0, Math.PI); ctx.fill();
             ctx.fillStyle = '#2d2226';
-            ctx.beginPath();
-            ctx.arc(1.1, -12.3, 0.55, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.beginPath(); ctx.arc(1.1, -12.3, 0.55, 0, Math.PI * 2); ctx.fill();
 
-            // 빨간 산타 모자 + 폼폼이
             ctx.fillStyle = '#d93848';
-            ctx.beginPath();
-            ctx.moveTo(-3.4, -13.6);
-            ctx.quadraticCurveTo(0, -19.5, 3.5, -16);
-            ctx.lineTo(2.8, -13.6);
-            ctx.closePath();
-            ctx.fill();
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(-3.8, -14.2, 7.2, 1.8);
-            ctx.beginPath();
-            ctx.arc(3.8, -16, 1.5, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.beginPath(); ctx.moveTo(-3.4, -13.6); ctx.quadraticCurveTo(0, -19.5, 3.5, -16); ctx.lineTo(2.8, -13.6); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(-3.8, -14.2, 7.2, 1.8);
+            ctx.beginPath(); ctx.arc(3.8, -16, 1.5, 0, Math.PI * 2); ctx.fill();
 
             ctx.restore();
           }
