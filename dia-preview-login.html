@@ -93,18 +93,12 @@
 #igGo:disabled{background:#d6cfd0;cursor:not-allowed;}
 #igCancel{background:#fff;color:#6f6668;border:1px solid var(--line);}
 #igStep .err{margin-top:8px;font-size:11px;color:#c06070;min-height:14px;}
+.saveid{display:flex;align-items:center;gap:7px;margin:2px 0 10px;font-size:11.5px;color:#8d8385;cursor:pointer;}
+.saveid input{width:14px;height:14px;accent-color:#d55576;margin:0;}
 </style>
 </head>
 <body>
 
-<div id="door">
-  <div class="card">
-    <p>비공개 화면입니다.<br>비밀번호를 입력해 주세요.</p>
-    <input id="pw" type="password" inputmode="numeric" autocomplete="off" placeholder="····">
-    <button type="button" id="go">Open</button>
-    <div class="err" id="err"></div>
-  </div>
-</div>
 
 <header class="bar">
   <div class="bar-in">
@@ -123,10 +117,11 @@
   <div class="eyebrow">Login</div>
   <h1>다시 오셨네요</h1>
 
-  <div class="field"><input type="text" placeholder="인스타그램 아이디 (@ 없이)" autocomplete="username" autocapitalize="off" spellcheck="false" inputmode="text"></div>
+  <div class="field"><input type="text" id="igId" placeholder="인스타그램 아이디 (@ 없이)" autocomplete="username" autocapitalize="off" spellcheck="false" inputmode="text"></div>
   <div class="field"><input type="password" id="pin" placeholder="비밀번호 4자리" inputmode="numeric" maxlength="4" autocomplete="current-password" style="letter-spacing:.45em;"></div>
+  <label class="saveid"><input type="checkbox" id="saveId"> 인스타그램 아이디 저장 (다음에 자동 입력)</label>
   <p class="hint">가입할 때 쓴 인스타그램 아이디를 적어 주세요. 비밀번호는 숫자 4자리입니다.</p>
-  <button class="btn" type="button">로그인</button>
+  <button class="btn" type="button" id="loginBtn">로그인</button>
 
 
 
@@ -153,20 +148,31 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-  var KEY = atob('MDQyMw==');
-  function open(){ document.body.classList.remove('locked'); }
-  try{ if (/[?&]staff=1/.test(location.search) || sessionStorage.getItem('dia_preview_ok') === '1') open(); }catch(e){}
-  var pin = document.getElementById('pin');
-  if (pin) { pin.addEventListener('input', function(){ pin.value = pin.value.replace(/[^0-9]/g,'').slice(0,4); }); }
+  var SAVE_KEY = 'dia_saved_ig';
+  var ig = document.getElementById('igId');
+  var saveBox = document.getElementById('saveId');
+  var btn = document.getElementById('loginBtn');
+  function get(){ try{ return localStorage.getItem(SAVE_KEY) || ''; }catch(e){ return ''; } }
+  // 저장된 아이디가 있으면 불러와서 자동 입력
+  var saved = get();
+  if (saved){ if (ig) ig.value = saved; if (saveBox) saveBox.checked = true; }
 
+  if (ig) ig.addEventListener('input', function(){
+    ig.value = ig.value.replace(/^@+/, '').replace(/\s/g, '');
+    // 저장을 켜 둔 상태면 타이핑할 때마다 함께 저장
+    if (saveBox && saveBox.checked){ try{ localStorage.setItem(SAVE_KEY, ig.value.trim()); }catch(e){} }
+  });
 
-  var pw = document.getElementById('pw'), go = document.getElementById('go'), err = document.getElementById('err');
-  function tryOpen(){
-    if (pw.value.trim() === KEY) { try{ sessionStorage.setItem('dia_preview_ok','1'); }catch(e){} err.textContent=''; open(); }
-    else { err.textContent='비밀번호가 맞지 않습니다.'; pw.value=''; pw.focus(); }
-  }
-  go.addEventListener('click', tryOpen);
-  pw.addEventListener('keydown', function(e){ if (e.key==='Enter') tryOpen(); });
+  if (saveBox) saveBox.addEventListener('change', function(){
+    try{
+      if (saveBox.checked) localStorage.setItem(SAVE_KEY, (ig ? ig.value : '').trim());
+      else localStorage.removeItem(SAVE_KEY);
+    }catch(e){}
+  });
+
+  if (btn) btn.addEventListener('click', function(){
+    if (saveBox && saveBox.checked){ try{ localStorage.setItem(SAVE_KEY, (ig ? ig.value : '').trim()); }catch(e){} }
+  });
 });
 </script>
 <script src="preview-cursor.js?v=2"></script>
