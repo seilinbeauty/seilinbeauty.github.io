@@ -2114,7 +2114,7 @@ window.창고읽기 = function(url){
 </script>
 
 <style id="ops-cafe24-theme">
-  /* 암호 해제(#ops-section 열림) 시: 진짜 아임웹·카페24 풀스크린 어드민 대시보드 */
+  /* 암호 해제(#ops-section 열림) 시: 왼쪽 바 + 오른쪽 모든 내용 페이지까지 진짜 아임웹·카페24 어드민 */
   @media (min-width: 881px) {
     html body.dia-page:has(#ops-section:not([style*="display: none"])) {
       background: #f1f4f9 !important;
@@ -2122,9 +2122,13 @@ window.창고읽기 = function(url){
     }
     html body.dia-page:has(#ops-section:not([style*="display: none"])) header.dia-header {
       background: #fff !important; border-bottom: 1px solid #e2e8f0 !important;
-      padding-left: 24px !important; padding-right: 24px !important;
+      padding-left: 26px !important; padding-right: 26px !important;
     }
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) .plx-side {
+    html body.dia-page:has(#ops-section:not([style*="display: none"])) header.dia-header .brand-title {
+      color: #0f172a !important; font-weight: 800 !important;
+    }
+    html body.dia-page:has(#ops-section:not([style*="display: none"])) .plx-side,
+    html body.dia-page:has(#ops-section:not([style*="display: none"])) .plx-nav {
       display: none !important;
     }
     html body.dia-page:has(#ops-section:not([style*="display: none"])) #ops-section,
@@ -2136,10 +2140,10 @@ window.창고읽기 = function(url){
       display: block !important; background: transparent !important; border: 0 !important; box-shadow: none !important;
     }
     html body.dia-page:has(#ops-section:not([style*="display: none"])) #ops-section {
-      padding: 18px 26px 40px !important;
+      padding: 18px 28px 44px !important;
     }
     html body.dia-page:has(#ops-section:not([style*="display: none"])) #ops-section .plx-main { padding: 0 !important; }
-    /* 왼쪽 고정 다크 네이비 사이드바 (.ops-nav를 세로 어드민 메뉴로 변환) */
+    /* 왼쪽 고정 다크 네이비 사이드바 */
     html body.dia-page:has(#ops-section:not([style*="display: none"])) .ops-nav {
       position: fixed !important; top: 0 !important; left: 0 !important; bottom: 0 !important;
       width: 230px !important; z-index: 60 !important;
@@ -2164,7 +2168,32 @@ window.창고읽기 = function(url){
       background: #2563eb !important; color: #fff !important; box-shadow: 0 2px 8px rgba(37, 99, 235, .35) !important;
     }
   }
-  /* 통계 대시보드 카드 & 표 스타일 */
+  /* 오른쪽 본문 모든 탭 공통 아임웹·카페24 어드민 톤 */
+  #ops-section .plx-hero-tag { color: #2563eb !important; font-weight: 800 !important; }
+  #ops-section .plx-hero-title { color: #0f172a !important; font-weight: 800 !important; }
+  #ops-section .board-lock-btn { border-radius: 7px !important; border: 1px solid #cbd5e1 !important; background: #fff !important; color: #334155 !important; font-weight: 700 !important; }
+  #ops-section .ops-req-card,
+  #ops-section .ops-card,
+  #ops-section .sn-card,
+  #ops-section .ops-panel,
+  #ops-section .ops-mem-card,
+  #ops-section .ops-course-card {
+    background: #fff !important; border: 1px solid #e2e8f0 !important; border-radius: 8px !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .05) !important;
+  }
+  #ops-section input[type="text"], #ops-section input[type="search"], #ops-section input[type="number"],
+  #ops-section select, #ops-section textarea {
+    border: 1px solid #cbd5e1 !important; border-radius: 6px !important; background: #fff !important;
+  }
+  #ops-section input:focus, #ops-section select:focus, #ops-section textarea:focus {
+    border-color: #2563eb !important; outline: none !important;
+  }
+  #ops-section .sn-save, #ops-section .ops-btn-primary, #ops-section button[data-on="1"] {
+    background: #2563eb !important; color: #fff !important; border-color: #2563eb !important; border-radius: 6px !important;
+  }
+  #ops-section table th { background: #f8fafc !important; color: #475569 !important; border-bottom: 1px solid #e2e8f0 !important; }
+  #ops-section table td { border-bottom: 1px solid #f1f5f9 !important; }
+  #ops-section table tr:hover td { background: #f8fafc !important; }
   #ops-stats { background: transparent !important; border: 0 !important; padding: 0 !important; }
   #ops-stats .ops-kpi { gap: 16px !important; }
   #ops-stats .ops-kpi-card {
@@ -2180,7 +2209,6 @@ window.창고읽기 = function(url){
     border-radius: 8px !important; background: #fff !important;
   }
   #ops-stats .ops-cap { font-size: 13px; color: #1e293b; font-weight: 800; margin: 18px 0 10px; padding-left: 9px; border-left: 3px solid #2563eb; }
-  #ops-stats .ops-visit-tb thead th { background: #f8fafc; color: #475569; font-weight: 800; padding: 8px 6px; border-bottom: 1px solid #e2e8f0; }
   #ops-stats .ops-tab { border-radius: 6px !important; border-color: #dbe2ea !important; color: #475569 !important; }
   #ops-stats .ops-tab[data-on="1"] { background: #2563eb !important; color: #fff !important; border-color: #2563eb !important; }
   #ops-stats .ops-vg { border-radius: 8px !important; background: #f8fafc !important; border-color: #e2e8f0 !important; }
