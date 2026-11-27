@@ -2159,9 +2159,9 @@
       body.dia-page .dia-hero-in:has(#mcHeroStatus:not([hidden])) {
         position: relative; overflow: hidden;
         max-width: 1200px; margin: 0 auto; padding: 18px 24px !important;
-        background: linear-gradient(180deg, #f5f9ff 0%, #fffdfd 70%, #f4f9fd 100%);
-        border: 1px solid #e5e9f0; border-top: 2px solid #e6a8bc; border-radius: 14px;
-        box-shadow: 0 2px 10px rgba(180, 130, 145, .06); box-sizing: border-box;
+        background: linear-gradient(180deg, #fffcfd 0%, #fff 100%);
+        border: 1px solid #ede4e7; border-top: 2px solid #e6a8bc; border-radius: 14px;
+        box-shadow: 0 2px 10px rgba(180, 130, 145, .05); box-sizing: border-box;
         flex-wrap: wrap; gap: 10px 14px !important;
       }
       body.dia-page .dia-hero-in > *:not(.pc-hero-snow) { position: relative; z-index: 1; }
@@ -2575,30 +2575,6 @@ window.창고읽기 = function(url){
           if (window.innerWidth <= 880) return;
           if (!W || !surfaceY) { buildSurface(); if (!W) return; }
           ctx.clearRect(0, 0, W, H);
-
-          // 산타월드 배경: 은은한 바닥 눈 언덕 & 미니 트리
-          if (H > 60) {
-            ctx.save();
-            ctx.fillStyle = 'rgba(232, 241, 250, 0.55)';
-            ctx.beginPath();
-            ctx.moveTo(0, H);
-            ctx.quadraticCurveTo(W * 0.25, H - 10, W * 0.55, H - 4);
-            ctx.quadraticCurveTo(W * 0.82, H - 11, W, H - 3);
-            ctx.lineTo(W, H);
-            ctx.closePath();
-            ctx.fill();
-            function miniTree(tx, ty, ts){
-              ctx.fillStyle = 'rgba(138, 178, 158, 0.42)';
-              ctx.beginPath(); ctx.moveTo(tx, ty - 16 * ts); ctx.lineTo(tx - 6 * ts, ty - 6 * ts); ctx.lineTo(tx + 6 * ts, ty - 6 * ts); ctx.closePath(); ctx.fill();
-              ctx.beginPath(); ctx.moveTo(tx, ty - 11 * ts); ctx.lineTo(tx - 7.5 * ts, ty); ctx.lineTo(tx + 7.5 * ts, ty); ctx.closePath(); ctx.fill();
-              ctx.fillStyle = 'rgba(255,255,255,0.75)';
-              ctx.beginPath(); ctx.moveTo(tx, ty - 16 * ts); ctx.lineTo(tx - 2.4 * ts, ty - 12 * ts); ctx.lineTo(tx + 2.4 * ts, ty - 12 * ts); ctx.closePath(); ctx.fill();
-            }
-            miniTree(14, H - 2, 0.9);
-            miniTree(W - 18, H - 2, 1.0);
-            miniTree(W - 32, H - 1, 0.72);
-            ctx.restore();
-          }
 
           for (var i = 0; i < flakes.length; i++) {
             var f = flakes[i];
