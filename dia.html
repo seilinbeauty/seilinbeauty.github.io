@@ -6399,14 +6399,39 @@ window.창고읽기 = function(url){
                     lgMsg.textContent = '회원목록에서 본인 이름을 검색해 누르고 암호 4자리를 넣으면 열립니다.';
                     lgMsg.style.color = '#8a7b81';
                     if (window.innerWidth >= 881 && lgBox.parentElement) {
-                      var hr = lgBox.parentElement.getBoundingClientRect();
-                      var br = lgBtn.getBoundingClientRect();
-                      var bw = lgBox.offsetWidth || 380;
+                      var heroEl = lgBox.parentElement;
+                      var hr = heroEl.getBoundingClientRect();
+                      var bw = lgBox.offsetWidth || 344;
+                      var bh = lgBox.offsetHeight || 70;
                       var targetLeft = (hr.width - bw) / 2;
                       var clampedLeft = Math.max(8, Math.min(targetLeft, hr.width - bw - 8));
+                      /* 빈 공간의 수직 가운데: 위쪽(제목·버튼) 아래끝과 아래 내용 시작 사이의 중앙 */
+                      var contentBottom = 0;
+                      for (var ci = 0; ci < heroEl.children.length; ci++) {
+                        var ch = heroEl.children[ci];
+                        if (ch === lgBox || ch.hidden) continue;
+                        var cs = window.getComputedStyle(ch);
+                        if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+                        var cb = ch.getBoundingClientRect();
+                        if (cb.height <= 0) continue;
+                        if (cb.bottom - hr.top > contentBottom) contentBottom = cb.bottom - hr.top;
+                      }
+                      var spaceBottom = hr.height;
+                      var nextEl = heroEl.nextElementSibling;
+                      while (nextEl) {
+                        var ns = window.getComputedStyle(nextEl);
+                        var nb = nextEl.getBoundingClientRect();
+                        if (ns.display !== 'none' && nb.height > 0) { spaceBottom = Math.max(spaceBottom, nb.top - hr.top); break; }
+                        nextEl = nextEl.nextElementSibling;
+                      }
+                      var freeTop = contentBottom + 6;
+                      var freeBottom = spaceBottom - 6;
+                      var centerTop = freeTop + ((freeBottom - freeTop) - bh) / 2;
+                      if (!isFinite(centerTop) || freeBottom - freeTop < bh) centerTop = freeTop;
+                      centerTop = Math.max(freeTop, centerTop);
                       lgBox.style.left = Math.round(clampedLeft) + 'px';
                       lgBox.style.right = 'auto';
-                      lgBox.style.top = Math.round(br.bottom - hr.top + 8) + 'px';
+                      lgBox.style.top = Math.round(centerTop) + 'px';
                     } else {
                       lgBox.style.left = ''; lgBox.style.right = ''; lgBox.style.top = '';
                     }
