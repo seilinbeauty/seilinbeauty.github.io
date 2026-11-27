@@ -2205,6 +2205,12 @@
       .dia-hero .quick-links { display: inline-flex !important; flex-wrap: nowrap; max-width: none; width: auto; gap: 6px; margin: 0; flex-shrink: 0; }
       .dia-hero .quick-links > * { width: auto !important; min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; }
       .dia-hero .quick-links > .mc-hero-login { padding: 7px 11px !important; font-size: 12px !important; }
+      body.dia-page .dia-hero-in > #mcLoginBox {
+        flex: 1 0 100%; max-width: none !important; margin: 10px 0 0 auto !important;
+        display: flex; flex-direction: column; align-items: flex-end;
+      }
+      body.dia-page .dia-hero-in > #mcLoginBox[hidden] { display: none !important; }
+      body.dia-page .dia-hero-in > #mcLoginBox > div { width: 100%; max-width: 340px; }
       .dia-hero .mc-chat { min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; box-sizing: border-box; }
       .plx-title-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 6px 0 5px; }
       .plx-title-row .plx-title {
@@ -3100,6 +3106,10 @@ window.창고읽기 = function(url){
                 }
               }
             } else if (santa.state === 'backstage_fix') {
+              santa.bsSub = (santa.bsSub || 0) + 1;
+              if (santa.bsSub % 3 !== 0) {
+                // 백룸 안에서는 3배 여유 있게 천천히 이동·수리
+              } else {
               santa.timer++;
               // 1) 58~82: 제목 글자 뺐다 다시 끼우기
               if (santa.timer === 58 && titleEl) {
@@ -3138,7 +3148,8 @@ window.창고읽기 = function(url){
               if (santa.timer >= 220) {
                 if (titleEl) titleEl.style.transform = '';
                 if (dtEl) { dtEl.style.transform = ''; dtEl.style.opacity = ''; }
-                santa.state = 'idle'; santa.timer = 0;
+                santa.state = 'idle'; santa.timer = 0; santa.bsSub = 0;
+              }
               }
             } else if (santa.state === 'pocket_toy') {
               santa.timer++;
