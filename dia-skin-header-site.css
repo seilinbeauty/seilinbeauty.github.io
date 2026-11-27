@@ -1,43 +1,29 @@
-/* 다이아 커뮤니티 — 상단 헤더 색만 알로하 클로젯 팔레트로 (커비 · 2026-11-27)
-   살구빛 띠 #f5e5e2 · 실선 #eccfc9 · 글자 #323232 / 보조 #8a7f81 */
-.dia-header{
-  background:#f5e5e2 !important;
-  border-bottom:1px solid #eccfc9 !important;
-  box-shadow:none !important;
-}
-.dia-header .brand-logo{ color:#2f2a2b !important; }
-.dia-header .brand-sub{ color:#8a7f81 !important; }
-.dia-header .nav-links a{ color:#323232 !important; }
-.dia-header .nav-links a:hover{ color:#a9566a !important; }
-.dia-header .nav-links a.nav-dia{
-  background:#fff !important; color:#323232 !important;
-  border:1px solid #dcc4bf !important;
-}
-.dia-header .nav-links a.nav-dia:hover,
-.dia-header .nav-links a.nav-dia.is-on{
-  background:#c9707f !important; color:#fff !important; border-color:#c9707f !important;
-}
-.dia-header .nav-mobile-link{
-  background:#fff !important; border:1px solid #dcc4bf !important; color:#323232 !important;
-}
-
-/* ── 넓이·높이를 알로하 클로젯과 같게 (PC) ──
-   알로하: 띠 높이 45px, 좌우 12% 여백, 안쪽 폭 1250px */
+/* 다이아 커뮤니티 — PC에서만 상단 헤더를 알로하 클로젯 팔레트·비율로 (커비 · 2026-11-27)
+   알로하: 띠 높이 45px · 살구빛 #f5e5e2 · 실선 #eccfc9 · 글자 #323232 · 좌우 12% 여백
+   모바일(880px 이하)은 기존 다이아 헤더 그대로 둡니다. */
 @media (min-width:881px){
   body{ padding-top:45px !important; }
+
   .dia-header{
     height:45px !important; min-height:45px !important;
     padding:0 !important; margin:0 !important;
     display:flex !important; align-items:center !important;
     line-height:45px !important;
+    background:#f5e5e2 !important;
+    border-bottom:1px solid #eccfc9 !important;
+    box-shadow:none !important;
   }
   .dia-header .brand{
     margin-left:12% !important; padding:0 !important;
     display:inline-flex !important; align-items:center !important;
     height:45px !important;
   }
-  .dia-header .brand-logo{ font-size:14px !important; letter-spacing:.14em !important; line-height:45px !important; }
+  .dia-header .brand-logo{
+    font-size:14px !important; letter-spacing:.14em !important;
+    line-height:45px !important; color:#2f2a2b !important;
+  }
   .dia-header .brand-sub{ display:none !important; }
+
   .dia-header .nav-links{
     margin-left:26px !important;
     height:45px !important; display:flex !important; align-items:center !important; gap:0 !important;
@@ -47,10 +33,18 @@
     padding:0 11px !important; font-size:10.5px !important;
     letter-spacing:.14em !important; text-transform:uppercase;
     display:inline-flex !important; align-items:center !important;
+    color:#323232 !important;
   }
+  .dia-header .nav-links a:hover{ color:#a9566a !important; }
   .dia-header .nav-links a.nav-dia{
     height:26px !important; line-height:1 !important; padding:0 14px !important;
     border-radius:2px !important; font-size:10px !important; margin-left:8px !important;
+    background:#fff !important; color:#323232 !important;
+    border:1px solid #dcc4bf !important;
+  }
+  .dia-header .nav-links a.nav-dia:hover,
+  .dia-header .nav-links a.nav-dia.is-on{
+    background:#c9707f !important; color:#fff !important; border-color:#c9707f !important;
   }
   .dia-header .nav-mobile-links{ display:none !important; }
 }
