@@ -2432,6 +2432,10 @@ window.창고읽기 = function(url){
             for (var spk = 0; spk < 5; spk++) {
               if (sparkles.length < 22) sparkles.push({ x: santa.x + (Math.random() - 0.5) * 14, y: santa.y - 14 - Math.random() * 8, life: 0.95 });
             }
+            // 버튼 위나 사다리/비행 중일 땐 떨어지지 않고 반짝이만 반응
+            if (santa.state === 'sweep_btn' || santa.state === 'btn_bridge' || santa.state === 'btn_jump' || santa.state === 'fly_to_btn' || santa.state === 'fly_back' || santa.y < roadY - 6) {
+              return;
+            }
             if (Math.random() < 0.45) {
               santa.state = 'snowball'; santa.timer = 30;
             } else {
@@ -2439,12 +2443,13 @@ window.창고읽기 = function(url){
             }
           } else if (cy > 18 && cy < H - 4) {
             santa.boredom = 0;
+            var maxWalkX = (bLeft > sLeft + 40) ? Math.min(sRight - 15, bLeft - 14) : (sRight - 15);
             if (Math.random() < 0.5) {
               santa.dir = (cx >= santa.x) ? 1 : -1;
               snowballs.push({ x: santa.x + santa.dir * 6, y: santa.y - 12, vx: (cx - santa.x) * 0.038, vy: -2.4 });
-            } else if (santa.state === 'idle') {
+            } else if (santa.state === 'idle' && cx <= maxWalkX + 10) {
               santa.state = 'walk_to'; santa.targetMode = 'roam';
-              santa.targetX = Math.max(sLeft + 15, Math.min(sRight - 15, cx));
+              santa.targetX = Math.max(sLeft + 15, Math.min(maxWalkX, cx));
             }
           }
         });
@@ -2761,7 +2766,10 @@ window.창고읽기 = function(url){
               }
             }
 
+            // 지상(버튼 위가 아닐 때) 산타가 버튼 아래 영역으로 절대 걸어 들어가지 않도록 X 상한 제한
+            var walkMaxX = (bLeft > sLeft + 40) ? Math.min(sRight - 10, bLeft - 14) : (sRight - 10);
             if (santa.state !== 'fly_to_btn' && santa.state !== 'fly_back' && santa.state !== 'sweep_btn' && santa.state !== 'btn_jump' && santa.state !== 'btn_bridge') {
+              if (santa.x > walkMaxX && bLeft > sLeft + 40) santa.x = walkMaxX;
               var rx = Math.round(santa.x);
               var curRoad = (rx >= sLeft && rx <= sRight && subSurfaceY[rx] >= 0) ? subSurfaceY[rx] : roadY;
               santa.y += (curRoad - santa.y) * 0.28;
@@ -2834,27 +2842,26 @@ window.창고읽기 = function(url){
                 if (cands.length > 0) {
                   var filtered = cands.filter(function(c){ return c !== santa.lastJob; });
                   var chosen = (filtered.length > 0) ? filtered[Math.floor(Math.random() * filtered.length)] : cands[Math.floor(Math.random() * cands.length)];
-                  // 버튼에 눈이 충분히 있으면 더 자주 썰매 타고 출동!
                   if (cands.indexOf('btn') >= 0 && santa.lastJob !== 'btn' && Math.random() < 0.55) chosen = 'btn';
                   santa.lastJob = chosen;
                   santa.boredom = 0;
-                  if (chosen === 'top') { santa.state = 'walk_to'; santa.targetMode = 'top'; santa.targetX = bestTopX; }
-                  else if (chosen === 'road') { santa.state = 'walk_to'; santa.targetMode = 'road'; santa.targetX = bestSubX; }
+                  if (chosen === 'top') { santa.state = 'walk_to'; santa.targetMode = 'top'; santa.targetX = Math.min(walkMaxX, bestTopX); }
+                  else if (chosen === 'road') { santa.state = 'walk_to'; santa.targetMode = 'road'; santa.targetX = Math.min(walkMaxX, bestSubX); }
                   else { santa.state = 'summon_sleigh'; santa.timer = 0; santa.targetX = bestBtnX; }
                 } else if (santa.boredom > 150) {
                   santa.boredom = 0;
                   var pick = Math.random();
-                  if (pick < 0.34 && snowmen.length < 2 && sRight > sLeft + 80) {
+                  if (pick < 0.34 && snowmen.length < 2 && walkMaxX > sLeft + 50) {
                     santa.state = 'walk_to'; santa.targetMode = 'snowman';
-                    santa.targetX = sLeft + 30 + Math.random() * Math.max(20, (sRight - sLeft - 60));
+                    santa.targetX = sLeft + 25 + Math.random() * Math.max(20, (walkMaxX - sLeft - 45));
                   } else if (pick < 0.68) {
                     santa.state = 'snowball'; santa.timer = 0;
                   } else if (dtRight > dtLeft + 10) {
                     santa.wipeWait = 0; santa.state = 'walk_to'; santa.targetMode = 'wipe';
-                    santa.targetX = dtLeft + 14 + Math.random() * Math.max(10, (dtRight - dtLeft - 28));
+                    santa.targetX = Math.min(walkMaxX, dtLeft + 14 + Math.random() * Math.max(10, (dtRight - dtLeft - 28)));
                   } else {
                     santa.state = 'walk_to'; santa.targetMode = 'roam';
-                    santa.targetX = sLeft + 20 + Math.random() * Math.max(20, (sRight - sLeft - 40));
+                    santa.targetX = sLeft + 20 + Math.random() * Math.max(20, (walkMaxX - sLeft - 35));
                   }
                 }
               }
@@ -2971,7 +2978,7 @@ window.창고읽기 = function(url){
                   santa.state = 'fly_back';
                   santa.flyFromX = santa.x;
                   santa.flyFromY = santa.y;
-                  santa.flyToX = sLeft + 24 + Math.random() * Math.max(20, (sRight - sLeft - 48));
+                  santa.flyToX = sLeft + 24 + Math.random() * Math.max(20, (walkMaxX - sLeft - 40));
                   santa.flyToY = roadY;
                   santa.flyT = 0;
                   santa.energy = Math.max(0, santa.energy - 8);
