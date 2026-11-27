@@ -2997,9 +2997,9 @@ window.창고읽기 = function(url){
                   if (topInView && (maxTop >= 3.4 || totalTop >= 110)) cands.push('top');
                   if (subInView && (maxSub >= 2.8 || totalSub >= 120) && bestSubX <= walkMaxX) cands.push('road');
                   if (btnInView && (maxBtn >= 2.4 || totalBtn >= 60)) cands.push('btn');
-                  var mustWork = (maxTop >= 4.2 || maxSub >= 3.6 || maxBtn >= 3.2 || santa.playStreak >= 3);
-                  // 놀기 좋아하는 산타: 눈이 너무 쌓이지 않으면 85% 노는 시간, 너무 오래 놀았거나(3연속) 눈이 쌓이면 깜짝 놀라며 기계 꺼내 빠르게 청소!
-                  var wantPlay = !mustWork && (santa.playful > 30 || Math.random() < 0.85);
+                  var mustWork = (maxTop >= 3.8 || maxSub >= 3.2 || maxBtn >= 2.8 || santa.playStreak >= 3);
+                  // 일할 땐 확실히 일하고, 눈 적당할 땐 신나게 놀고, 일하러 가다 가끔 몰래 농땡이!
+                  var wantPlay = !mustWork && (santa.playful > 35 || Math.random() < 0.72);
                   if (cands.length > 0 && !wantPlay) {
                     var filtered = cands.filter(function(c){ return c !== santa.lastJob; });
                     var chosen = (filtered.length > 0) ? filtered[Math.floor(Math.random() * filtered.length)] : cands[Math.floor(Math.random() * cands.length)];
@@ -3536,7 +3536,14 @@ window.창고읽기 = function(url){
                 santa.state = 'idle'; santa.timer = 0;
               }
             } else if (santa.state === 'walk_to') {
-              if ((santa.targetMode === 'top' || santa.targetMode === 'road') && santa.playful > 75 && Math.random() < 0.008) {
+              if ((santa.targetMode === 'top' || santa.targetMode === 'road') && santa.laziness > 55 && Math.random() < 0.005) {
+                if (Math.random() < 0.55) {
+                  santa.state = 'sit_rest'; santa.timer = 0; setMood('💤', 90);
+                } else {
+                  santa.toyType = (Math.random() < 0.5) ? 'hot_choco' : 'guitar';
+                  santa.state = 'pocket_toy'; santa.timer = 0; setMood(santa.toyType === 'hot_choco' ? '☕' : '🎵', 90);
+                }
+              } else if ((santa.targetMode === 'top' || santa.targetMode === 'road') && santa.playful > 75 && Math.random() < 0.004) {
                 santa.state = 'snowball'; santa.timer = 0; setMood('🎵', 55);
               }
               var dxMove = santa.targetX - santa.x;
