@@ -1665,7 +1665,6 @@
       }
       /* PC 로그인 전: 내 품앗이·뷰티수강 버튼을 오른쪽 여백(커서 쪽)으로 배치 */
       #snsIgBanner { display: none; }
-      #newMemberInvite { display: none; }
 @media (min-width: 881px) {
         body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links {
           margin-left: auto !important; display: flex !important; justify-content: flex-end !important; width: auto !important; gap: 10px !important;
@@ -1762,21 +1761,16 @@
     background: #fff; font-size: 12.5px; cursor: pointer; display: flex; justify-content: space-between;
   }
   #snsIgBanner .ig-b-sug button:hover { background: #fdf4f7; }
-  #newMemberInvite { display: none; }
-  body.dia-new-member:not(.sns-need-ig) #newMemberInvite {
-    display: flex; align-items: center; justify-content: space-between; gap: 14px;
-    background: #fff9fb; border: 1.5px solid #efc6d3; border-radius: 14px;
-    padding: 14px 18px; margin-top: 12px; width: 100%; box-sizing: border-box;
-    box-shadow: 0 4px 14px rgba(201,112,127,.08);
-  }
-  #newMemberInvite .nmi-l { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-  #newMemberInvite .nmi-badge { display: inline-block; width: fit-content; font-size: 11px; font-weight: 700; color: #b54567; background: #fde9f0; padding: 2px 8px; border-radius: 999px; }
-  #newMemberInvite .nmi-title { font-size: 14px; font-weight: 800; color: #2b1d22; margin: 0; }
-  #newMemberInvite .nmi-sub { font-size: 12px; color: #7a5c65; margin: 0; }
-  #newMemberInvite .nmi-r { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-  #newMemberInvite .nmi-code { font-family: ui-monospace, monospace; font-size: 15px; font-weight: 800; letter-spacing: 1px; color: #2b1d22; background: #fff; border: 1px solid #e6b8c6; border-radius: 9px; padding: 7px 12px; }
-  #newMemberInvite .nmi-copy { height: 34px; padding: 0 12px; border-radius: 9px; border: 1px solid #e6b8c6; background: #fff; color: #b54567; font-size: 12.5px; font-weight: 700; cursor: pointer; }
-  #newMemberInvite .nmi-go { display: inline-flex; align-items: center; height: 34px; padding: 0 14px; border-radius: 9px; background: #c9707f; color: #fff; font-size: 12.5px; font-weight: 700; text-decoration: none; }
+  #diaInviteModal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(25,18,22,.46); align-items: center; justify-content: center; padding: 16px; }
+  #diaInviteModal.is-open { display: flex; }
+  #diaInviteModal .dim-box { position: relative; width: 100%; max-width: 380px; background: #fff; border-radius: 18px; padding: 24px 22px 20px; box-shadow: 0 18px 46px rgba(0,0,0,.22); text-align: center; }
+  #diaInviteModal .dim-x { position: absolute; top: 12px; right: 14px; border: 0; background: none; font-size: 22px; color: #8c7a82; cursor: pointer; line-height: 1; }
+  #diaInviteModal .dim-t { font-size: 17px; font-weight: 800; color: #2b1d22; margin: 0 0 8px; }
+  #diaInviteModal .dim-s { font-size: 13px; color: #6e5a62; margin: 0 0 16px; line-height: 1.5; }
+  #diaInviteModal .dim-code-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; background: #fff7fa; border: 1.5px solid #efc6d3; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; }
+  #diaInviteModal .dim-code { font-family: ui-monospace, monospace; font-size: 20px; font-weight: 800; letter-spacing: 2px; color: #2b1d22; }
+  #diaInviteModal .dim-copy { height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid #e6b8c6; background: #fff; color: #b54567; font-size: 12px; font-weight: 700; cursor: pointer; }
+  #diaInviteModal .dim-go { display: flex; align-items: center; justify-content: center; width: 100%; height: 42px; border-radius: 11px; background: #c9707f; color: #fff; font-size: 14px; font-weight: 700; text-decoration: none; border: 0; cursor: pointer; }
 }
 </style>
   <style>
@@ -2505,17 +2499,17 @@ window.창고읽기 = function(url){
         </div>
         <p id="snsIgHint" style="margin:8px 0 0;font-size:12px;color:#7a6870;">① 아이디 입력 후 <b>프로필 확인</b>을 눌러 본인 계정이 맞는지 확인해 주세요.</p>
       </div>
-      <div id="newMemberInvite" aria-label="신규 회원 오픈채팅 초대코드 안내">
-        <div class="nmi-l">
-          <span class="nmi-badge">신규 회원 안내</span>
-          <p class="nmi-title">마케팅 오픈채팅방 초대코드</p>
-          <p class="nmi-sub">아래 초대코드를 입력해 다이아 품앗이 오픈채팅방에 입장해 주세요.</p>
+    </div>
+    <div id="diaInviteModal" role="dialog" aria-modal="true" aria-label="마케팅 오픈채팅 초대코드 안내">
+      <div class="dim-box">
+        <button type="button" class="dim-x" id="dimCloseBtn" aria-label="닫기">×</button>
+        <p class="dim-t">💬 마케팅 오픈채팅 입장 안내</p>
+        <p class="dim-s" id="dimDesc">아래 초대코드를 입력해 오픈채팅방에 입장해 주세요.</p>
+        <div class="dim-code-wrap" id="dimCodeWrap">
+          <span class="dim-code">S3333</span>
+          <button type="button" class="dim-copy" id="dimCopyBtn">코드 복사</button>
         </div>
-        <div class="nmi-r">
-          <span class="nmi-code" id="nmiCodeText">S3333</span>
-          <button type="button" class="nmi-copy" id="nmiCopyBtn">복사</button>
-          <a class="nmi-go" href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener">오픈채팅 입장하기</a>
-        </div>
+        <a class="dim-go" id="dimGoBtn" href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener">오픈채팅 바로 가기</a>
       </div>
     </div>
   </section>
@@ -10532,42 +10526,60 @@ window.창고읽기 = function(url){
   else initSnsIgBanner();
   setTimeout(initSnsIgBanner, 400);
 
-  function initNewMemberInvite(){
-    var isNew = false;
-    try {
-      var rawMem = localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak') || '';
-      var curMem = rawMem, curIg = '';
-      if (rawMem && rawMem.charAt(0) === '{') {
-        try {
-          var p = JSON.parse(rawMem);
-          if (p && p.n) curMem = p.n;
-          if (p && p.i) curIg = p.i;
-        } catch(_e){}
+  function initInviteModal(){
+    var modal = document.getElementById('diaInviteModal');
+    if (!modal || modal._boundDim) return;
+    modal._boundDim = true;
+    var closeBtn = document.getElementById('dimCloseBtn');
+    var copyBtn = document.getElementById('dimCopyBtn');
+    var codeWrap = document.getElementById('dimCodeWrap');
+    var desc = document.getElementById('dimDesc');
+    var goBtn = document.getElementById('dimGoBtn');
+
+    function openInviteModal(){
+      var loggedIn = false;
+      try {
+        loggedIn = !!(localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak'));
+      } catch(_e){}
+      if (loggedIn) {
+        if (desc) desc.textContent = '아래 초대코드를 입력해 오픈채팅방에 입장해 주세요.';
+        if (codeWrap) codeWrap.style.display = 'flex';
+        if (goBtn) {
+          goBtn.textContent = '오픈채팅 바로 가기';
+          goBtn.setAttribute('href', 'https://open.kakao.com/o/gQOf8yAf');
+          goBtn.setAttribute('target', '_blank');
+        }
+      } else {
+        if (desc) desc.textContent = '초대코드는 로그인 후 바로 확인하실 수 있어요.';
+        if (codeWrap) codeWrap.style.display = 'none';
+        if (goBtn) {
+          goBtn.textContent = '로그인하고 코드 보기';
+          goBtn.setAttribute('href', 'dia-preview-login.html');
+          goBtn.removeAttribute('target');
+        }
       }
-      var linkedIg = localStorage.getItem('dia_sns_linked_ig') || '';
-      var idCheck = curIg || linkedIg || curMem;
-      if (curMem && window.DIA_MEMBERS && window.DIA_MEMBERS.length) {
-        var inList = window.DIA_MEMBERS.some(function(m){
-          return m.n === curMem || (idCheck && m.i && m.i.toLowerCase() === String(idCheck).toLowerCase());
-        });
-        if (!inList) isNew = true;
-      }
-    } catch(e){}
-    document.body.classList.toggle('dia-new-member', isNew);
-    var copyBtn = document.getElementById('nmiCopyBtn');
-    if (copyBtn && !copyBtn._boundNmi) {
-      copyBtn._boundNmi = true;
+      modal.classList.add('is-open');
+    }
+    if (closeBtn) closeBtn.addEventListener('click', function(){ modal.classList.remove('is-open'); });
+    modal.addEventListener('click', function(e){ if (e.target === modal) modal.classList.remove('is-open'); });
+    if (copyBtn) {
       copyBtn.addEventListener('click', function(){
-        var code = 'S3333';
-        try { navigator.clipboard.writeText(code); } catch(_e){}
+        try { navigator.clipboard.writeText('S3333'); } catch(_e){}
         copyBtn.textContent = '복사됨!';
-        setTimeout(function(){ copyBtn.textContent = '복사'; }, 1500);
+        setTimeout(function(){ copyBtn.textContent = '코드 복사'; }, 1500);
       });
     }
+    document.addEventListener('click', function(e){
+      var a = e.target.closest('a[href*="open.kakao.com"]');
+      if (!a || a.id === 'dimGoBtn') return;
+      if ((a.textContent || '').indexOf('마케팅 오픈채팅 입장하기') !== -1) {
+        e.preventDefault();
+        openInviteModal();
+      }
+    });
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNewMemberInvite);
-  else initNewMemberInvite();
-  setTimeout(initNewMemberInvite, 450);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initInviteModal);
+  else initInviteModal();
 })();
 </script>
 <script src="dia-members.js?v=2"></script>
