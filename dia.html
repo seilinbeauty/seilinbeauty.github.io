@@ -2340,12 +2340,11 @@ window.창고읽기 = function(url){
           var d = String(kst.getDate()).padStart(2, '0');
           var w = days[kst.getDay()];
           var h24 = kst.getHours();
-          var ap = h24 < 12 ? '오전' : '오후';
-          var h12 = h24 % 12 || 12;
+          var hh = String(h24).padStart(2, '0');
           var mm = String(kst.getMinutes()).padStart(2, '0');
           var ss = String(kst.getSeconds()).padStart(2, '0');
           dEl.textContent = y + '.' + m + '.' + d + ' (' + w + ')';
-          tEl.textContent = ap + ' ' + h12 + ':' + mm + ':' + ss;
+          tEl.textContent = hh + ':' + mm + ':' + ss;
         }
         tick();
         setInterval(tick, 1000);
