@@ -114,3 +114,8 @@
 @media (min-width:881px){
   header.dia-header .nav-links{ margin-left:65px !important; }
 }
+
+/* PC에서만 뷰티수강 버튼 숨김(모바일은 그대로) */
+@media (min-width:881px){
+  #mcCourseBtn{ display:none !important; }
+}
