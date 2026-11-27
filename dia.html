@@ -9672,8 +9672,19 @@ window.창고읽기 = function(url){
     try { localStorage.setItem(WKEY, JSON.stringify(all)); } catch(e){}
   }
   apply();
-  window.addEventListener('load', apply);
+  window.addEventListener('load', function(){ apply(); setTimeout(apply, 120); setTimeout(apply, 400); });
   window.addEventListener('resize', apply);
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(function(){ apply(); }); }
+
+  /* 로그인 후 화면이 다시 그려질 때 저장한 위치가 어긋나 보이지 않게 계속 다시 맞춤 */
+  var t = null;
+  function reapply(){
+    if (t) clearTimeout(t);
+    t = setTimeout(function(){ apply(); }, 40);
+  }
+  try {
+    new MutationObserver(reapply).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
+  } catch(e){}
 
   var editing = false;
   var inFrame = location.search.indexOf('edit=1') > -1;
