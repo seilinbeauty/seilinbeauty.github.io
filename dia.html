@@ -3152,7 +3152,7 @@ window.창고읽기 = function(url){
               if (santa.timer === 144 && dtEl) dtEl.style.opacity = '0.15';
               if (santa.timer === 150 && dtEl) dtEl.style.opacity = '';
               // 4) 156: 눈이 많이 쌓였거나 랜덤 확률로 보일러 스위치까지 켜고 내려오기!
-              if (santa.timer === 156) {
+              if (santa.timer === 156 && (totalSub + totalTop > 1.2 || Math.random() < 0.6)) {
                 boilerTimer = 150;
                 setMood('🔥', 120);
               }
