@@ -2874,11 +2874,13 @@ window.창고읽기 = function(url){
                   santa.state = 'walk_to'; santa.targetMode = 'pack_' + oldItem.type; santa.targetX = oldItem.x;
                 } else {
                   var cands = [];
-                  if ((maxTop >= 2.8 || totalTop >= 85) && bestTopX >= 0) cands.push('top');
-                  if ((maxSub >= 2.3 || totalSub >= 95) && bestSubX >= 0 && bestSubX <= walkMaxX) cands.push('road');
-                  if ((maxBtn >= 2.0 || totalBtn >= 45) && bestBtnX >= 0) cands.push('btn');
+                  if ((maxTop >= 3.4 || totalTop >= 110) && bestTopX >= 0) cands.push('top');
+                  if ((maxSub >= 2.8 || totalSub >= 120) && bestSubX >= 0 && bestSubX <= walkMaxX) cands.push('road');
+                  if ((maxBtn >= 2.4 || totalBtn >= 60) && bestBtnX >= 0) cands.push('btn');
+                  var mustWork = (maxTop >= 4.4 || maxSub >= 3.8 || maxBtn >= 3.2);
 
-                  if (cands.length > 0) {
+                  // 일하는 것보다 노는 걸 좋아하는 산타: 정말 많이 쌓이지 않으면 65% 확률로 딴짓/일탈 먼저!
+                  if (cands.length > 0 && (mustWork || Math.random() < 0.35)) {
                     var filtered = cands.filter(function(c){ return c !== santa.lastJob; });
                     var chosen = (filtered.length > 0) ? filtered[Math.floor(Math.random() * filtered.length)] : cands[Math.floor(Math.random() * cands.length)];
                     if (cands.indexOf('btn') >= 0 && santa.lastJob !== 'btn' && Math.random() < 0.55) chosen = 'btn';
@@ -2887,18 +2889,20 @@ window.창고읽기 = function(url){
                     if (chosen === 'top') { santa.state = 'walk_to'; santa.targetMode = 'top'; santa.targetX = Math.min(walkMaxX, bestTopX); }
                     else if (chosen === 'road') { santa.state = 'walk_to'; santa.targetMode = 'road'; santa.targetX = Math.min(walkMaxX, bestSubX); }
                     else { santa.state = 'summon_sleigh'; santa.timer = 0; santa.targetX = bestBtnX; }
-                  } else if (santa.boredom > 150) {
+                  } else if (santa.boredom > 65 || santa.timer > 75) {
                     santa.boredom = 0;
                     var pick = Math.random();
-                    if (pick < 0.26 && lamps.length < 2 && walkMaxX > sLeft + 50) {
+                    if (pick < 0.24 && lamps.length < 2 && walkMaxX > sLeft + 50) {
                       santa.state = 'walk_to'; santa.targetMode = 'lamp';
                       santa.targetX = sLeft + 25 + Math.random() * Math.max(20, (walkMaxX - sLeft - 45));
-                    } else if (pick < 0.52 && snowmen.length < 2 && walkMaxX > sLeft + 50) {
+                    } else if (pick < 0.48 && snowmen.length < 2 && walkMaxX > sLeft + 50) {
                       santa.state = 'walk_to'; santa.targetMode = 'snowman';
                       santa.targetX = sLeft + 25 + Math.random() * Math.max(20, (walkMaxX - sLeft - 45));
-                    } else if (pick < 0.76) {
+                    } else if (pick < 0.72) {
                       santa.state = 'snowball'; santa.timer = 0;
-                    } else if (dtRight > dtLeft + 10) {
+                    } else if (pick < 0.86) {
+                      santa.state = (Math.random() < 0.5) ? 'house_rest' : 'sit_rest'; santa.timer = 0;
+                    } else if (dtRight > dtLeft + 10 && Math.random() < 0.5) {
                       santa.wipeWait = 0; santa.state = 'walk_to'; santa.targetMode = 'wipe';
                       santa.targetX = Math.min(walkMaxX, dtLeft + 14 + Math.random() * Math.max(10, (dtRight - dtLeft - 28)));
                     } else {
