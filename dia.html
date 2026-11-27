@@ -2947,14 +2947,14 @@ window.창고읽기 = function(url){
               }
             } else if (santa.state === 'house_rest') {
               santa.timer++;
-              // 0~22: 주머니 뒤적, 22~44: 집 꺼내 내려놓기, 44~58: 집으로 걸어가 들어가기, 58~180: 집 안에서 쉬기(창문 불빛+연기), 180~196: 나오기, 196~216: 집 주머니에 넣기
-              if (santa.timer > 58 && santa.timer <= 180) {
-                santa.energy = Math.min(100, santa.energy + 0.42);
-                if (santa.timer % 24 === 0 && puffs.length < 75) {
-                  puffs.push({ x: santa.x + santa.dir * 13, y: santa.y - 23, vx: 0.15 + Math.random() * 0.2, vy: -0.45 - Math.random() * 0.25, r: 1.5, life: 0.9 });
+              // 0~22: 뒤적, 22~44: 크리스마스 산타집 세트 꺼내기, 44~58: 들어가기, 58~480: 집 안에서 푹 쉬기(7초), 480~500: 나오기, 500~525: 주머니에 넣기
+              if (santa.timer > 58 && santa.timer <= 480) {
+                santa.energy = Math.min(100, santa.energy + 0.25);
+                if (santa.timer % 28 === 0 && puffs.length < 75) {
+                  puffs.push({ x: santa.x + santa.dir * 13, y: santa.y - 24, vx: 0.15 + Math.random() * 0.2, vy: -0.45 - Math.random() * 0.25, r: 1.5, life: 0.9 });
                 }
               }
-              if (santa.timer >= 216) {
+              if (santa.timer >= 525) {
                 santa.state = 'idle'; santa.timer = 0;
               }
             } else if (santa.state === 'sit_rest') {
@@ -3374,9 +3374,9 @@ window.창고읽기 = function(url){
             var isPutChair = (santa.state === 'sit_rest' && santa.timer > 150);
             var isSitting = (santa.state === 'sit_rest' && santa.timer > 42 && santa.timer <= 150);
             var isPullBridge = (santa.state === 'btn_bridge' && (santa.timer <= 58 || santa.timer > 86));
-            var isHouseOut = (santa.state === 'house_rest' && santa.timer > 22 && santa.timer <= 216);
-            var isInsideHouse = (santa.state === 'house_rest' && santa.timer > 58 && santa.timer <= 180);
-            var isBagHouse = (santa.state === 'house_rest' && (santa.timer <= 44 || santa.timer > 196));
+            var isHouseOut = (santa.state === 'house_rest' && santa.timer > 22 && santa.timer <= 525);
+            var isInsideHouse = (santa.state === 'house_rest' && santa.timer > 58 && santa.timer <= 480);
+            var isBagHouse = (santa.state === 'house_rest' && (santa.timer <= 44 || santa.timer > 500));
             var isBagLamp = (santa.state === 'place_lamp' || santa.state === 'pack_item' || (santa.state === 'snowman' && santa.timer <= 35));
             var isRummage = ((santa.state === 'summon_sleigh' && santa.timer <= 26) || (santa.state === 'sit_rest' && santa.timer <= 24) || (santa.state === 'btn_bridge' && santa.timer <= 18) || (santa.state === 'place_lamp' && santa.timer <= 20) || (santa.state === 'snowman' && santa.timer <= 20) || (santa.state === 'pack_item' && santa.timer <= 18) || (santa.state === 'house_rest' && santa.timer <= 22));
             var isBagAction = (santa.state === 'summon_sleigh' || isPullChair || isPutChair || isPullBridge || isBagLamp || isBagHouse);
@@ -3387,27 +3387,62 @@ window.창고읽기 = function(url){
             ctx.scale(santa.dir, 1);
 
             if (isHouseOut) {
-              var hp = (santa.timer <= 44) ? ((santa.timer - 22) / 22) : (santa.timer > 196 ? Math.max(0, 1 - (santa.timer - 196) / 20) : 1);
+              var hp = (santa.timer <= 44) ? ((santa.timer - 22) / 22) : (santa.timer > 500 ? Math.max(0, 1 - (santa.timer - 500) / 25) : 1);
               ctx.save();
               ctx.translate(10 * hp + 3.2 * (1 - hp), -6.2 * (1 - hp));
               ctx.scale(0.25 + hp * 0.75, 0.25 + hp * 0.75);
+              // 바닥 눈마당
+              ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#d3e1ee'; ctx.lineWidth = 0.7;
+              ctx.beginPath(); ctx.ellipse(2, 0.2, 18, 2.2, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+              // 왼쪽 미니 눈 울타리
+              ctx.strokeStyle = '#9c6b3b'; ctx.lineWidth = 1.2;
+              ctx.beginPath(); ctx.moveTo(-14, 0); ctx.lineTo(-14, -4.5); ctx.moveTo(-10.5, 0); ctx.lineTo(-10.5, -4.5); ctx.moveTo(-15, -2.5); ctx.lineTo(-9, -2.5); ctx.stroke();
               // 굴뚝
-              ctx.fillStyle = '#8b4513'; ctx.fillRect(3, -20, 3, 6);
-              // 본체
-              ctx.fillStyle = '#f5e6d3'; ctx.fillRect(-8, -12, 16, 12);
-              // 빨간 지붕 + 지붕 위 눈
+              ctx.fillStyle = '#8b4513'; ctx.fillRect(3.5, -21, 3.2, 6);
+              // 통나무집 본체 + 가로 결
+              ctx.fillStyle = '#f3dfc8'; ctx.fillRect(-9, -13, 18, 13);
+              ctx.strokeStyle = '#dec09f'; ctx.lineWidth = 0.7;
+              ctx.beginPath(); ctx.moveTo(-9, -9.5); ctx.lineTo(9, -9.5); ctx.moveTo(-9, -6); ctx.lineTo(9, -6); ctx.stroke();
+              // 빨간 지붕 + 지붕 위 두툼한 눈
               ctx.fillStyle = '#c92a3a';
-              ctx.beginPath(); ctx.moveTo(-10, -11); ctx.lineTo(0, -19.5); ctx.lineTo(10, -11); ctx.closePath(); ctx.fill();
-              ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.6;
-              ctx.beginPath(); ctx.moveTo(-9.5, -11.4); ctx.lineTo(0, -19.5); ctx.lineTo(9.5, -11.4); ctx.stroke();
-              // 문 & 창문 (안에 들어가 있으면 따뜻한 노란 불빛!)
-              ctx.fillStyle = '#7c4a2d'; ctx.fillRect(-2.5, -7, 5, 7);
-              ctx.fillStyle = isInsideHouse ? '#fde047' : '#cbd5e1';
-              ctx.fillRect(3.2, -9, 3.2, 3.2);
-              if (isInsideHouse) {
-                ctx.fillStyle = 'rgba(253, 224, 71, 0.25)';
-                ctx.beginPath(); ctx.arc(4.8, -7.4, 6, 0, Math.PI * 2); ctx.fill();
+              ctx.beginPath(); ctx.moveTo(-11, -12); ctx.lineTo(0, -20.5); ctx.lineTo(11, -12); ctx.closePath(); ctx.fill();
+              ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.8;
+              ctx.beginPath(); ctx.moveTo(-10.5, -12.4); ctx.lineTo(0, -20.5); ctx.lineTo(10.5, -12.4); ctx.stroke();
+              // 처마 반짝이는 꼬마전구 4색
+              var bCols = ['#fde047', '#f43f5e', '#34d399', '#60a5fa'];
+              var blink = Math.floor(Date.now() / 280);
+              for (var bi = 0; bi < 4; bi++) {
+                ctx.fillStyle = bCols[(bi + blink) % 4];
+                ctx.beginPath(); ctx.arc(-6 + bi * 4, -11.8, 0.9, 0, Math.PI * 2); ctx.fill();
               }
+              // 문 & 문 위 초록 크리스마스 리스
+              ctx.fillStyle = '#7c4a2d'; ctx.fillRect(-2.6, -7.5, 5.2, 7.5);
+              ctx.strokeStyle = '#16a34a'; ctx.lineWidth = 1.1;
+              ctx.beginPath(); ctx.arc(0, -9.5, 1.5, 0, Math.PI * 2); ctx.stroke();
+              ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(0, -8.2, 0.6, 0, Math.PI * 2); ctx.fill();
+              // 따뜻한 불빛 창문
+              ctx.fillStyle = isInsideHouse ? '#fde047' : '#cbd5e1';
+              ctx.fillRect(3.6, -9.5, 3.6, 3.4);
+              if (isInsideHouse) {
+                var wGrd = ctx.createRadialGradient(5.4, -7.8, 1, 5.4, -7.8, 9);
+                wGrd.addColorStop(0, 'rgba(253, 224, 71, 0.45)');
+                wGrd.addColorStop(1, 'rgba(253, 224, 71, 0)');
+                ctx.fillStyle = wGrd;
+                ctx.beginPath(); ctx.arc(5.4, -7.8, 9, 0, Math.PI * 2); ctx.fill();
+              }
+              // 오른쪽 미니 크리스마스 트리 + 별 + 장식 + 선물상자 2개
+              ctx.fillStyle = '#15803d';
+              ctx.beginPath(); ctx.moveTo(14.5, -15.5); ctx.lineTo(10.5, -9.5); ctx.lineTo(18.5, -9.5); ctx.closePath(); ctx.fill();
+              ctx.beginPath(); ctx.moveTo(14.5, -11.5); ctx.lineTo(9.8, -3); ctx.lineTo(19.2, -3); ctx.closePath(); ctx.fill();
+              ctx.fillStyle = '#7c4a2d'; ctx.fillRect(13.6, -3, 1.8, 3);
+              ctx.fillStyle = '#facc15'; ctx.beginPath(); ctx.arc(14.5, -16.2, 1.2, 0, Math.PI * 2); ctx.fill();
+              ctx.fillStyle = '#f43f5e'; ctx.beginPath(); ctx.arc(13.5, -6, 0.7, 0, Math.PI * 2); ctx.fill();
+              ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.arc(16, -4.5, 0.7, 0, Math.PI * 2); ctx.fill();
+              // 선물 상자
+              ctx.fillStyle = '#e11d48'; ctx.fillRect(10.2, -2.8, 2.8, 2.6);
+              ctx.fillStyle = '#facc15'; ctx.fillRect(11.3, -2.8, 0.6, 2.6);
+              ctx.fillStyle = '#2563eb'; ctx.fillRect(16.2, -2.4, 2.6, 2.2);
+              ctx.fillStyle = '#ffffff'; ctx.fillRect(17.2, -2.4, 0.6, 2.2);
               ctx.restore();
             }
 
@@ -3437,6 +3472,22 @@ window.창고읽기 = function(url){
               ctx.stroke();
               ctx.fillStyle = '#b91c2c';
               ctx.fillRect(-4.3, -6.5, 7.6, 1.4);
+              // 앞에 모닥불 피우기 (타닥타닥 흔들리는 불꽃 + 장작 + 불빛)
+              ctx.save();
+              ctx.translate(11.5, -2.4);
+              var fFlick = Math.sin(Date.now() / 85) * 1.1;
+              var fGrd = ctx.createRadialGradient(0, -4, 1, 0, -4, 11);
+              fGrd.addColorStop(0, 'rgba(251, 146, 60, 0.38)');
+              fGrd.addColorStop(1, 'rgba(251, 146, 60, 0)');
+              ctx.fillStyle = fGrd;
+              ctx.beginPath(); ctx.arc(0, -4, 11, 0, Math.PI * 2); ctx.fill();
+              ctx.strokeStyle = '#7c4a2d'; ctx.lineWidth = 1.6;
+              ctx.beginPath(); ctx.moveTo(-3.5, 0); ctx.lineTo(3.5, -1.5); ctx.moveTo(3.5, 0); ctx.lineTo(-3.5, -1.5); ctx.stroke();
+              ctx.fillStyle = '#f97316';
+              ctx.beginPath(); ctx.moveTo(-2.6, -0.5); ctx.quadraticCurveTo(0, -8.5 - fFlick, 2.6, -0.5); ctx.closePath(); ctx.fill();
+              ctx.fillStyle = '#fde047';
+              ctx.beginPath(); ctx.moveTo(-1.3, -0.5); ctx.quadraticCurveTo(0, -5.5 + fFlick * 0.5, 1.3, -0.5); ctx.closePath(); ctx.fill();
+              ctx.restore();
             }
 
             if (santa.state === 'summon_sleigh') {
@@ -3581,7 +3632,8 @@ window.창고읽기 = function(url){
               } else {
                 var liftP = (santa.state === 'summon_sleigh') ? Math.min(1, (santa.timer - 26) / 26)
                           : (isPullChair ? Math.min(1, (santa.timer - 24) / 18)
-                          : Math.max(0, 1 - (santa.timer - 150) / 25));
+                          : (isPutChair ? Math.max(0, 1 - (santa.timer - 150) / 25)
+                          : (santa.timer <= 44 ? (santa.timer - 22) / 22 : Math.max(0, 1 - (santa.timer - 500) / 25))));
                 var hxB = 8 - liftP * 2.5;
                 var hyB = -1.5 - liftP * 7.5;
                 drawLimb(2.2, -4.2, (2.2 + hxB) / 2 + 1, -3.5, hxB, hyB, '#d93848', '#ffffff', 1.9);
@@ -3592,9 +3644,10 @@ window.창고읽기 = function(url){
               drawLimb(2.2, -4.2, 4.8, -6.5, 5.8 + wv, -9.8, '#d93848', '#ffffff', 1.9);
               drawLimb(-2.2, -4.2, -3.2, -2.2, -2.2, -0.4, '#c12737', '#ffffff', 1.8);
             } else if (isSitting) {
-              var wipeF = Math.sin(santa.timer * 0.14) * 1.2;
-              drawLimb(2.2, -4.2, 4.5, -6.2, 2.2 + wipeF, -8.5, '#d93848', '#ffffff', 1.8);
-              drawLimb(-2.2, -4.2, -3.5, -2.0, -1.5, -0.5, '#c12737', '#ffffff', 1.8);
+              // 모닥불 앞으로 두 손을 내밀어 따뜻하게 불 쬐는 관절
+              var warm = Math.sin(santa.timer * 0.14) * 0.7;
+              drawLimb(2.2, -4.2, 5.2, -3.5, 7.6, -4.0 + warm, '#d93848', '#ffffff', 1.8);
+              drawLimb(-2.2, -4.2, 3.0, -3.2, 6.2, -3.5 - warm, '#c12737', '#ffffff', 1.8);
             } else if (!isFlying) {
               var armS = isWalking ? Math.sin(santa.walk + Math.PI) * 2.2 : 0;
               drawLimb(-2.2, -4.2, -3.2 + armS * 0.5, -2.0, -2.2 + armS, -0.2, '#c12737', '#ffffff', 1.8);
