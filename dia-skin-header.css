@@ -95,3 +95,13 @@ body.dia-page{padding-top:0 !important;}
   .dia-header .nav-links a:nth-child(4){display:none;}
   .dia-header .pv-util a:nth-child(3){display:none;}
 }
+
+/* 상단 돋보기 아이콘 */
+.dia-header .pv-util a.pv-search{display:inline-flex;align-items:center;justify-content:center;
+  height:15px;line-height:1;color:#323232;margin-left:25px;}
+.dia-header .pv-util a.pv-search svg{display:block;}
+.dia-header .pv-util a.pv-search:hover{color:#a0a0a0;}
+@media (max-width:900px){
+  .dia-header .pv-util a.pv-search{margin-left:12px;}
+  .dia-header .pv-util a.pv-search{display:inline-flex !important;}
+}
