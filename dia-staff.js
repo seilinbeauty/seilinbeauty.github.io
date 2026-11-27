@@ -54,7 +54,15 @@
 
   function run(){
     apply(cachedPublic());
-    fetch(PAGES_DOC).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+    fetch(PAGES_DOC + '?t=' + Date.now(), { cache: 'no-store' }).then(function(r){
+      if (r.status === 404) return { missing: true };
+      return r.ok ? r.json() : null;
+    }).then(function(d){
+      if (d && d.missing) {  // 서버에 설정이 없으면 '전부 비공개'가 맞다 (찌꺼기 캐시 삭제)
+        try { localStorage.removeItem(LS_PAGES); } catch(e){}
+        apply({});
+        return;
+      }
       if (d && d.fields && d.fields.json && d.fields.json.stringValue) {
         var o = JSON.parse(d.fields.json.stringValue);
         if (o && typeof o === 'object') {
