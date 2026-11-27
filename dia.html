@@ -2207,9 +2207,10 @@
       .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links > .mc-hero-login { padding: 7px 14px !important; font-size: 14px !important; font-weight: 800 !important; letter-spacing: -0.4px !important; line-height: 1.2 !important; }
       /* PC에서는 상단 버튼에서 공지사항을 빼고 2개만 둔다 (모바일은 그대로) */
       @media (min-width: 881px) { body.dia-page .dia-hero-in .quick-links > a[href="dia-notice.html"] { display: none !important; } }
+      /* PC: 상단 카드(산타월드) 안 가운데, 버튼 아래 흐름에 놓는다 — 다른 요소를 가리지 않는다 */
       body.dia-page .dia-hero-in > #mcLoginBox {
-        position: absolute !important; top: 82px; left: 0; right: auto;
-        width: 296px; max-width: calc(100vw - 32px) !important; margin: 0 !important;
+        position: relative !important; top: auto !important; left: auto !important; right: auto !important;
+        width: 296px; max-width: calc(100vw - 32px) !important; margin: 4px auto 2px !important;
         padding: 0; background: transparent; border: 0; box-shadow: none; z-index: 40; text-align: center;
       }
       body.dia-page .dia-hero-in > #mcLoginBox #mcLoginIn { height: 24px !important; font-size: 10.5px !important; border-radius: 7px !important; padding: 0 7px !important; }
@@ -6398,45 +6399,7 @@ window.창고읽기 = function(url){
                     picked = null; lgIn.value = ''; lgPick.innerHTML = '';
                     lgMsg.textContent = '회원목록에서 본인 이름을 검색해 누르고 암호 4자리를 넣으면 열립니다.';
                     lgMsg.style.color = '#8a7b81';
-                    if (window.innerWidth >= 881 && lgBox.parentElement) {
-                      var heroEl = lgBox.parentElement;
-                      var hr = heroEl.getBoundingClientRect();
-                      var bw = lgBox.offsetWidth || 344;
-                      var bh = lgBox.offsetHeight || 70;
-                      var targetLeft = (hr.width - bw) / 2;
-                      var clampedLeft = Math.max(8, Math.min(targetLeft, hr.width - bw - 8));
-                      /* 빈 공간의 수직 가운데: 위쪽(제목·버튼) 아래끝과 아래 내용 시작 사이의 중앙 */
-                      var contentBottom = 0;
-                      for (var ci = 0; ci < heroEl.children.length; ci++) {
-                        var ch = heroEl.children[ci];
-                        if (ch === lgBox || ch.hidden) continue;
-                        var cs = window.getComputedStyle(ch);
-                        if (cs.display === 'none' || cs.visibility === 'hidden') continue;
-                        var cb = ch.getBoundingClientRect();
-                        if (cb.height <= 0) continue;
-                        if (cb.bottom - hr.top > contentBottom) contentBottom = cb.bottom - hr.top;
-                      }
-                      var spaceBottom = hr.height;
-                      var nextEl = heroEl.nextElementSibling;
-                      while (nextEl) {
-                        var ns = window.getComputedStyle(nextEl);
-                        var nb = nextEl.getBoundingClientRect();
-                        if (ns.display !== 'none' && nb.height > 0) { spaceBottom = Math.max(spaceBottom, nb.top - hr.top); break; }
-                        nextEl = nextEl.nextElementSibling;
-                      }
-                      var freeTop = contentBottom + 6;
-                      var freeBottom = spaceBottom - 6;
-                      /* 상단 흰 섹션(히어로) 안의 가운데 공백에 놓는다 */
-                      var heroCenter = (hr.height - bh) / 2;
-                      var centerTop = heroCenter > freeTop ? heroCenter : freeTop;
-                      if (!isFinite(centerTop) || freeBottom - freeTop < bh) centerTop = freeTop;
-                      centerTop = Math.max(freeTop, centerTop);
-                      lgBox.style.left = Math.round(clampedLeft) + 'px';
-                      lgBox.style.right = 'auto';
-                      lgBox.style.top = Math.round(centerTop) + 'px';
-                    } else {
-                      lgBox.style.left = ''; lgBox.style.right = ''; lgBox.style.top = '';
-                    }
+                    lgBox.style.left = ''; lgBox.style.right = ''; lgBox.style.top = '';
                     lgIn.focus();
                   }
                 });
