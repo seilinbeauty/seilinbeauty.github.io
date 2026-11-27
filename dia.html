@@ -2520,10 +2520,19 @@ window.창고읽기 = function(url){
           av.style.display = 'flex';
           if(av.getAttribute('data-src') !== (src || 'none')){
             av.setAttribute('data-src', src || 'none');
+            av.textContent = '💎';
             if(src){
-              av.innerHTML = '💎<img src="' + src + '" alt="내 프로필"' + (fb ? ' data-fb="' + fb + '"' : '') + ' onerror="var b=this.getAttribute('data-fb');if(b){this.removeAttribute('data-fb');this.src=b;}else{this.remove();}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-            } else {
-              av.innerHTML = '💎';
+              var im = document.createElement('img');
+              im.alt = '내 프로필';
+              im.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;';
+              if(fb) im.setAttribute('data-fb', fb);
+              im.onerror = function(){
+                var b = this.getAttribute('data-fb');
+                if(b){ this.removeAttribute('data-fb'); this.src = b; }
+                else { this.remove(); }
+              };
+              im.src = src;
+              av.appendChild(im);
             }
           }
         }
