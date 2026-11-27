@@ -113,8 +113,8 @@
 <header class="bar">
   <div class="bar-in">
     <ul class="l">
-      <li><a href="dia-preview.html?staff=1" class="logo">DIA</a></li>
-      <li><a href="dia-preview.html?staff=1">Home</a></li>
+      <li><a href="dia.html" class="logo">DIA</a></li>
+      <li><a href="dia.html">Home</a></li>
     </ul>
     <ul class="r">
       <li><a href="dia-preview-login.html?staff=1">Login</a></li>
@@ -236,7 +236,21 @@ document.addEventListener('DOMContentLoaded', function(){
       if (sc > 0) hits.push({ m: m, sc: sc });
     }
     if (!hits.length){ hideSug(); return; }
-    hits.sort(function(a, b){ return b.sc - a.sc; });
+    hits.sort(function(a, b){
+      function bonus(m){
+        var sc = 0;
+        var q = raw.toLowerCase().replace(/^@+/, '');
+        var n = (m.n || '').toLowerCase();
+        var ig = (m.i || '').toLowerCase();
+        if (n.indexOf(q) === 0 || ig.indexOf(q) === 0) sc += 100;
+        if (window.DIA_SEARCH && DIA_SEARCH.isJamoOnly(DIA_SEARCH.norm(q))) {
+          var nCho = DIA_SEARCH.toCho(DIA_SEARCH.norm(m.n || ''));
+          if (nCho.indexOf(DIA_SEARCH.norm(q)) === 0) sc += 120;
+        }
+        return sc;
+      }
+      return (b.sc + bonus(b.m)) - (a.sc + bonus(a.m));
+    });
     sug.innerHTML = '';
     hits.slice(0, 12).forEach(function(item){
       var m = item.m;
