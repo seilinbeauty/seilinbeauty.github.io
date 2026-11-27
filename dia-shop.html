@@ -287,7 +287,7 @@
   <div class="dbox" id="dbox"></div>
 </div>
 
-<script src="dia-shop-data.js?v=2"></script>
+<script src="dia-shop-data.js?v=3"></script>
 <script src="dia-staff.js?v=5" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
@@ -508,7 +508,7 @@ document.addEventListener('DOMContentLoaded', function(){
       if (/주차/.test(fullTxt)) badges.push('<span class="al-badge want">주차가능</span>');
       if (/1인\s*샵|1인\s*뷰티/.test(fullTxt)) badges.push('<span class="al-badge free">1인샵</span>');
       if (/인테리어|몸만|집기/.test(fullTxt)) badges.push('<span class="al-badge hot">풀세팅</span>');
-      var swColors = it.type === 'give' ? ['#f5e5e2','#d55576','#2b2527'] : ['#e4eef8','#6d96c4','#2b2527'];
+      var swColors = (Array.isArray(it.colors) && it.colors.length) ? it.colors : (it.type === 'give' ? ['#f5e5e2','#d55576','#2b2527'] : ['#e4eef8','#6d96c4','#2b2527']);
       return '<article class="item" data-id="'+esc(it.id)+'">'+
         '<div class="thumb">'+
           (cover ? '<img src="'+esc(cover)+'" alt="'+esc(it.title)+'" loading="lazy">' : '')+
