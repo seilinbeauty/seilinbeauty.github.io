@@ -2388,11 +2388,12 @@ window.창고읽기 = function(url){
         var subSurfaceY = null, subPileY = null;
         var btnSurfaceY = null, btnPileY = null;
         var tLeft = 0, tRight = 0, sLeft = 0, sRight = 0, dtLeft = 0, dtRight = 0, dtTop = 20;
+        var bLeft = 0, bRight = 0, lastBtnSig = '';
         var titleBaseY = 20, roadY = 58;
         var flakes = [];
         var puffs = [];
         var sparkles = [];
-        var santa = { x: 40, dir: 1, walk: 0, y: 58, state: 'idle', timer: 0, targetX: 40, targetMode: 'top', tapCount: 0, broomSwing: 0, wipeWait: 0 };
+        var santa = { x: 40, dir: 1, walk: 0, y: 58, state: 'idle', timer: 0, targetX: 40, targetMode: 'top', tapCount: 0, broomSwing: 0, wipeWait: 0, flyFromX: 40, flyFromY: 58, flyToX: 40, flyToY: 58, flyT: 0, bridgeX1: 0, bridgeX2: 0, bridgeY: 0 };
         var colors = ['rgba(239,184,201,0.85)','rgba(224,234,244,0.92)','rgba(244,212,223,0.88)','rgba(255,255,255,0.95)'];
 
         function scanElementSurface(el, hr, outSurf, outPile, yOffset){
@@ -2452,11 +2453,16 @@ window.창고읽기 = function(url){
           }
 
           var btns = hero.querySelectorAll('.quick-links > *, .mc-hero-right > *');
+          bLeft = W; bRight = 0;
+          var sig = [];
           for (var b = 0; b < btns.length; b++) {
             var br = btns[b].getBoundingClientRect();
             if (!br.width || !br.height) continue;
+            sig.push(Math.round(br.left) + ':' + Math.round(br.width));
             var bl = Math.max(0, Math.floor(br.left - hr.left));
             var brg = Math.min(W - 1, Math.ceil(br.right - hr.left));
+            if (bl < bLeft) bLeft = bl;
+            if (brg > bRight) bRight = brg;
             var btop = br.top - hr.top;
             var pad = 6;
             for (var bx = bl + 2; bx <= brg - 2; bx++) {
@@ -2470,6 +2476,7 @@ window.창고읽기 = function(url){
               }
             }
           }
+          lastBtnSig = sig.join('|');
 
           var tInfo = scanElementSurface(titleEl, hr, surfaceY, pileY, -0.5);
           tLeft = tInfo.left; tRight = tInfo.right; titleBaseY = tInfo.topY + 2;
@@ -2529,6 +2536,17 @@ window.창고읽기 = function(url){
           relaxOne(subSurfaceY, subPileY, sLeft, sRight);
           relaxOne(btnSurfaceY, btnPileY, 0, W - 1);
         }
+
+        function checkBtnResize(){
+          var btns = hero.querySelectorAll('.quick-links > *, .mc-hero-right > *');
+          var sig = [];
+          for (var b = 0; b < btns.length; b++) {
+            var br = btns[b].getBoundingClientRect();
+            if (br.width && br.height) sig.push(Math.round(br.left) + ':' + Math.round(br.width));
+          }
+          if (sig.join('|') !== lastBtnSig) buildSurface();
+        }
+        setInterval(checkBtnResize, 1200);
 
         function step(){
           requestAnimationFrame(step);
@@ -2649,9 +2667,22 @@ window.창고읽기 = function(url){
               }
             }
 
-            var rx = Math.round(santa.x);
-            var curRoad = (rx >= sLeft && rx <= sRight && subSurfaceY[rx] >= 0) ? subSurfaceY[rx] : roadY;
-            santa.y += (curRoad - santa.y) * 0.28;
+            var totalBtn = 0, maxBtn = 0, bestBtnX = -1;
+            if (bRight > bLeft) {
+              for (var sx3 = bLeft; sx3 <= bRight; sx3++) {
+                if (btnSurfaceY[sx3] >= 0) {
+                  var bsh = btnSurfaceY[sx3] - btnPileY[sx3];
+                  if (bsh > 0.4) totalBtn += bsh;
+                  if (bsh > maxBtn) { maxBtn = bsh; bestBtnX = sx3; }
+                }
+              }
+            }
+
+            if (santa.state !== 'fly_to_btn' && santa.state !== 'fly_back' && santa.state !== 'sweep_btn' && santa.state !== 'btn_jump' && santa.state !== 'btn_bridge') {
+              var rx = Math.round(santa.x);
+              var curRoad = (rx >= sLeft && rx <= sRight && subSurfaceY[rx] >= 0) ? subSurfaceY[rx] : roadY;
+              santa.y += (curRoad - santa.y) * 0.28;
+            }
 
             if (santa.state === 'idle') {
               santa.dir = 1;
@@ -2666,11 +2697,124 @@ window.창고읽기 = function(url){
                 santa.state = 'walk_to';
                 santa.targetMode = 'road';
                 santa.targetX = bestSubX;
+              } else if ((maxBtn >= 2.6 || totalBtn >= 85) && bestBtnX >= 0) {
+                santa.state = 'summon_sleigh';
+                santa.timer = 0;
+                santa.targetX = bestBtnX;
               } else if (dtRight > dtLeft + 10 && santa.wipeWait > 240) {
                 santa.wipeWait = 0;
                 santa.state = 'walk_to';
                 santa.targetMode = 'wipe';
                 santa.targetX = dtLeft + 14 + Math.random() * Math.max(10, (dtRight - dtLeft - 28));
+              }
+            } else if (santa.state === 'summon_sleigh') {
+              santa.dir = 1;
+              santa.timer++;
+              if (santa.timer >= 36) {
+                santa.state = 'fly_to_btn';
+                santa.flyFromX = santa.x;
+                santa.flyFromY = santa.y;
+                santa.flyToX = santa.targetX;
+                santa.flyToY = (btnSurfaceY[Math.round(santa.targetX)] >= 0) ? btnSurfaceY[Math.round(santa.targetX)] : 28;
+                santa.flyT = 0;
+              }
+            } else if (santa.state === 'fly_to_btn') {
+              santa.flyT += 0.022;
+              var t = Math.min(1, santa.flyT);
+              santa.dir = (santa.flyToX >= santa.flyFromX) ? 1 : -1;
+              santa.x = santa.flyFromX + (santa.flyToX - santa.flyFromX) * t;
+              santa.y = santa.flyFromY + (santa.flyToY - santa.flyFromY) * t - Math.sin(t * Math.PI) * 26;
+              if (Math.random() < 0.4 && sparkles.length < 18) {
+                sparkles.push({ x: santa.x - santa.dir * 12, y: santa.y - 6 + (Math.random() - 0.5) * 6, life: 0.9 });
+              }
+              if (t >= 1) {
+                santa.state = 'sweep_btn';
+                santa.timer = 0;
+              }
+            } else if (santa.state === 'sweep_btn') {
+              santa.timer++;
+              var bdx = santa.targetX - santa.x;
+              if (Math.abs(bdx) > 4) {
+                santa.dir = bdx > 0 ? 1 : -1;
+                var nextBx = Math.round(santa.x + santa.dir * 2.5);
+                // 버튼 사이 빈 틈(gap) 감지 -> 점프 또는 주머니 사다리 다리!
+                if (nextBx >= bLeft && nextBx <= bRight && btnSurfaceY[nextBx] < 0) {
+                  var gx = nextBx;
+                  while (gx >= bLeft && gx <= bRight && btnSurfaceY[gx] < 0) gx += santa.dir;
+                  if (gx >= bLeft && gx <= bRight && btnSurfaceY[gx] >= 0) {
+                    if (Math.random() < 0.5) {
+                      santa.state = 'btn_jump';
+                      santa.flyFromX = santa.x; santa.flyFromY = santa.y;
+                      santa.flyToX = gx + santa.dir * 3;
+                      santa.flyToY = btnSurfaceY[gx];
+                      santa.flyT = 0;
+                    } else {
+                      santa.state = 'btn_bridge';
+                      santa.timer = 0;
+                      santa.bridgeX1 = santa.x - santa.dir * 2;
+                      santa.bridgeX2 = gx + santa.dir * 3;
+                      santa.bridgeY = Math.min(santa.y, btnSurfaceY[gx]);
+                      santa.flyFromX = santa.x;
+                    }
+                  }
+                } else {
+                  santa.x += santa.dir * 0.9;
+                  santa.walk += 0.25;
+                  santa.broomSwing = Math.sin(santa.walk * 1.4);
+                  var bfx = Math.round(santa.x + santa.dir * 6);
+                  for (var bddx = -9; bddx <= 9; bddx++) {
+                    var bcx = bfx + bddx;
+                    if (bcx >= bLeft && bcx <= bRight && btnSurfaceY[bcx] >= 0 && btnPileY[bcx] < btnSurfaceY[bcx] - 0.2) {
+                      btnPileY[bcx] = Math.min(btnSurfaceY[bcx], btnPileY[bcx] + 1.4);
+                      if (Math.random() < 0.25 && puffs.length < 70) {
+                        puffs.push({ x: bcx, y: btnPileY[bcx] - 1, vx: santa.dir * (0.8 + Math.random() * 0.8), vy: -0.6 - Math.random() * 0.7, r: 1.2, life: 0.85 });
+                      }
+                    }
+                  }
+                  var bix = Math.round(santa.x);
+                  if (btnSurfaceY[bix] >= 0) santa.y += (btnSurfaceY[bix] - santa.y) * 0.35;
+                }
+              } else {
+                if (maxBtn >= 1.8 && bestBtnX >= 0) {
+                  santa.targetX = bestBtnX;
+                } else {
+                  santa.state = 'fly_back';
+                  santa.flyFromX = santa.x;
+                  santa.flyFromY = santa.y;
+                  santa.flyToX = idleX;
+                  santa.flyToY = roadY;
+                  santa.flyT = 0;
+                }
+              }
+            } else if (santa.state === 'btn_jump') {
+              santa.flyT += 0.055;
+              var jt = Math.min(1, santa.flyT);
+              santa.x = santa.flyFromX + (santa.flyToX - santa.flyFromX) * jt;
+              santa.y = santa.flyFromY + (santa.flyToY - santa.flyFromY) * jt - Math.sin(jt * Math.PI) * 11;
+              if (jt >= 1) { santa.state = 'sweep_btn'; }
+            } else if (santa.state === 'btn_bridge') {
+              santa.timer++;
+              // 0~18: 주머니에서 사다리 꺼내 놓기, 18~44: 사다리 다리 건너기, 44~60: 주머니에 다시 넣기
+              if (santa.timer > 18 && santa.timer <= 44) {
+                var bt = (santa.timer - 18) / 26;
+                santa.x = santa.flyFromX + (santa.bridgeX2 - santa.flyFromX) * bt;
+                santa.y = santa.bridgeY;
+                santa.walk += 0.25;
+              } else if (santa.timer > 60) {
+                santa.state = 'sweep_btn';
+              }
+            } else if (santa.state === 'fly_back') {
+              santa.flyT += 0.022;
+              var t2 = Math.min(1, santa.flyT);
+              santa.dir = (santa.flyToX >= santa.flyFromX) ? 1 : -1;
+              santa.x = santa.flyFromX + (santa.flyToX - santa.flyFromX) * t2;
+              santa.y = santa.flyFromY + (santa.flyToY - santa.flyFromY) * t2 - Math.sin(t2 * Math.PI) * 28;
+              if (Math.random() < 0.35 && sparkles.length < 18) {
+                sparkles.push({ x: santa.x - santa.dir * 12, y: santa.y - 6 + (Math.random() - 0.5) * 6, life: 0.9 });
+              }
+              if (t2 >= 1) {
+                santa.x = idleX; santa.y = roadY; santa.dir = 1;
+                santa.state = 'idle'; santa.timer = 0;
               }
             } else if (santa.state === 'walk_to') {
               var dxMove = santa.targetX - santa.x;
@@ -2814,12 +2958,76 @@ window.창고읽기 = function(url){
               ctx.fillText('✦', sp.x - 4, sp.y + 4);
             }
 
+            // 사다리 다리 그리기 (주머니에서 꺼내 버튼 사이 틈에 걸친 상태)
+            if (santa.state === 'btn_bridge') {
+              var bx1 = Math.min(santa.bridgeX1, santa.bridgeX2);
+              var bx2 = Math.max(santa.bridgeX1, santa.bridgeX2);
+              var by = santa.bridgeY;
+              var prog = (santa.timer <= 18) ? (santa.timer / 18) : (santa.timer > 44 ? Math.max(0, 1 - (santa.timer - 44) / 16) : 1);
+              var curX2 = bx1 + (bx2 - bx1) * prog;
+              ctx.strokeStyle = '#9c6b3b'; ctx.lineWidth = 1.6;
+              ctx.beginPath();
+              ctx.moveTo(bx1, by - 1); ctx.lineTo(curX2, by - 1);
+              ctx.moveTo(bx1, by + 2.5); ctx.lineTo(curX2, by + 2.5);
+              for (var rx3 = bx1 + 3; rx3 < curX2 - 1; rx3 += 4.5) {
+                ctx.moveTo(rx3, by - 1); ctx.lineTo(rx3, by + 2.5);
+              }
+              ctx.stroke();
+            }
+
             // 귀여운 미니 산타 그리기 (발 위치 = santa.y)
             ctx.save();
-            var isWalking = (santa.state === 'walk_to' || santa.state === 'return');
-            var bob = isWalking ? Math.abs(Math.sin(santa.walk)) * 1.1 : Math.sin(Date.now() / 420) * 0.4;
+            var isWalking = (santa.state === 'walk_to' || santa.state === 'return' || santa.state === 'sweep_btn' || (santa.state === 'btn_bridge' && santa.timer > 18 && santa.timer <= 44));
+            var isFlying = (santa.state === 'fly_to_btn' || santa.state === 'fly_back');
+            var bob = isWalking ? Math.abs(Math.sin(santa.walk)) * 1.1 : (isFlying ? Math.sin(santa.flyT * Math.PI * 4) * 1.2 : Math.sin(Date.now() / 420) * 0.4);
             ctx.translate(santa.x, santa.y - bob);
             ctx.scale(santa.dir, 1);
+
+            if (santa.state === 'summon_sleigh') {
+              // 주머니에서 썰매·루돌프 꺼내는 연출
+              var pop = Math.min(1, santa.timer / 24);
+              // 빨간 주머니
+              ctx.fillStyle = '#c92a3a';
+              ctx.beginPath(); ctx.ellipse(9, -4, 5, 4.5, 0, 0, Math.PI * 2); ctx.fill();
+              ctx.fillStyle = '#f3c44d'; ctx.fillRect(6, -8.5, 6, 1.5);
+              // 뿅 튀어나오는 미니 썰매
+              ctx.save();
+              ctx.translate(10, -10 - pop * 6);
+              ctx.scale(pop, pop);
+              ctx.fillStyle = '#b91c2c';
+              ctx.fillRect(-6, -4, 10, 4);
+              ctx.strokeStyle = '#e7c16b'; ctx.lineWidth = 1.2;
+              ctx.beginPath(); ctx.moveTo(-7, 1); ctx.lineTo(6, 1); ctx.stroke();
+              ctx.restore();
+            }
+
+            if (isFlying) {
+              // 썰매 + 루돌프 그리기 (산타가 썰매에 탑승)
+              ctx.strokeStyle = '#e7c16b'; ctx.lineWidth = 1.3;
+              ctx.beginPath(); ctx.moveTo(-9, 0); ctx.lineTo(8, 0); ctx.quadraticCurveTo(11, 0, 11, -2.5); ctx.stroke();
+              ctx.fillStyle = '#b91c2c';
+              ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-8, -5.5, 14, 5, 2) : ctx.fillRect(-8, -5.5, 14, 5); ctx.fill();
+              // 고삐
+              ctx.strokeStyle = 'rgba(227,190,111,0.85)'; ctx.lineWidth = 0.8;
+              ctx.beginPath(); ctx.moveTo(4, -7); ctx.lineTo(15, -7.5); ctx.stroke();
+              // 루돌프
+              ctx.save();
+              ctx.translate(16, -4);
+              ctx.fillStyle = '#9c6644';
+              ctx.beginPath(); ctx.ellipse(0, 0, 4.2, 2.4, 0, 0, Math.PI * 2); ctx.fill();
+              ctx.beginPath(); ctx.arc(3.8, -3.2, 2.1, 0, Math.PI * 2); ctx.fill();
+              // 뿔
+              ctx.strokeStyle = '#6f452c'; ctx.lineWidth = 1;
+              ctx.beginPath(); ctx.moveTo(3.5, -5); ctx.lineTo(2.5, -8); ctx.moveTo(4.2, -5); ctx.lineTo(5.2, -8); ctx.stroke();
+              // 빨간 코
+              ctx.fillStyle = '#ff2a3c';
+              ctx.beginPath(); ctx.arc(5.8, -3.2, 1.1, 0, Math.PI * 2); ctx.fill();
+              // 달리는 다리
+              var rleg = Math.sin(Date.now() / 70) * 2.2;
+              ctx.strokeStyle = '#7f5236'; ctx.lineWidth = 1.2;
+              ctx.beginPath(); ctx.moveTo(-2, 1.5); ctx.lineTo(-3 - rleg, 4.2); ctx.moveTo(2, 1.5); ctx.lineTo(3 + rleg, 4.2); ctx.stroke();
+              ctx.restore();
+            }
 
             if (santa.state === 'wipe') {
               // 날짜·시계를 작은 하얀 천으로 쓱쓱 닦는 모션
@@ -2833,11 +3041,11 @@ window.창고읽기 = function(url){
               ctx.beginPath();
               ctx.roundRect ? ctx.roundRect(wx, wy - 2, 6, 4.5, 1.5) : ctx.fillRect(wx, wy - 2, 6, 4.5);
               ctx.fill(); ctx.stroke();
-            } else {
+            } else if (!isFlying) {
               ctx.save();
               ctx.translate(3, -8);
               var isTopTap = (santa.state === 'tap' && santa.targetMode === 'top');
-              var isRoadSweep = (santa.state === 'walk_to' && santa.targetMode === 'road');
+              var isRoadSweep = ((santa.state === 'walk_to' && santa.targetMode === 'road') || santa.state === 'sweep_btn');
               var baseAng = isTopTap ? (-0.25 - santa.broomSwing * 0.65) : (isRoadSweep ? (2.15 + santa.broomSwing * 0.35) : 0.35);
               var liftY = isTopTap ? (-santa.broomSwing * 14) : (isRoadSweep ? 4 : 0);
               ctx.translate(0, liftY);
