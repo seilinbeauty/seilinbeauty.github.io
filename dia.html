@@ -10346,7 +10346,8 @@ window.창고읽기 = function(url){
             localStorage.removeItem('dia_login_member');
             localStorage.removeItem('dia_login_member_bak');
             localStorage.removeItem('dia_no_track');
-            localStorage.removeItem('dia_sns_need_ig');
+            localStorage.setItem('dia_sns_linked_ig', v);
+        localStorage.removeItem('dia_sns_need_ig');
           } catch(err){}
           location.reload();
         });
@@ -10365,7 +10366,8 @@ window.창고읽기 = function(url){
     var need = false;
     try {
       var curMem = localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak') || '';
-      if (curMem) {
+      var linkedIg = localStorage.getItem('dia_sns_linked_ig') || '';
+      if (curMem && !linkedIg) {
         if (localStorage.getItem('dia_sns_need_ig') === '1') need = true;
         else if (window.DIA_MEMBERS && !window.DIA_MEMBERS.some(function(m){ return m.n === curMem; })) need = true;
       }
@@ -10432,7 +10434,7 @@ window.창고읽기 = function(url){
         }
         localStorage.setItem('dia_login_member', nick);
         localStorage.setItem('dia_login_member_bak', nick);
-        localStorage.removeItem('dia_sns_need_ig');
+        localStorage.removeItem('dia_sns_need_ig'); localStorage.removeItem('dia_sns_linked_ig');
       } catch(e){}
       var u2 = null;
       try { u2 = JSON.parse(localStorage.getItem('dia_sns_user') || 'null'); } catch(e){}
