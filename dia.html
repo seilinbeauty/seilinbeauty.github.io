@@ -3263,21 +3263,29 @@ window.창고읽기 = function(url){
                 santa.state = 'idle'; santa.timer = 0;
               }
             } else if (santa.state === 'snowball') {
+              if (santa.timer === 0) santa.sbThrows = 3 + Math.floor(Math.random() * 2);
               santa.timer++;
-              // 눈사람이 있으면 눈사람 방향을 겨냥해서 눈덩이 던지기!
-              var sbAimX = (snowmen.length > 0 && Math.random() < 0.75) ? snowmen[0].x : (santa.x + 70);
-              if (santa.timer === 1) santa.dir = (sbAimX >= santa.x) ? 1 : -1;
+              // 눈사람 또는 좌우 위를 번갈아 겨냥하며 3~4번 연속 눈 뭉쳐 던지기!
+              if (santa.timer === 1) {
+                var sbAimX = (snowmen.length > 0 && Math.random() < 0.6) ? snowmen[0].x : (santa.x + (Math.random() < 0.5 ? 70 : -70));
+                santa.dir = (sbAimX >= santa.x) ? 1 : -1;
+              }
               if (santa.timer === 42 && snowballs.length === 0) {
-                var dvx = (snowmen.length > 0) ? ((snowmen[0].x - santa.x) * 0.042) : (2.3 + Math.random() * 1.1);
+                var dvx = (snowmen.length > 0 && Math.random() < 0.6) ? ((snowmen[0].x - santa.x) * 0.042) : (santa.dir * (2.2 + Math.random() * 1.4));
                 snowballs.push({
                   x: santa.x + santa.dir * 6, y: santa.y - 12,
-                  vx: Math.max(-3.5, Math.min(3.5, dvx)),
-                  vy: -2.2 - Math.random() * 0.6
+                  vx: Math.max(-3.6, Math.min(3.6, dvx)),
+                  vy: -2.2 - Math.random() * 0.9
                 });
-                santa.energy = Math.max(0, santa.energy - 4);
+                santa.energy = Math.max(0, santa.energy - 3);
               }
-              if (santa.timer >= 62) {
-                santa.state = 'idle'; santa.timer = 0;
+              if (santa.timer >= 68) {
+                santa.sbThrows = (santa.sbThrows || 1) - 1;
+                if (santa.sbThrows > 0) {
+                  santa.timer = 1;
+                } else {
+                  santa.state = 'idle'; santa.timer = 0;
+                }
               }
             } else if (santa.state === 'snowman') {
               santa.timer++;
