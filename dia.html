@@ -2785,7 +2785,7 @@ window.창고읽기 = function(url){
                 if (btnSurfaceY[sx3] >= 0) {
                   var bsh = btnSurfaceY[sx3] - btnPileY[sx3];
                   if (bsh > 0.4) totalBtn += bsh;
-                  if (bsh > maxBtn) { maxBtn = bsh; bestBtnX = sx3; }
+                  if (bsh > maxBtn + 0.1 || (Math.abs(bsh - maxBtn) <= 0.1 && Math.random() < 0.35)) { maxBtn = bsh; bestBtnX = sx3; }
                 }
               }
             }
@@ -3379,12 +3379,12 @@ window.창고읽기 = function(url){
               if (t >= 1) {
                 santa.state = 'sweep_btn';
                 santa.timer = 0;
-                santa.targetX = (santa.x < (bLeft + bRight) / 2) ? Math.min(bRight - 10, santa.x + 68) : Math.max(bLeft + 10, santa.x - 68);
+                santa.targetX = (santa.x < (bLeft + bRight) / 2) ? Math.min(bRight - 10, santa.x + 110) : Math.max(bLeft + 10, santa.x - 110);
               }
             } else if (santa.state === 'sweep_btn') {
               santa.timer++;
               var bdx = santa.targetX - santa.x;
-              if (santa.timer < 110 && Math.abs(bdx) > 4) {
+              if (santa.timer < 145 && Math.abs(bdx) > 4) {
                 santa.dir = bdx > 0 ? 1 : -1;
                 var nextBx = Math.round(santa.x + santa.dir * 2.5);
                 if (nextBx >= bLeft && nextBx <= bRight && btnSurfaceY[nextBx] < 0) {
@@ -3407,8 +3407,8 @@ window.창고읽기 = function(url){
                     }
                   }
                 } else {
-                  santa.x += santa.dir * 1.35;
-                  santa.walk += 0.3;
+                  santa.x += santa.dir * 1.65;
+                  santa.walk += 0.34;
                   santa.energy = Math.max(0, santa.energy - 0.12);
                   santa.broomSwing = Math.sin(santa.walk * 1.4);
                   var bfx = Math.round(santa.x + santa.dir * 6);
