@@ -2114,45 +2114,46 @@ window.창고읽기 = function(url){
 </script>
 
 <style id="ops-cafe24-theme">
+  body:not(.ops-unlocked) #ops-section { display: none !important; }
   /* 암호 해제(#ops-section 열림) 시: 왼쪽 바 + 오른쪽 모든 내용 페이지까지 진짜 아임웹·카페24 어드민 */
   @media (min-width: 881px) {
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) {
+    html body.dia-page.ops-unlocked {
       background: #f1f4f9 !important;
       padding-left: 230px !important;
     }
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) header.dia-header {
+    html body.dia-page.ops-unlocked header.dia-header {
       background: #fff !important; border-bottom: 1px solid #e2e8f0 !important;
       padding-left: 26px !important; padding-right: 26px !important;
     }
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) header.dia-header .brand-title {
+    html body.dia-page.ops-unlocked header.dia-header .brand-title {
       color: #0f172a !important; font-weight: 800 !important;
     }
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) .plx-side,
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) .plx-nav,
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) aside.board-nav,
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) .board-nav {
+    html body.dia-page.ops-unlocked .plx-side,
+    html body.dia-page.ops-unlocked .plx-nav,
+    html body.dia-page.ops-unlocked aside.board-nav,
+    html body.dia-page.ops-unlocked .board-nav {
       display: none !important;
     }
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) .board-layout {
+    html body.dia-page.ops-unlocked .board-layout {
       display: block !important; grid-template-columns: 1fr !important; max-width: none !important; width: 100% !important;
     }
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) .board-content {
+    html body.dia-page.ops-unlocked .board-content {
       max-width: none !important; width: 100% !important; padding: 0 !important; margin: 0 !important;
     }
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) #ops-section,
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) #ops-section .section-inner,
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) #ops-section .plx-wrap,
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) #ops-section .plx-inner,
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) #ops-section .plx-main {
+    html body.dia-page.ops-unlocked #ops-section,
+    html body.dia-page.ops-unlocked #ops-section .section-inner,
+    html body.dia-page.ops-unlocked #ops-section .plx-wrap,
+    html body.dia-page.ops-unlocked #ops-section .plx-inner,
+    html body.dia-page.ops-unlocked #ops-section .plx-main {
       max-width: none !important; width: 100% !important; margin: 0 !important;
       display: block !important; background: transparent !important; border: 0 !important; box-shadow: none !important;
     }
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) #ops-section {
+    html body.dia-page.ops-unlocked #ops-section {
       padding: 18px 28px 44px !important;
     }
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) #ops-section .plx-main { padding: 0 !important; }
+    html body.dia-page.ops-unlocked #ops-section .plx-main { padding: 0 !important; }
     /* 왼쪽 고정 다크 네이비 사이드바 */
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) .ops-nav {
+    html body.dia-page.ops-unlocked .ops-nav {
       position: fixed !important; top: 0 !important; left: 0 !important; bottom: 0 !important;
       width: 230px !important; z-index: 60 !important;
       background: #1e2532 !important; border: 0 !important; border-radius: 0 !important;
@@ -2160,19 +2161,19 @@ window.창고읽기 = function(url){
       display: flex !important; flex-direction: column !important; align-items: stretch !important; gap: 4px !important;
       box-shadow: 4px 0 20px rgba(15, 23, 42, .14) !important; overflow-y: auto !important;
     }
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) .ops-nav::before {
+    html body.dia-page.ops-unlocked .ops-nav::before {
       content: "SEILIN ADMIN"; display: block; font-size: 13px; font-weight: 900; letter-spacing: .08em;
       color: #fff; padding: 6px 12px 14px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,.1);
     }
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) .ops-nav-item {
+    html body.dia-page.ops-unlocked .ops-nav-item {
       text-align: left !important; padding: 10px 12px !important; border-radius: 8px !important;
       color: #cbd5e1 !important; font-size: 13.5px !important; font-weight: 700 !important;
       border: 0 !important; margin: 0 !important; background: transparent !important;
     }
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) .ops-nav-item:hover {
+    html body.dia-page.ops-unlocked .ops-nav-item:hover {
       background: rgba(255, 255, 255, .08) !important; color: #fff !important;
     }
-    html body.dia-page:has(#ops-section:not([style*="display: none"])) .ops-nav-item[data-on="1"] {
+    html body.dia-page.ops-unlocked .ops-nav-item[data-on="1"] {
       background: #2563eb !important; color: #fff !important; box-shadow: 0 2px 8px rgba(37, 99, 235, .35) !important;
     }
   }
@@ -2299,8 +2300,6 @@ window.창고읽기 = function(url){
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   var KEY = atob('MDQyMw==');
-  // 운영 센터를 한 번이라도 연 브라우저는 로그인이 풀려도 방문·접속자·GA4 집계에서 영구 제외한다
-  try{ localStorage.setItem('dia_no_track', '1'); }catch(e){}
   var door = document.getElementById('ops-door');
   var sect = document.getElementById('ops-section');
   var 요일 = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
@@ -3065,7 +3064,8 @@ document.addEventListener('DOMContentLoaded', function(){
   function 잠그기(){
     if(만료타이머){ clearTimeout(만료타이머); 만료타이머 = null; }
     try{ localStorage.removeItem('dia_ops_ok'); localStorage.removeItem('dia_ops_exp'); }catch(_e){}
-    if(sect) sect.style.display = 'none';
+    if(sect) document.body.classList.remove('ops-unlocked');
+    sect.style.display = 'none';
     if(door) door.style.display = '';
     var pw = document.getElementById('ops-pw');
     if(pw){ pw.value = ''; }
