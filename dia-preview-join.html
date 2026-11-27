@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="googlebot" content="noindex, nofollow">
+<title>회원가입 · 미리보기</title>
+<style>
+  :root{
+    --cream:#fbf8f6; --paper:#fff; --blush:#f5e5e2; --blush-deep:#eccfc9;
+    --ink:#2f2a2b; --ink-soft:#6f6668; --ink-mute:#a79b9e; --line:#eee6e3; --accent:#c9707f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--cream);color:var(--ink);
+    font-family:Roboto,"Apple SD Gothic Neo","맑은 고딕","Nanum Gothic",-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;letter-spacing:-.1px;}
+  a{color:inherit;text-decoration:none;}
+
+  .ac-topbar{background:var(--blush);height:45px;}
+  .ac-inner{max-width:1100px;margin:0 auto;padding:0 20px;height:45px;
+    display:flex;align-items:center;justify-content:space-between;}
+  .ac-topbar ul{list-style:none;margin:0;padding:0;display:flex;align-items:center;height:45px;}
+  .ac-topbar a,.ac-topbar button{color:#3a3234;font-size:11.2px;letter-spacing:.9px;
+    text-transform:uppercase;display:flex;align-items:center;height:45px;background:none;border:0;
+    padding:0;cursor:pointer;font-family:inherit;}
+  .ac-menu li{margin-right:26px;}
+  .ac-util li{margin-left:24px;}
+  .ac-util li.ico{margin-left:12px;}
+
+  .join{max-width:400px;margin:0 auto;padding:66px 22px 90px;}
+  .join .eyebrow{font-size:10.5px;letter-spacing:2.6px;text-transform:uppercase;color:var(--ink-mute);text-align:center;}
+  .join h1{margin:14px 0 0;text-align:center;font-weight:200;font-size:27px;letter-spacing:-.8px;line-height:1.4;}
+  .join .sub{margin:12px 0 0;text-align:center;font-size:12px;line-height:1.9;color:var(--ink-soft);font-weight:300;}
+  .rule{height:1px;background:var(--line);margin:34px 0 30px;}
+
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;
+    color:var(--ink-mute);margin-bottom:7px;}
+  .field input,.field select{width:100%;padding:13px 14px;border:1px solid var(--line);
+    background:var(--paper);border-radius:2px;font-size:13px;font-family:inherit;
+    color:var(--ink);outline:none;transition:border-color .16s;}
+  .field input:focus,.field select:focus{border-color:var(--blush-deep);}
+  .field input::placeholder{color:#c9bfc2;font-weight:300;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .hint{margin:6px 0 0;font-size:10.5px;color:var(--ink-mute);font-weight:300;letter-spacing:.1px;}
+
+  .agree{margin:26px 0 0;padding:16px 0 0;border-top:1px solid var(--line);}
+  .chk{display:flex;align-items:flex-start;gap:9px;margin-bottom:11px;font-size:11.5px;
+    color:var(--ink-soft);font-weight:300;line-height:1.7;cursor:pointer;}
+  .chk input{margin:2px 0 0;width:14px;height:14px;accent-color:var(--accent);flex:0 0 auto;}
+  .chk.all{color:var(--ink);font-weight:500;font-size:12px;padding-bottom:11px;
+    border-bottom:1px solid var(--line);margin-bottom:12px;}
+  .chk a{color:var(--accent);text-decoration:underline;text-underline-offset:2px;}
+
+  .btn-main{width:100%;margin-top:22px;padding:15px;border:0;border-radius:2px;cursor:pointer;
+    background:var(--accent);color:#fff;font-size:12px;letter-spacing:2.4px;
+    text-transform:uppercase;font-family:inherit;font-weight:400;}
+  .btn-main:hover{background:#bb6273;}
+
+  .or{display:flex;align-items:center;gap:14px;margin:26px 0 18px;color:var(--ink-mute);font-size:10px;letter-spacing:1.8px;}
+  .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line);}
+  .btn-social{width:100%;padding:13px;border-radius:2px;font-size:12px;font-family:inherit;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:9px;
+    border:1px solid var(--line);background:var(--paper);color:var(--ink);letter-spacing:.4px;}
+  .btn-social.kakao{background:#fee500;border-color:#fee500;color:#3c1e1e;}
+  .btn-social.naver{background:#03c75a;border-color:#03c75a;color:#fff;}
+
+  .foot-link{text-align:center;margin-top:30px;font-size:11.5px;color:var(--ink-mute);font-weight:300;}
+  .foot-link a{color:var(--accent);margin-left:5px;}
+
+  .pv-tag{position:fixed;right:14px;bottom:14px;font-size:10px;letter-spacing:1.2px;
+    text-transform:uppercase;color:#b5a9ac;background:rgba(255,255,255,.9);
+    border:1px solid var(--line);padding:6px 10px;border-radius:999px;}
+
+  @media (max-width:520px){
+    .join{padding:44px 20px 70px;}
+    .join h1{font-size:23px;}
+    .ac-menu li:not(.ac-all){display:none;}
+    .ac-util li:not(.ico){display:none;}
+  }
+
+  #pv-door{position:fixed;inset:0;background:var(--cream);display:flex;align-items:center;
+    justify-content:center;padding:24px;z-index:99;}
+  #pv-door .card{width:100%;max-width:300px;text-align:center;}
+  #pv-door h1{margin:0 0 8px;font-size:15px;font-weight:400;letter-spacing:2.4px;text-transform:uppercase;}
+  #pv-door p{margin:0 0 18px;font-size:12px;color:var(--ink-mute);line-height:1.8;font-weight:300;}
+  #pv-door input{width:100%;padding:12px 13px;border:1px solid var(--blush-deep);background:#fff;
+    border-radius:2px;font-size:14px;outline:none;font-family:inherit;text-align:center;letter-spacing:3px;}
+  #pv-door button{width:100%;margin-top:9px;padding:12px;border:0;border-radius:2px;cursor:pointer;
+    background:var(--accent);color:#fff;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-family:inherit;}
+  #pv-door .err{min-height:16px;margin-top:9px;font-size:11px;color:var(--accent);}
+  body.locked #pv-wrap{display:none;}
+  body:not(.locked) #pv-door{display:none;}
+</style>
+</head>
+<body class="locked">
+
+<div id="pv-door">
+  <div class="card">
+    <h1>Dia Preview</h1>
+    <p>비공개 화면입니다.<br>비밀번호를 입력해 주세요.</p>
+    <input id="pv-pw" type="password" inputmode="numeric" autocomplete="off" placeholder="····">
+    <button type="button" id="pv-go">Open</button>
+    <div class="err" id="pv-err"></div>
+  </div>
+</div>
+
+<div id="pv-wrap">
+  <header class="ac-topbar">
+    <div class="ac-inner">
+      <ul class="ac-menu">
+        <li><a href="dia-preview.html?staff=1">← Home</a></li>
+        <li><a href="#">품앗이</a></li>
+        <li><a href="#">뷰티수강</a></li>
+      </ul>
+      <ul class="ac-util">
+        <li><a href="#">Login</a></li>
+        <li class="ico"><a href="#">★</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <div class="join">
+    <div class="eyebrow">Join Dia</div>
+    <h1>다이아에 오신 걸<br>환영합니다</h1>
+    <p class="sub">전국 어디서든 품앗이는 이어집니다.<br>가입하면 내 순번과 참여 기록이 한곳에 쌓입니다.</p>
+    <div class="rule"></div>
+
+    <div class="field">
+      <label>이메일</label>
+      <input type="email" placeholder="name@example.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label>비밀번호</label>
+      <input type="password" placeholder="8자 이상, 영문·숫자 조합" autocomplete="new-password">
+      <p class="hint">대소문자를 구분합니다.</p>
+    </div>
+    <div class="field">
+      <label>이름</label>
+      <input type="text" placeholder="실명으로 입력해 주세요" autocomplete="name">
+    </div>
+    <div class="field">
+      <label>휴대폰</label>
+      <input type="tel" placeholder="010-0000-0000" autocomplete="tel">
+    </div>
+    <div class="field">
+      <label>활동 지역</label>
+      <div class="row2">
+        <select><option>서울</option><option>경기</option><option>인천</option><option>부산</option><option>대구</option><option>그 외</option></select>
+        <input type="text" placeholder="구·동">
+      </div>
+      <p class="hint">지역은 뷰티수강·모임 안내에만 쓰입니다.</p>
+    </div>
+
+    <div class="agree">
+      <label class="chk all"><input type="checkbox" id="agreeAll"> 전체 동의</label>
+      <label class="chk"><input type="checkbox" class="ag"> <span>만 14세 이상이며 <a href="#">이용약관</a>에 동의합니다.</span></label>
+      <label class="chk"><input type="checkbox" class="ag"> <span><a href="#">개인정보 수집·이용</a>에 동의합니다. (이름·연락처·지역)</span></label>
+      <label class="chk"><input type="checkbox" class="ag"> <span>품앗이 안내 알림 수신에 동의합니다. (선택)</span></label>
+    </div>
+
+    <button class="btn-main" type="button">가입하기</button>
+
+    <div class="or">OR</div>
+    <button class="btn-social kakao" type="button">카카오로 시작하기</button>
+    <button class="btn-social naver" type="button">네이버로 시작하기</button>
+
+    <div class="foot-link">이미 회원이신가요?<a href="#">로그인</a></div>
+  </div>
+
+  <div class="pv-tag">Preview · 실제 가입 아님</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var KEY = atob('MDQyMw==');
+  function open(){ document.body.classList.remove('locked'); }
+  try{
+    if (/[?&]staff=1/.test(location.search) || sessionStorage.getItem('dia_preview_ok') === '1') open();
+  }catch(e){}
+  var pw = document.getElementById('pv-pw'), go = document.getElementById('pv-go'), err = document.getElementById('pv-err');
+  function tryOpen(){
+    if (pw.value.trim() === KEY) {
+      try{ sessionStorage.setItem('dia_preview_ok','1'); }catch(e){}
+      err.textContent=''; open();
+    } else { err.textContent='비밀번호가 맞지 않습니다.'; pw.value=''; pw.focus(); }
+  }
+  go.addEventListener('click', tryOpen);
+  pw.addEventListener('keydown', function(e){ if (e.key==='Enter') tryOpen(); });
+
+  var all = document.getElementById('agreeAll');
+  var items = [].slice.call(document.querySelectorAll('.ag'));
+  if (all) {
+    all.addEventListener('change', function(){ items.forEach(function(i){ i.checked = all.checked; }); });
+    items.forEach(function(i){ i.addEventListener('change', function(){
+      all.checked = items.every(function(x){ return x.checked; });
+    }); });
+  }
+});
+</script>
+</body>
+</html>
