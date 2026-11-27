@@ -78,6 +78,25 @@
     el.style.color = isOk ? '#2e6f40' : '#c95050';
   }
 
+  function fetchRemoteSnsRecord(uidKey){
+    if (!uidKey) return Promise.resolve(null);
+    var sk = safeKey(uidKey);
+    return Promise.race([
+      fetch(FB_BASE + '?key=' + FB_KEY, { cache: 'no-store' })
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(doc){
+          var f = doc && doc.fields && doc.fields.views && doc.fields.views.mapValue && doc.fields.views.mapValue.fields;
+          var item = f && f[sk] && f[sk].mapValue && f[sk].mapValue.fields;
+          if (!item) return null;
+          var linked = !!(item.linked && item.linked.booleanValue);
+          var ig = (item.ig && item.ig.stringValue) || '';
+          var nick = (item.nick && item.nick.stringValue) || '';
+          return (linked && ig) ? { ig: ig, nick: nick || ig } : null;
+        }).catch(function(){ return null; }),
+      new Promise(function(res){ setTimeout(function(){ res(null); }, 1500); })
+    ]);
+  }
+
   function completeSnsLogin(provider, uidKey, displayName, email){
     try {
       localStorage.setItem(USER_KEY, JSON.stringify({
@@ -89,30 +108,41 @@
     } catch(e){}
 
     var m = getMap();
-    var mapped = uidKey ? m[String(uidKey).toLowerCase()] : '';
-    var nick = mapped || displayName || (email ? email.split('@')[0] : '') || (provider + '회원');
-    nick = String(nick).trim();
+    var localMapped = uidKey ? (m[String(uidKey).toLowerCase()] || '') : '';
 
-    try {
-      localStorage.setItem('dia_login_member', nick);
-      localStorage.setItem('dia_login_member_bak', nick);
-      if (!mapped) localStorage.setItem('dia_sns_need_ig', '1');
-      else localStorage.removeItem('dia_sns_need_ig');
-    } catch(e){}
-    var rec = {
-      key: uidKey || (provider + ':' + nick),
-      provider: provider,
-      name: displayName || nick,
-      email: email || '',
-      ig: mapped ? nick : '',
-      nick: nick,
-      linked: !!mapped
-    };
-    Promise.race([
-      saveSnsRecord(rec),
-      new Promise(function(res){ setTimeout(res, 1500); })
-    ]).then(function(){
-      location.href = 'dia.html';
+    fetchRemoteSnsRecord(uidKey).then(function(remote){
+      var linkedIg = (remote && remote.ig) || localMapped || '';
+      var nick = (remote && remote.nick) || localMapped || displayName || (email ? email.split('@')[0] : '') || (provider + '회원');
+      nick = String(nick).trim();
+      if (linkedIg && uidKey) saveMap(uidKey, linkedIg);
+
+      try {
+        localStorage.setItem('dia_login_member', nick);
+        localStorage.setItem('dia_login_member_bak', nick);
+        if (linkedIg){
+          localStorage.setItem('dia_sns_linked_ig', linkedIg);
+          localStorage.removeItem('dia_sns_need_ig');
+        } else {
+          localStorage.removeItem('dia_sns_linked_ig');
+          localStorage.setItem('dia_sns_need_ig', '1');
+        }
+      } catch(e){}
+
+      var rec = {
+        key: uidKey || (provider + ':' + nick),
+        provider: provider,
+        name: displayName || nick,
+        email: email || '',
+        ig: linkedIg,
+        nick: nick,
+        linked: !!linkedIg
+      };
+      Promise.race([
+        saveSnsRecord(rec),
+        new Promise(function(res){ setTimeout(res, 1500); })
+      ]).then(function(){
+        location.href = 'dia.html';
+      });
     });
   }
 
