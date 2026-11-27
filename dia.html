@@ -10275,7 +10275,7 @@ window.창고읽기 = function(url){
     var logged = false;
     try { logged = !!(localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak')); } catch(e){}
     if (logged) {
-      if (jn) jn.style.display = 'none';
+      if (jn) jn.style.setProperty('display', 'none', 'important');
       lg.textContent = '로그아웃';
       lg.setAttribute('href', '#logout');
       if (!lg._boundLogout) {
@@ -10292,7 +10292,7 @@ window.창고읽기 = function(url){
         });
       }
     } else {
-      if (jn) jn.style.display = '';
+      if (jn) jn.style.removeProperty('display');
       lg.textContent = '로그인';
       lg.setAttribute('href', 'dia-preview-login.html');
     }
