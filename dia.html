@@ -10140,6 +10140,7 @@ window.창고읽기 = function(url){
 </div>
 <script>
 (function(){
+  if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(function(){}); }
   var deferredPrompt = null;
   window.addEventListener('beforeinstallprompt', function(e){
     e.preventDefault();
@@ -10177,11 +10178,11 @@ window.창고읽기 = function(url){
     m.hidden = true; m.style.display = 'none';
   });
   document.getElementById('diaShortcutDl').addEventListener('click', function(){
-    var urlContent = '[InternetShortcut]\r\nURL=https://seilinbeauty.github.io/dia.html\r\n';
-    var blob = new Blob([urlContent], { type: 'text/plain' });
+    var htmlContent = '<!DOCTYPE html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=https://seilinbeauty.github.io/dia.html"><script>location.replace("https://seilinbeauty.github.io/dia.html");<\/script>';
+    var blob = new Blob([htmlContent], { type: 'text/html' });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = '다이아 커뮤니티.url';
+    a.download = '다이아 커뮤니티 바로가기.html';
     a.click();
   });
 
