@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script data-dia-pc="1">(function(){if(!/(?:\?|&)pc=1(?:&|$)/.test(location.search))return;var vp=document.querySelector("meta[name=viewport]");if(vp)vp.setAttribute("content","width=1280, initial-scale=0.3");document.addEventListener("click",function(e){var a=e.target&&e.target.closest&&e.target.closest("a[href]");if(!a)return;var h=a.getAttribute("href");if(!h||/^(?:#|javascript:|mailto:|tel:|http)/i.test(h))return;if(/[?&]pc=1(?:&|$)/.test(h))return;a.setAttribute("href",h+(h.indexOf("?")>=0?"&":"?")+"pc=1");},true);})();</script>
 <script>if(/(?:\?|&)pc=1(?:&|$)/.test(location.search)){var vp=document.querySelector("meta[name=\"viewport\"]");if(vp)vp.setAttribute("content","width=1280, initial-scale=0.3");}</script>
 <title>마이페이지 — 다이아 커뮤니티</title>
 <meta name="robots" content="noindex, nofollow">
@@ -364,7 +365,7 @@
     '<div class="mc-days">' + dayHtml + '</div>' +
     '<div class="mp-extra">' +
       '<div>방문 횟수 <b id="mpVisitCnt">' + visitCnt + '회</b></div>' +
-      '<div>로그인 방식 <b>' + esc(loginMethod) + '</b></div>' +
+      '<div>로그인 방식 <b id="mpLoginText">' + esc(loginMethod) + '</b></div>' +
       '<div>인스타 연동 <b>' + (m.i ? '@' + esc(m.i) : '미연동') + '</b></div>' +
       '<div>이번 달 참여 <b>' + (m.mc || 0) + '회</b></div>' +
       (m.sk ? '<div>연속 참여 <b>' + m.sk + '일</b></div>' : '') +
@@ -438,7 +439,7 @@
       return fetch(base + coll + '/' + docId + '?t=' + Date.now()).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
     }
     if (!snsInfo || !snsInfo.provider || !provMap[snsInfo.provider]) {
-      fetch('https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/course_views/sns_members_v1?key=' + FB_KEY)
+      fetch('https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/course_views/sns_members_v1?key=' + "AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY")
         .then(function(r){ return r.ok ? r.json() : null; })
         .then(function(doc){
           var f = doc && doc.fields && doc.fields.views && doc.fields.views.mapValue && doc.fields.views.mapValue.fields;
@@ -459,6 +460,8 @@
           if (matched) {
             var badgeEl = document.getElementById('mpLoginBadge');
             if (badgeEl) badgeEl.textContent = '🔑 ' + provMap[matched.provider];
+          var txtEl = document.getElementById('mpLoginText');
+          if (txtEl) txtEl.textContent = provMap[matched.provider];
             try {
               var curSns = {};
               try { curSns = JSON.parse(localStorage.getItem('dia_sns_auth') || '{}') || {}; } catch(_e){}
