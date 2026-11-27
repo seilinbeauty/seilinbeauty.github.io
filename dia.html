@@ -1656,6 +1656,7 @@
     }
         .pc-hero-snow-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; border-radius: 14px; }
       .pc-hero-snow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 25; border-radius: 14px; }
+      @media (max-width: 880px) { .pc-hero-snow, .pc-hero-snow-bg { display: none !important; } }
       /* 산타가 한글 제목을 트리처럼 꾸미는 장식 */
       .mc-tree-deco { position: absolute !important; z-index: 26; pointer-events: none; }
       .mc-tree-bulb { position: absolute; width: 5px; height: 5px; border-radius: 50%; box-shadow: 0 0 5px currentColor, 0 0 10px currentColor; animation: mcBulbTwinkle 1.5s ease-in-out infinite; }
@@ -2307,8 +2308,8 @@ window.창고읽기 = function(url){
   </header>
   <section class="dia-hero">
     <div class="dia-hero-in">
-      <canvas class="pc-hero-snow-bg only-pc" id="pcSnowBgCanvas" aria-hidden="true"></canvas>
-      <canvas class="pc-hero-snow only-pc" id="pcSnowCanvas" aria-hidden="true"></canvas>
+      <canvas class="pc-hero-snow-bg" id="pcSnowBgCanvas" aria-hidden="true"></canvas>
+      <canvas class="pc-hero-snow" id="pcSnowCanvas" aria-hidden="true"></canvas>
       <div class="dia-hero-l">
         <div class="pr-card only-mo">
           <img class="pr-av" src="images/ig-profile.png?v=2" alt="">
@@ -7334,6 +7335,9 @@ window.창고읽기 = function(url){
           if (!W || !surfaceY) { buildSurface(); if (!W) return; }
           if (bgCtx) bgCtx.clearRect(0, 0, W, H);
           ctx.clearRect(0, 0, W, H);
+          // 로그인 후에는 산타·눈 연출을 그리지 않는다 (로그인 전 화면 전용)
+          var isLoggedIn = !!(localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak'));
+          if (isLoggedIn) return;
 
           for (var i = 0; i < flakes.length; i++) {
             var f = flakes[i];
