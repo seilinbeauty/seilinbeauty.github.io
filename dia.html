@@ -10278,5 +10278,15 @@ window.창고읽기 = function(url){
   upd();
 })();
 </script>
+<script>
+/* PC 헤더 '로그인' — 히어로 로그인과 같은 동작 */
+document.addEventListener('click', function(e){
+  var a = e.target.closest && e.target.closest('#hdrLogin');
+  if(!a) return;
+  e.preventDefault();
+  var b = document.getElementById('mcLoginBtn');
+  if(b) b.click();
+});
+</script>
 </body>
 </html>
