@@ -3094,6 +3094,9 @@ document.addEventListener('DOMContentLoaded', function(){
     if(v === KEY){ open(); }
     else { document.getElementById('ops-msg').textContent = '비밀번호가 맞지 않습니다.'; }
   }
+  window.addEventListener('pagehide', function(){ 잠그기(); });
+  window.addEventListener('pageshow', function(e){ if(e && e.persisted) 잠그기(); });
+  document.addEventListener('visibilitychange', function(){ if(document.hidden) 잠그기(); });
   document.getElementById('ops-go').addEventListener('click', go);
   document.getElementById('ops-pw').addEventListener('keydown', function(e){ if(e.key === 'Enter') go(); });
   var 잠금 = document.getElementById('ops-lock');
