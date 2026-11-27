@@ -163,7 +163,7 @@
       '<button type="button" class="sn-save" id="w_pc">PC</button>' +
       '<button type="button" class="sn-save" id="w_tb" style="background:#fff;color:#c2456a;border:1px solid #e6b8c8;">태블릿</button>' +
       '<button type="button" class="sn-save" id="w_mo" style="background:#fff;color:#c2456a;border:1px solid #e6b8c8;">모바일</button>' +
-      '<button type="button" class="sn-save" id="w_grid" style="margin-left:auto;background:#fff;color:#4a3f44;border:1px solid #d9cfd4;">📐 그리드</button><button type="button" class="sn-save" id="w_full" style="background:#fff;color:#4a3f44;border:1px solid #d9cfd4;">⛶ 크게 보기</button><button type="button" class="sn-save" id="w_save">💾 저장하기</button><button type="button" class="sn-reset" id="w_reset">이 기기 원래대로</button>' +
+      '<button type="button" class="sn-save" id="w_grid" style="margin-left:auto;background:#fff;color:#4a3f44;border:1px solid #d9cfd4;">📐 그리드</button><button type="button" class="sn-save" id="w_full" style="background:#fff;color:#4a3f44;border:1px solid #d9cfd4;">⛶ 1:1 편집기 열기</button><button type="button" class="sn-save" id="w_save">💾 저장하기</button><button type="button" class="sn-reset" id="w_reset">이 기기 원래대로</button>' +
     '</div>' +
     '<div id="w_props" style="margin-top:10px;padding:10px 12px;border:1px solid #f0dde4;border-radius:10px;background:#fff9fb;display:none;flex-wrap:wrap;gap:10px 14px;align-items:center;font-size:12px;color:#4a3f44;">' +
       '<strong id="wp_name" style="color:#b62d47;min-width:110px;">선택됨</strong>' +
@@ -326,11 +326,11 @@
       wrap.style.margin = '';
       wrap.style.overflow = '';
       wrap.style.boxShadow = '';
-      fullBtn.textContent = '⛶ 크게 보기';
+      fullBtn.textContent = '⛶ 1:1 편집기 열기';
     }
     setTimeout(fitFrame, 20);
   }
-  if (fullBtn) fullBtn.addEventListener('click', function(){ isFull = !isFull; applyFull(); });
+  if (fullBtn) fullBtn.addEventListener('click', function(){ window.open('dia-editor.html', '_blank'); });
   var gridOn = false;
   var gridBtn = document.getElementById('w_grid');
   if (gridBtn) gridBtn.addEventListener('click', function(){

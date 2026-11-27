@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>다이아 섹션 1:1 편집기 · 세이린뷰티</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; font-family: 'Pretendard', -apple-system, sans-serif; background: #f3eff1; overflow: hidden; }
+    .ed-top {
+      position: fixed; top: 0; left: 0; right: 0; min-height: 54px; z-index: 100;
+      background: #fff; border-bottom: 1px solid #e9dde2;
+      display: flex; align-items: center; gap: 10px; padding: 8px 16px; flex-wrap: wrap;
+      box-shadow: 0 2px 10px rgba(80, 40, 55, .06);
+    }
+    .ed-back {
+      text-decoration: none; font-size: 12.5px; font-weight: 800; color: #6e5f66;
+      padding: 6px 11px; border-radius: 8px; border: 1px solid #e5d8dd; background: #faf7f8;
+    }
+    .ed-back:hover { background: #f3eaee; }
+    .ed-devs { display: flex; gap: 4px; background: #f6eff2; padding: 3px; border-radius: 9px; }
+    .ed-dev {
+      border: 0; background: transparent; color: #7a6870; font-size: 12.5px; font-weight: 800;
+      padding: 6px 12px; border-radius: 7px; cursor: pointer; font-family: inherit;
+    }
+    .ed-dev.is-on { background: linear-gradient(90deg,#ef9ab4,#d55576); color: #fff; }
+    .ed-props {
+      display: none; align-items: center; gap: 10px; flex-wrap: wrap;
+      padding: 4px 10px; border-radius: 9px; background: #fff7fa; border: 1px solid #f0dbe3;
+      font-size: 12px; color: #4a3f44;
+    }
+    .ed-props strong { color: #b62d47; }
+    .ed-props label { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; }
+    .ed-props input[type="range"] { width: 72px; accent-color: #d55576; }
+    .ed-props input[type="color"] { width: 24px; height: 22px; border: 1px solid #e0cfd6; border-radius: 4px; padding: 0; cursor: pointer; background: #fff; }
+    .ed-right { margin-left: auto; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .ed-btn {
+      border: 1px solid #dfd2d7; background: #fff; color: #4a3f44; font-size: 12.5px; font-weight: 800;
+      padding: 7px 12px; border-radius: 8px; cursor: pointer; font-family: inherit;
+    }
+    .ed-btn.is-blue { background: #2563eb; border-color: #2563eb; color: #fff; }
+    .ed-save {
+      border: 0; background: linear-gradient(90deg,#ef9ab4,#d55576); color: #fff; font-size: 12.5px; font-weight: 800;
+      padding: 7px 16px; border-radius: 8px; cursor: pointer; font-family: inherit;
+    }
+    .ed-msg { font-size: 12px; font-weight: 800; color: #16a34a; }
+    .ed-stage {
+      position: fixed; top: 54px; left: 0; right: 0; bottom: 0;
+      display: flex; justify-content: center; align-items: stretch;
+      overflow: auto; padding: 0;
+    }
+    .ed-frame {
+      display: block; border: 0; background: #fff; height: 100%; flex: 0 0 auto;
+      box-shadow: 0 0 30px rgba(0,0,0,.08);
+    }
+  </style>
+</head>
+<body>
+  <div class="ed-top" id="edTop">
+    <a href="dia-info.html" class="ed-back">← 운영센터</a>
+    <div class="ed-devs">
+      <button type="button" class="ed-dev is-on" id="d_pc">🖥 PC (1:1)</button>
+      <button type="button" class="ed-dev" id="d_tb">태블릿 (890px)</button>
+      <button type="button" class="ed-dev" id="d_mo">📱 모바일 (412px)</button>
+    </div>
+    <div class="ed-props" id="d_props">
+      <strong id="dp_name">선택됨</strong>
+      <label>크기 <input id="dp_scale" type="range" min="50" max="200" value="100"> <span id="dp_scale_v">100%</span></label>
+      <label>글씨 <input id="dp_fs" type="range" min="9" max="44" value="14"> <span id="dp_fs_v">기본</span></label>
+      <label>글자 <input id="dp_color" type="color" value="#212529"></label>
+      <label>배경 <input id="dp_bg" type="color" value="#ffffff"></label>
+      <button type="button" class="ed-btn" id="dp_one_reset" style="padding:4px 8px;font-size:11px;">초기화</button>
+    </div>
+    <div class="ed-right">
+      <span class="ed-msg" id="d_msg"></span>
+      <button type="button" class="ed-btn" id="d_grid">📐 그리드</button>
+      <button type="button" class="ed-btn" id="d_reset">이 기기 원래대로</button>
+      <button type="button" class="ed-save" id="d_save">💾 저장하기</button>
+    </div>
+  </div>
+  <div class="ed-stage" id="edStage">
+    <iframe class="ed-frame" id="d_frame" src="dia.html?edit=1&dev=pc"></iframe>
+  </div>
+  <script>
+  (function(){
+    var topEl = document.getElementById('edTop');
+    var stage = document.getElementById('edStage');
+    var frame = document.getElementById('d_frame');
+    var propsEl = document.getElementById('d_props');
+    var msgEl = document.getElementById('d_msg');
+    var dpName = document.getElementById('dp_name');
+    var dpScale = document.getElementById('dp_scale');
+    var dpScaleV = document.getElementById('dp_scale_v');
+    var dpFs = document.getElementById('dp_fs');
+    var dpFsV = document.getElementById('dp_fs_v');
+    var dpColor = document.getElementById('dp_color');
+    var dpBg = document.getElementById('dp_bg');
+
+    var DEV = { pc: ['100%', 'PC'], tb: ['890px', '태블릿'], mo: ['412px', '모바일'] };
+    var curDev = 'pc', selKey = '', selKeys = [], gridOn = false;
+
+    function syncTop(){ stage.style.top = topEl.offsetHeight + 'px'; }
+    window.addEventListener('resize', syncTop);
+    syncTop();
+
+    function setDev(k){
+      curDev = k; selKey = ''; selKeys = [];
+      propsEl.style.display = 'none';
+      msgEl.textContent = '';
+      frame.style.width = DEV[k][0];
+      ['pc','tb','mo'].forEach(function(x){
+        document.getElementById('d_' + x).classList.toggle('is-on', x === k);
+      });
+      frame.src = 'dia.html?edit=1&dev=' + k + '&r=' + Date.now();
+      setTimeout(syncTop, 30);
+    }
+    ['pc','tb','mo'].forEach(function(k){
+      document.getElementById('d_' + k).addEventListener('click', function(){ setDev(k); });
+    });
+
+    window.addEventListener('message', function(e){
+      var d = e.data || {};
+      if (d.type === 'dia-edit-select' && d.key) {
+        selKey = d.key; selKeys = d.keys || [d.key];
+        propsEl.style.display = 'flex';
+        dpName.textContent = d.label + ' (' + d.data.x + ', ' + d.data.y + ')';
+        var sc = Number(d.data.scale) || 100;
+        dpScale.value = sc; dpScaleV.textContent = sc + '%';
+        var fs = Number(d.data.fs) || 0;
+        dpFs.value = fs > 0 ? fs : (d.computed && d.computed.fs ? d.computed.fs : 14);
+        dpFsV.textContent = fs > 0 ? (fs + 'px') : '기본';
+        dpColor.value = d.data.color || (d.computed && d.computed.color) || '#212529';
+        dpBg.value = d.data.bg || (d.computed && d.computed.bg) || '#ffffff';
+        syncTop();
+      } else if (d.type === 'dia-edit-saved') {
+        msgEl.textContent = DEV[curDev][1] + ' 저장 완료!';
+        setTimeout(function(){ msgEl.textContent = ''; }, 3000);
+      }
+    });
+
+    function sendPatch(patch){
+      if (!selKey || !frame.contentWindow) return;
+      frame.contentWindow.postMessage({ type: 'dia-edit-update', key: selKey, keys: selKeys, data: patch }, '*');
+    }
+    dpScale.addEventListener('input', function(){
+      var v = parseInt(dpScale.value, 10) || 100; dpScaleV.textContent = v + '%'; sendPatch({ scale: v });
+    });
+    dpFs.addEventListener('input', function(){
+      var v = parseInt(dpFs.value, 10) || 14; dpFsV.textContent = v + 'px'; sendPatch({ fs: v });
+    });
+    dpColor.addEventListener('input', function(){ sendPatch({ color: dpColor.value }); });
+    dpBg.addEventListener('input', function(){ sendPatch({ bg: dpBg.value }); });
+    document.getElementById('dp_one_reset').addEventListener('click', function(){
+      if (!selKey || !frame.contentWindow) return;
+      frame.contentWindow.postMessage({ type: 'dia-edit-reset-one', key: selKey, keys: selKeys }, '*');
+    });
+
+    var gridBtn = document.getElementById('d_grid');
+    gridBtn.addEventListener('click', function(){
+      gridOn = !gridOn;
+      gridBtn.classList.toggle('is-blue', gridOn);
+      if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'dia-edit-grid', on: gridOn }, '*');
+    });
+    frame.addEventListener('load', function(){
+      if (gridOn && frame.contentWindow) frame.contentWindow.postMessage({ type: 'dia-edit-grid', on: true }, '*');
+    });
+    document.getElementById('d_reset').addEventListener('click', function(){
+      if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'dia-edit-reset-all' }, '*');
+      msgEl.textContent = '원래대로 되돌림 (저장 시 반영)';
+    });
+    document.getElementById('d_save').addEventListener('click', function(){
+      if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'dia-edit-save' }, '*');
+    });
+  })();
+  </script>
+</body>
+</html>
