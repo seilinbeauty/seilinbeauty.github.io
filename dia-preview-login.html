@@ -93,6 +93,16 @@
 #igGo:disabled{background:#d6cfd0;cursor:not-allowed;}
 #igCancel{background:#fff;color:#6f6668;border:1px solid var(--line);}
 #igStep .err{margin-top:8px;font-size:11px;color:#c06070;min-height:14px;}
+.field{position:relative;}
+.ig-sug{position:absolute;left:calc(100% + 10px);top:0;width:300px;background:#fff;border:1px solid var(--line);
+  border-radius:2px;box-shadow:0 12px 30px rgba(47,42,43,.10);max-height:320px;overflow:auto;z-index:40;display:none;}
+.ig-sug button{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;padding:10px 13px;
+  border:0;border-top:1px solid #f4eded;background:#fff;font-family:inherit;text-align:left;cursor:pointer;}
+.ig-sug button:first-child{border-top:0;}
+.ig-sug button:hover{background:#fdf7f6;}
+.ig-sug .nm{font-size:12.5px;font-weight:700;color:#2f2a2b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ig-sug .ig{font-size:11px;color:#8d8385;flex-shrink:0;}
+@media (max-width:880px){.ig-sug{left:0;right:0;top:calc(100% + 6px);width:auto;}}
 .saveid{display:flex;align-items:center;gap:7px;margin:2px 0 10px;font-size:11.5px;color:#8d8385;cursor:pointer;}
 .saveid input{width:14px;height:14px;accent-color:#d55576;margin:0;}
 </style>
@@ -117,7 +127,7 @@
   <div class="eyebrow">Login</div>
   <h1>다시 오셨네요</h1>
 
-  <div class="field"><input type="text" id="igId" placeholder="인스타그램 아이디 (@ 없이)" autocomplete="username" autocapitalize="off" spellcheck="false" inputmode="text"></div>
+  <div class="field" id="igWrap"><input type="text" id="igId" placeholder="인스타그램 아이디 또는 샵 이름 (초성 검색)" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text"><div class="ig-sug" id="igSug"></div></div>
   <div class="field"><input type="password" id="pin" placeholder="비밀번호 4자리" inputmode="numeric" maxlength="4" autocomplete="current-password" style="letter-spacing:.45em;"></div>
   <label class="saveid"><input type="checkbox" id="saveId"> 인스타그램 아이디 저장 (다음에 자동 입력)</label>
   <p class="hint">가입할 때 쓴 인스타그램 아이디를 적어 주세요. 비밀번호는 숫자 4자리입니다.</p>
@@ -173,8 +183,92 @@ document.addEventListener('DOMContentLoaded', function(){
   if (btn) btn.addEventListener('click', function(){
     if (saveBox && saveBox.checked){ try{ localStorage.setItem(SAVE_KEY, (ig ? ig.value : '').trim()); }catch(e){} }
   });
+
+  // ── 명부 초성·아이디 자동검색 (오른쪽 쭈르륵) ──
+  var sug = document.getElementById('igSug');
+  var wrap = document.getElementById('igWrap');
+  var list = (window.DIA_MEMBERS || []).slice();
+
+  function indexMember(m){
+    var parts = [m.n || '', m.i || '', m.o || ''];
+    // 슬래시로 나뉜 지역/아이디/업종도 각각 검색되게 분리
+    String(m.n || '').split('/').forEach(function(seg){ if (seg.trim()) parts.push(seg.trim()); });
+    m._keys = window.DIA_SEARCH ? DIA_SEARCH.buildKeys(parts) : [];
+    return m;
+  }
+  list.forEach(indexMember);
+
+  // 파이어베이스 추가/제외 회원도 반영
+  if (window.DiaFB && DiaFB.getMeta) {
+    DiaFB.getMeta('members').then(function(meta){
+      if (!meta || typeof meta !== 'object') return;
+      var byN = {};
+      list.forEach(function(m){ byN[m.n] = m; });
+      (meta.added || []).forEach(function(a){
+        if (a && a.n && !byN[a.n]) {
+          var row = indexMember({ n: a.n, i: a.i || '', r: a.r || '', o: a.o || '회원', c: a.c || '' });
+          list.push(row);
+          byN[a.n] = row;
+        }
+      });
+      (meta.removed || []).forEach(function(name){
+        list = list.filter(function(m){ return m.n !== name; });
+      });
+      if (ig && ig.value.trim() && document.activeElement === ig) renderSug();
+    }).catch(function(){});
+  }
+
+  function hideSug(){ if (sug){ sug.style.display = 'none'; sug.innerHTML = ''; } }
+  function renderSug(){
+    if (!sug || !ig) return;
+    var raw = ig.value.trim();
+    if (!raw){ hideSug(); return; }
+    var hits = [];
+    for (var idx = 0; idx < list.length; idx++){
+      var m = list[idx];
+      var sc = 0;
+      if (window.DIA_SEARCH) {
+        sc = DIA_SEARCH.matchKeys(m._keys || [], raw);
+      } else {
+        var q = raw.toLowerCase();
+        if ((m.n + ' ' + m.i + ' ' + m.o).toLowerCase().indexOf(q) >= 0) sc = 1;
+      }
+      if (sc > 0) hits.push({ m: m, sc: sc });
+    }
+    if (!hits.length){ hideSug(); return; }
+    hits.sort(function(a, b){ return b.sc - a.sc; });
+    sug.innerHTML = '';
+    hits.slice(0, 12).forEach(function(item){
+      var m = item.m;
+      var b = document.createElement('button');
+      b.type = 'button';
+      var val = (m.i || m.n || '').replace(/^@+/, '');
+      b.innerHTML = '<span class="nm"></span><span class="ig"></span>';
+      b.querySelector('.nm').textContent = m.n;
+      b.querySelector('.ig').textContent = m.i ? '@' + m.i : (m.r || '');
+      b.addEventListener('click', function(){
+        ig.value = val;
+        if (saveBox && saveBox.checked){ try{ localStorage.setItem(SAVE_KEY, val); }catch(e){} }
+        hideSug();
+      });
+      sug.appendChild(b);
+    });
+    sug.style.display = 'block';
+  }
+
+  if (ig) {
+    ig.addEventListener('input', renderSug);
+    ig.addEventListener('focus', function(){ if (ig.value.trim()) renderSug(); });
+    ig.addEventListener('keydown', function(e){ if (e.key === 'Escape') hideSug(); });
+  }
+  document.addEventListener('click', function(e){
+    if (wrap && !wrap.contains(e.target)) hideSug();
+  });
 });
 </script>
+<script src="dia-search.js?v=3"></script>
+<script src="dia-members.js?v=1"></script>
+<script src="dia-fb.js?v=15"></script>
 <script src="preview-cursor.js?v=2"></script>
 <script src="preview-live.js?v=1"></script>
 </body>
