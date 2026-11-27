@@ -1665,6 +1665,7 @@
       }
       /* PC 로그인 전: 내 품앗이·뷰티수강 버튼을 오른쪽 여백(커서 쪽)으로 배치 */
       #snsIgBanner { display: none; }
+      #newMemberInvite { display: none; }
 @media (min-width: 881px) {
         body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links {
           margin-left: auto !important; display: flex !important; justify-content: flex-end !important; width: auto !important; gap: 10px !important;
@@ -1761,6 +1762,21 @@
     background: #fff; font-size: 12.5px; cursor: pointer; display: flex; justify-content: space-between;
   }
   #snsIgBanner .ig-b-sug button:hover { background: #fdf4f7; }
+  #newMemberInvite { display: none; }
+  body.dia-new-member:not(.sns-need-ig) #newMemberInvite {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    background: #fff9fb; border: 1.5px solid #efc6d3; border-radius: 14px;
+    padding: 14px 18px; margin-top: 12px; width: 100%; box-sizing: border-box;
+    box-shadow: 0 4px 14px rgba(201,112,127,.08);
+  }
+  #newMemberInvite .nmi-l { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  #newMemberInvite .nmi-badge { display: inline-block; width: fit-content; font-size: 11px; font-weight: 700; color: #b54567; background: #fde9f0; padding: 2px 8px; border-radius: 999px; }
+  #newMemberInvite .nmi-title { font-size: 14px; font-weight: 800; color: #2b1d22; margin: 0; }
+  #newMemberInvite .nmi-sub { font-size: 12px; color: #7a5c65; margin: 0; }
+  #newMemberInvite .nmi-r { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  #newMemberInvite .nmi-code { font-family: ui-monospace, monospace; font-size: 15px; font-weight: 800; letter-spacing: 1px; color: #2b1d22; background: #fff; border: 1px solid #e6b8c6; border-radius: 9px; padding: 7px 12px; }
+  #newMemberInvite .nmi-copy { height: 34px; padding: 0 12px; border-radius: 9px; border: 1px solid #e6b8c6; background: #fff; color: #b54567; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+  #newMemberInvite .nmi-go { display: inline-flex; align-items: center; height: 34px; padding: 0 14px; border-radius: 9px; background: #c9707f; color: #fff; font-size: 12.5px; font-weight: 700; text-decoration: none; }
 }
 </style>
   <style>
@@ -2488,6 +2504,18 @@ window.창고읽기 = function(url){
           <button type="button" class="ig-b-btn" id="snsIgSave" disabled style="opacity:.45;cursor:not-allowed;">연동하기</button>
         </div>
         <p id="snsIgHint" style="margin:8px 0 0;font-size:12px;color:#7a6870;">① 아이디 입력 후 <b>프로필 확인</b>을 눌러 본인 계정이 맞는지 확인해 주세요.</p>
+      </div>
+      <div id="newMemberInvite" aria-label="신규 회원 오픈채팅 초대코드 안내">
+        <div class="nmi-l">
+          <span class="nmi-badge">신규 회원 안내</span>
+          <p class="nmi-title">마케팅 오픈채팅방 초대코드</p>
+          <p class="nmi-sub">아래 초대코드를 입력해 다이아 품앗이 오픈채팅방에 입장해 주세요.</p>
+        </div>
+        <div class="nmi-r">
+          <span class="nmi-code" id="nmiCodeText">S3333</span>
+          <button type="button" class="nmi-copy" id="nmiCopyBtn">복사</button>
+          <a class="nmi-go" href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener">오픈채팅 입장하기</a>
+        </div>
       </div>
     </div>
   </section>
@@ -10503,6 +10531,43 @@ window.창고읽기 = function(url){
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSnsIgBanner);
   else initSnsIgBanner();
   setTimeout(initSnsIgBanner, 400);
+
+  function initNewMemberInvite(){
+    var isNew = false;
+    try {
+      var rawMem = localStorage.getItem('dia_login_member') || localStorage.getItem('dia_login_member_bak') || '';
+      var curMem = rawMem, curIg = '';
+      if (rawMem && rawMem.charAt(0) === '{') {
+        try {
+          var p = JSON.parse(rawMem);
+          if (p && p.n) curMem = p.n;
+          if (p && p.i) curIg = p.i;
+        } catch(_e){}
+      }
+      var linkedIg = localStorage.getItem('dia_sns_linked_ig') || '';
+      var idCheck = curIg || linkedIg || curMem;
+      if (curMem && window.DIA_MEMBERS && window.DIA_MEMBERS.length) {
+        var inList = window.DIA_MEMBERS.some(function(m){
+          return m.n === curMem || (idCheck && m.i && m.i.toLowerCase() === String(idCheck).toLowerCase());
+        });
+        if (!inList) isNew = true;
+      }
+    } catch(e){}
+    document.body.classList.toggle('dia-new-member', isNew);
+    var copyBtn = document.getElementById('nmiCopyBtn');
+    if (copyBtn && !copyBtn._boundNmi) {
+      copyBtn._boundNmi = true;
+      copyBtn.addEventListener('click', function(){
+        var code = 'S3333';
+        try { navigator.clipboard.writeText(code); } catch(_e){}
+        copyBtn.textContent = '복사됨!';
+        setTimeout(function(){ copyBtn.textContent = '복사'; }, 1500);
+      });
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNewMemberInvite);
+  else initNewMemberInvite();
+  setTimeout(initNewMemberInvite, 450);
 })();
 </script>
 <script src="dia-members.js?v=2"></script>
