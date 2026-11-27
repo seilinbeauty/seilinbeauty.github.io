@@ -2205,9 +2205,12 @@
       .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links { display: inline-flex !important; flex-wrap: nowrap; max-width: none; width: auto; gap: 6px; margin: 0; flex-shrink: 0; }
       .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links > * { width: auto !important; min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; }
       .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links > .mc-hero-login { padding: 7px 11px !important; font-size: 12px !important; }
+      body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) {
+        padding-bottom: 58px !important;
+      }
       body.dia-page .dia-hero-in > #mcLoginBox {
-        position: absolute !important; top: 62px; right: 24px;
-        width: 320px; max-width: calc(100vw - 48px) !important; margin: 0 !important;
+        position: absolute !important; top: 82px; right: 24px;
+        width: 310px; max-width: calc(100vw - 48px) !important; margin: 0 !important;
         padding: 0; background: transparent; border: 0; box-shadow: none; z-index: 30; text-align: center;
       }
       body.dia-page .dia-hero-in > #mcLoginBox[hidden] { display: none !important; }
