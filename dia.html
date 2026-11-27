@@ -9658,10 +9658,16 @@ window.창고읽기 = function(url){
   }
   var all = loadAll();
 
+  function 로그인상태(){
+    try { return !!localStorage.getItem('dia_login_member'); } catch(e){ return false; }
+  }
   function apply(){
     var c = all[bp()] || {};
+    /* 저장한 위치는 로그인 전 화면에만 적용한다. 로그인 후 화면은 원래 배치 그대로. */
+    var 잠금 = 로그인상태() && !window.__diaLayoutEdit;
     ITEMS.forEach(function(it){
       var el = document.querySelector(it[2]); if (!el) return;
+      if (잠금) { el.style.removeProperty('translate'); return; }
       var v = c[it[0]] || {};
       var x = Number(v.x) || 0, y = Number(v.y) || 0;
       if (!x && !y) { el.style.removeProperty('translate'); return; }
@@ -9777,7 +9783,9 @@ window.창고읽기 = function(url){
 
   /* 운영센터 다이아 섹션 탭에서 불러오면 바로 편집 모드 */
   if (inFrame) {
+    window.__diaLayoutEdit = true;
     bar.style.display = 'none';
+    apply();
     window.addEventListener('load', function(){ setEditing(true); });
   }
   window.diaReloadLayout = function(){
