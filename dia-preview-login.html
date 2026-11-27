@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function(){
   var list = (window.DIA_MEMBERS || []).slice();
 
   function indexMember(m){
-    var parts = [m.n || '', m.i || '', m.o || ''];
+    var parts = [m.n || '', m.i || '', m.o || '', m.n === 'STAFF' ? '스태프' : ''];
     // 슬래시로 나뉜 지역/아이디/업종도 각각 검색되게 분리
     String(m.n || '').split('/').forEach(function(seg){ if (seg.trim()) parts.push(seg.trim()); });
     m._keys = window.DIA_SEARCH ? DIA_SEARCH.buildKeys(parts) : [];
