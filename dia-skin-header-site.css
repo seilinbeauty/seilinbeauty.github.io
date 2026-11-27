@@ -99,10 +99,6 @@
   .dia-header .nav-links a.nav-mypumasi:hover{ color:#a9566a !important; }
   header.dia-header.is-scrolled .nav-links,
   .dia-header.is-scrolled .nav-links a.nav-mypumasi{ height:55px !important; line-height:55px !important; }
-  /* 히어로에 있던 '내 품앗이' 버튼은 PC에서 숨김(헤더 메뉴로 옮김) */
-  @media (min-width:881px){
-    #mcLoginBtn{ display:none !important; }
-  }
 }
 
 /* PC 헤더에는 '내 품앗이' 하나만 — 입장하기·운영 센터 링크는 헤더에서 숨김 */
@@ -124,4 +120,9 @@
 @media (min-width:881px){
   header.dia-header .nav-links a.nav-mypumasi{ padding:0 18px !important; }
   header.dia-header .nav-links a.nav-join{ padding:0 0 0 0 !important; }
+}
+
+/* PC 히어로의 '내 품앗이'·'뷰티수강' 버튼은 없앰 (헤더·카테고리로 이동, 모바일은 그대로) */
+@media (min-width:881px){
+  #mcLoginBtn, #mcCourseBtn{ display:none !important; }
 }
