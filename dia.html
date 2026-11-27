@@ -3047,7 +3047,7 @@ window.창고읽기 = function(url){
                       santa.state = 'walk_to'; santa.targetMode = 'lamp';
                       santa.targetX = Math.max(sLeft + 18, Math.min(walkMaxX, snowmen[0].x + (snowmen[0].x > walkMaxX - 24 ? -14 : 14)));
                       setMood('💡', 65);
-                    } else if (pick < 0.30 && walkMaxX > sLeft + 70) {
+                    } else if (pick < 0.16 && walkMaxX > sLeft + 70) {
                       // 보이지 않는 백스테이지 문 열고 들어가 계단 오르내리며 글자·시계 유지보수!
                       santa.state = 'walk_to'; santa.targetMode = 'backstage';
                       santa.bsDoorX = Math.max(sLeft + 45, Math.min(walkMaxX - 24, (tRight + dtLeft) / 2 || (sLeft + 140)));
@@ -3055,27 +3055,27 @@ window.창고읽기 = function(url){
                       var bsModes = ['clock', 'panel', 'title', 'switch_clock', 'boiler'];
                       santa.bsMode = bsModes[Math.floor(Math.random() * bsModes.length)];
                       setMood(santa.bsMode === 'boiler' ? '🔥' : '🔧', 75);
-                    } else if (!friend.active && pick < 0.38 && walkMaxX > sLeft + 55) {
+                    } else if (!friend.active && pick < 0.24 && walkMaxX > sLeft + 55) {
                       santa.state = 'call_friend'; santa.timer = 0; santa.callOk = (Math.random() < 0.72); friend.mode = (Math.random() < 0.55 ? 'work' : 'play'); setMood('📞', 65);
-                    } else if (pick < 0.30 && walkMaxX > sLeft + 70) {
+                    } else if (pick < 0.27 && walkMaxX > sLeft + 70) {
                       santa.state = 'magic_car'; santa.timer = 0; setMood('💡', 65);
-                    } else if (pick < 0.34) {
+                    } else if (pick < 0.30) {
                       santa.state = 'pet_rudolph'; santa.timer = 0; setMood('❤️', 85);
-                    } else if (pick < 0.52 && lamps.length < 2 && walkMaxX > sLeft + 50) {
+                    } else if (pick < 0.34 && lamps.length < 2 && walkMaxX > sLeft + 50) {
                       santa.state = 'walk_to'; santa.targetMode = 'lamp';
                       santa.targetX = sLeft + 25 + Math.random() * Math.max(20, (walkMaxX - sLeft - 45));
                       setMood('💡', 60);
-                    } else if (pick < 0.70 && snowmen.length < 2 && walkMaxX > sLeft + 50) {
+                    } else if (pick < 0.38 && snowmen.length < 2 && walkMaxX > sLeft + 50) {
                       santa.state = 'walk_to'; santa.targetMode = 'snowman';
                       santa.targetX = sLeft + 25 + Math.random() * Math.max(20, (walkMaxX - sLeft - 45));
                       setMood('🎵', 60);
-                    } else if (pick < 0.72) {
+                    } else if (pick < 0.41) {
                       santa.state = 'snowball'; santa.timer = 0;
                       setMood('🎵', 55);
-                    } else if (totalSub >= 1.5 && pick < 0.80) {
+                    } else if (totalSub >= 1.5 && pick < 0.48) {
                       santa.state = 'snow_angel'; santa.timer = 0; santa.targetZ = 0.45;
                       setMood('❄️', 85);
-                    } else if (pick < 0.92) {
+                    } else if (pick < 0.90) {
                       var toys = ['hot_choco', 'snowboard', 'gift', 'trampoline', 'megaphone', 'drone', 'firework', 'umbrella', 'guitar', 'robot', 'paint_text'];
                       if (gifts.length >= 2) toys = toys.filter(function(t){ return t !== 'gift'; });
                       if (bots.length >= 1) toys = toys.filter(function(t){ return t !== 'robot'; });
@@ -3381,14 +3381,14 @@ window.창고읽기 = function(url){
               if (santa.timer === 31 && bestTopX >= 0) {
                 santa.dir = (bestTopX >= santa.x) ? 1 : -1;
               }
-              if (santa.timer > 30 && santa.timer <= 92) {
-                santa.energy = Math.max(0, santa.energy - 0.08);
-                // 걸어 다니면서 송풍기 바람 쏴아악!
+              if (santa.timer > 30 && santa.timer <= 240) {
+                santa.energy = Math.max(0, santa.energy - 0.05);
+                // 걸어 다니면서 송풍기 바람 쏴아악! (길게 청소)
                 santa.x += santa.dir * 0.95;
                 if (santa.x >= walkMaxX - 6) santa.dir = -1;
                 if (santa.x <= sLeft + 14) santa.dir = 1;
                 santa.walk += 0.28;
-                var bwAng = (santa.timer < 62) ? -0.75 : 0.05;
+                var bwAng = (santa.timer % 120 < 60) ? -0.75 : 0.05;
                 for (var bwx = -24; bwx <= 135; bwx += 3) {
                   var txB = Math.round(santa.x + santa.dir * bwx);
                   if (bwAng < -0.2 && txB >= tLeft && txB <= tRight && surfaceY[txB] >= 0 && pileY[txB] < surfaceY[txB] - 0.2) {
@@ -3936,7 +3936,7 @@ window.창고읽기 = function(url){
             } else {
             // 인체 관절 기반 3D 미니 산타 그리기 (발 위치 = santa.y)
             ctx.save();
-            var isWalking = (santa.state === 'walk_to' || santa.state === 'return' || santa.state === 'sweep_btn' || (santa.state === 'btn_bridge' && santa.timer > 80 && santa.timer <= 108) || (santa.state === 'blower' && santa.timer > 30 && santa.timer <= 92) || (santa.state === 'pocket_toy' && santa.toyType === 'umbrella' && santa.timer > 22 && santa.timer <= 326));
+            var isWalking = (santa.state === 'walk_to' || santa.state === 'return' || santa.state === 'sweep_btn' || (santa.state === 'btn_bridge' && santa.timer > 80 && santa.timer <= 108) || (santa.state === 'blower' && santa.timer > 30 && santa.timer <= 240) || (santa.state === 'pocket_toy' && santa.toyType === 'umbrella' && santa.timer > 22 && santa.timer <= 326));
             var isFlying = (santa.state === 'fly_to_btn' || santa.state === 'fly_back');
             var isPullChair = (santa.state === 'sit_rest' && santa.timer <= 42);
             var isPutChair = (santa.state === 'sit_rest' && santa.timer > 150);
@@ -3947,7 +3947,7 @@ window.창고읽기 = function(url){
             var isBagHouse = (santa.state === 'house_rest' && (santa.timer <= 50 || santa.timer > 505));
             var isBagLamp = (santa.state === 'place_lamp' || santa.state === 'pack_item' || (santa.state === 'snowman' && santa.timer <= 35));
             var isRummage = ((santa.state === 'summon_sleigh' && santa.timer <= 26) || (santa.state === 'sit_rest' && santa.timer <= 24) || (santa.state === 'btn_bridge' && santa.timer <= 16) || (santa.state === 'place_lamp' && santa.timer <= 20) || (santa.state === 'snowman' && santa.timer <= 20) || (santa.state === 'pack_item' && santa.timer <= 18) || (santa.state === 'house_rest' && santa.timer <= 22) || (santa.state === 'blower' && santa.timer <= 18) || (santa.state === 'pet_rudolph' && santa.timer <= 20) || (santa.state === 'magic_car' && santa.timer <= 20) || (santa.state === 'call_friend' && santa.timer <= 18) || (santa.state === 'pocket_toy' && santa.timer <= 18));
-            var isBagAction = (santa.state === 'summon_sleigh' || isPullChair || isPutChair || isPullBridge || isBagLamp || isBagHouse || (santa.state === 'blower' && (santa.timer <= 30 || santa.timer > 105)) || (santa.state === 'pet_rudolph' && (santa.timer <= 34 || santa.timer > 98)) || (santa.state === 'magic_car' && (santa.timer <= 36 || santa.timer > 175)) || (santa.state === 'call_friend' && santa.timer <= 22) || (santa.state === 'pocket_toy' && (santa.timer <= 22 || santa.timer > 328)));
+            var isBagAction = (santa.state === 'summon_sleigh' || isPullChair || isPutChair || isPullBridge || isBagLamp || isBagHouse || (santa.state === 'blower' && (santa.timer <= 30 || santa.timer > 250)) || (santa.state === 'pet_rudolph' && (santa.timer <= 34 || santa.timer > 98)) || (santa.state === 'magic_car' && (santa.timer <= 36 || santa.timer > 175)) || (santa.state === 'call_friend' && santa.timer <= 22) || (santa.state === 'pocket_toy' && (santa.timer <= 22 || santa.timer > 328)));
             var isCrouch = (santa.state === 'hurt' || (santa.state === 'snowball' && santa.timer < 28) || (santa.state === 'snowman' && santa.timer < 65));
             var isSnowAngel = (santa.state === 'snow_angel' && santa.timer > 10 && santa.timer < 230);
             var trampJump = (santa.state === 'pocket_toy' && santa.toyType === 'trampoline' && santa.timer > 24 && santa.timer <= 326) ? Math.abs(Math.sin((santa.timer - 24) * 0.22)) * 13 : 0;
@@ -4451,7 +4451,7 @@ window.창고읽기 = function(url){
                 drawLimb(2.2, -4.2, 4.2, -4.8, 5.2, -6.2, '#d93848', '#ffffff', 1.8);
                 drawLimb(-2.2, -4.2, 1.5, -4.5, 4.5, -6.0, '#c12737', '#ffffff', 1.8);
               }
-            } else if (santa.state === 'blower' && santa.timer > 30 && santa.timer <= 92) {
+            } else if (santa.state === 'blower' && santa.timer > 30 && santa.timer <= 240) {
               // 리프 블로워(송풍기) 쥐고 바람 뿜기! (둥근 팬 본체 + 손잡이 + 나팔 노즐 + 시원한 연속 바람 기류)
               var bAng = (santa.timer < 62) ? -0.78 : 0.05;
               var vib = Math.sin(santa.timer * 1.3) * 0.35;
