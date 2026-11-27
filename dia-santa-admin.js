@@ -191,7 +191,7 @@
   btn2.textContent = '🖼 다이아 홈페이지 섹션';
   nav.appendChild(btn2);
   var sec2 = document.createElement('div');
-  sec2.id = 'ops-banner'; sec2.style.display = 'none';
+  sec2.id = 'ops-diaworld'; sec2.style.display = 'none';
   var style2 = document.createElement('style');
   style2.textContent = sec.querySelector('style').textContent;
   sec2.appendChild(style2);
@@ -238,7 +238,7 @@
     nav.querySelectorAll('.ops-nav-item').forEach(function(x){ x.setAttribute('data-on', x === t ? '1' : '0'); });
     if (mine) {
       Array.from(host.children).forEach(function(ch){
-        if (ch.id === 'ops-santa' || ch.id === 'ops-banner') ch.style.display = (ch === mine ? '' : 'none');
+        if (ch.id === 'ops-santa' || ch.id === 'ops-diaworld') ch.style.display = (ch === mine ? '' : 'none');
         else if (ch.id && ch.id.indexOf('ops-') === 0) ch.style.display = 'none';
       });
     } else {
