@@ -136,3 +136,23 @@
 @media (min-width:881px){
   #mcNoticeBtn{ display:none !important; }
 }
+
+/* ── 모바일 상단 헤더도 PC와 같은 알로하 색상(#f5e5e2) + 아래 서브텍스트(.brand-sub) 삭제 ── */
+@media (max-width:880px){
+  .dia-header{
+    background:#f5e5e2 !important;
+    border-bottom:1px solid #eccfc9 !important;
+    box-shadow:none !important;
+  }
+  .dia-header .brand-sub{ display:none !important; }
+  .dia-header .brand-logo{
+    color:#000 !important;
+    font-family:Arial,'Nanum Barun Gothic',"맑은 고딕",돋움,sans-serif !important;
+    font-weight:700 !important;
+  }
+  #moCatBtn{
+    background:#fff !important;
+    color:#323232 !important;
+    border:1px solid #dcc4bf !important;
+  }
+}
