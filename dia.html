@@ -3384,10 +3384,6 @@ window.창고읽기 = function(url){
                     santa.targetX = bestSubX;
                   } else if (maxTop >= 2.2 && bestTopX >= 0) {
                     santa.targetMode = 'top'; santa.targetX = Math.min(walkMaxX, bestTopX);
-                  } else if (dtRight > dtLeft + 10 && santa.wipeWait > 180) {
-                    santa.wipeWait = 0;
-                    santa.targetMode = 'wipe';
-                    santa.targetX = Math.min(walkMaxX, dtLeft + 14 + Math.random() * Math.max(10, (dtRight - dtLeft - 28)));
                   } else {
                     santa.state = 'return';
                   }
