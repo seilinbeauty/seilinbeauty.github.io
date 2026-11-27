@@ -2208,6 +2208,18 @@
         margin: 0; position: relative; display: inline-block; z-index: 1;
         color: #212529;
       }
+      .plx-santa-host { position: relative; display: inline-block; }
+      .plx-mini-santa {
+        position: absolute; top: -13px; left: -1px; width: 17px; height: 20px;
+        pointer-events: none; z-index: 3;
+        transform-origin: 50% 90%;
+        animation: plxSantaBob 3.2s ease-in-out infinite;
+        filter: drop-shadow(0 1px 1px rgba(0,0,0,.15));
+      }
+      @keyframes plxSantaBob {
+        0%, 100% { transform: rotate(-2deg) translateY(0); }
+        50% { transform: rotate(2deg) translateY(-1px); }
+      }
       .pc-hero-datetime {
         display: inline-flex !important; flex-direction: row; align-items: baseline; justify-content: flex-start; gap: 6px;
         padding: 0; border: 0; background: none; box-shadow: none;
@@ -2339,7 +2351,7 @@ window.창고읽기 = function(url){
         <div class="only-pc">
           <span class="plx-tag">DIA COMMUNITY</span>
           <div class="plx-title-row">
-            <div class="plx-title" id="plxTitleText">다이아 커뮤니티</div>
+            <div class="plx-title" id="plxTitleText">다이아 커뮤<span class="plx-santa-host">니<svg class="plx-mini-santa only-pc" viewBox="0 0 24 28" aria-hidden="true"><path d="M7,10 C8,4 14,2 19,5 C17,6 16,8 16,10 Z" fill="#d93848"/><circle cx="19.5" cy="5.2" r="2.2" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.6"/><rect x="6" y="9" width="11" height="3" rx="1.5" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.5"/><circle cx="11.5" cy="14" r="3.6" fill="#ffd9c2"/><path d="M8,14.5 C8.5,18.5 14.5,18.5 15,14.5 C13.5,15.5 9.5,15.5 8,14.5 Z" fill="#ffffff"/><circle cx="10.2" cy="13.2" r="0.65" fill="#2d2226"/><circle cx="12.8" cy="13.2" r="0.65" fill="#2d2226"/><circle cx="11.5" cy="14.2" r="0.7" fill="#e87a7a"/><path d="M7.5,17.5 C7.5,16.5 15.5,16.5 15.5,17.5 L16.2,22.5 L6.8,22.5 Z" fill="#d93848"/><rect x="7" y="20.5" width="9" height="1.5" fill="#2d2226"/><rect x="10.5" y="20.3" width="2" height="1.9" rx="0.4" fill="#f3c44d"/><path d="M8.5,22.5 L7.5,26.2" stroke="#2d2226" stroke-width="2.2" stroke-linecap="round"/><path d="M14.2,22.5 L15.2,26.2" stroke="#2d2226" stroke-width="2.2" stroke-linecap="round"/></svg></span>티</div>
             <div class="pc-hero-datetime only-pc" id="pcHeroDatetime" aria-live="off">
               <div class="pc-hero-date" id="pcHeroDate"></div>
               <div class="pc-hero-time" id="pcHeroTime"></div>
