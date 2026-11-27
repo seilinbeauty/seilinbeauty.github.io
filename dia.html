@@ -1922,12 +1922,6 @@
     .plx-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; }
     .plx-cta-t { font-size: 12px; color: #868e96; }
     .only-pc { display: block; }
-    /* PC: 로그인 후 내 수강·채팅이 생겨도 상단 줄이 밀리지 않게 자리를 미리 비워 둔다 */
-    @media (min-width: 881px) {
-      body.dia-page .dia-hero-in > .mc-hero-right { min-width: 210px; justify-content: flex-end; }
-      body.dia-page .dia-hero-in > .quick-links { flex-shrink: 0; }
-      body.dia-page .dia-hero-in > .only-pc { min-height: 64px; }
-    }
     .only-mo { display: none; }
     .side-set { display: block; margin-top: 12px; padding: 12px 11px 11px; border: 1px solid #f1e3e9; border-radius: 12px;
       background: linear-gradient(180deg, #fffdfd, #fdf7f9); box-shadow: 0 2px 6px rgba(180,140,155,.06); }
