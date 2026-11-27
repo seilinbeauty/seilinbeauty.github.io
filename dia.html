@@ -7169,15 +7169,25 @@ window.창고읽기 = function(url){
           return { left: left, right: right, topY: baseTop + Math.max(0, topOff) };
         }
 
+        var lockH = 0, lastW = 0, lastH = 0;
         function buildSurface(){
           if (window.innerWidth <= 880) { W = 0; return; }
+          /* 내 품앗이 검색창이 열린 동안은 다시 재지 않는다 (산타 위치·화질 흔들림 방지) */
+          var lb = document.getElementById('mcLoginBox');
+          if (lb && !lb.hidden && (lb.offsetWidth || lb.offsetHeight)) { if (!W) { /* 첫 측정은 허용 */ } else return; }
           var hr = hero.getBoundingClientRect();
           if (!hr.width || !hr.height) return;
           dpr = Math.min(window.devicePixelRatio || 1, 2);
           W = Math.round(hr.width);
-          H = Math.round(hr.height);
-          cv.width = W * dpr;
-          cv.height = H * dpr;
+          if (!lockH) lockH = Math.round(hr.height);
+          H = lockH;
+          cv.style.height = H + 'px';
+          if (bgCv) bgCv.style.height = H + 'px';
+          if (W !== lastW || H !== lastH) {
+            lastW = W; lastH = H;
+            cv.width = W * dpr;
+            cv.height = H * dpr;
+          }
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
           if (bgCv && bgCtx) {
             bgCv.width = W * dpr;
