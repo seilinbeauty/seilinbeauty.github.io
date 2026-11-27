@@ -2954,8 +2954,6 @@ window.창고읽기 = function(url){
                 setMood('😤', 65);
                 santa.state = 'walk_to'; santa.targetMode = 'roam';
                 santa.targetX = Math.max(sLeft + 15, Math.min(walkMaxX, santa.x + santa.dir * 55));
-              } else if (mouse.idle > 660 && santa.timer > 15 && Math.random() < 0.04) {
-                santa.state = 'wake_user'; santa.timer = 0; santa.targetZ = 0.75; setMood('👋', 80);
               }
               var topInView = (bestTopX >= 0) && ((bestTopX - santa.x) * santa.dir >= -8);
               var subInView = (bestSubX >= 0) && ((bestSubX - santa.x) * santa.dir >= -8);
@@ -2966,10 +2964,6 @@ window.창고읽기 = function(url){
                 var mouseInFront = ((mouse.x - santa.x) * santa.dir >= -4);
                 if (mouseInFront && dm < 95) {
                   santa.headLook = Math.max(-0.45, Math.min(0.45, (mouse.y - (santa.y - 12)) * 0.015));
-                  if (dm < 22 && santa.timer > 12) {
-                    santa.state = 'greet'; santa.timer = 0; setMood('❗', 55);
-                    santa.x = Math.max(sLeft + 15, Math.min(sRight - 15, santa.x - santa.dir * 8));
-                  }
                 } else if (!mouseInFront && dm < 24 && Math.hypot(mouse.vx, mouse.vy) > 6) {
                   santa.dir *= -1; setMood('❗', 45);
                 }
@@ -3542,10 +3536,7 @@ window.창고읽기 = function(url){
                 santa.state = 'idle'; santa.timer = 0;
               }
             } else if (santa.state === 'walk_to') {
-              // 중간 변덕 인터럽트: 정면 시야에 마우스가 가까이 오거나 장난기가 치솟으면 잠깐 멈춤/딴짓!
-              if (mouse.inside && (mouse.x - santa.x) * santa.dir >= -4 && Math.hypot(mouse.x - santa.x, mouse.y - (santa.y - 10)) < 26 && Math.random() < 0.08) {
-                santa.state = 'greet'; santa.timer = 0; setMood('❗', 55);
-              } else if ((santa.targetMode === 'top' || santa.targetMode === 'road') && santa.playful > 75 && Math.random() < 0.008) {
+              if ((santa.targetMode === 'top' || santa.targetMode === 'road') && santa.playful > 75 && Math.random() < 0.008) {
                 santa.state = 'snowball'; santa.timer = 0; setMood('🎵', 55);
               }
               var dxMove = santa.targetX - santa.x;
