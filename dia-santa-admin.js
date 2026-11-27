@@ -201,8 +201,7 @@
       b.style.background = on ? 'linear-gradient(90deg,#ef9ab4,#d55576)' : '#fff';
       b.style.color = on ? '#fff' : '#c2456a';
     });
-    try { frame.contentWindow.dispatchEvent(new Event('resize')); } catch(e){}
-    try { if (frame.contentWindow.diaReloadLayout) frame.contentWindow.diaReloadLayout(); } catch(e){}
+    frame.src = 'dia.html?edit=1&dev=' + k + '&r=' + Date.now();
   }
   ['pc','tb','mo'].forEach(function(k){
     var b = document.getElementById('w_' + k);
