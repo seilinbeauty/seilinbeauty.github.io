@@ -2479,9 +2479,6 @@ window.창고읽기 = function(url){
             <span class="mc-chat-ico">💬</span><span>채팅</span>
             <span class="mc-chat-n" id="mcChatBadge" hidden>0</span>
           </a>
-          <a id="mcEnterBtn" class="mc-chat only-mo" href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" hidden>
-            <span>입장</span>
-          </a>
         </div>
       </div>
       <div class="mc-login-box" id="mcLoginBox" hidden style="margin:8px auto 0;max-width:440px;text-align:center;">
@@ -2502,7 +2499,6 @@ window.창고읽기 = function(url){
         if(!actBtn || !st || !my) return;
         var mqPc = window.matchMedia ? window.matchMedia('(min-width: 881px)') : null;
         function sync(){
-          var ent = document.getElementById('mcEnterBtn'); if(ent) ent.hidden = my.hidden;
           if(my.hidden){ st.hidden = true; actBtn.hidden = true; actBtn.classList.remove('is-on'); return; }
           if(mqPc && mqPc.matches){
             actBtn.hidden = true; actBtn.classList.remove('is-on');
