@@ -10227,5 +10227,37 @@ window.창고읽기 = function(url){
 })();
 </script>
 
+
+<script>
+(function(){
+  var LS_KEY = 'dia_custom_cats_v1';
+  var FB_DOC = 'https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/analytics/dia_categories_v1';
+  function renderCats(list){
+    var nav = document.querySelector('.plx-nav');
+    if (!nav || !Array.isArray(list)) return;
+    nav.querySelectorAll('.dia-custom-cat').forEach(function(n){ n.remove(); });
+    var enter = nav.querySelector('a[href*="open.kakao.com"]');
+    list.forEach(function(c){
+      if (c.hide || !c.name) return;
+      var a = document.createElement('a');
+      a.className = 'nav-link dia-custom-cat';
+      a.href = c.url || '#';
+      if (/^https?:\/\//i.test(c.url || '')) { a.target = '_blank'; a.rel = 'noopener'; }
+      a.innerHTML = '<span style="margin-right:5px;">' + (c.icon || '📌') + '</span>' + String(c.name).replace(/</g,'&lt;');
+      if (enter && enter.parentNode === nav) nav.insertBefore(a, enter);
+      else nav.appendChild(a);
+    });
+  }
+  try { renderCats(JSON.parse(localStorage.getItem(LS_KEY) || '[]')); } catch(e){}
+  fetch(FB_DOC).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+    if (d && d.fields && d.fields.json && d.fields.json.stringValue) {
+      var arr = JSON.parse(d.fields.json.stringValue);
+      localStorage.setItem(LS_KEY, JSON.stringify(arr));
+      renderCats(arr);
+    }
+  }).catch(function(){});
+})();
+</script>
+
 </body>
 </html>
