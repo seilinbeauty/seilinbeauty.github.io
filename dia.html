@@ -3136,7 +3136,10 @@ window.창고읽기 = function(url){
             } else if (santa.state === 'shovel_toss') {
               santa.timer++;
               if (santa.timer === 12) {
-                // 삽으로 퍼낸 눈 공중으로 휙 날려 보내기!
+                for (var stx = -18; stx <= 18; stx++) {
+                  var cxT = Math.round(santa.x + santa.dir * 8) + stx;
+                  if (cxT >= sLeft && cxT <= sRight && subSurfaceY[cxT] >= 0) subPileY[cxT] = subSurfaceY[cxT];
+                }
                 for (var st = 0; st < 8; st++) {
                   if (puffs.length < 75) puffs.push({ x: santa.x + santa.dir * 8, y: santa.y - 10, vx: santa.dir * (1.2 + Math.random() * 1.4), vy: -1.5 - Math.random() * 1.1, r: 1.7, life: 0.95 });
                 }
@@ -3370,21 +3373,25 @@ window.창고읽기 = function(url){
                 santa.state = 'hurt'; santa.timer = 0; setMood('💫', 55);
               }
               if (santa.targetMode === 'shovel') {
-                // 바닥 눈이 수북할 땐 제설 삽으로 쓱 밀고 가다가 퍼내기!
+                // 길게 걸어 다니며 제설 삽으로 바닥 눈을 싹 밀어 없애다가 한 번씩 퍼내기!
                 santa.timer++;
+                if (santa.timer === 1 && Math.abs(dxMove) < 48) {
+                  santa.targetX = (santa.x < (sLeft + walkMaxX) / 2) ? (walkMaxX - 14) : (sLeft + 20);
+                  dxMove = santa.targetX - santa.x;
+                }
                 if (Math.abs(dxMove) > 4) {
                   santa.dir = dxMove > 0 ? 1 : -1;
-                  santa.x += santa.dir * 0.72;
-                  santa.walk += 0.2;
+                  santa.x += santa.dir * 0.95;
+                  santa.walk += 0.24;
                   santa.energy = Math.max(0, santa.energy - 0.12);
-                  var sfx = Math.round(santa.x + santa.dir * 8);
-                  for (var ddxS = -9; ddxS <= 9; ddxS++) {
+                  var sfx = Math.round(santa.x + santa.dir * 10);
+                  for (var ddxS = -14; ddxS <= 14; ddxS++) {
                     var cxS = sfx + ddxS;
-                    if (cxS >= sLeft && cxS <= sRight && subSurfaceY[cxS] >= 0 && subPileY[cxS] < subSurfaceY[cxS] - 0.2) {
-                      subPileY[cxS] = Math.min(subSurfaceY[cxS], subPileY[cxS] + 2.0);
+                    if (cxS >= sLeft && cxS <= sRight && subSurfaceY[cxS] >= 0 && subPileY[cxS] < subSurfaceY[cxS] - 0.1) {
+                      subPileY[cxS] = subSurfaceY[cxS];
                     }
                   }
-                  if (santa.timer % 48 === 47) { santa.state = 'shovel_toss'; santa.timer = 0; }
+                  if (santa.timer % 68 === 67) { santa.state = 'shovel_toss'; santa.timer = 0; }
                 } else {
                   santa.state = 'shovel_toss'; santa.timer = 0;
                 }
