@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="googlebot" content="noindex, nofollow">
+<title>로그인 · 미리보기</title>
+<style>
+  :root{--cream:#fbf8f6;--blush:#f5e5e2;--ink:#2f2a2b;--ink-soft:#6f6668;--ink-mute:#a79b9e;--line:#eee6e3;--accent:#c9707f;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--cream);color:var(--ink);
+    font-family:Roboto,"Apple SD Gothic Neo","맑은 고딕","Nanum Gothic",-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  a{color:inherit;text-decoration:none;}
+
+  .bar{background:var(--blush);height:45px;}
+  .bar-in{max-width:1100px;margin:0 auto;padding:0 20px;height:45px;
+    display:flex;align-items:center;justify-content:space-between;}
+  .bar ul{list-style:none;margin:0;padding:0;display:flex;align-items:center;height:45px;}
+  .bar a{font-size:11.2px;letter-spacing:.9px;text-transform:uppercase;display:flex;align-items:center;height:45px;color:#323232;}
+  .bar .l li{margin-right:26px;}
+  .bar .r li{margin-left:24px;}
+  .logo{font-size:15px;font-weight:700;letter-spacing:.5px;}
+
+  .box{max-width:340px;margin:0 auto;padding:78px 20px 100px;}
+  .eyebrow{font-size:10px;letter-spacing:2.8px;text-transform:uppercase;color:var(--ink-mute);text-align:center;}
+  h1{margin:12px 0 34px;text-align:center;font-weight:300;font-size:22px;letter-spacing:-.4px;}
+
+  .field{margin-bottom:10px;}
+  input{width:100%;height:44px;padding:0 14px;background:#fff;border:1px solid var(--line);
+    border-radius:2px;font-family:inherit;font-size:13px;color:var(--ink);outline:none;}
+  input:focus{border-color:#dccbc9;}
+  input::placeholder{color:#c3b8ba;}
+
+  .btn{width:100%;height:44px;margin-top:14px;background:#2f2a2b;color:#fff;border:0;
+    border-radius:2px;font-family:inherit;font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;cursor:pointer;}
+  .btn:hover{background:#4a4244;}
+
+  .links{display:flex;justify-content:center;gap:18px;margin-top:20px;
+    font-size:11px;color:var(--ink-soft);letter-spacing:.02em;}
+  .links a:hover{color:var(--accent);}
+  .links span{color:#ddd3d4;}
+
+  .join{margin-top:38px;padding-top:24px;border-top:1px solid var(--line);text-align:center;}
+  .join p{margin:0 0 10px;font-size:11px;color:var(--ink-mute);letter-spacing:.06em;}
+  .join a{display:inline-flex;align-items:center;justify-content:center;width:100%;height:42px;
+    border:1px solid #dccbc9;border-radius:2px;font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:#3a3234;background:#fff;}
+  .join a:hover{background:var(--blush);}
+
+  .tag{position:fixed;right:14px;bottom:12px;font-size:9.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:#c3b8ba;}
+
+  #door{position:fixed;inset:0;background:var(--cream);z-index:99;display:flex;
+    align-items:center;justify-content:center;padding:20px;}
+  #door .card{max-width:280px;width:100%;text-align:center;}
+  #door h2{font-size:13px;letter-spacing:.3em;text-transform:uppercase;font-weight:500;margin:0 0 12px;}
+  #door p{font-size:11.5px;line-height:1.9;color:var(--ink-soft);margin:0 0 18px;}
+  #door input{text-align:center;letter-spacing:.4em;}
+  #door button{margin-top:10px;width:100%;height:40px;background:#2f2a2b;color:#fff;border:0;
+    border-radius:2px;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;}
+  #door .err{margin-top:10px;font-size:11px;color:#c06070;min-height:14px;}
+  body:not(.locked) #door{display:none;}
+</style>
+</head>
+<body class="locked">
+
+<div id="door">
+  <div class="card">
+    <h2>Dia Preview</h2>
+    <p>비공개 화면입니다.<br>비밀번호를 입력해 주세요.</p>
+    <input id="pw" type="password" inputmode="numeric" autocomplete="off" placeholder="····">
+    <button type="button" id="go">Open</button>
+    <div class="err" id="err"></div>
+  </div>
+</div>
+
+<header class="bar">
+  <div class="bar-in">
+    <ul class="l">
+      <li><a href="dia-preview.html?staff=1" class="logo">DIA</a></li>
+      <li><a href="dia-preview.html?staff=1">Home</a></li>
+    </ul>
+    <ul class="r">
+      <li><a href="dia-preview-login.html?staff=1">Login</a></li>
+      <li><a href="dia-preview-join.html?staff=1&amp;mode=join">Join</a></li>
+    </ul>
+  </div>
+</header>
+
+<div class="box">
+  <div class="eyebrow">Login</div>
+  <h1>다시 오셨네요</h1>
+
+  <div class="field"><input type="email" placeholder="이메일" autocomplete="email"></div>
+  <div class="field"><input type="password" placeholder="비밀번호" autocomplete="current-password"></div>
+  <button class="btn" type="button">로그인</button>
+
+  <div class="links">
+    <a href="#">아이디 찾기</a><span>|</span>
+    <a href="#">비밀번호 찾기</a><span>|</span>
+    <a href="dia-preview-join.html?staff=1&amp;mode=join">회원가입</a>
+  </div>
+
+  <div class="join">
+    <p>처음이신가요?</p>
+    <a href="dia-preview-join.html?staff=1&amp;mode=join">회원가입하기</a>
+  </div>
+</div>
+
+<div class="tag">Preview · 실제 로그인 아님</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var KEY = atob('MDQyMw==');
+  function open(){ document.body.classList.remove('locked'); }
+  try{ if (/[?&]staff=1/.test(location.search) || sessionStorage.getItem('dia_preview_ok') === '1') open(); }catch(e){}
+  var pw = document.getElementById('pw'), go = document.getElementById('go'), err = document.getElementById('err');
+  function tryOpen(){
+    if (pw.value.trim() === KEY) { try{ sessionStorage.setItem('dia_preview_ok','1'); }catch(e){} err.textContent=''; open(); }
+    else { err.textContent='비밀번호가 맞지 않습니다.'; pw.value=''; pw.focus(); }
+  }
+  go.addEventListener('click', tryOpen);
+  pw.addEventListener('keydown', function(e){ if (e.key==='Enter') tryOpen(); });
+});
+</script>
+<script src="preview-cursor.js?v=2"></script>
+<script src="preview-live.js?v=1"></script>
+</body>
+</html>
