@@ -2164,9 +2164,10 @@
         box-shadow: 0 2px 10px rgba(180, 130, 145, .05); box-sizing: border-box;
         flex-wrap: wrap; gap: 10px 14px !important;
       }
-      body.dia-page .dia-hero-in > *:not(.pc-hero-snow) { position: relative; z-index: 1; }
+      body.dia-page .dia-hero-in > *:not(.pc-hero-snow):not(.pc-hero-snow-bg) { position: relative; z-index: 2; }
       body.dia-page .dia-hero-in > .quick-links,
       body.dia-page .dia-hero-in > .mc-hero-right { z-index: 3; }
+      .pc-hero-snow-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
       .pc-hero-snow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 25; }
       .pc-snow-flake {
         position: absolute; top: -18px; user-select: none;
@@ -2328,6 +2329,7 @@ window.창고읽기 = function(url){
   </header>
   <section class="dia-hero">
     <div class="dia-hero-in">
+      <canvas class="pc-hero-snow-bg only-pc" id="pcSnowBgCanvas" aria-hidden="true"></canvas>
       <canvas class="pc-hero-snow only-pc" id="pcSnowCanvas" aria-hidden="true"></canvas>
       <div class="dia-hero-l">
         <div class="pr-card only-mo">
@@ -2377,6 +2379,8 @@ window.창고읽기 = function(url){
       <script>
       (function(){
         var cv = document.getElementById('pcSnowCanvas');
+        var bgCv = document.getElementById('pcSnowBgCanvas');
+        var bgCtx = bgCv ? bgCv.getContext('2d') : null;
         var hero = cv && cv.parentElement;
         var titleEl = document.getElementById('plxTitleText');
         var subEl = document.getElementById('plxSubText');
@@ -2519,6 +2523,11 @@ window.창고읽기 = function(url){
           cv.width = W * dpr;
           cv.height = H * dpr;
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          if (bgCv && bgCtx) {
+            bgCv.width = W * dpr;
+            bgCv.height = H * dpr;
+            bgCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          }
 
           surfaceY = new Float32Array(W);
           pileY = new Float32Array(W);
@@ -2658,6 +2667,7 @@ window.창고읽기 = function(url){
           requestAnimationFrame(step);
           if (window.innerWidth <= 880) return;
           if (!W || !surfaceY) { buildSurface(); if (!W) return; }
+          if (bgCtx) bgCtx.clearRect(0, 0, W, H);
           ctx.clearRect(0, 0, W, H);
 
           for (var i = 0; i < flakes.length; i++) {
@@ -3845,51 +3855,55 @@ window.창고읽기 = function(url){
               }
             }
 
-            // ── 보이지 않는 백스테이지 문 & 계단 & 실루엣 그림자 (열릴 때만 보임!) ──
+            // ── 보이지 않는 백스테이지 문(산타 키 19px, 열고 닫을 때만 보임) & 물체 뒤 그림자 실루엣(bgCtx, z-index:1) ──
             if (santa.state === 'backstage_fix') {
               var bt = santa.timer;
-              var doorOpen = (bt < 28) ? Math.min(1, bt / 24) : (bt > 195 ? Math.max(0, 1 - (bt - 195) / 24) : 1);
+              var doorOpen = 0;
+              if (bt < 26) doorOpen = Math.min(1, bt / 22);
+              else if (bt < 40) doorOpen = Math.max(0, 1 - (bt - 26) / 14);
+              else if (bt >= 178 && bt < 194) doorOpen = Math.min(1, (bt - 178) / 16);
+              else if (bt >= 194 && bt < 216) doorOpen = Math.max(0, 1 - (bt - 194) / 22);
+
               var doorX = santa.bsDoorX, doorY = roadY;
-              var doorW = 16 * doorOpen, doorH = 26;
+              var doorW = 12 * doorOpen, doorH = 19;
               if (doorOpen > 0.04) {
                 ctx.save();
-                // 어두운 백스테이지 틈새 공간
                 ctx.fillStyle = 'rgba(15, 23, 42, ' + (0.82 * doorOpen).toFixed(2) + ')';
                 ctx.fillRect(doorX, doorY - doorH, doorW, doorH);
-                // 안쪽 계단 (실루엣)
-                ctx.fillStyle = 'rgba(51, 65, 85, ' + (0.85 * doorOpen).toFixed(2) + ')';
-                for (var stp = 0; stp < 4; stp++) {
-                  ctx.fillRect(doorX + 2 + stp * 2.5 * doorOpen, doorY - 4 - stp * 4.5, 5 * doorOpen, 2.2);
-                }
-                // 안쪽에서 계단 오르내리며 수리하는 어두운 실루엣 산타 그림자!
-                if (bt >= 28 && bt <= 195) {
-                  var silP = (bt < 70) ? ((bt - 28) / 42) : (bt > 155 ? Math.max(0, 1 - (bt - 155) / 40) : 1);
-                  var silX = doorX + 5 * doorOpen + silP * (santa.bsMode === 'title' ? -22 : 18);
-                  var silY = doorY - 4 - silP * 15;
-                  var tapW = (bt >= 70 && bt <= 155) ? Math.sin(bt * 0.35) * 2.2 : 0;
-                  ctx.save();
-                  ctx.translate(silX, silY);
-                  ctx.fillStyle = 'rgba(15, 23, 42, 0.72)';
-                  // 모자 + 머리 + 몸통 실루엣
-                  ctx.beginPath(); ctx.arc(0, -10, 3.0, 0, Math.PI * 2); ctx.fill();
-                  ctx.beginPath(); ctx.moveTo(-3.2, -11.5); ctx.lineTo(1.5, -16.5); ctx.lineTo(3.0, -11.5); ctx.closePath(); ctx.fill();
-                  ctx.beginPath(); ctx.ellipse(0, -4.5, 3.8, 3.8, 0, 0, Math.PI * 2); ctx.fill();
-                  // 스패너 또는 스위치 레버 조작하는 그림자 팔
-                  ctx.strokeStyle = 'rgba(15, 23, 42, 0.78)'; ctx.lineWidth = 1.8;
-                  ctx.beginPath(); ctx.moveTo(2, -5); ctx.lineTo(6.5, -7 + tapW); ctx.stroke();
-                  if (santa.bsMode === 'switch_clock' || santa.bsMode === 'boiler') {
-                    ctx.fillStyle = (santa.bsMode === 'boiler') ? (bt >= 90 ? '#ef4444' : '#64748b') : (bt >= 90 && bt < 145 ? '#475569' : '#22c55e');
-                    ctx.fillRect(6.5, -9, 2.2, 3.2);
-                  }
-                  ctx.restore();
-                }
-                // 열려 있는 투명한 문짝 테두리 + 금색 손잡이
-                ctx.strokeStyle = 'rgba(148, 163, 184, ' + (0.85 * doorOpen).toFixed(2) + ')';
-                ctx.lineWidth = 1.3;
+                ctx.strokeStyle = 'rgba(148, 163, 184, ' + (0.9 * doorOpen).toFixed(2) + ')';
+                ctx.lineWidth = 1.2;
                 ctx.strokeRect(doorX, doorY - doorH, doorW, doorH);
                 ctx.fillStyle = '#facc15';
-                ctx.beginPath(); ctx.arc(doorX + doorW - 2.5, doorY - doorH * 0.45, 1.3, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(doorX + doorW - 2.0, doorY - doorH * 0.45, 1.1, 0, Math.PI * 2); ctx.fill();
                 ctx.restore();
+              }
+
+              // 글자·시계 뒤쪽 레이어(bgCtx)에 계단 + 산타 그림자 실루엣 그리기!
+              if (bt >= 32 && bt <= 186 && bgCtx) {
+                var silP = (bt < 72) ? ((bt - 32) / 40) : (bt > 150 ? Math.max(0, 1 - (bt - 150) / 36) : 1);
+                var targetSilX = (santa.bsMode === 'title') ? ((tLeft + tRight) / 2) : ((dtLeft + dtRight) / 2);
+                var silX = doorX + 5 + (targetSilX - (doorX + 5)) * silP;
+                var silY = roadY - 3 - silP * 14;
+                var tapW = (bt >= 72 && bt <= 150) ? Math.sin(bt * 0.35) * 2.4 : 0;
+                var walkStep = (bt < 72 || bt > 150) ? Math.abs(Math.sin(bt * 0.4)) * 1.4 : 0;
+
+                bgCtx.save();
+                bgCtx.fillStyle = 'rgba(100, 116, 139, 0.16)';
+                for (var stp = 0; stp < 5; stp++) {
+                  bgCtx.fillRect(doorX + (targetSilX - doorX) * (stp / 5), roadY - 2 - stp * 3.2, 8, 1.6);
+                }
+                bgCtx.translate(silX, silY - walkStep);
+                bgCtx.fillStyle = 'rgba(15, 23, 42, 0.36)';
+                bgCtx.beginPath(); bgCtx.arc(0, -10, 3.2, 0, Math.PI * 2); bgCtx.fill();
+                bgCtx.beginPath(); bgCtx.moveTo(-3.4, -11.5); bgCtx.lineTo(1.5, -16.8); bgCtx.lineTo(3.2, -11.5); bgCtx.closePath(); bgCtx.fill();
+                bgCtx.beginPath(); bgCtx.ellipse(0, -4.5, 4.0, 4.0, 0, 0, Math.PI * 2); bgCtx.fill();
+                bgCtx.strokeStyle = 'rgba(15, 23, 42, 0.42)'; bgCtx.lineWidth = 2.0;
+                bgCtx.beginPath(); bgCtx.moveTo(2, -5); bgCtx.lineTo(7.2, -7.2 + tapW); bgCtx.stroke();
+                if (santa.bsMode === 'switch_clock' || santa.bsMode === 'boiler') {
+                  bgCtx.fillStyle = (santa.bsMode === 'boiler') ? (bt >= 90 ? 'rgba(239,68,68,0.65)' : 'rgba(100,116,139,0.5)') : (bt >= 90 && bt < 145 ? 'rgba(71,85,105,0.5)' : 'rgba(34,197,94,0.6)');
+                  bgCtx.fillRect(7.0, -9.5, 2.5, 3.4);
+                }
+                bgCtx.restore();
               }
             }
 
@@ -3903,7 +3917,7 @@ window.창고읽기 = function(url){
             var zScale = 1 + santa.depthZ * 0.15;
             var zY = santa.depthZ * 2.8;
             // 백스테이지 문 안쪽에 들어가 있는 동안은 바깥 앞면 산타를 숨김(그림자 실루엣으로만 보임!)
-            if (santa.state === 'backstage_fix' && santa.timer >= 28 && santa.timer <= 195) {
+            if (santa.state === 'backstage_fix' && santa.timer >= 32 && santa.timer <= 186) {
               // 문 안쪽 실루엣 상태
             } else {
             // 인체 관절 기반 3D 미니 산타 그리기 (발 위치 = santa.y)
@@ -4354,6 +4368,10 @@ window.창고읽기 = function(url){
               var swA = Math.sin(santa.timer * 0.35) * 4.5;
               drawLimb(2.2, -4.2, 4.5, -5.5 + swA * 0.4, 5.5, -7.0 + swA, '#d93848', '#ffffff', 1.9);
               drawLimb(-2.2, -4.2, -4.5, -5.5 - swA * 0.4, -5.5, -7.0 - swA, '#c12737', '#ffffff', 1.9);
+            } else if (santa.state === 'backstage_fix') {
+              var pullArm = (santa.timer < 26) ? Math.sin((santa.timer / 26) * Math.PI) * 3.5 : Math.sin(((220 - santa.timer) / 26) * Math.PI) * 3.5;
+              drawLimb(2.2, -4.2, 5.2, -6.2, 7.8 + pullArm, -8.5, '#d93848', '#ffffff', 1.9);
+              drawLimb(-2.2, -4.2, -3.2, -2.2, -2.2, -0.4, '#c12737', '#ffffff', 1.8);
             } else if (santa.state === 'wake_user') {
               var wvU = Math.sin(santa.timer * 0.35) * 2.4;
               drawLimb(2.2, -4.2, 4.4, -6.5, 4.8 + wvU, -9.8, '#d93848', '#ffffff', 1.9);
