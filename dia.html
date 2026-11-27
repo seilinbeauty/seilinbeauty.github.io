@@ -2472,7 +2472,7 @@ window.창고읽기 = function(url){
           <a id="mcCourseEditBtn" class="mc-chat" href="dia-my-course.html" hidden>
             <span>내 수강</span>
           </a>
-          <button type="button" id="mcActBtn" class="mc-chat" hidden><span>내 활동</span></button>
+          <a id="mcActBtn" class="mc-chat" href="dia-mypage.html" hidden><span>마이페이지</span></a>
         </div>
         <div style="display:flex;flex-direction:column;gap:5px;align-items:stretch;">
           <a id="mcChatBtn" class="mc-chat" href="dia-chat.html" hidden>
@@ -2488,31 +2488,20 @@ window.창고읽기 = function(url){
         <div id="mcLoginPick" style="margin-top:6px;display:grid;gap:4px;"></div>
         <div class="mc-login-msg" id="mcLoginMsg" style="text-align:center;">회원목록에서 본인 이름을 검색해 누르고 암호 4자리를 넣으면 열립니다.</div>
       </div>
-      <div id="mcHeroStatus" hidden style="margin-top:0;"></div>
+      <div id="mcHeroStatus" hidden style="display:none !important;margin-top:0;"></div>
       <div id="diaLinkBox" hidden></div><!-- 오늘 내 링크 남기기 (dia-link.js) -->
       <script>
-      /* 내 활동 기록 버튼 — 평소엔 활동 기록을 감추고, 버튼을 누르면 그 자리에 펼친다. 로그인했을 때만 버튼 노출. */
+      /* 마이페이지 버튼 — 로그인했을 때 노출, 클릭 시 dia-mypage.html로 이동 */
       (function(){
         var actBtn = document.getElementById('mcActBtn');
         var st = document.getElementById('mcHeroStatus');
         var my = document.getElementById('mcCourseEditBtn');
         if(!actBtn || !st || !my) return;
-        var mqPc = window.matchMedia ? window.matchMedia('(min-width: 881px)') : null;
         function sync(){
-          if(my.hidden){ st.hidden = true; actBtn.hidden = true; actBtn.classList.remove('is-on'); return; }
-          if(mqPc && mqPc.matches){
-            actBtn.hidden = true; actBtn.classList.remove('is-on');
-            if(st.innerHTML) st.hidden = false;
-            return;
-          }
+          st.hidden = true;
+          if(my.hidden){ actBtn.hidden = true; return; }
           actBtn.hidden = false;
-          if(!actBtn.classList.contains('is-on')) st.hidden = true;
         }
-        actBtn.addEventListener('click', function(){
-          var show = !!st.hidden && !!st.innerHTML;
-          st.hidden = !show;
-          actBtn.classList.toggle('is-on', show);
-        });
         if(window.MutationObserver){ try{ new MutationObserver(sync).observe(my, {attributes:true, attributeFilter:['hidden']}); }catch(e){} }
         setInterval(sync, 1200);
         sync();
@@ -3960,7 +3949,7 @@ window.창고읽기 = function(url){
                       + '<span class="plx-ask" style="margin-top:8px;">내 정보로 로그인 중' + (badgeList.length ? (' · ' + badgeList.join(' ')) : skTxt) + '</span>';
                   }
                   for(var q = 0; q < quickAs.length; q++){ quickAs[q].style.display = 'none'; }
-                  if(heroStatus){ 그리기([m], heroStatus); heroStatus.style.background = '#fff'; heroStatus.style.borderRadius = '12px'; heroStatus.style.padding = '8px 12px 6px'; heroStatus.style.border = '1px solid #f2e2e8'; heroStatus.hidden = true; }
+                  if(heroStatus){ heroStatus.innerHTML = ''; heroStatus.hidden = true; heroStatus.style.display = 'none'; }
                   if(mycardH) mycardH.style.display = 'none';
                   if(폼) 폼.style.display = 'none';
                   if(결과) 결과.hidden = true;
