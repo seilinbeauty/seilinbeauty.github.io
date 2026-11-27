@@ -3064,8 +3064,8 @@ document.addEventListener('DOMContentLoaded', function(){
   function 잠그기(){
     if(만료타이머){ clearTimeout(만료타이머); 만료타이머 = null; }
     try{ localStorage.removeItem('dia_ops_ok'); localStorage.removeItem('dia_ops_exp'); }catch(_e){}
-    if(sect) document.body.classList.remove('ops-unlocked');
-    sect.style.display = 'none';
+    document.body.classList.remove('ops-unlocked');
+    if(sect) sect.style.display = 'none';
     if(door) door.style.display = '';
     var pw = document.getElementById('ops-pw');
     if(pw){ pw.value = ''; }
@@ -3087,6 +3087,8 @@ document.addEventListener('DOMContentLoaded', function(){
     if(만료타이머){ clearTimeout(만료타이머); 만료타이머 = null; }
     var 남은시간 = 만료 - Date.now();
     if(남은시간 > 0){ 만료타이머 = setTimeout(잠그기, 남은시간); }
+    document.body.classList.add('ops-unlocked');
+    try{ localStorage.setItem('dia_no_track', '1'); }catch(e){}
     sect.style.display = '';
     door.style.display = 'none';
     if (typeof 크기맞춤 === 'function') 크기맞춤();
