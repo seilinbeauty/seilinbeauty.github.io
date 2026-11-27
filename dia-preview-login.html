@@ -235,7 +235,48 @@ document.addEventListener('DOMContentLoaded', function(){
     if (saveBox && saveBox.checked){ try{ localStorage.setItem(SAVE_KEY, rawId.replace(/^@+/, '')); }catch(e){} }
 
     var m = findMember(rawId);
-    if (!m){ showErr('명부에서 회원을 찾지 못했습니다. 오른쪽 목록에서 선택해 주세요.'); if (ig) ig.focus(); return; }
+    if (!m){
+      var cleanIg = rawId.replace(/^@+/, '').toLowerCase();
+      var sk = 'direct_' + cleanIg.replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 50);
+      busy = true;
+      if (btn){ btn.disabled = true; btn.textContent = '확인 중...'; }
+      fetch('https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/course_views/sns_members_v1?key=AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY', { cache: 'no-store' })
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(doc){
+          busy = false;
+          if (btn){ btn.disabled = false; btn.textContent = '로그인'; }
+          var f = doc && doc.fields && doc.fields.views && doc.fields.views.mapValue && doc.fields.views.mapValue.fields;
+          var it = f && f[sk] && f[sk].mapValue && f[sk].mapValue.fields;
+          if (!it){
+            showErr('가입된 회원을 찾지 못했습니다. 아이디 확인 또는 회원가입을 진행해 주세요.');
+            if (ig) ig.focus();
+            return;
+          }
+          var savedPin = (it.pin && it.pin.stringValue) || '';
+          if (savedPin !== pinVal){
+            showErr('비밀번호 4자리가 맞지 않습니다.');
+            if (pinEl){ pinEl.value = ''; pinEl.focus(); }
+            return;
+          }
+          var igVal = (it.ig && it.ig.stringValue) || cleanIg;
+          var nickVal = (it.nick && it.nick.stringValue) || igVal;
+          try {
+            localStorage.setItem('dia_sns_linked_ig', igVal);
+            localStorage.setItem('dia_sns_user', JSON.stringify({
+              provider: 'direct',
+              key: 'direct:' + cleanIg,
+              name: nickVal,
+              email: (it.email && it.email.stringValue) || ''
+            }));
+          } catch(_e){}
+          finishLogin(nickVal);
+        }).catch(function(){
+          busy = false;
+          if (btn){ btn.disabled = false; btn.textContent = '로그인'; }
+          showErr('로그인 확인 중 오류가 발생했습니다.');
+        });
+      return;
+    }
 
     if (!window.DiaPin || !DiaPin.check){ finishLogin(m.n); return; }
     busy = true;
