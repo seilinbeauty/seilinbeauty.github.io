@@ -4110,13 +4110,14 @@ window.창고읽기 = function(url){
               var isRoadSweep = ((santa.state === 'walk_to' && santa.targetMode === 'road') || santa.state === 'sweep_btn');
               var baseAng = isTopTap ? (-0.25 - santa.broomSwing * 0.65) : (isRoadSweep ? (2.15 + santa.broomSwing * 0.35) : 0.35);
               var liftY = isTopTap ? (-santa.broomSwing * 10) : (isRoadSweep ? 3 : 0);
-              var brTop = isTopTap ? -13.5 : -10.0;
+              var brTop = isTopTap ? -12.0 : -8.5;
+              var brBot = isTopTap ? 5.5 : 5.2;
               ctx.translate(0, liftY);
               ctx.rotate(baseAng);
               ctx.strokeStyle = '#9c6b3b'; ctx.lineWidth = 1.4;
-              ctx.beginPath(); ctx.moveTo(0, 3.8); ctx.lineTo(1.4, brTop); ctx.stroke();
+              ctx.beginPath(); ctx.moveTo(-0.6, brBot); ctx.lineTo(1.1, brTop); ctx.stroke();
               ctx.fillStyle = '#e7c16b';
-              ctx.beginPath(); ctx.moveTo(0.2, brTop); ctx.lineTo(3.0, brTop); ctx.lineTo(4.0, brTop - 3.6); ctx.lineTo(-0.8, brTop - 3.6); ctx.closePath(); ctx.fill();
+              ctx.beginPath(); ctx.moveTo(0.0, brTop); ctx.lineTo(2.8, brTop); ctx.lineTo(3.8, brTop - 3.6); ctx.lineTo(-1.0, brTop - 3.6); ctx.closePath(); ctx.fill();
               ctx.restore();
             } else {
               drawLimb(2.2, -4.2, 4.5, -3.8, 6.2, -3.5, '#d93848', '#ffffff', 1.8);
@@ -4283,8 +4284,8 @@ window.창고읽기 = function(url){
               ctx.fillStyle = '#2b1b17'; ctx.beginPath(); ctx.arc(1.2, -10.3, 0.7, 0, Math.PI * 2); ctx.fill();
               if (friend.state === 'work_sweep') {
                 ctx.save(); ctx.translate(2.8, -3.2); ctx.rotate(2.1 + friend.broomSwing * 0.35);
-                ctx.strokeStyle = '#9c6b3b'; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.moveTo(0, 3.6); ctx.lineTo(1.2, -9.8); ctx.stroke();
-                ctx.fillStyle = '#e7c16b'; ctx.beginPath(); ctx.moveTo(0, -9.8); ctx.lineTo(2.8, -9.8); ctx.lineTo(3.6, -13.2); ctx.lineTo(-0.8, -13.2); ctx.closePath(); ctx.fill();
+                ctx.strokeStyle = '#9c6b3b'; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.moveTo(-0.6, 5.0); ctx.lineTo(1.0, -8.2); ctx.stroke();
+                ctx.fillStyle = '#e7c16b'; ctx.beginPath(); ctx.moveTo(-0.2, -8.2); ctx.lineTo(2.6, -8.2); ctx.lineTo(3.4, -11.6); ctx.lineTo(-1.0, -11.6); ctx.closePath(); ctx.fill();
                 ctx.restore();
               }
               ctx.restore();
