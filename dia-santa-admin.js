@@ -166,13 +166,16 @@
   wrap.className = 'sn';
   wrap.style.marginTop = '0';
   wrap.innerHTML = '<div class="sn-h"><span>🖼 다이아 섹션</span></div>' +
-    '<div class="sn-d">아래에 다이아 커뮤니티 화면이 그대로 떠 있습니다. 요소를 마우스로 끌어 옮기면 바로 저장되고, 다이아 커뮤니티를 새로고침하면 그 자리에 있습니다.</div>' +
-    '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;">' +
-      '<button type="button" class="sn-reset" id="w_reset">전체 원래대로</button>' +
-      '<span class="sn-msg" id="w_msg" style="margin-left:auto;"></span>' +
+    '<div class="sn-d">아래 화면은 다이아 커뮤니티를 그대로 띄운 것입니다. 요소를 끌어 옮기면 그 자리에서 저장되고, 기기별로 따로 기억합니다.</div>' +
+    '<div style="margin-top:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">' +
+      '<button type="button" class="sn-save" id="w_pc">PC</button>' +
+      '<button type="button" class="sn-save" id="w_tb" style="background:#fff;color:#c2456a;border:1px solid #e6b8c8;">태블릿</button>' +
+      '<button type="button" class="sn-save" id="w_mo" style="background:#fff;color:#c2456a;border:1px solid #e6b8c8;">모바일</button>' +
+      '<button type="button" class="sn-reset" id="w_reset" style="margin-left:auto;">원래대로</button>' +
     '</div>' +
-    '<div style="margin-top:10px;border:1px solid #eee3e8;border-radius:12px;overflow:hidden;background:#fff;">' +
-      '<iframe id="w_frame" src="dia.html?edit=1" style="display:block;width:100%;height:78vh;border:0;"></iframe>' +
+    '<div style="margin-top:8px;font-size:11.5px;color:#8a7b81;font-weight:800;" id="w_msg"></div>' +
+    '<div style="margin-top:8px;border:1px solid #eee3e8;border-radius:12px;overflow:hidden;background:#faf6f8;display:flex;justify-content:center;">' +
+      '<iframe id="w_frame" src="dia.html?edit=1" style="display:block;width:100%;height:78vh;border:0;background:#fff;"></iframe>' +
     '</div>';
 
   var btn2 = nav.querySelector('.ops-nav-item[data-bannertab]');
@@ -185,11 +188,32 @@
   sec2.appendChild(wrap);
   host.appendChild(sec2);
 
+  var frame = document.getElementById('w_frame');
+  var msgEl = document.getElementById('w_msg');
+  var DEV = { pc: ['100%', 'PC'], tb: ['820px', '태블릿'], mo: ['390px', '모바일'] };
+  function setDev(k){
+    frame.style.width = DEV[k][0];
+    msgEl.textContent = DEV[k][1] + ' 화면 기준으로 옮기는 중입니다.';
+    ['pc','tb','mo'].forEach(function(x){
+      var b = document.getElementById('w_' + x);
+      if (!b) return;
+      var on = (x === k);
+      b.style.background = on ? 'linear-gradient(90deg,#ef9ab4,#d55576)' : '#fff';
+      b.style.color = on ? '#fff' : '#c2456a';
+    });
+    try { frame.contentWindow.dispatchEvent(new Event('resize')); } catch(e){}
+    try { if (frame.contentWindow.diaReloadLayout) frame.contentWindow.diaReloadLayout(); } catch(e){}
+  }
+  ['pc','tb','mo'].forEach(function(k){
+    var b = document.getElementById('w_' + k);
+    if (b) b.addEventListener('click', function(){ setDev(k); });
+  });
+  setDev('pc');
+
   document.getElementById('w_reset').addEventListener('click', function(){
-    try { localStorage.setItem(WKEY, '{}'); } catch(e){}
-    var fr = document.getElementById('w_frame');
-    if (fr) fr.src = 'dia.html?edit=1&r=' + Date.now();
-    document.getElementById('w_msg').textContent = '원래 자리로 되돌렸어요.';
+    try { localStorage.setItem(WKEY, '{"pc":{},"tb":{},"mo":{}}'); } catch(e){}
+    frame.src = 'dia.html?edit=1&r=' + Date.now();
+    msgEl.textContent = '세 기기 모두 원래 자리로 되돌렸습니다.';
   });
 
   // 다른 탭과 상호 전환 연결

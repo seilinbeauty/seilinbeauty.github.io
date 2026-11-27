@@ -9628,7 +9628,7 @@ window.창고읽기 = function(url){
 })();
 </script>
 <script>
-/* 다이아 섹션: 화면에서 직접 끌어서 위치를 옮기는 드래그 편집기 */
+/* 다이아 섹션: 화면을 그대로 복제해 끌어서 배치하는 편집기 (PC·태블릿·모바일 따로 저장) */
 (function(){
   var WKEY = 'dia_world_layout_v1';
   var ITEMS = [
@@ -9639,23 +9639,44 @@ window.창고읽기 = function(url){
     ['search', '검색창',              '#mcLoginBox'],
     ['banner', '상단 소개 배너',      '.brand-inline']
   ];
-  var cfg = {};
-  try { cfg = JSON.parse(localStorage.getItem(WKEY)) || {}; } catch(e){ cfg = {}; }
+  var KEYS = ITEMS.map(function(it){ return it[0]; });
+
+  function bp(){
+    var w = window.innerWidth;
+    return w <= 767 ? 'mo' : (w <= 1024 ? 'tb' : 'pc');
+  }
+  function loadAll(){
+    var raw = {};
+    try { raw = JSON.parse(localStorage.getItem(WKEY)) || {}; } catch(e){ raw = {}; }
+    var legacy = false;
+    KEYS.forEach(function(k){ if (raw[k]) legacy = true; });
+    if (legacy) raw = { pc: raw };
+    if (!raw.pc) raw.pc = {};
+    if (!raw.tb) raw.tb = {};
+    if (!raw.mo) raw.mo = {};
+    return raw;
+  }
+  var all = loadAll();
+
   function apply(){
+    var c = all[bp()] || {};
     ITEMS.forEach(function(it){
       var el = document.querySelector(it[2]); if (!el) return;
-      var v = cfg[it[0]] || {};
+      var v = c[it[0]] || {};
       var x = Number(v.x) || 0, y = Number(v.y) || 0;
       if (!x && !y) { el.style.removeProperty('translate'); return; }
       el.style.setProperty('translate', x + 'px ' + y + 'px', 'important');
     });
+  }
+  function store(){
+    try { localStorage.setItem(WKEY, JSON.stringify(all)); } catch(e){}
   }
   apply();
   window.addEventListener('load', apply);
   window.addEventListener('resize', apply);
 
   var editing = false;
-  var moved = false;
+  var inFrame = location.search.indexOf('edit=1') > -1;
 
   var bar = document.createElement('div');
   bar.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:3000;display:flex;gap:8px;align-items:center;font-family:inherit;';
@@ -9665,32 +9686,34 @@ window.창고읽기 = function(url){
   btn.style.cssText = 'padding:10px 16px;border-radius:999px;border:0;background:#d55576;color:#fff;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(180,60,100,.3);font-family:inherit;';
   var undo = document.createElement('button');
   undo.type = 'button';
-  undo.textContent = '원래대로';
+  undo.textContent = '이 화면 원래대로';
   undo.style.cssText = 'display:none;padding:9px 13px;border-radius:999px;border:1px solid #e6d7dc;background:#fff;color:#7a6d72;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 6px 16px rgba(150,80,105,.16);font-family:inherit;';
   bar.appendChild(undo); bar.appendChild(btn);
   document.body.appendChild(bar);
 
+  var moved = false;
   function bind(el, key){
     el.style.cursor = 'grab';
     el.style.touchAction = 'none';
     el.addEventListener('pointerdown', function(e){
       if (!editing) return;
       e.preventDefault(); e.stopPropagation();
-      var base = cfg[key] || { x: 0, y: 0 };
-      var sx = e.clientX, sy = e.clientY, bx = base.x || 0, by = base.y || 0;
+      var b = bp();
+      var cur = all[b][key] || { x: 0, y: 0 };
+      var sx = e.clientX, sy = e.clientY, bx = cur.x || 0, by = cur.y || 0;
       moved = false;
       el.style.cursor = 'grabbing';
       function onMove(ev){
         var dx = ev.clientX - sx, dy = ev.clientY - sy;
         if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
-        cfg[key] = { x: Math.round(bx + dx), y: Math.round(by + dy) };
-        el.style.setProperty('translate', cfg[key].x + 'px ' + cfg[key].y + 'px', 'important');
+        all[b][key] = { x: Math.round(bx + dx), y: Math.round(by + dy) };
+        el.style.setProperty('translate', all[b][key].x + 'px ' + all[b][key].y + 'px', 'important');
       }
       function onUp(){
         document.removeEventListener('pointermove', onMove);
         document.removeEventListener('pointerup', onUp);
         el.style.cursor = 'grab';
-        try { localStorage.setItem(WKEY, JSON.stringify(cfg)); } catch(err){}
+        store();
       }
       document.addEventListener('pointermove', onMove);
       document.addEventListener('pointerup', onUp);
@@ -9705,12 +9728,6 @@ window.창고읽기 = function(url){
   }
   setup();
   window.addEventListener('load', setup);
-
-  document.addEventListener('click', function(e){
-    if (!editing || !moved) return;
-    var t = document.querySelector('.brand-inline, #mcLoginBtn, #mcCourseBtn, #mcLoginBox');
-    if (t && t.contains(e.target)) { e.preventDefault(); e.stopPropagation(); }
-  }, true);
 
   function setEditing(v){
     editing = v;
@@ -9727,22 +9744,35 @@ window.창고읽기 = function(url){
   }
   btn.addEventListener('click', function(){ setEditing(!editing); });
 
-  /* 운영센터의 다이아 섹션 탭에서 불러오면 바로 편집 모드 */
-  if (location.search.indexOf('edit=1') > -1) {
-    bar.style.display = 'none';
-    window.addEventListener('load', function(){ setEditing(true); });
-  }
+  document.addEventListener('click', function(e){
+    if (!editing || !moved) return;
+    var t = e.target;
+    ITEMS.forEach(function(it){
+      var el = document.querySelector(it[2]);
+      if (el && el.contains(t)) { e.preventDefault(); e.stopPropagation(); }
+    });
+  }, true);
 
   undo.addEventListener('click', function(){
-    cfg = {};
+    all[bp()] = {};
     ITEMS.forEach(function(it){
       var el = document.querySelector(it[2]); if (!el) return;
       el.style.removeProperty('translate');
     });
-    try { localStorage.setItem(WKEY, '{}'); } catch(e){}
+    store();
     undo.textContent = '되돌렸어요';
-    setTimeout(function(){ undo.textContent = '원래대로'; }, 1400);
+    setTimeout(function(){ undo.textContent = '이 화면 원래대로'; }, 1400);
   });
+
+  /* 운영센터 다이아 섹션 탭에서 불러오면 바로 편집 모드 */
+  if (inFrame) {
+    bar.style.display = 'none';
+    window.addEventListener('load', function(){ setEditing(true); });
+  }
+  window.diaReloadLayout = function(){
+    all = loadAll();
+    apply();
+  };
 })();
 </script>
 </body>
