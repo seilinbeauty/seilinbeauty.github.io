@@ -5,13 +5,13 @@
    - 운영 센터(dia-info.html)의 '방문자' 칸 아래에 붙습니다. dia-fb.js 가 먼저 불려 있어야 합니다. */
 (function(){
   var FB = window.DiaFB;
-  var anchor = document.getElementById('ops-visit');
+  var anchor = document.querySelector('#ops-stats .ops-kpi') || document.getElementById('ops-visit');
   if(!FB || !anchor || document.getElementById('ops-fb')) return;
 
   var LIMIT = 50000; // 무료 한도: 하루 문서 읽기 5만 건
   var st = document.createElement('style');
   st.textContent =
-    '.ops-fb{margin-top:14px;border:1px solid #f0e2e7;border-radius:16px;background:#fff;padding:15px 16px 13px;}' +
+    '.ops-fb{margin:0 0 14px;border:1px solid #f0e2e7;border-radius:16px;background:#fff;padding:15px 16px 13px;box-sizing:border-box;}' +
     '.ops-fb-hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}' +
     '.ops-fb-t{font-size:13px;font-weight:800;color:#4a353c;}' +
     '.ops-fb-s{font-size:11.5px;font-weight:700;color:#bfa7b1;}' +
@@ -30,6 +30,8 @@
 
   var box = document.createElement('div');
   box.className = 'ops-fb'; box.id = 'ops-fb';
+  box.setAttribute('data-ops-sec', 'fb');
+  box.setAttribute('data-ops-title', '파이어베이스 읽기 사용량');
   box.innerHTML =
     '<div class="ops-fb-hd"><span class="ops-fb-t">파이어베이스 읽기 사용량</span>' +
     '<span class="ops-fb-s">무료 한도 하루 5만 건 (Spark)</span></div>' +
@@ -37,7 +39,8 @@
     '<div class="ops-fb-bar" id="fb-bar"><i id="fb-fill"></i></div>' +
     '<div class="ops-fb-sub" id="fb-sub"></div>' +
     '<div class="ops-fb-note">오늘 0시(한국)부터 지금까지 참여 링크 화면이 파이어스토어에서 읽은 문서 수입니다. 사이트가 직접 세는 값이라 암호 확인용 읽기는 빠져 있어 실제보다 조금 적게 나옵니다.</div>';
-  anchor.parentNode.insertBefore(box, anchor.nextSibling);
+  anchor.parentNode.insertBefore(box, anchor);
+  if(window.__OPS_LAYOUT_REFRESH__) window.__OPS_LAYOUT_REFRESH__();
 
   function comma(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
   function dayAgo(n){ return new Date(Date.now() + 9 * 3600 * 1000 - n * 86400000).toISOString().slice(0, 10); }

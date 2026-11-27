@@ -1657,6 +1657,24 @@
         .pc-hero-snow-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; border-radius: 14px; }
       .pc-hero-snow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 25; border-radius: 14px; }
       @media (max-width: 880px) { .pc-hero-snow, .pc-hero-snow-bg { display: none !important; } }
+      .plx-title-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 6px 0 5px; }
+      .plx-title-row .plx-title { margin: 0; position: relative; display: inline-block; z-index: 1; color: #212529; }
+      .pc-hero-datetime {
+        display: inline-flex !important; flex-direction: row; align-items: baseline; justify-content: flex-start; gap: 6px;
+        padding: 0; border: 0; background: none; box-shadow: none;
+        margin: 0; flex-shrink: 0; white-space: nowrap;
+      }
+      body.dia-page .dia-hero-in:has(#mcHeroStatus:not([hidden])) .pc-hero-datetime { display: none !important; }
+      .pc-hero-date {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 21px; font-weight: 700; color: #cc5278;
+        font-variant-numeric: tabular-nums; letter-spacing: 0.2px; line-height: 1.1;
+      }
+      .pc-hero-time {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 21px; font-weight: 700; color: #b62d47;
+        font-variant-numeric: tabular-nums; letter-spacing: 0.2px; line-height: 1.1;
+      }
       /* 산타가 한글 제목을 트리처럼 꾸미는 장식 */
       .mc-tree-deco { position: absolute !important; z-index: 26; pointer-events: none; }
       .mc-tree-bulb { position: absolute; width: 5px; height: 5px; border-radius: 50%; box-shadow: 0 0 5px currentColor, 0 0 10px currentColor; animation: mcBulbTwinkle 1.5s ease-in-out infinite; }
@@ -2321,7 +2339,13 @@ window.창고읽기 = function(url){
         </div>
         <div class="only-pc">
           <span class="plx-tag">DIA COMMUNITY</span>
-          <div class="plx-title" id="plxTitleText">다이아 커뮤니티</div>
+          <div class="plx-title-row">
+            <div class="plx-title" id="plxTitleText">다이아 커뮤니티</div>
+            <div class="pc-hero-datetime only-pc" id="pcHeroDatetime" aria-live="off">
+              <div class="pc-hero-date" id="pcHeroDate"></div>
+              <div class="pc-hero-time" id="pcHeroTime"></div>
+            </div>
+          </div>
           <div class="plx-sub" id="plxSubText">속눈썹·반영구·네일 원장님들의 정보 공유와 마케팅 커뮤니티입니다.</div>
           <span class="plx-ask" style="margin-top:8px;">참여 비밀번호는 인스타그램 DM으로 문의해 주세요.</span>
         </div>
@@ -6931,6 +6955,27 @@ window.창고읽기 = function(url){
 })();
 </script>
 <!-- 크리스마스: 배너 눈 · 산타 -->
+      <script>
+      (function(){
+        var dEl = document.getElementById('pcHeroDate');
+        var tEl = document.getElementById('pcHeroTime');
+        if (!dEl || !tEl) return;
+        function tick(){
+          var now = new Date();
+          var kst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+          var y = kst.getFullYear();
+          var m = String(kst.getMonth() + 1).padStart(2, '0');
+          var d = String(kst.getDate()).padStart(2, '0');
+          var hh = String(kst.getHours()).padStart(2, '0');
+          var mm = String(kst.getMinutes()).padStart(2, '0');
+          var ss = String(kst.getSeconds()).padStart(2, '0');
+          dEl.textContent = y + '.' + m + '.' + d;
+          tEl.textContent = hh + ':' + mm + ':' + ss;
+        }
+        tick();
+        setInterval(tick, 1000);
+      })();
+      </script>
       <script>
       (function(){
         var cv = document.getElementById('pcSnowCanvas');
