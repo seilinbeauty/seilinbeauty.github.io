@@ -2873,12 +2873,13 @@
   }
   var sugCss = document.createElement('style');
   sugCss.textContent = '.crs-search{position:relative;}'
-    + '.crs-sug{position:absolute;left:0;right:0;top:calc(100% + 6px);background:#fff;border:1px solid #eef0f2;'
+    + '.crs-sug{position:absolute;left:calc(100% + 8px);top:0;width:300px;background:#fff;border:1px solid #eef0f2;'
     + 'border-radius:12px;box-shadow:0 12px 30px rgba(25,31,40,.12);max-height:300px;overflow:auto;z-index:40;display:none;}'
     + '.crs-sug button{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;padding:11px 14px;'
     + 'border:0;border-top:1px solid #f6f8f9;background:#fff;font-family:inherit;text-align:left;cursor:pointer;}'
     + '.crs-sug button:first-child{border-top:0;}'
     + '.crs-sug button:hover{background:#fff5f7;}'
+    + '@media (max-width:880px){.crs-sug{left:0;right:0;top:calc(100% + 6px);width:auto;}}'
     + '.crs-sug b{font-size:13px;font-weight:800;color:#191f28;}'
     + '.crs-sug span{font-size:11.5px;color:#8b95a1;}';
   document.head.appendChild(sugCss);
