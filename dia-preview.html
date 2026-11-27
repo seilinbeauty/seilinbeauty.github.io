@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="googlebot" content="noindex, nofollow">
+<title>미리보기 — 상단 바</title>
+<style>
+  :root{ --bar-bg:#f5e5e2; --bar-txt:#323232; }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:#fafafa;font-family:Roboto,"맑은 고딕","Nanum Gothic",-apple-system,sans-serif;}
+
+  /* ── 알로하 클로젯 상단 바 복제 ── */
+  .ac-topbar{background:var(--bar-bg);height:45px;}
+  .ac-topbar .ac-inner{max-width:1240px;margin:0 auto;padding:0 20px;height:45px;
+    display:flex;align-items:center;justify-content:space-between;}
+  .ac-topbar ul{list-style:none;margin:0;padding:0;display:flex;align-items:center;height:45px;}
+  .ac-topbar li{display:flex;align-items:center;height:45px;font-size:11.2px;letter-spacing:.5px;
+    text-transform:capitalize;color:var(--bar-txt);font-family:inherit;}
+  .ac-topbar a{color:var(--bar-txt);text-decoration:none;font-size:11.2px;letter-spacing:.5px;
+    text-transform:capitalize;display:flex;align-items:center;height:45px;}
+  .ac-topbar a:hover{color:#000;}
+  .ac-menu li{margin-right:25px;}
+  .ac-menu li:last-child{margin-right:0;}
+  .ac-menu .ac-all{margin-right:25px;}
+  .ac-menu .ac-all button{background:none;border:0;padding:0;cursor:pointer;color:var(--bar-txt);
+    font-size:12px;line-height:1;display:flex;align-items:center;}
+  .ac-util li{margin-left:25px;}
+  .ac-util li:first-child{margin-left:0;}
+  .ac-util li.ico{margin-left:10px;}
+  .ac-util li.ico a{width:15px;height:15px;justify-content:center;font-size:12px;line-height:1;}
+  @media (max-width:760px){
+    .ac-topbar .ac-inner{padding:0 14px;}
+    .ac-menu li:not(.ac-all){display:none;}
+    .ac-util li:not(.ico){display:none;}
+  }
+
+  /* 미리보기 안내 (실제 사이트에는 안 들어감) */
+  .pv-note{max-width:1240px;margin:0 auto;padding:14px 20px 0;font-size:12px;color:#a0979a;letter-spacing:-.2px;}
+  .pv-body{max-width:1240px;margin:0 auto;padding:18px 20px 60px;}
+  .pv-box{border:1px solid #eee4e7;border-radius:14px;background:#fff;padding:34px 20px;text-align:center;
+    font-size:13px;color:#b3a7ab;line-height:1.7;}
+
+  /* 잠금 */
+  #pv-door{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;
+    padding:24px;z-index:99;}
+  #pv-door .card{width:100%;max-width:300px;text-align:center;}
+  #pv-door h1{margin:0 0 8px;font-size:16px;font-weight:800;color:#4a3c41;letter-spacing:-.3px;}
+  #pv-door p{margin:0 0 16px;font-size:12.5px;color:#a2949a;line-height:1.6;}
+  #pv-door input{width:100%;padding:11px 13px;border:1px solid #ecdfe4;border-radius:10px;
+    font-size:14px;outline:none;font-family:inherit;text-align:center;letter-spacing:2px;}
+  #pv-door button{width:100%;margin-top:8px;padding:11px;border:0;border-radius:10px;cursor:pointer;
+    background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;font-size:13px;font-weight:800;font-family:inherit;}
+  #pv-door .err{min-height:16px;margin-top:8px;font-size:12px;color:#d55576;}
+  body.locked #pv-wrap{display:none;}
+  body:not(.locked) #pv-door{display:none;}
+</style>
+</head>
+<body class="locked">
+
+<div id="pv-door">
+  <div class="card">
+    <h1>미리보기</h1>
+    <p>비공개 화면입니다.<br>비밀번호를 입력해 주세요.</p>
+    <input id="pv-pw" type="password" inputmode="numeric" autocomplete="off" placeholder="비밀번호">
+    <button type="button" id="pv-go">열기</button>
+    <div class="err" id="pv-err"></div>
+  </div>
+</div>
+
+<div id="pv-wrap">
+  <header class="ac-topbar">
+    <div class="ac-inner">
+      <ul class="ac-menu">
+        <li class="ac-all"><button type="button" aria-label="전체 메뉴">☰</button></li>
+        <li><a href="#">Best</a></li>
+        <li><a href="#">Made By Aloha♥</a></li>
+        <li><a href="#">Shop</a></li>
+        <li><a href="#">Community</a></li>
+      </ul>
+      <ul class="ac-util">
+        <li><a href="#">Login</a></li>
+        <li><a href="#">Join</a></li>
+        <li><a href="#">Cart</a></li>
+        <li><a href="#">My Page</a></li>
+        <li class="ico"><a href="#" aria-label="즐겨찾기">★</a></li>
+        <li class="ico"><a href="#" aria-label="검색">🔍</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <div class="pv-note">상단 바 미리보기 · 실제 다이아에는 아직 적용하지 않았습니다</div>
+  <div class="pv-body">
+    <div class="pv-box">상단 바만 먼저 올려 봤습니다.<br>문구·색·높이는 말씀하시는 대로 고치겠습니다.</div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var KEY = atob('MDQyMw==');
+  var SERVER_KEY = 'dia_preview_ok';
+  function open(){ document.body.classList.remove('locked'); }
+  try{
+    if (/[?&]staff=1/.test(location.search) || localStorage.getItem('dia_no_track') === '1' || sessionStorage.getItem(SERVER_KEY) === '1') { open(); }
+  }catch(e){}
+  var pw = document.getElementById('pv-pw');
+  var go = document.getElementById('pv-go');
+  var err = document.getElementById('pv-err');
+  function tryOpen(){
+    if (pw.value.trim() === KEY) {
+      try{ sessionStorage.setItem(SERVER_KEY, '1'); }catch(e){}
+      err.textContent = '';
+      open();
+    } else {
+      err.textContent = '비밀번호가 맞지 않습니다.';
+      pw.value = '';
+      pw.focus();
+    }
+  }
+  go.addEventListener('click', tryOpen);
+  pw.addEventListener('keydown', function(e){ if (e.key === 'Enter') tryOpen(); });
+});
+</script>
+</body>
+</html>
