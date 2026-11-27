@@ -3171,8 +3171,12 @@ window.창고읽기 = function(url){
               }
               if (santa.timer > 30 && santa.timer <= 92) {
                 santa.energy = Math.max(0, santa.energy - 0.08);
+                // 걸어 다니면서 송풍기 바람 쏴아악!
+                santa.x += santa.dir * 0.95;
+                if (santa.x >= walkMaxX - 6) santa.dir = -1;
+                if (santa.x <= sLeft + 14) santa.dir = 1;
+                santa.walk += 0.28;
                 var bwAng = (santa.timer < 62) ? -0.75 : 0.05;
-                if (santa.timer === 62 && bestSubX >= 0) santa.dir = (bestSubX >= santa.x) ? 1 : -1;
                 for (var bwx = -24; bwx <= 135; bwx += 3) {
                   var txB = Math.round(santa.x + santa.dir * bwx);
                   if (bwAng < -0.2 && txB >= tLeft && txB <= tRight && surfaceY[txB] >= 0 && pileY[txB] < surfaceY[txB] - 0.2) {
@@ -3587,9 +3591,15 @@ window.창고읽기 = function(url){
               ctx.stroke();
             }
 
+            // 지상 상태일 때는 버튼 뒤로 절대 못 들어가도록 하드 클램프!
+            var onBtnArea = (santa.state === 'fly_to_btn' || santa.state === 'sweep_btn' || santa.state === 'btn_jump' || santa.state === 'btn_bridge' || santa.state === 'fly_back');
+            if (!onBtnArea && bLeft > sLeft + 30 && santa.x > bLeft - 16) {
+              santa.x = bLeft - 16;
+              if (santa.dir > 0) santa.dir = -1;
+            }
             // 인체 관절 기반 미니 산타 그리기 (발 위치 = santa.y)
             ctx.save();
-            var isWalking = (santa.state === 'walk_to' || santa.state === 'return' || santa.state === 'sweep_btn' || (santa.state === 'btn_bridge' && santa.timer > 58 && santa.timer <= 86));
+            var isWalking = (santa.state === 'walk_to' || santa.state === 'return' || santa.state === 'sweep_btn' || (santa.state === 'btn_bridge' && santa.timer > 58 && santa.timer <= 86) || (santa.state === 'blower' && santa.timer > 30 && santa.timer <= 92));
             var isFlying = (santa.state === 'fly_to_btn' || santa.state === 'fly_back');
             var isPullChair = (santa.state === 'sit_rest' && santa.timer <= 42);
             var isPutChair = (santa.state === 'sit_rest' && santa.timer > 150);
@@ -4077,6 +4087,7 @@ window.창고읽기 = function(url){
 
           // ── 친구 산타(파란 모자 보조 산타) 업데이트 및 그리기 ──
           if (friend.active) {
+            if (bLeft > sLeft + 30 && friend.x > bLeft - 16) { friend.x = bLeft - 16; if (friend.dir > 0) friend.dir = -1; }
             friend.timer++;
             if (friend.moodTimer > 0) friend.moodTimer--;
             var fWalkMax = (bLeft > sLeft + 40) ? Math.min(sRight - 14, bLeft - 14) : (sRight - 14);
