@@ -196,7 +196,7 @@
     box.innerHTML =
       '<div class="dl">' +
         '<div class="dl-h"><span class="dl-t">📎 오늘 내 링크 남기기</span><span class="dl-badge" id="dlBadge"></span></div>' +
-        '<div class="dl-me">닉네임 <b>' + esc(nick) + '</b> (“내 품앗이”에서 고른 이름으로 남아요)</div>' +
+        '<div class="dl-me">닉네임 <b>' + esc(nick) + '</b></div>' +
         '<div class="dl-tag">오늘 해시태그 <b id="dlTag"></b><button type="button" class="dl-mini" id="dlTagCopy">복사</button></div>' +
         '<div class="dl-kinds" id="dlKinds">' +
           '<button type="button" class="dl-kind" data-k="🤍">🤍 일반</button>' +

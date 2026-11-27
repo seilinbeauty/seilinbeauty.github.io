@@ -91,17 +91,36 @@
     .mc-kpis{grid-template-columns:repeat(2,1fr);}
     .mp-links{grid-template-columns:1fr;}
   }
+
+.mp-av-wrap { position: relative; display: inline-block; flex-shrink: 0; cursor: pointer; }
+.mp-av-cam { position: absolute; right: -2px; bottom: -2px; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 1.5px solid #e7ccd5; display: flex; align-items: center; justify-content: center; font-size: 11px; box-shadow: 0 2px 6px rgba(0,0,0,.1); }
+.mp-edit-btn { margin-left: auto; height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid #ecd5dc; background: #fff; color: #7a4b5a; font-size: 11.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.mp-edit-box { display: none; margin-top: 12px; padding: 12px; border-radius: 12px; background: #fff9fb; border: 1px solid #f2dce4; }
+.mp-edit-box.open { display: block; }
+.mp-edit-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.mp-edit-row label { display: block; font-size: 11px; font-weight: 700; color: #8c737d; margin-bottom: 4px; }
+.mp-edit-row input, .mp-edit-row select { width: 100%; height: 34px; border: 1px solid #e7cfd7; border-radius: 8px; padding: 0 10px; font-size: 12.5px; font-family: inherit; box-sizing: border-box; background: #fff; }
+.mp-edit-acts { display: flex; justify-content: flex-end; gap: 6px; }
+.mp-edit-acts button { height: 30px; padding: 0 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; border: 1px solid #e6ccd5; background: #fff; color: #5c444d; }
+.mp-edit-acts button.save { background: #c9707f; border-color: #c9707f; color: #fff; }
+
 </style>
+  <link rel="stylesheet" href="dia-sub-header.css?v=1">
 </head>
 <body>
 
 <header class="dia-header">
-  <div class="pv-left">
-    <a href="dia.html" class="brand"><span class="brand-logo">DIA COMMUNITY</span></a>
-  </div>
-  <div class="pv-util">
-    <a href="dia-preview-login.html" id="mpAuthBtn">로그인</a>
-    <a href="dia-preview-join.html" id="mpJoinBtn">회원가입</a>
+  <a href="dia.html" class="brand">
+    <span class="brand-logo">DIA COMMUNITY</span><span class="brand-sub">속눈썹·반영구·네일아트·피부관리·왁싱·붙임머리</span>
+  </a>
+  <nav class="nav-links">
+    <a href="dia-preview-login.html" class="nav-mypumasi" id="hdrLogin">로그인</a>
+    <a href="dia-preview-join.html" class="nav-mypumasi nav-join">회원가입</a>
+    <a href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" class="nav-dia">마케팅 오픈채팅 입장하기</a>
+    <a href="dia-info.html" class="nav-dia">운영 센터</a>
+  </nav>
+  <div class="nav-mobile-links">
+    <button type="button" id="moCatBtn" class="nav-mobile-link" aria-label="카테고리" title="카테고리" aria-expanded="false">☰ 카테고리</button>
   </div>
 </header>
 
@@ -201,9 +220,17 @@
 
   document.getElementById('mpBody').style.display = '';
 
+  var profKey = 'dia_custom_profile_' + curMem;
+  var customProf = {};
+  try { customProf = JSON.parse(localStorage.getItem(profKey) || '{}') || {}; } catch (e) {}
+  if (customProf.r) m.r = customProf.r;
+  if (customProf.c) m.c = customProf.c;
+
   var idLine = m.i ? ('@' + m.i + (m.o ? ' · ' + m.o : '')) : (m.o || '정회원');
-  var avHtml = m.i
-    ? '💎<img src="avatars/' + esc(m.i) + '.jpg" alt="' + esc(m.n) + '" onerror="this.remove()">'
+  var avSrc = customProf.photo ? customProf.photo : (m.i ? ('avatars/' + esc(m.i) + '.jpg') : (snsInfo && snsInfo.photo ? snsInfo.photo : ''));
+  var snsFallback = (!customProf.photo && snsInfo && snsInfo.photo) ? snsInfo.photo : '';
+  var avHtml = avSrc
+    ? '💎<img id="mpAvImg" src="' + esc(avSrc) + '" alt="' + esc(m.n) + '" onerror="var fb=this.getAttribute('data-fb');if(fb){this.removeAttribute('data-fb');this.src=fb;}else{this.remove();}"' + (snsFallback && avSrc !== snsFallback ? ' data-fb="' + esc(snsFallback) + '"' : '') + '>'
     : '💎';
 
   var badges = [];
@@ -215,19 +242,101 @@
   if (m.rk && m.rk >= 1 && m.rk <= 5 && String(m.o||'').indexOf('방장') < 0) badges.push('<span class="mc-badge mc-b-top">💎 TOP ' + m.rk + '</span>');
   if (m.sk && m.sk >= 2) badges.push('<span class="mc-badge mc-b-fire">🔥 ' + m.sk + '일 연속</span>');
   if (m.b && m.b >= 3) badges.push('<span class="mc-badge mc-b-pass">🎟️ 패스 부자</span>');
+
+  var snsInfo = null;
+  try { snsInfo = JSON.parse(localStorage.getItem('dia_sns_auth') || 'null'); } catch (e) {}
+  var provMap = { google: '구글 간편 로그인', kakao: '카카오 간편 로그인', naver: '네이버 간편 로그인' };
+  var loginMethod = (snsInfo && snsInfo.provider && provMap[snsInfo.provider]) ? provMap[snsInfo.provider] : '일반 로그인';
+  badges.push('<span class="mc-badge mc-b2">🔑 ' + esc(loginMethod) + '</span>');
+
+  var vKey = 'dia_visit_cnt_' + curMem;
+  var visitCnt = 1;
+  try {
+    visitCnt = parseInt(localStorage.getItem(vKey) || '0', 10) || 0;
+    if (!sessionStorage.getItem('dia_visited_' + curMem)) {
+      visitCnt += 1;
+      localStorage.setItem(vKey, String(visitCnt));
+      sessionStorage.setItem('dia_visited_' + curMem, '1');
+    }
+    if (visitCnt < 1) visitCnt = 1;
+  } catch (e) {}
   var isNw = m.nw && (!m.jd && !m.joinedAt ? true : (Date.now() - Date.parse(m.jd || m.joinedAt)) < 86400000);
   if (isNw) badges.push('<span class="mc-badge mc-b-seed">🌱 새싹</span>');
 
   document.getElementById('mpProfCard').innerHTML =
     '<div class="mp-prof">' +
-      '<div class="mp-av">' + avHtml + '</div>' +
-      '<div class="mp-pinfo">' +
+      '<label class="mp-av-wrap" title="프로필 사진 변경">' +
+        '<div class="mp-av" id="mpAvBox">' + avHtml + '</div>' +
+        '<span class="mp-av-cam">📷</span>' +
+        '<input type="file" id="mpAvFile" accept="image/*" style="display:none;">' +
+      '</label>' +
+      '<div style="min-width:0;flex:1;">' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<div class="mp-nm" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(m.n) + '</div>' +
+          '<button type="button" class="mp-edit-btn" id="mpEditBtn">✏️ 지역·업종</button>' +
+        '</div>' +
         '<div class="mp-id">' + esc(idLine) + '</div>' +
-        '<div class="mp-name">' + esc(m.n || m.i || '회원') + '</div>' +
-        '<div class="mp-meta">' + esc(m.r || '지역 미상') + ' · ' + esc(m.c || '업종 미상') + ' · 이번 달 ' + (m.mc || 0) + '회</div>' +
+        '<div class="mp-meta" id="mpMetaLine">' + esc(m.r || '지역 미상') + ' · ' + esc(m.c || '업종 미상') + ' · 이번 달 ' + (m.mc || 0) + '회</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="mp-edit-box" id="mpEditBox">' +
+      '<div class="mp-edit-row">' +
+        '<div><label for="mpEditR">지역</label><input type="text" id="mpEditR" value="' + esc(m.r || '') + '" placeholder="예: 서울, 경기, 부산"></div>' +
+        '<div><label for="mpEditC">업종</label><input type="text" id="mpEditC" value="' + esc(m.c || '') + '" placeholder="예: 속눈썹, 반영구, 네일"></div>' +
+      '</div>' +
+      '<div class="mp-edit-acts">' +
+        '<button type="button" id="mpEditCancel">취소</button>' +
+        '<button type="button" class="save" id="mpEditSave">저장</button>' +
       '</div>' +
     '</div>' +
     (badges.length ? '<div class="mp-badges">' + badges.join('') + '</div>' : '');
+
+  (function(){
+    var fIn = document.getElementById('mpAvFile');
+    if (fIn) {
+      fIn.addEventListener('change', function(){
+        var file = fIn.files && fIn.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(ev){
+          var img = new Image();
+          img.onload = function(){
+            var c = document.createElement('canvas');
+            c.width = 240; c.height = 240;
+            var ctx = c.getContext('2d');
+            var s = Math.min(img.width, img.height);
+            var sx = (img.width - s) / 2, sy = (img.height - s) / 2;
+            ctx.drawImage(img, sx, sy, s, s, 0, 0, 240, 240);
+            var dataUrl = c.toDataURL('image/jpeg', 0.82);
+            customProf.photo = dataUrl;
+            try { localStorage.setItem(profKey, JSON.stringify(customProf)); } catch(e){}
+            var box = document.getElementById('mpAvBox');
+            if (box) box.innerHTML = '💎<img id="mpAvImg" src="' + dataUrl + '" alt="' + esc(m.n) + '">';
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    var eb = document.getElementById('mpEditBtn');
+    var ebox = document.getElementById('mpEditBox');
+    var ec = document.getElementById('mpEditCancel');
+    var es = document.getElementById('mpEditSave');
+    if (eb && ebox) eb.addEventListener('click', function(){ ebox.classList.toggle('open'); });
+    if (ec && ebox) ec.addEventListener('click', function(){ ebox.classList.remove('open'); });
+    if (es) {
+      es.addEventListener('click', function(){
+        var nr = (document.getElementById('mpEditR').value || '').trim();
+        var nc = (document.getElementById('mpEditC').value || '').trim();
+        customProf.r = nr || m.r || '';
+        customProf.c = nc || m.c || '';
+        try { localStorage.setItem(profKey, JSON.stringify(customProf)); } catch(e){}
+        var meta = document.getElementById('mpMetaLine');
+        if (meta) meta.textContent = (customProf.r || '지역 미상') + ' · ' + (customProf.c || '업종 미상') + ' · 이번 달 ' + (m.mc || 0) + '회';
+        if (ebox) ebox.classList.remove('open');
+      });
+    }
+  })();
 
   var days = ['월','화','수','목','금','토','일'];
   var w = Array.isArray(m.w) ? m.w : [0,0,0,0,0,0,0];
@@ -251,6 +360,9 @@
     '</div>' +
     '<div class="mc-days">' + dayHtml + '</div>' +
     '<div class="mp-extra">' +
+      '<div>방문 횟수 <b id="mpVisitCnt">' + visitCnt + '회</b></div>' +
+      '<div>로그인 방식 <b>' + esc(loginMethod) + '</b></div>' +
+      '<div>인스타 연동 <b>' + (m.i ? '@' + esc(m.i) : '미연동') + '</b></div>' +
       '<div>이번 달 참여 <b>' + (m.mc || 0) + '회</b></div>' +
       (m.sk ? '<div>연속 참여 <b>' + m.sk + '일</b></div>' : '') +
       (m.no ? '<div>회원 번호 <b>' + esc(m.no) + '번</b></div>' : '') +
@@ -351,5 +463,6 @@
   })();
 })();
 </script>
+<script src="dia-sub-header.js?v=1"></script>
 </body>
 </html>

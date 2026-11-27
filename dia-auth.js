@@ -98,7 +98,7 @@
     ]);
   }
 
-  function completeSnsLogin(provider, uidKey, displayName, email){
+  function completeSnsLogin(provider, uidKey, displayName, email, photoUrl){
     try {
       localStorage.setItem(USER_KEY, JSON.stringify({
         provider: provider,
@@ -161,7 +161,7 @@
     var email = String(u.email).trim();
     var isJoin = location.pathname.indexOf('join') >= 0;
     if (!isJoin) {
-      completeSnsLogin('google', 'google:' + email, u.displayName || email.split('@')[0], email);
+      completeSnsLogin('google', 'google:' + email, u.displayName || email.split('@')[0], email, u.photoURL || '');
       return;
     }
     window.__diaPendingGoogleEmail = email;
@@ -235,7 +235,7 @@
         var prof = (acc && acc.profile) || (me && me.properties) || {};
         var name = prof.nickname || ('카카오회원_' + String((me && me.id) || '').slice(-4));
         var email = acc.email || '';
-        completeSnsLogin('kakao', 'kakao:' + ((me && me.id) || name), name, email);
+        completeSnsLogin('kakao', 'kakao:' + ((me && me.id) || name), name, email, prof.profile_image_url || prof.thumbnail_image_url || '');
       });
     }).catch(function(){
       showMsg('카카오 로그인 확인 중 오류가 발생했습니다. 다시 시도해 주세요.');
@@ -287,7 +287,7 @@
         var name = r.nickname || r.name || '네이버회원';
         var email = r.email || '';
         var id = r.id || email || name;
-        completeSnsLogin('naver', 'naver:' + id, name, email);
+        completeSnsLogin('naver', 'naver:' + id, name, email, r.profile_image || '');
       } else {
         showMsg('네이버 로그인 정보를 불러오지 못했습니다. (개발 중 상태에서는 등록된 관리자/테스터 계정만 로그인됩니다.)');
       }

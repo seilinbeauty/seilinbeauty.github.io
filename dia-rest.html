@@ -2115,25 +2115,22 @@
       .book-name { font-size: 23px; }
     }
   </style>
+  <link rel="stylesheet" href="dia-sub-header.css?v=1">
 </head>
 <body class="dia-page">
   <header class="dia-header">
-  <style>
-    /* PC 머리글 우측 3버튼(문의하기·입장하기·운영 센터) 숨김 — 2026-11-26 지시. 휴대폰 머리글(.nav-mobile-links)은 그대로 */
-    @media (min-width: 881px) { header.dia-header .nav-links { display: none !important; } }
-  </style>
     <a href="dia.html" class="brand">
-      <span class="brand-logo">다이아 커뮤니티</span><span class="brand-sub">속눈썹·반영구·네일아트·피부관리·왁싱·붙임머리</span>
+      <span class="brand-logo">DIA COMMUNITY</span><span class="brand-sub">속눈썹·반영구·네일아트·피부관리·왁싱·붙임머리</span>
     </a>
     <nav class="nav-links">
-      <a href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" class="nav-dia"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" style="vertical-align:-2px;margin-right:4px;flex-shrink:0"><path fill="#FEE500" stroke="#3C1E1E" stroke-width="1.6" d="M12 3.2C6.48 3.2 2 6.68 2 10.97c0 2.75 1.83 5.16 4.59 6.54l-.74 2.74c-.11.41.33.74.69.51l3.27-2.21c.71.1 1.44.16 2.19.16 5.52 0 10-3.48 10-7.74 0-4.29-4.48-7.77-10-7.77z"/></svg>입장하기</a>
+      <a href="dia-preview-login.html" class="nav-mypumasi" id="hdrLogin">로그인</a>
+      <a href="dia-preview-join.html" class="nav-mypumasi nav-join">회원가입</a>
+      <a href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" class="nav-dia">마케팅 오픈채팅 입장하기</a>
       <a href="dia-info.html" class="nav-dia">운영 센터</a>
     </nav>
     <div class="nav-mobile-links">
-      <a href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" class="nav-mobile-link"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" style="vertical-align:-2px;margin-right:4px;flex-shrink:0"><path fill="#FEE500" stroke="#3C1E1E" stroke-width="1.6" d="M12 3.2C6.48 3.2 2 6.68 2 10.97c0 2.75 1.83 5.16 4.59 6.54l-.74 2.74c-.11.41.33.74.69.51l3.27-2.21c.71.1 1.44.16 2.19.16 5.52 0 10-3.48 10-7.74 0-4.29-4.48-7.77-10-7.77z"/></svg>입장하기</a>
-      <a href="dia-info.html" class="nav-mobile-link">운영 센터</a>
+      <button type="button" id="moCatBtn" class="nav-mobile-link" aria-label="카테고리" title="카테고리" aria-expanded="false">☰ 카테고리</button>
     </div>
-
   </header>
 
 <script>
@@ -2403,5 +2400,6 @@
   else init();
 })();
 </script>
+<script src="dia-sub-header.js?v=1"></script>
 </body>
 </html>
