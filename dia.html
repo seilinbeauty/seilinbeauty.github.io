@@ -1657,6 +1657,12 @@
         .pc-hero-snow-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; border-radius: 14px; }
       .pc-hero-snow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 25; border-radius: 14px; }
       @media (max-width: 880px) { .pc-hero-snow, .pc-hero-snow-bg { display: none !important; } }
+      /* 태블릿(881~1100px) 자동 반응형 최적화 */
+      @media (min-width: 881px) and (max-width: 1100px) {
+        body.dia-page .plx-inner { grid-template-columns: 180px minmax(0, 1fr) !important; gap: 14px !important; }
+        body.dia-page .pc-dash-row, body.dia-page .home-panels { grid-template-columns: 1fr !important; }
+        body.dia-page .plx-section > .board-content { padding-left: 194px !important; }
+      }
       /* PC 로그인 전: 내 품앗이·뷰티수강 버튼을 오른쪽 여백(커서 쪽)으로 배치 */
       @media (min-width: 881px) {
         body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links {
@@ -9602,7 +9608,7 @@ window.창고읽기 = function(url){
   function bp(){
     if (mDev) return mDev[1];
     var w = window.innerWidth;
-    return w <= 880 ? 'mo' : (w <= 1024 ? 'tb' : 'pc');
+    return w <= 880 ? 'mo' : 'pc';
   }
   function loadAll(){
     var raw = {};

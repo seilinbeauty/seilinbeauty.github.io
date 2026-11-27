@@ -61,7 +61,6 @@
     <a href="dia-info.html" class="ed-back">← 운영센터</a>
     <div class="ed-devs">
       <button type="button" class="ed-dev is-on" id="d_pc">🖥 PC (1:1)</button>
-      <button type="button" class="ed-dev" id="d_tb">태블릿 (890px)</button>
       <button type="button" class="ed-dev" id="d_mo">📱 모바일 (412px)</button>
     </div>
     <div class="ed-props" id="d_props">
@@ -110,13 +109,13 @@
       propsEl.style.display = 'none';
       msgEl.textContent = '';
       frame.style.width = DEV[k][0];
-      ['pc','tb','mo'].forEach(function(x){
+      ['pc','mo'].forEach(function(x){
         document.getElementById('d_' + x).classList.toggle('is-on', x === k);
       });
       frame.src = 'dia.html?edit=1&dev=' + k + '&r=' + Date.now();
       setTimeout(syncTop, 30);
     }
-    ['pc','tb','mo'].forEach(function(k){
+    ['pc','mo'].forEach(function(k){
       document.getElementById('d_' + k).addEventListener('click', function(){ setDev(k); });
     });
 

@@ -161,7 +161,6 @@
     '<div class="sn-d">PC·태블릿·모바일 실제 화면을 각각 띄웁니다. 요소를 끌어 옮기고, 아래 막대에서 크기·글씨 크기·색깔을 바로 바꾸세요.</div>' +
     '<div style="margin-top:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">' +
       '<button type="button" class="sn-save" id="w_pc">PC</button>' +
-      '<button type="button" class="sn-save" id="w_tb" style="background:#fff;color:#c2456a;border:1px solid #e6b8c8;">태블릿</button>' +
       '<button type="button" class="sn-save" id="w_mo" style="background:#fff;color:#c2456a;border:1px solid #e6b8c8;">모바일</button>' +
       '<button type="button" class="sn-save" id="w_grid" style="margin-left:auto;background:#fff;color:#4a3f44;border:1px solid #d9cfd4;">📐 그리드</button><button type="button" class="sn-save" id="w_full" style="background:#fff;color:#4a3f44;border:1px solid #d9cfd4;">⛶ 1:1 편집기 열기</button><button type="button" class="sn-save" id="w_save">💾 저장하기</button><button type="button" class="sn-reset" id="w_reset">이 기기 원래대로</button>' +
     '</div>' +
@@ -232,7 +231,7 @@
     selKey = '';
     propsEl.style.display = 'none';
     msgEl.textContent = DEV[k][1] + ' 화면입니다. 요소를 눌러 선택하거나 끌어 옮기세요.';
-    ['pc','tb','mo'].forEach(function(x){
+    ['pc','mo'].forEach(function(x){
       var b = document.getElementById('w_' + x);
       if (!b) return;
       var on = (x === k);
@@ -242,7 +241,7 @@
     fitFrame();
     frame.src = 'dia.html?edit=1&dev=' + k + '&r=' + Date.now();
   }
-  ['pc','tb','mo'].forEach(function(k){
+  ['pc','mo'].forEach(function(k){
     var b = document.getElementById('w_' + k);
     if (b) b.addEventListener('click', function(){ setDev(k); });
   });
