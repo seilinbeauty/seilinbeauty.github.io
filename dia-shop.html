@@ -18,24 +18,16 @@
   h1{margin:6px 0 4px;font-size:24px;font-weight:900;letter-spacing:-.03em;}
   .sub{margin:0 0 22px;font-size:13px;color:var(--mute);}
 
-  /* 개발 중 (일반 방문자) */
-  #shop-soon{border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 10px 30px rgba(198,69,106,.07);
+  #dev-soon{border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 10px 30px rgba(198,69,106,.07);
     padding:64px 24px;text-align:center;}
-  #shop-soon .ico{font-size:40px;line-height:1;margin-bottom:16px;}
-  #shop-soon .t{font-size:20px;font-weight:900;letter-spacing:-.03em;margin-bottom:10px;}
-  #shop-soon .bar{width:60px;height:3px;border-radius:99px;background:linear-gradient(90deg,#ef9ab4,#d55576);margin:0 auto 20px;}
-  #shop-soon .d{font-size:13.5px;color:var(--mute);line-height:1.7;margin-bottom:22px;}
+  #dev-soon .ico{font-size:40px;line-height:1;margin-bottom:16px;}
+  #dev-soon .t{font-size:20px;font-weight:900;letter-spacing:-.03em;margin-bottom:10px;}
+  #dev-soon .bar{width:60px;height:3px;border-radius:99px;background:linear-gradient(90deg,#ef9ab4,#d55576);margin:0 auto 20px;}
+  #dev-soon .d{font-size:13.5px;color:var(--mute);line-height:1.7;margin-bottom:22px;}
   .soon-foot{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
   .soon-foot a,.soon-foot button{display:inline-block;padding:10px 18px;border-radius:10px;border:1px solid var(--line);
     background:#fff;color:#8a7b81;font-size:12.5px;font-weight:800;text-decoration:none;cursor:pointer;font-family:inherit;}
   .soon-foot .on{border:0;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;}
-
-  /* 관리자 */
-  #shop-admin{display:none;}
-  .gate{max-width:340px;margin:50px auto;border:1px solid var(--line);border-radius:16px;background:#fff;padding:28px 22px;text-align:center;}
-  .gate input{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;font-size:14px;text-align:center;letter-spacing:3px;outline:none;margin-bottom:10px;}
-  .gate button{width:100%;padding:12px;border:0;border-radius:10px;cursor:pointer;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;font-size:14px;font-weight:800;font-family:inherit;}
-  .gate .m{font-size:12px;color:var(--pink);margin-top:9px;min-height:15px;}
 
   .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px;}
   .toolbar input[type=text]{flex:1;min-width:180px;padding:10px 13px;border:1px solid var(--line);border-radius:9px;font-size:13px;outline:none;font-family:inherit;}
@@ -61,7 +53,7 @@
   .empty{border:1px dashed #f3c7d6;background:var(--pink-soft);border-radius:14px;padding:34px 20px;text-align:center;font-size:13px;color:#a3566d;line-height:1.7;}
 </style>
 </head>
-<body>
+<body data-dev="1">
 <header>
   <div class="inner">
     <a class="brand" href="dia.html">다이아 커뮤니티</a>
@@ -74,98 +66,53 @@
   <h1>🏪 샵매물</h1>
   <p class="sub">샵인샵 · 샵매매 — 전국 지역별 부동산 매물만 모읍니다.</p>
 
-  <section id="shop-soon">
+  <section id="dev-soon" style="display:none;">
     <div class="ico">🛠️</div>
     <div class="t">더 좋은 서비스를 위해 개발 중입니다</div>
     <div class="bar"></div>
-    <div class="d">곧 새로운 모습으로 찾아뵙겠습니다.<br>전국 샵인샵 정보를 한곳에서 보실 수 있도록 준비하고 있습니다.</div>
+    <div class="d">곧 새로운 모습으로 찾아뵙겠습니다.<br>전국 샵매물 정보를 한곳에서 보실 수 있도록 준비하고 있습니다.</div>
     <div class="soon-foot">
       <a class="on" href="dia.html">다이아 커뮤니티</a>
       <a href="dia-course.html">뷰티수강</a>
     </div>
   </section>
 
-  <section id="shop-admin">
-    <div id="shop-gate" class="gate">
-      <div style="font-size:24px;margin-bottom:8px;">🔒</div>
-      <div style="font-size:15px;font-weight:800;margin-bottom:4px;">관리자 화면</div>
-      <div style="font-size:12px;color:#9a9a9a;margin-bottom:16px;">관계자만 열람할 수 있습니다.</div>
-      <input id="shop-pw" type="password" inputmode="numeric" placeholder="비밀번호">
-      <button type="button" id="shop-go">열기</button>
-      <div class="m" id="shop-m"></div>
-    </div>
-
-    <div id="shop-main" style="display:none;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-        <span style="font-size:11px;font-weight:900;color:#15803d;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:99px;padding:4px 10px;">● 스태프 모드</span>
-        <span style="font-size:11.5px;color:#9a9a9a;">이 화면은 스태프에게만 보입니다. 일반 방문자는 개발 중 화면만 봅니다.</span>
+  <section id="dev-real" style="display:none;">
+    <div class="toolbar">
+      <div class="seg" id="shop-kind">
+        <button type="button" data-v="" data-on="1">전체</button>
+        <button type="button" data-v="샵인샵">샵인샵</button>
+        <button type="button" data-v="샵매매">샵매매</button>
       </div>
-      <div class="toolbar">
-        <div class="seg" id="shop-kind">
-          <button type="button" data-v="" data-on="1">전체</button>
-          <button type="button" data-v="샵인샵">샵인샵</button>
-          <button type="button" data-v="샵매매">샵매매</button>
-        </div>
-        <div class="seg" id="shop-type">
-          <button type="button" data-v="" data-on="1">구해요·내놔요 전체</button>
-          <button type="button" data-v="want">구해요</button>
-          <button type="button" data-v="give">내놔요</button>
-        </div>
-        <input id="shop-q" type="text" placeholder="제목·지역·업종 검색">
-        <select id="shop-job">
-          <option value="">업종 전체</option>
-          <option>속눈썹펌</option><option>속눈썹연장</option><option>네일</option>
-          <option>반영구</option><option>왁싱</option><option>피부</option><option>토탈뷰티</option><option>두피·탈모</option>
-        </select>
-        <button type="button" id="shop-add">+ 글 등록</button>
+      <div class="seg" id="shop-type">
+        <button type="button" data-v="" data-on="1">구해요·내놔요 전체</button>
+        <button type="button" data-v="want">구해요</button>
+        <button type="button" data-v="give">내놔요</button>
       </div>
-
-      <div class="cats" id="shop-areas"></div>
-      <div class="list" id="shop-items"></div>
-      <div class="empty" id="shop-empty">아직 등록된 샵매물 글이 없습니다.<br>지역 카테고리를 고르고 오른쪽 위 <b>+ 글 등록</b>으로 하나씩 쌓으면 됩니다.</div>
+      <input id="shop-q" type="text" placeholder="제목·지역·업종 검색">
+      <select id="shop-job">
+        <option value="">업종 전체</option>
+        <option>속눈썹펌</option><option>속눈썹연장</option><option>네일</option>
+        <option>반영구</option><option>왁싱</option><option>피부</option><option>토탈뷰티</option><option>두피·탈모</option>
+      </select>
+      <button type="button" id="shop-add">+ 글 등록</button>
     </div>
+    <div class="cats" id="shop-areas"></div>
+    <div class="list" id="shop-items"></div>
+    <div class="empty" id="shop-empty">아직 등록된 샵매물 글이 없습니다.<br><b>+ 글 등록</b>으로 하나씩 쌓으면 이곳에 지역별로 정리됩니다.</div>
   </section>
 </main>
 
+<script src="dia-staff.js?v=2" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-  var KEY = atob('MDQyMw==');
   var AREAS = ['전체','서울','경기·인천','부산·울산','대구·경북','대전·충청','광주·전라','강원','제주','온라인'];
-
-  var soon = document.getElementById('shop-soon');
-  var wrap = document.getElementById('shop-admin');
-  var gate = document.getElementById('shop-gate');
-  var mainEl = document.getElementById('shop-main');
-
-  function showAdmin(){
-    wrap.style.display = '';
-    gate.style.display = 'none';
-    mainEl.style.display = '';
-    soon.style.display = 'none';
-    buildAreas();
-    render();
-  }
-  // 스태프(운영센터를 한 번이라도 연 계정)면 암호 없이 바로 목록 화면
-  var isStaff = false;
-  try {
-    isStaff = localStorage.getItem('dia_shop_admin') === '1' || localStorage.getItem('dia_no_track') === '1';
-  } catch(e){}
-  if (isStaff) { showAdmin(); }
-  if (location.hash === '#admin') { wrap.style.display = ''; soon.style.display = 'none'; }
-
-  function go(){
-    var v = (document.getElementById('shop-pw').value || '').trim();
-    if (v === KEY) { try{ localStorage.setItem('dia_shop_admin','1'); }catch(e){} showAdmin(); }
-    else document.getElementById('shop-m').textContent = '비밀번호가 맞지 않습니다.';
-  }
-  document.getElementById('shop-go').addEventListener('click', go);
-  document.getElementById('shop-pw').addEventListener('keydown', function(e){ if (e.key === 'Enter') go(); });
-
-  // 데이터 (지금은 브라우저 저장 / 나중에 파이어스토어)
   var LS = 'dia_shop_items_v1';
   var state = { area: '전체', type: '', kind: '', q: '', job: '' };
+
   function load(){ try { var a = JSON.parse(localStorage.getItem(LS) || '[]'); return Array.isArray(a) ? a : []; } catch(e){ return []; } }
   function save(a){ try { localStorage.setItem(LS, JSON.stringify(a)); } catch(e){} }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
   function buildAreas(){
     var box = document.getElementById('shop-areas');
@@ -196,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function(){
   document.getElementById('shop-add').addEventListener('click', function(){
     var title = prompt('제목 (예: 홍대 속눈썹펌 샵인샵 자리 구합니다)');
     if (!title) return;
-    var kind = prompt('종류 (샵인샵·샵매매)', '샵인샵');
+    var kind = prompt('종류 (샵인샵 · 샵매매)', '샵인샵');
     if (!kind) return;
     var type = prompt('구해요 / 내놔요 중 하나', '구해요');
     if (!type) return;
@@ -206,7 +153,8 @@ document.addEventListener('DOMContentLoaded', function(){
     if (!job) return;
     var link = prompt('원문 주소 (없으면 비워 두세요)', '') || '';
     var a = load();
-    a.unshift({ id: 's'+Date.now(), title: title, kind: kind, type: type.indexOf('내놔') >= 0 ? 'give' : 'want',
+    a.unshift({ id: 's'+Date.now(), title: title, kind: kind,
+      type: type.indexOf('내놔') >= 0 ? 'give' : 'want',
       area: area, job: job, link: link, at: new Date().toISOString().slice(0,10) });
     save(a); render();
   });
@@ -240,7 +188,9 @@ document.addEventListener('DOMContentLoaded', function(){
       '</div>';
     }).join('');
   }
-  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  buildAreas();
+  render();
 });
 </script>
 </body>
