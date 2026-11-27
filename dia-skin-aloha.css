@@ -67,3 +67,55 @@ body::after{content:"PREVIEW · 감성 시안";
   font:400 9.5px/1 Roboto,sans-serif;letter-spacing:1.6px;
   color:#b5a9ac;background:rgba(255,255,255,.92);
   border:1px solid var(--border-color);padding:6px 10px;border-radius:999px;}
+
+/* ── 기존 UI 컴포넌트 덮기 ── */
+:root{--line-soft:#efe7e4;}
+
+/* 패널(공지·목록) */
+.home-panel{background:var(--bg-card);border:1px solid var(--line-soft);border-radius:4px;
+  box-shadow:0 1px 10px rgba(180,158,155,.05);}
+.panel-head{border-bottom:1px solid var(--line-soft);padding:16px 18px;}
+.panel-name{font-weight:500;letter-spacing:-.2px;}
+.panel-sub{font-size:11px;color:var(--text-dim);font-weight:300;letter-spacing:.2px;}
+.panel-item{padding:14px 18px;border-bottom:1px solid #f7f2f0;transition:background .16s;}
+.panel-item:last-child{border-bottom:0;}
+.panel-item:hover{background:#fdf9f8;}
+.panel-item-title{font-size:13px;font-weight:400;letter-spacing:-.2px;color:var(--text-main);}
+.panel-item-desc{font-size:11.5px;color:var(--text-muted);font-weight:300;line-height:1.75;}
+.panel-item-date{font-size:10px;color:var(--text-dim);letter-spacing:.6px;}
+
+/* 순위·목록 행 */
+.rank-row{border-bottom:1px solid #f7f2f0;}
+.rank-row:hover{background:#fdf9f8;}
+.rank-nm{font-weight:400;letter-spacing:-.2px;}
+.rank-i,.rank-day,.rank-cat{color:var(--text-dim);font-weight:300;letter-spacing:.2px;}
+.rank-bar{background:#f3e8e7;border-radius:99px;overflow:hidden;}
+.rank-pass-n{color:var(--accent,var(--pink-deep));font-weight:400;}
+
+/* 상단·메뉴 */
+.top{background:var(--bg-card);border-bottom:1px solid var(--line-soft);}
+nav a,.nav-sub-link,.board-nav-link{letter-spacing:-.1px;font-weight:400;}
+.nav-sub-link:hover,.board-nav-link:hover{background:#fdf9f8;color:var(--pink-deep);}
+.nav-new{background:var(--pink-soft);color:var(--pink-deep);letter-spacing:.8px;font-weight:500;}
+
+/* 배지·태그 */
+.mc-badge{background:var(--pink-soft);color:var(--pink-deep);border:1px solid var(--pink-border);
+  border-radius:999px;letter-spacing:.8px;font-weight:400;}
+.fb-cat{background:#f7f2f0;color:var(--text-muted);border-radius:3px;letter-spacing:.4px;}
+
+/* 오락·운세 박스 */
+.fb-box{background:var(--bg-card);border:1px solid var(--line-soft);border-radius:4px;
+  box-shadow:0 1px 10px rgba(180,158,155,.05);}
+.fb-nm{font-weight:500;letter-spacing:-.2px;}
+.fb-k{font-size:10px;letter-spacing:1.4px;color:var(--text-dim);text-transform:uppercase;}
+.fb-tm{font-size:10.5px;color:var(--text-dim);letter-spacing:.4px;}
+
+/* 버튼 */
+.mc-fortune-btn{border:1px solid var(--pink-border);background:#fff;color:var(--pink-deep);
+  border-radius:3px;letter-spacing:.6px;font-weight:400;}
+
+/* 빈 상태 */
+.is-empty{color:var(--text-dim);font-weight:300;letter-spacing:.2px;}
+
+/* 스크롤 영역 */
+.reg-scroll{scrollbar-width:thin;}
