@@ -2438,10 +2438,12 @@ window.창고읽기 = function(url){
         var btnSurfaceY = null, btnPileY = null;
         var tLeft = 0, tRight = 0, sLeft = 0, sRight = 0, dtLeft = 0, dtRight = 0, dtTop = 20;
         var treeDecoTimer = null;
+        var decoSyncTimer = null;
         var treeDecoQueue = [];
         function clearTreeDeco(){
-          var old = hero.querySelector('.mc-tree-deco');
+          var old = document.querySelector('.mc-tree-deco');
           if (old && old.parentNode) old.parentNode.removeChild(old);
+          if (decoSyncTimer) { clearInterval(decoSyncTimer); decoSyncTimer = null; }
           if (treeDecoQueue && treeDecoQueue.length) {
             for (var qd = 0; qd < treeDecoQueue.length; qd++) clearTimeout(treeDecoQueue[qd]);
             treeDecoQueue = [];
@@ -2485,8 +2487,22 @@ window.창고읽기 = function(url){
             items.push({ kind: 'orn', x: (wT * (o + 0.5)) / 5 - 3, y: hT + 5 + (o % 2) * 3, o: o });
           }
           items.sort(function(a, b){ return a.x - b.x; });
-          hero.appendChild(wrap);
+          document.body.appendChild(wrap);
           var qi = 0;
+          function syncDecoPos(){
+            if (!document.querySelector('.mc-tree-deco')) return;
+            var r2 = titleEl.getBoundingClientRect();
+            var rr2 = document.createRange();
+            rr2.selectNodeContents(titleEl);
+            var b2 = rr2.getBoundingClientRect();
+            if (b2 && b2.width > 4) r2 = b2;
+            wrap.style.left = r2.left + 'px';
+            wrap.style.top = r2.top + 'px';
+            wrap.style.width = r2.width + 'px';
+            wrap.style.height = r2.height + 'px';
+          }
+          if (decoSyncTimer) clearInterval(decoSyncTimer);
+          decoSyncTimer = setInterval(syncDecoPos, 120);
           function placeNextItem(){
             if (qi >= items.length) return;
             var it = items[qi++];
@@ -3206,7 +3222,7 @@ window.창고읽기 = function(url){
                       santa.state = 'walk_to'; santa.targetMode = 'snowman';
                       santa.targetX = sLeft + 25 + Math.random() * Math.max(20, (walkMaxX - sLeft - 45));
                       setMood('🎵', 60);
-                    } else if (!hero.querySelector('.mc-tree-deco') && tRight > tLeft + 40 && walkMaxX > sLeft + 40 && Math.random() < 0.22) {
+                    } else if (!document.querySelector('.mc-tree-deco') && tRight > tLeft + 40 && walkMaxX > sLeft + 40 && Math.random() < 0.22) {
                       /* 가끔 한글 제목으로 걸어가 트리처럼 전구·오너먼트로 꾸민다 */
                       santa.state = 'walk_to'; santa.targetMode = 'decorate';
                       santa.targetX = Math.max(sLeft + 18, Math.min(walkMaxX - 10, (tLeft + tRight) / 2));
