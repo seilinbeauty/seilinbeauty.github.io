@@ -3552,33 +3552,62 @@ body{padding-bottom:76px !important;}
 })();
 </script>
 <style id="shop-unified-theme">
-/* 뷰티수강 — 샵매물·알로하 스타일 디자인 통일 (2026-11-28) */
+/* 뷰티수강 — 알로하 클로젯 스타일 완전 통일 (2026-11-28) */
 :root{--bg-page:#ffffff !important;}
 html,body{background:#ffffff !important;color:#1e1a1b !important;}
 header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;backdrop-filter:none !important;}
 .hero,.courses-section,.crs-sec{background:#ffffff !important;}
-.crs-grid{display:grid !important;grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:22px 12px !important;overflow:visible !important;padding:4px 0 30px !important;}
+.crs-grid{display:grid !important;grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:24px 12px !important;overflow:visible !important;padding:4px 0 32px !important;}
 @media (max-width:980px){.crs-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important;}}
-@media (max-width:700px){.crs-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:20px 8px !important;}}
+@media (max-width:700px){.crs-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:22px 8px !important;}}
 .crs-grid>.crs-card{flex:none !important;max-width:none !important;width:100% !important;border:0 !important;border-radius:0 !important;background:#fff !important;padding:0 !important;box-shadow:none !important;display:flex;flex-direction:column;}
 .crs-card.is-benefit{border:0 !important;box-shadow:none !important;}
-.crs-ribbon{margin:0 0 6px !important;border-radius:2px !important;padding:5px 8px !important;font-size:10.5px !important;background:#1e1a1b !important;}
-.crs-photos{order:-1 !important;display:grid !important;grid-template-columns:1fr !important;gap:0 !important;margin:0 0 8px !important;}
-.crs-photos .crs-ph{display:none !important;aspect-ratio:3/4.1 !important;border-radius:0 !important;background:#f5f3f4 !important;}
+.crs-photos{order:-3 !important;display:grid !important;grid-template-columns:1fr !important;gap:0 !important;margin:0 0 6px !important;}
+.crs-photos .crs-ph{display:none !important;aspect-ratio:3/4.3 !important;border-radius:0 !important;background:#f5f3f4 !important;}
 .crs-photos .crs-ph:first-child{display:block !important;}
-.crs-photos .crs-ph-empty{display:flex !important;align-items:center;justify-content:center;aspect-ratio:3/4.1 !important;border-radius:0 !important;border:1px solid #eee !important;background:#faf8f9 !important;}
-.crs-head{gap:6px !important;margin-bottom:4px !important;}
-.crs-av{width:24px !important;height:24px !important;font-size:11px !important;}
-.crs-nick{font-size:12.5px !important;font-weight:800 !important;color:#111 !important;}
-.crs-tags{font-size:11px !important;color:#8c8c8c !important;}
-.crs-links{gap:3px !important;}
-.crs-ig{padding:3px 7px !important;font-size:10px !important;border-radius:2px !important;background:#f5f3f4 !important;border-color:#e4d8da !important;color:#1e1a1b !important;}
-.crs-course{margin:4px 0 0 !important;padding:0 !important;border:0 !important;background:transparent !important;font-size:12px !important;font-weight:700 !important;color:#111 !important;line-height:1.4 !important;}
+.crs-photos .crs-ph-empty{display:flex !important;align-items:center;justify-content:center;aspect-ratio:3/4.3 !important;border-radius:0 !important;border:1px solid #eee !important;background:#faf8f9 !important;}
+.crs-aloha-bar{order:-2;display:flex;justify-content:flex-end;gap:3px;margin:0 0 5px;}
+.crs-aloha-bar i{display:block;width:11px;height:3px;border-radius:0;}
+.crs-head{order:0;gap:5px !important;margin-bottom:3px !important;align-items:flex-start !important;}
+.crs-av{display:none !important;}
+.crs-nick{font-size:13px !important;font-weight:800 !important;color:#111 !important;line-height:1.35 !important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.crs-tags{font-size:12px !important;font-weight:800 !important;color:#111 !important;margin-top:2px !important;}
+.crs-course{order:1;margin:3px 0 5px !important;padding:0 !important;border:0 !important;background:transparent !important;font-size:11.5px !important;font-weight:400 !important;color:#8c8c8c !important;line-height:1.4 !important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.crs-ribbon{order:2;margin:0 0 5px !important;border-radius:2px !important;padding:2px 6px !important;font-size:9.5px !important;font-weight:700 !important;background:#f4a261 !important;color:#fff !important;align-self:flex-start;}
+.crs-benefit{order:3;margin:0 0 5px !important;padding:2px 6px !important;border-radius:2px !important;font-size:9.5px !important;font-weight:700 !important;background:#fff0f3 !important;color:#d6456b !important;border:0 !important;align-self:flex-start;}
+.crs-links{order:4;gap:3px !important;flex-wrap:wrap;margin-top:auto;}
+.crs-ig{padding:2px 6px !important;font-size:9.5px !important;font-weight:700 !important;border-radius:2px !important;background:#f5f3f4 !important;border:0 !important;color:#555 !important;}
 .crs-kind{border-radius:2px !important;font-size:9.5px !important;padding:2px 5px !important;}
-.crs-benefit{margin-top:6px !important;padding:5px 7px !important;border-radius:3px !important;font-size:10.5px !important;}
-.crs-actions{margin-top:7px !important;gap:4px !important;}
-.crs-act{height:26px !important;border-radius:4px !important;font-size:10.5px !important;background:#fff !important;border:1px solid #e4d8da !important;color:#1e1a1b !important;}
+.crs-actions{order:5;margin-top:6px !important;gap:4px !important;}
+.crs-act{height:25px !important;border-radius:3px !important;font-size:10px !important;background:#fff !important;border:1px solid #e4d8da !important;color:#1e1a1b !important;}
 </style>
+<script>
+(function(){
+  var palettes = [
+    ['#e8d5d8', '#1e1a1b', '#c9707f'],
+    ['#d7c4b8', '#4a3531', '#f5e5e2'],
+    ['#dce3ea', '#384657', '#b9939e'],
+    ['#ede0d4', '#7f5539', '#2b2d42']
+  ];
+  function addBars(){
+    var cards = document.querySelectorAll('.crs-grid > .crs-card');
+    for (var i = 0; i < cards.length; i++) {
+      if (cards[i].querySelector('.crs-aloha-bar')) continue;
+      var ph = cards[i].querySelector('.crs-photos');
+      if (!ph) continue;
+      var bar = document.createElement('div');
+      bar.className = 'crs-aloha-bar';
+      var p = palettes[i % palettes.length];
+      bar.innerHTML = '<i style="background:' + p[0] + '"></i><i style="background:' + p[1] + '"></i><i style="background:' + p[2] + '"></i>';
+      ph.parentNode.insertBefore(bar, ph.nextSibling);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addBars);
+  else addBars();
+  setTimeout(addBars, 700);
+  setTimeout(addBars, 1600);
+})();
+</script>
 <script src="dia-sub-header.js?v=1"></script>
 </body>
 </html>
