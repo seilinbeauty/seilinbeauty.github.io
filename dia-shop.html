@@ -458,7 +458,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   function allItems(){
     var base = Array.isArray(window.DIA_SHOP_LISTINGS) ? window.DIA_SHOP_LISTINGS : [];
-    var mine = load();
+    var mine = load().filter(function(x){ return x && !/^ex[1-6]$/.test(String(x.id||'')); });
     return mine.concat(base);
   }
 
