@@ -3821,7 +3821,7 @@ window.창고읽기 = function(url){
                 }
               }
               if (santa.timer > 40 && santa.timer % 30 === 0 && sparkles.length < 20) {
-                sparkles.push({ x: santa.x + santa.dir * 5, y: santa.y - 14, life: 1 });
+                sparkles.push({ x: (tLeft + tRight) / 2 + (Math.random() - 0.5) * Math.max(10, tRight - tLeft), y: Math.max(8, titleBaseY - 6 - Math.random() * 12), life: 1 });
               }
               if (santa.timer >= 250) {
                 santa.state = 'return';
