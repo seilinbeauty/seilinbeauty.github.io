@@ -165,6 +165,15 @@
       return;
     }
     window.__diaPendingGoogleEmail = email;
+    try {
+      localStorage.setItem(USER_KEY, JSON.stringify({
+        provider: 'google',
+        key: 'google:' + email,
+        name: u.displayName || email.split('@')[0],
+        email: email,
+        photo: u.photoURL || ''
+      }));
+    } catch(_e){}
     var ig = document.getElementById('igId') || document.querySelector('input[placeholder*="인스타"]');
     var em = document.querySelector('input[type="email"], input[placeholder*="이메일"]');
     if (em && !em.value) em.value = email;

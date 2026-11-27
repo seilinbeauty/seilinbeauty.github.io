@@ -249,7 +249,7 @@
 
   var provMap = { google: '구글 간편 로그인', kakao: '카카오 간편 로그인', naver: '네이버 간편 로그인' };
   var loginMethod = (snsInfo && snsInfo.provider && provMap[snsInfo.provider]) ? provMap[snsInfo.provider] : '일반 로그인';
-  badges.push('<span class="mc-badge mc-b2">🔑 ' + esc(loginMethod) + '</span>');
+  badges.push('<span id="mpLoginBadge" class="mc-badge mc-b2">🔑 ' + esc(loginMethod) + '</span>');
 
   var vKey = 'dia_visit_cnt_' + curMem;
   var visitCnt = 1;
@@ -436,6 +436,39 @@
     function readDoc(coll){
       return fetch(base + coll + '/' + docId + '?t=' + Date.now()).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
     }
+    if (!snsInfo || !snsInfo.provider || !provMap[snsInfo.provider]) {
+      fetch('https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/course_views/sns_members_v1?key=' + FB_KEY)
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(doc){
+          var f = doc && doc.fields && doc.fields.views && doc.fields.views.mapValue && doc.fields.views.mapValue.fields;
+          if (!f) return;
+          var tgt = String(m.i || curMem || '').toLowerCase().replace(/^@+/, '');
+          var matched = null;
+          Object.keys(f).forEach(function(k){
+            if (matched) return;
+            var it = f[k] && f[k].mapValue && f[k].mapValue.fields;
+            if (!it) return;
+            var ig = ((it.ig && it.ig.stringValue) || '').toLowerCase().replace(/^@+/, '');
+            var nk = ((it.nick && it.nick.stringValue) || '').toLowerCase().replace(/^@+/, '');
+            var pv = (it.provider && it.provider.stringValue) || '';
+            if (pv && provMap[pv] && (ig === tgt || nk === tgt)) {
+              matched = { provider: pv, key: (it.key && it.key.stringValue) || '', name: (it.name && it.name.stringValue) || '', email: (it.email && it.email.stringValue) || '' };
+            }
+          });
+          if (matched) {
+            var badgeEl = document.getElementById('mpLoginBadge');
+            if (badgeEl) badgeEl.textContent = '🔑 ' + provMap[matched.provider];
+            try {
+              var curSns = {};
+              try { curSns = JSON.parse(localStorage.getItem('dia_sns_auth') || '{}') || {}; } catch(_e){}
+              if (!curSns.provider) {
+                localStorage.setItem('dia_sns_auth', JSON.stringify(Object.assign({}, curSns, matched)));
+              }
+            } catch(_e){}
+          }
+        }).catch(function(){});
+    }
+
     Promise.all([readDoc('course_approved'), readDoc('course_submissions')]).then(function(res){
       var items = [];
       res.forEach(function(doc, idx){
