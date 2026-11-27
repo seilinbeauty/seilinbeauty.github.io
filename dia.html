@@ -2229,7 +2229,7 @@
       body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) > .quick-links { order: 0 !important; }
       body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) > .mc-hero-right { order: 0 !important; }
       body.dia-page .dia-hero-in > #mcLoginBox {
-        position: absolute !important; top: auto !important; bottom: 58px !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important;
+        position: absolute !important; top: 50% !important; bottom: auto !important; left: 50% !important; right: auto !important; transform: translate(-50%, -50%) !important;
         width: 250px; max-width: calc(100vw - 32px) !important; margin: 0 !important;
         padding: 0; background: transparent; border: 0; box-shadow: none; z-index: 40; text-align: center;
       }
@@ -2449,6 +2449,9 @@ window.창고읽기 = function(url){
           var wT = trT.width, hT = trT.height;
           var wrap = document.createElement('div');
           wrap.className = 'mc-tree-deco';
+          wrap.style.position = 'absolute';
+          wrap.style.zIndex = '26';
+          wrap.style.pointerEvents = 'none';
           wrap.style.left = leftT + 'px'; wrap.style.top = topT + 'px';
           wrap.style.width = wT + 'px'; wrap.style.height = hT + 'px';
           var cols = ['#fda4af', '#fef08a', '#7dd3fc', '#86efac', '#f9a8d4', '#fcd34d', '#c4b5fd'];
