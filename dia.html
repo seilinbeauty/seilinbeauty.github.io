@@ -2513,7 +2513,7 @@ window.창고읽기 = function(url){
               el.className = 'mc-tree-bulb mc-pop-in';
               var c = cols[it.i % cols.length];
               el.style.background = c; el.style.color = c;
-              el.style.animationDelay = ((it.i % 7) * 0.19).toFixed(2) + 's';
+              el.style.animationDelay = '0s';
             } else if (it.kind === 'star') {
               el = document.createElement('span');
               el.className = 'mc-tree-star mc-pop-in';
@@ -2522,17 +2522,17 @@ window.창고읽기 = function(url){
               el = document.createElement('span');
               el.className = 'mc-tree-orn mc-pop-in';
               el.style.background = ornCols[it.o];
-              el.style.animationDelay = (it.o * 0.25).toFixed(2) + 's';
+              el.style.animationDelay = '0s';
             }
             el.style.left = it.x + 'px'; el.style.top = it.y + 'px';
             wrap.appendChild(el);
-            treeDecoQueue.push(setTimeout(placeNextItem, 150));
+            treeDecoQueue.push(setTimeout(placeNextItem, 620));
           }
           placeNextItem();
           titleEl.style.transition = 'text-shadow .5s ease, filter .5s ease';
           titleEl.style.textShadow = '0 0 9px rgba(253,224,71,.55), 0 0 20px rgba(236,72,153,.35)';
           titleEl.style.filter = 'saturate(1.15) brightness(1.06)';
-          treeDecoTimer = setTimeout(clearTreeDeco, 22000);
+          treeDecoTimer = setTimeout(clearTreeDeco, 40000);
         }
         var bLeft = 0, bRight = 0, lastBtnSig = '';
         var titleBaseY = 20, roadY = 58;
@@ -3760,7 +3760,7 @@ window.창고읽기 = function(url){
                 // 바닥 길은 걸어가면서 빗자루를 아래로 대고 쓱싹쓱싹 쓸어 치움
                 if (Math.abs(dxMove) > 4) {
                   santa.dir = dxMove > 0 ? 1 : -1;
-                  santa.x += santa.dir * 0.85;
+                  santa.x += santa.dir * 0.42;
                   santa.walk += 0.25;
                   santa.broomSwing = Math.sin(santa.walk * 1.4);
                   var fx = Math.round(santa.x + santa.dir * 6);
@@ -3863,7 +3863,7 @@ window.창고읽기 = function(url){
             } else if (santa.state === 'decorate_text') {
               santa.timer++;
               var spanT = Math.max(20, tRight - tLeft);
-              var aimX = tLeft + spanT * Math.min(1, (santa.timer - 30) / 210);
+              var aimX = tLeft + spanT * Math.min(1, (santa.timer - 30) / 620);
               santa.dir = (aimX >= santa.x) ? 1 : -1;
               if (santa.timer > 30 && Math.abs(aimX - santa.x) > 1.2) {
                 santa.x += santa.dir * 0.85;
@@ -3876,7 +3876,7 @@ window.창고읽기 = function(url){
               if (santa.timer > 30 && santa.timer % 14 === 0 && sparkles.length < 24) {
                 sparkles.push({ x: santa.x + (Math.random() - 0.5) * 8, y: Math.max(8, titleBaseY - 8 - Math.random() * 8), life: 1 });
               }
-              if (santa.timer >= 265) {
+              if (santa.timer >= 690) {
                 santa.state = 'return';
               }
             } else if (santa.state === 'wipe') {
