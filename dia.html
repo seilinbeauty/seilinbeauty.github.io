@@ -2377,10 +2377,15 @@ window.창고읽기 = function(url){
           </a>
           <button type="button" id="mcActBtn" class="mc-chat" hidden><span>내 활동</span></button>
         </div>
-        <a id="mcChatBtn" class="mc-chat" href="dia-chat.html" hidden>
-          <span class="mc-chat-ico">💬</span><span>채팅</span>
-          <span class="mc-chat-n" id="mcChatBadge" hidden>0</span>
-        </a>
+        <div style="display:flex;flex-direction:column;gap:5px;align-items:stretch;">
+          <a id="mcChatBtn" class="mc-chat" href="dia-chat.html" hidden>
+            <span class="mc-chat-ico">💬</span><span>채팅</span>
+            <span class="mc-chat-n" id="mcChatBadge" hidden>0</span>
+          </a>
+          <a id="mcEnterBtn" class="mc-chat only-mo" href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" hidden>
+            <span>입장</span>
+          </a>
+        </div>
       </div>
       <div class="mc-login-box" id="mcLoginBox" hidden style="margin:8px auto 0;max-width:440px;text-align:center;">
         <div style="display:flex;gap:6px;">
@@ -2400,6 +2405,7 @@ window.창고읽기 = function(url){
         if(!actBtn || !st || !my) return;
         var mqPc = window.matchMedia ? window.matchMedia('(min-width: 881px)') : null;
         function sync(){
+          var ent = document.getElementById('mcEnterBtn'); if(ent) ent.hidden = my.hidden;
           if(my.hidden){ st.hidden = true; actBtn.hidden = true; actBtn.classList.remove('is-on'); return; }
           if(mqPc && mqPc.matches){
             actBtn.hidden = true; actBtn.classList.remove('is-on');
