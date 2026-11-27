@@ -91,7 +91,8 @@
           var linked = !!(item.linked && item.linked.booleanValue);
           var ig = (item.ig && item.ig.stringValue) || '';
           var nick = (item.nick && item.nick.stringValue) || '';
-          return (linked && ig) ? { ig: ig, nick: nick || ig } : null;
+          var ts = (item.ts && (item.ts.stringValue || item.ts.integerValue)) ? Number(item.ts.stringValue || item.ts.integerValue) : 0;
+          return (linked && ig) ? { ig: ig, nick: nick || ig, ts: ts } : null;
         }).catch(function(){ return null; }),
       new Promise(function(res){ setTimeout(function(){ res(null); }, 1500); })
     ]);
@@ -121,9 +122,11 @@
         localStorage.setItem('dia_login_member_bak', nick);
         if (linkedIg){
           localStorage.setItem('dia_sns_linked_ig', linkedIg);
+          localStorage.setItem('dia_sns_joined_ts', String((remote && remote.ts) ? remote.ts : Date.now()));
           localStorage.removeItem('dia_sns_need_ig');
         } else {
           localStorage.removeItem('dia_sns_linked_ig');
+          localStorage.removeItem('dia_sns_joined_ts');
           localStorage.setItem('dia_sns_need_ig', '1');
         }
       } catch(e){}

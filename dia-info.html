@@ -2957,7 +2957,9 @@ document.addEventListener('DOMContentLoaded', function(){
         tr.setAttribute('data-reg', reg);
         tr.setAttribute('data-role', a.o || '정회원');
         var no = tb.querySelectorAll('tr').length + 1;
-        tr.innerHTML = '<td class="c-no">' + no + '</td><td class="c-nick">' + a.n + '<span class="bdg bdg-sprout">🌱 새싹</span></td><td><span class="c-role" style="color:#8a7b81;background:#f7f5f6;">' + (a.o || '정회원') + '</span></td><td class="c-sns"></td><td>' + cat + '</td><td>' + reg + '</td><td class="c-pass">-</td><td class="c-visit">-</td>';
+        var _addTs = a.ts ? Number(a.ts) : (a.date ? Date.parse(a.date) : Date.now());
+        var _isSprout1d = !isNaN(_addTs) && (Date.now() - _addTs) < 86400000;
+        tr.innerHTML = '<td class="c-no">' + no + '</td><td class="c-nick">' + a.n + (_isSprout1d ? '<span class="bdg bdg-sprout">🌱 새싹</span>' : '') + '</td><td><span class="c-role" style="color:#8a7b81;background:#f7f5f6;">' + (a.o || '정회원') + '</span></td><td class="c-sns"></td><td>' + cat + '</td><td>' + reg + '</td><td class="c-pass">-</td><td class="c-visit">-</td>';
         tb.appendChild(tr);
         var opt = document.createElement('option'); opt.value = a.n; opt.textContent = a.n; pSel.appendChild(opt);
       });

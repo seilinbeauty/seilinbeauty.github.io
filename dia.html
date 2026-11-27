@@ -3158,7 +3158,8 @@ window.창고읽기 = function(url){
                   if(m.b && m.b >= 3){
                     칭호 += '<span class="mc-badge mc-b-pass">🎟️ 패스 부자</span>';
                   }
-                  if(m.nw){
+                  var _isNw = m.nw && (!m.jd && !m.joinedAt ? true : (Date.now() - Date.parse(m.jd || m.joinedAt)) < 86400000);
+                  if(_isNw){
                     칭호 += '<span class="mc-badge mc-b-seed">🌱 새싹</span>';
                   }
                   var isHero = (dst && dst === heroStatus);
@@ -3938,7 +3939,8 @@ window.창고읽기 = function(url){
                   if(m.rk && m.rk >= 1 && m.rk <= 5 && String(m.o||'').indexOf('방장') < 0) badgeList.push('💎 TOP ' + m.rk);
                   if(m.sk && m.sk >= 2) badgeList.push('🔥 ' + m.sk + '일 연속');
                   if(m.b && m.b >= 3) badgeList.push('🎟️ 패스 부자');
-                  if(m.nw) badgeList.push('🌱 새싹');
+                  var _isNw2 = m.nw && (!m.jd && !m.joinedAt ? true : (Date.now() - Date.parse(m.jd || m.joinedAt)) < 86400000);
+                  if(_isNw2) badgeList.push('🌱 새싹');
                   var badgeTxt = badgeList.length ? ('<br>' + badgeList.join(' · ')) : '';
                   if(prCard){
                     prCard.innerHTML = 아바타HTML(m)
@@ -4070,7 +4072,10 @@ window.창고읽기 = function(url){
                   try{ linkedIg = localStorage.getItem('dia_sns_linked_ig') || ''; }catch(_e){}
                   var sm = 회원찾기(saved.n) || 회원찾기(saved.i || '') || (linkedIg ? 회원찾기(linkedIg) : null);
                   if(!sm && linkedIg){
-                    sm = { n: linkedIg, no: 0, r: '미상', c: '뷰티', o: '신규회원', i: linkedIg, b: 0, l: 0, p: 0, d: 0, w: [-1, -1, -1, -1, -1, -1, -1], mc: 0, rk: 0, lw: 0, tot: 0, sk: 0, nw: 1, vl: 0, vlt: '', pl: 0, pk: '', pr: '', pd: '' };
+                    var _jts = 0;
+                    try{ _jts = Number(localStorage.getItem('dia_sns_joined_ts') || 0); }catch(_e){}
+                    var _isNew1d = !_jts || (Date.now() - _jts) < 86400000;
+                    sm = { n: linkedIg, no: 0, r: '미상', c: '뷰티', o: _isNew1d ? '신규회원' : '일반회원', i: linkedIg, b: 0, l: 0, p: 0, d: 0, w: [-1, -1, -1, -1, -1, -1, -1], mc: 0, rk: 0, lw: 0, tot: 0, sk: 0, nw: _isNew1d ? 1 : 0, vl: 0, vlt: '', pl: 0, pk: '', pr: '', pd: '' };
                   }
                   if(sm){
                     로그인저장(sm);
@@ -10462,6 +10467,7 @@ window.창고읽기 = function(url){
             localStorage.removeItem('dia_no_track');
             localStorage.removeItem('dia_sns_need_ig');
             localStorage.removeItem('dia_sns_linked_ig');
+            localStorage.removeItem('dia_sns_joined_ts');
           } catch(err){}
           location.reload();
         });
@@ -10503,7 +10509,9 @@ window.창고읽기 = function(url){
               var it = f && f[sk2] && f[sk2].mapValue && f[sk2].mapValue.fields;
               if (it && it.linked && it.linked.booleanValue && it.ig && it.ig.stringValue) {
                 var igVal = it.ig.stringValue;
+                var tsVal = (it.ts && (it.ts.stringValue || it.ts.integerValue)) ? Number(it.ts.stringValue || it.ts.integerValue) : Date.now();
                 localStorage.setItem('dia_sns_linked_ig', igVal);
+                localStorage.setItem('dia_sns_joined_ts', String(tsVal));
                 localStorage.removeItem('dia_sns_need_ig');
                 document.body.classList.remove('sns-need-ig');
                 location.replace(location.pathname + '?ig=' + Date.now());
@@ -10575,6 +10583,7 @@ window.창고읽기 = function(url){
         localStorage.setItem('dia_login_member', nick);
         localStorage.setItem('dia_login_member_bak', nick);
         localStorage.setItem('dia_sns_linked_ig', v);
+        if (!localStorage.getItem('dia_sns_joined_ts')) localStorage.setItem('dia_sns_joined_ts', String(Date.now()));
         localStorage.removeItem('dia_sns_need_ig');
       } catch(e){}
       var u2 = null;
