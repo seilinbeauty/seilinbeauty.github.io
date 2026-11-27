@@ -72,7 +72,7 @@
 <main>
   <div class="hero-tag">SHOP MARKET</div>
   <h1>🏪 샵매물</h1>
-  <p class="sub">샵인샵 · 샵매매 · 구인 · 기자재 — 전국 지역별로 모읍니다.</p>
+  <p class="sub">샵인샵 · 샵매매 — 전국 지역별 부동산 매물만 모읍니다.</p>
 
   <section id="shop-soon">
     <div class="ico">🛠️</div>
@@ -105,8 +105,6 @@
           <button type="button" data-v="" data-on="1">전체</button>
           <button type="button" data-v="샵인샵">샵인샵</button>
           <button type="button" data-v="샵매매">샵매매</button>
-          <button type="button" data-v="구인">구인</button>
-          <button type="button" data-v="기자재">기자재</button>
         </div>
         <div class="seg" id="shop-type">
           <button type="button" data-v="" data-on="1">구해요·내놔요 전체</button>
@@ -198,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function(){
   document.getElementById('shop-add').addEventListener('click', function(){
     var title = prompt('제목 (예: 홍대 속눈썹펌 샵인샵 자리 구합니다)');
     if (!title) return;
-    var kind = prompt('종류 (샵인샵·샵매매·구인·기자재)', '샵인샵');
+    var kind = prompt('종류 (샵인샵·샵매매)', '샵인샵');
     if (!kind) return;
     var type = prompt('구해요 / 내놔요 중 하나', '구해요');
     if (!type) return;
