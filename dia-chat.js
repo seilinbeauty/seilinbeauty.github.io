@@ -499,7 +499,16 @@
     subEl.textContent = S.me ? '받은 수강 문의' : '내 채팅';
     backEl.setAttribute('href', S.me ? 'dia.html' : 'dia-course.html');
     listBox.innerHTML = '<div class="ch-load">불러오는 중…</div>';
-    var p = S.me ? roomsOfOwner(S.me.aliases) : roomsOfCust(S.cust);
+    var p = S.me
+      ? Promise.all([roomsOfOwner(S.me.aliases), roomsOfCust(S.cust)]).then(function(res){
+          var seen = {}, out = [];
+          (res[0] || []).concat(res[1] || []).forEach(function(r){
+            if (r && r.id && !seen[r.id]) { seen[r.id] = 1; out.push(r); }
+          });
+          out.sort(function(a, b){ return String(b.lastAt || '').localeCompare(String(a.lastAt || '')); });
+          return out;
+        })
+      : roomsOfCust(S.cust);
     p.then(function(rows){
       drawList(rows);
       startPoll(15000, function(){ refreshList(); });
@@ -509,7 +518,16 @@
     });
   }
   function refreshList(){
-    var p = S.me ? roomsOfOwner(S.me.aliases) : roomsOfCust(S.cust);
+    var p = S.me
+      ? Promise.all([roomsOfOwner(S.me.aliases), roomsOfCust(S.cust)]).then(function(res){
+          var seen = {}, out = [];
+          (res[0] || []).concat(res[1] || []).forEach(function(r){
+            if (r && r.id && !seen[r.id]) { seen[r.id] = 1; out.push(r); }
+          });
+          out.sort(function(a, b){ return String(b.lastAt || '').localeCompare(String(a.lastAt || '')); });
+          return out;
+        })
+      : roomsOfCust(S.cust);
     p.then(drawList, function(){});
   }
   function drawList(rows){
@@ -530,14 +548,15 @@
     rows.forEach(function(r){
       var item = el('button', 'ch-item');
       item.type = 'button';
-      var who = S.me ? (r.custName || '고객') : (r.nick || r.owner);
+      var isMyOwnerRoom = !!(S.me && S.me.aliases.indexOf(normId(r.owner)) > -1);
+      var who = isMyOwnerRoom ? (r.custName || '고객') : (r.nick || r.owner);
       var av = el('span', 'ch-av', (who || '?').slice(0, 1));
       var body = el('span', 'ch-body');
       body.appendChild(el('span', 'ch-who', who));
       body.appendChild(el('span', 'ch-last', r.last || '대화를 시작해 보세요'));
       var right = el('span', 'ch-right');
       right.appendChild(el('span', 'ch-time', kst(r.lastAt)));
-      var un = S.me ? (r.unreadI || 0) : (r.unreadC || 0);
+      var un = isMyOwnerRoom ? (r.unreadI || 0) : (r.unreadC || 0);
       if(un > 0 && 읽었나(r.id, r.lastAt)) un = 0;
       if(un > 0) right.appendChild(el('span', 'ch-n', un > 99 ? '99+' : String(un)));
       item.appendChild(av); item.appendChild(body); item.appendChild(right);
@@ -564,7 +583,7 @@
       item.addEventListener('click', function(){
         S.owner = r.owner; S.nick = r.nick || r.owner;
         location.hash = 'r=' + encodeURIComponent(r.id);
-        openRoom(r.id, S.me ? 'i' : 'c');
+        openRoom(r.id, isMyOwnerRoom ? 'i' : 'c');
       });
       listBox.appendChild(item);
     });
@@ -581,9 +600,22 @@
     room(id).then(function(r){
       S.room = r;
       var 내방 = !!(S.me && r && S.me.aliases.indexOf(normId(r.owner)) > -1);
-      if(내방) S.side = 'i';
-      else if(r && r.cust === S.cust) S.side = 'c';
-      else if(r) S.side = 'i';
+      var 내고객방 = !!(r && r.cust === S.cust);
+      if (r && !내방 && !내고객방) {
+        titleEl.textContent = '비밀 대화';
+        subEl.textContent = '';
+        msgsBox.innerHTML = '';
+        var blk = el('div', 'ch-empty');
+        blk.appendChild(el('div', 'ch-empty-t', '본인이 참여한 대화만 볼 수 있습니다.'));
+        blk.appendChild(el('div', 'ch-empty-s', '다른 계정의 1:1 대화는 비공개로 보호됩니다.'));
+        var backBtn = el('a', 'ch-empty-b', '내 채팅 목록으로');
+        backBtn.href = 'dia-chat.html';
+        blk.appendChild(backBtn);
+        msgsBox.appendChild(blk);
+        return;
+      }
+      if(내방 && sideHint !== 'c') S.side = 'i';
+      else if(내고객방) S.side = 'c';
       else S.side = sideHint || (S.me ? 'i' : 'c');
       S.owner = (r && r.owner) || (id.indexOf('_') > -1 ? id.slice(0, id.lastIndexOf('_')) : '');
       S.nick = (r && r.nick) || S.nick || S.owner;
@@ -708,6 +740,10 @@
 
   // ── 처음 열 때: ?to=원장님열쇠&n=이름 이면 바로 그 방, #r=방번호 면 그 방, 아니면 목록
   (function boot(){
+    S.me = member();
+    if (S.me && S.me.key) {
+      S.cust = 'u_' + safeId(S.me.key);
+    }
     var q = location.search || '';
     var m = /[?&]to=([^&]+)/.exec(q);
     var n = /[?&]n=([^&]+)/.exec(q);
