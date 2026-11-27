@@ -3073,20 +3073,9 @@ document.addEventListener('DOMContentLoaded', function(){
     if(msg) msg.textContent = '';
     try{ window.scrollTo({ top: 0, behavior: 'smooth' }); }catch(_e){ window.scrollTo(0, 0); }
   }
-  function open(유지){
-    var 만료 = 0;
-    try{
-      if(유지){
-        만료 = Number(localStorage.getItem('dia_ops_exp') || 0);
-      } else {
-        만료 = Date.now() + 3600000;
-        localStorage.setItem('dia_ops_ok', KEY);
-        localStorage.setItem('dia_ops_exp', String(만료));
-      }
-    }catch(_e){}
+  function open(){
     if(만료타이머){ clearTimeout(만료타이머); 만료타이머 = null; }
-    var 남은시간 = 만료 - Date.now();
-    if(남은시간 > 0){ 만료타이머 = setTimeout(잠그기, 남은시간); }
+    try{ localStorage.removeItem('dia_ops_ok'); localStorage.removeItem('dia_ops_exp'); }catch(_e){}
     document.body.classList.add('ops-unlocked');
     try{ localStorage.setItem('dia_no_track', '1'); }catch(e){}
     sect.style.display = '';
@@ -3099,15 +3088,10 @@ document.addEventListener('DOMContentLoaded', function(){
     접속현황갱신();
     if(!prTimer) prTimer = setInterval(접속현황갱신, 5000);
   }
-  try{
-    var 저장키 = localStorage.getItem('dia_ops_ok');
-    var 저장만료 = Number(localStorage.getItem('dia_ops_exp') || 0);
-    if(저장키 === KEY && 저장만료 > Date.now()){ open(true); }
-    else if(저장키){ localStorage.removeItem('dia_ops_ok'); localStorage.removeItem('dia_ops_exp'); }
-  }catch(_e){}
+  try{ localStorage.removeItem('dia_ops_ok'); localStorage.removeItem('dia_ops_exp'); }catch(_e){}
   function go(){
     var v = (document.getElementById('ops-pw').value || '').trim();
-    if(v === KEY){ open(false); }
+    if(v === KEY){ open(); }
     else { document.getElementById('ops-msg').textContent = '비밀번호가 맞지 않습니다.'; }
   }
   document.getElementById('ops-go').addEventListener('click', go);
