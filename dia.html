@@ -3142,7 +3142,7 @@ window.창고읽기 = function(url){
                 }
                 santa.energy = Math.max(0, santa.energy - 5);
               }
-              if (santa.timer >= 26) {
+              if (santa.timer >= 40) {
                 if (maxSub >= 2.6 && bestSubX >= 0 && bestSubX <= walkMaxX) {
                   santa.state = 'walk_to'; santa.targetMode = 'shovel'; santa.targetX = bestSubX;
                 } else {
@@ -4125,14 +4125,18 @@ window.창고읽기 = function(url){
             } else if (santa.state === 'shovel_toss' || (santa.state === 'walk_to' && santa.targetMode === 'shovel')) {
               // 제설 삽으로 눈 밀고 퍼내는 관절 동작
               var isToss = (santa.state === 'shovel_toss');
-              var tp = isToss ? Math.sin(Math.min(1, santa.timer / 16) * Math.PI * 0.75) : 0;
-              // 실제 제설작업 자세: 밀 땐 허리 숙이고 삽판 바닥이 땅(y=0)에 수평으로 딱 붙어 흔들림 없이 쓱 밀기, 던질 땐 위로 휙!
-              var shX = 6.0 - tp * 1.5, shY = -0.2 - tp * 8.0;
-              drawLimb(-2.2, -4.2, -0.5, -2.5, 1.5, -2.8 - tp * 4.5, '#c12737', '#ffffff', 1.8);
-              drawLimb(2.2, -4.2, 4.2, -2.2 - tp * 2, shX - 1.2, shY - 1.2, '#d93848', '#ffffff', 1.9);
+              var isPackShovel = (isToss && santa.timer > 22);
+              var tp = (isToss && !isPackShovel) ? Math.sin(Math.min(1, santa.timer / 20) * Math.PI * 0.75) : 0;
+              var packP = isPackShovel ? Math.min(1, (santa.timer - 22) / 16) : 0;
+              var shake = (isToss && santa.timer >= 18 && santa.timer <= 24) ? Math.sin(santa.timer * 1.4) * 1.2 : 0;
+              // 실제 제설작업 자세: 밀 땐 수평 밀기 -> 퍼낸 뒤엔 톡톡 털고 도라에몽 주머니로 접어 넣기!
+              var shX = (6.0 - tp * 1.5) * (1 - packP) + 2.5 * packP, shY = (-0.2 - tp * 8.0 + shake) * (1 - packP) - 4.0 * packP;
+              drawLimb(-2.2, -4.2, -0.5, -2.5, 1.5 * (1 - packP) + 0.5 * packP, (-2.8 - tp * 4.5) * (1 - packP) - 2.0 * packP, '#c12737', '#ffffff', 1.8);
+              drawLimb(2.2, -4.2, 4.2, -2.2 - tp * 2, shX - 1.2 * (1 - packP), shY - 1.2 * (1 - packP), '#d93848', '#ffffff', 1.9);
               ctx.save();
               ctx.translate(shX, shY);
-              ctx.rotate(isToss ? (-0.78 * tp) : 0);
+              ctx.scale(1 - packP * 0.72, 1 - packP * 0.72);
+              ctx.rotate(isPackShovel ? (-0.9 * packP) : (isToss ? (-0.78 * tp) : 0));
               ctx.strokeStyle = '#8b5a2b'; ctx.lineWidth = 1.6;
               ctx.beginPath(); ctx.moveTo(-6.2, -3.6); ctx.lineTo(2.0, -0.4); ctx.stroke();
               ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1.2;
