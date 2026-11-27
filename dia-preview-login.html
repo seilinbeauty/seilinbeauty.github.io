@@ -242,17 +242,25 @@ document.addEventListener('DOMContentLoaded', function(){
         var q = raw.toLowerCase().replace(/^@+/, '');
         var n = (m.n || '').toLowerCase();
         var ig = (m.i || '').toLowerCase();
-        if (n.indexOf(q) === 0 || ig.indexOf(q) === 0) sc += 100;
+        // '서울/...' 같은 지역 prefix를 뗀 본래 이름·상호도 앞글자 일치로 우대
+        var segs = n.split('/');
+        var body = (segs.length > 1 ? segs[1] : segs[0]).trim();
+        if (body.indexOf(q) === 0 || ig.indexOf(q) === 0) sc += 200;
+        else if (n.indexOf(q) === 0) sc += 80;
         if (window.DIA_SEARCH && DIA_SEARCH.isJamoOnly(DIA_SEARCH.norm(q))) {
+          var qn = DIA_SEARCH.norm(q);
+          var bCho = DIA_SEARCH.toCho(DIA_SEARCH.norm(body));
+          var oCho = DIA_SEARCH.toCho(DIA_SEARCH.norm(m.o || ''));
           var nCho = DIA_SEARCH.toCho(DIA_SEARCH.norm(m.n || ''));
-          if (nCho.indexOf(DIA_SEARCH.norm(q)) === 0) sc += 120;
+          if (bCho.indexOf(qn) === 0 || oCho.indexOf(qn) >= 0) sc += 220;
+          else if (nCho.indexOf(qn) === 0) sc += 60;
         }
         return sc;
       }
       return (b.sc + bonus(b.m)) - (a.sc + bonus(a.m));
     });
     sug.innerHTML = '';
-    hits.slice(0, 12).forEach(function(item){
+    hits.slice(0, 50).forEach(function(item){
       var m = item.m;
       var b = document.createElement('button');
       b.type = 'button';
