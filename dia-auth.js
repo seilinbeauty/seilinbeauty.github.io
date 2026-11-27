@@ -9,6 +9,46 @@
   var NAVER_CLIENT_ID = '8ZIpKZwgxChwqaa_qP9q';
   var CALLBACK_URL = 'https://seilinbeauty.github.io/dia-preview-login.html';
 
+  var FB_BASE = 'https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/course_views/sns_members_v1';
+  var FB_KEY = 'AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY';
+
+  function safeKey(k){ return String(k || '').replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 60); }
+  function saveSnsRecord(rec){
+    if (!rec || !rec.key) return Promise.resolve();
+    var sk = safeKey(rec.key);
+    var val = {
+      mapValue: {
+        fields: {
+          key: { stringValue: String(rec.key) },
+          provider: { stringValue: String(rec.provider || '') },
+          name: { stringValue: String(rec.name || '') },
+          email: { stringValue: String(rec.email || '') },
+          ig: { stringValue: String(rec.ig || '') },
+          nick: { stringValue: String(rec.nick || '') },
+          linked: { booleanValue: !!rec.linked },
+          updatedAt: { stringValue: new Date().toISOString() }
+        }
+      }
+    };
+    var body = { fields: { views: { mapValue: { fields: {} } } } };
+    body.fields.views.mapValue.fields[sk] = val;
+    var url = FB_BASE + '?updateMask.fieldPaths=' + encodeURIComponent('views.' + sk) + '&key=' + FB_KEY;
+    return fetch(url, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function(r){
+      if (r.status === 404) {
+        return fetch(FB_BASE + '?key=' + FB_KEY, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+      }
+      return r;
+    }).catch(function(){});
+  }
+
   var MAP_KEY = 'dia_sns_ig_map';
   var USER_KEY = 'dia_sns_user';
 
@@ -59,7 +99,21 @@
       if (!mapped) localStorage.setItem('dia_sns_need_ig', '1');
       else localStorage.removeItem('dia_sns_need_ig');
     } catch(e){}
-    location.href = 'dia.html';
+    var rec = {
+      key: uidKey || (provider + ':' + nick),
+      provider: provider,
+      name: displayName || nick,
+      email: email || '',
+      ig: mapped ? nick : '',
+      nick: nick,
+      linked: !!mapped
+    };
+    Promise.race([
+      saveSnsRecord(rec),
+      new Promise(function(res){ setTimeout(res, 1500); })
+    ]).then(function(){
+      location.href = 'dia.html';
+    });
   }
 
   // 1) Google (Firebase Auth)
@@ -239,6 +293,7 @@
   }
 
   window.DiaAuth = {
+    saveSnsRecord: saveSnsRecord,
     linkGoogleMember: function(nick){
       if (window.__diaPendingGoogleEmail && nick) {
         saveMap('google:' + window.__diaPendingGoogleEmail, nick);

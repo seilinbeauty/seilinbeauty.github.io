@@ -1664,7 +1664,8 @@
         body.dia-page .plx-section > .board-content { padding-left: 194px !important; }
       }
       /* PC 로그인 전: 내 품앗이·뷰티수강 버튼을 오른쪽 여백(커서 쪽)으로 배치 */
-      @media (min-width: 881px) {
+      #snsIgBanner { display: none; }
+@media (min-width: 881px) {
         body.dia-page .dia-hero-in:not(:has(#mcHeroStatus:not([hidden]))) .quick-links {
           margin-left: auto !important; display: flex !important; justify-content: flex-end !important; width: auto !important; gap: 10px !important;
         }
@@ -10420,6 +10421,32 @@ window.창고읽기 = function(url){
         localStorage.setItem('dia_login_member_bak', nick);
         localStorage.removeItem('dia_sns_need_ig');
       } catch(e){}
+      var u2 = null;
+      try { u2 = JSON.parse(localStorage.getItem('dia_sns_user') || 'null'); } catch(e){}
+      if (u2 && u2.key) {
+        var sk = String(u2.key).replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 60);
+        var body = { fields: { views: { mapValue: { fields: {} } } } };
+        body.fields.views.mapValue.fields[sk] = {
+          mapValue: {
+            fields: {
+              key: { stringValue: String(u2.key) },
+              provider: { stringValue: String(u2.provider || '') },
+              name: { stringValue: String(u2.name || '') },
+              email: { stringValue: String(u2.email || '') },
+              ig: { stringValue: v },
+              nick: { stringValue: nick },
+              linked: { booleanValue: true },
+              updatedAt: { stringValue: new Date().toISOString() }
+            }
+          }
+        };
+        fetch('https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/course_views/sns_members_v1?updateMask.fieldPaths=' + encodeURIComponent('views.' + sk) + '&key=AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        }).finally(function(){ location.reload(); });
+        return;
+      }
       location.reload();
     });
   }

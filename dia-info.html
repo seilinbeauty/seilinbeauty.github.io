@@ -2958,7 +2958,7 @@ document.addEventListener('DOMContentLoaded', function(){
         tr.setAttribute('data-reg', reg);
         tr.setAttribute('data-role', a.o || '정회원');
         var no = tb.querySelectorAll('tr').length + 1;
-        tr.innerHTML = '<td class="c-no">' + no + '</td><td class="c-nick">' + a.n + '<span class="bdg bdg-sprout">🌱 새싹</span></td><td><span class="c-role" style="color:#8a7b81;background:#f7f5f6;">' + (a.o || '정회원') + '</span></td><td>' + cat + '</td><td>' + reg + '</td><td class="c-pass">-</td><td class="c-visit">-</td>';
+        tr.innerHTML = '<td class="c-no">' + no + '</td><td class="c-nick">' + a.n + '<span class="bdg bdg-sprout">🌱 새싹</span></td><td><span class="c-role" style="color:#8a7b81;background:#f7f5f6;">' + (a.o || '정회원') + '</span></td><td class="c-sns"></td><td>' + cat + '</td><td>' + reg + '</td><td class="c-pass">-</td><td class="c-visit">-</td>';
         tb.appendChild(tr);
         var opt = document.createElement('option'); opt.value = a.n; opt.textContent = a.n; pSel.appendChild(opt);
       });
@@ -4763,7 +4763,7 @@ document.addEventListener('DOMContentLoaded', function(){
           </div>
           <div class="mem-wrap"><div class="mem-scroll">
             <table class="mem">
-              <thead><tr><th>No</th><th>닉네임</th><th>직책</th><th>업종</th><th>지역</th><th class="c-pass">완료패스</th><th class="c-visit">방문</th></tr></thead>
+              <thead><tr><th>No</th><th>닉네임</th><th>직책</th><th>로그인·인스타</th><th>업종</th><th>지역</th><th class="c-pass">완료패스</th><th class="c-visit">방문</th></tr></thead>
               <tbody id="mem-body">
                                 <tr data-nick="STAFF" data-cat="총괄운영" data-reg="본부" data-role="관리자"><td class="c-no">1</td><td class="c-nick">STAFF</td><td><span class="c-role" style="color:#7a4b8f;background:#f5eef8;">관리자</span></td><td>총괄운영</td><td>본부</td><td class="c-pass">-</td><td class="c-visit">-</td></tr>
                 <tr data-nick="세이린뷰티 본점" data-cat="속눈썹펌" data-reg="서울" data-role="관리자"><td class="c-no">2</td><td class="c-nick">세이린뷰티 본점</td><td><span class="c-role" style="color:#7a4b8f;background:#f5eef8;">관리자</span></td><td>속눈썹펌</td><td>서울/강서</td><td class="c-pass">-</td><td class="c-visit">-</td></tr>
@@ -6280,6 +6280,93 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+})();
+</script>
+<script src="dia-members.js?v=2"></script>
+<script>
+(function(){
+  var body = document.getElementById('mem-body');
+  if (!body) return;
+  var igMap = {};
+  if (window.DIA_MEMBERS) {
+    DIA_MEMBERS.forEach(function(m){ igMap[m.n] = m.i || ''; });
+  }
+  function badge(txt, bg, fg){
+    return '<span style="display:inline-block;padding:2px 7px;border-radius:999px;font-size:10.5px;font-weight:700;margin-right:4px;background:' + bg + ';color:' + fg + ';">' + txt + '</span>';
+  }
+  function provBadge(pv){
+    if (pv === 'google') return badge('Google', '#eef4ff', '#2b5dc9');
+    if (pv === 'kakao') return badge('Kakao', '#fff8cc', '#6b5300');
+    if (pv === 'naver') return badge('Naver', '#e8f8ee', '#038a3b');
+    return '';
+  }
+  function igBadge(linked, ig){
+    if (linked || ig) return badge('인스타 연동', '#fdeef3', '#b3385d');
+    return badge('미연동', '#f3f1f2', '#8a7b81');
+  }
+  function ensureCells(snsByNick){
+    var rows = body.querySelectorAll('tr');
+    var existing = {};
+    for (var i = 0; i < rows.length; i++) {
+      var tr = rows[i];
+      var nick = tr.getAttribute('data-nick') || '';
+      existing[nick] = true;
+      var td = tr.querySelector('td.c-sns');
+      if (!td) {
+        td = document.createElement('td');
+        td.className = 'c-sns';
+        if (tr.children[3]) tr.insertBefore(td, tr.children[3]);
+        else tr.appendChild(td);
+      }
+      var rec = snsByNick[nick];
+      var hasIg = !!(igMap[nick] || (rec && rec.linked));
+      td.innerHTML = (rec ? provBadge(rec.provider) : '') + igBadge(hasIg, igMap[nick]);
+    }
+    return existing;
+  }
+  ensureCells({});
+
+  var url = 'https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/course_views/sns_members_v1?key=AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY';
+  fetch(url, { cache: 'no-store' }).then(function(r){ return r.ok ? r.json() : null; }).then(function(doc){
+    var views = (doc && doc.fields && doc.fields.views && doc.fields.views.mapValue && doc.fields.views.mapValue.fields) || {};
+    var snsByNick = {};
+    var extras = [];
+    Object.keys(views).forEach(function(k){
+      var f = (views[k] && views[k].mapValue && views[k].mapValue.fields) || {};
+      var rec = {
+        provider: (f.provider && f.provider.stringValue) || '',
+        name: (f.name && f.name.stringValue) || '',
+        email: (f.email && f.email.stringValue) || '',
+        ig: (f.ig && f.ig.stringValue) || '',
+        nick: (f.nick && f.nick.stringValue) || '',
+        linked: !!(f.linked && f.linked.booleanValue)
+      };
+      if (rec.nick) snsByNick[rec.nick] = rec;
+      extras.push(rec);
+    });
+    var existing = ensureCells(snsByNick);
+    var nextNo = body.querySelectorAll('tr').length + 1;
+    extras.forEach(function(rec){
+      var keyNick = rec.nick || rec.name || rec.email;
+      if (!keyNick || existing[keyNick]) return;
+      existing[keyNick] = true;
+      var tr = document.createElement('tr');
+      tr.setAttribute('data-nick', keyNick);
+      tr.setAttribute('data-cat', '-');
+      tr.setAttribute('data-reg', '-');
+      tr.setAttribute('data-role', '간편회원');
+      var label = rec.name + (rec.email ? (' (' + rec.email + ')') : '');
+      tr.innerHTML = '<td class="c-no">' + (nextNo++) + '</td>'
+        + '<td class="c-nick"></td>'
+        + '<td><span class="c-role" style="color:#2b5dc9;background:#eef4ff;">간편회원</span></td>'
+        + '<td class="c-sns">' + provBadge(rec.provider) + igBadge(rec.linked, rec.ig) + '</td>'
+        + '<td>-</td><td>-</td><td class="c-pass">-</td><td class="c-visit">-</td>';
+      tr.querySelector('.c-nick').textContent = label;
+      body.appendChild(tr);
+    });
+    var tot = document.getElementById('memCntTotal');
+    if (tot) tot.textContent = String(body.querySelectorAll('tr').length);
+  }).catch(function(){});
 })();
 </script>
 </body>
