@@ -194,6 +194,7 @@
       <button type="button" class="s-btn" data-tab="ana"><span>블로그 상위노출 분석</span></button>
       <button type="button" class="s-btn" data-tab="plc"><span>플레이스 경쟁샵 비교</span></button>
       <button type="button" class="s-btn" data-tab="area"><span>상권 · 입지 수요 분석</span></button>
+      <button type="button" class="s-btn" data-tab="margin"><span>시술 손익 · 시간당 마진</span></button>
       <button type="button" class="s-btn is-locked" data-tab="macro"><span>🔒 인스타·블로그 매크로</span></button>
       <button type="button" class="s-btn is-locked" data-tab="plc_lock"><span>🔒 플레이스 저장·트래픽</span></button>
       <button type="button" class="s-btn is-locked" data-tab="ig_lock"><span>🔒 타인 인스타 인사이트</span></button>
@@ -629,6 +630,42 @@
           <div id="areaOut" class="out-box"></div>
           <div class="ex-box">※ <b>소상공인365 · 서울시 상권분석 체크 4원칙</b>: ① 유동인구보다 <b>2030 여성 주거·직장인구</b> 비중 확인 ② <b>신생 1~3년 생존율·평균영업기간</b>이 긴 동네가 단골 유지에 유리 ③ <b>개업률보다 폐업률</b>이 높으면 공급 과잉 주의 ④ 피크 요일·시간대에 맞춰 네이버 예약 슬롯 집중 배치</div>
           <div class="btn-row"><button type="button" class="btn-ghost" id="btnCopyArea" style="width:100%;">상권 리포트 복사</button></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- 14. 시술 손익 · 시간당 마진 계산기 -->
+    <section class="tl-panel" id="tab-margin">
+      <div class="kpi-row">
+        <div class="kpi"><div class="kpi-l">1건당 순마진</div><div class="kpi-v" id="kMgUnit">-</div><div class="kpi-d" id="kMgRate">마진율 -%</div></div>
+        <div class="kpi"><div class="kpi-l">시간당 실질 순수익</div><div class="kpi-v" id="kMgHour">-</div><div class="kpi-d" id="kMgTime">소요시간 기준</div></div>
+        <div class="kpi"><div class="kpi-l">고정비 손익분기 (월)</div><div class="kpi-v" id="kMgBep">-</div><div class="kpi-d" id="kMgBepDay">일 -건 필요</div></div>
+        <div class="kpi"><div class="kpi-l">목표 순수익 달성 (월)</div><div class="kpi-v" id="kMgGoal">-</div><div class="kpi-d" id="kMgGoalDay">주 5일 기준 일 -건</div></div>
+      </div>
+      <div class="bench">
+        <section class="card">
+          <div class="card-hd"><div><h2 class="card-t">시술 원가 · 시간당 수익 계산</h2><p class="card-sub">시술 가격, 재료비, 소요시간, 월 고정비를 입력하면 즉시 손익분기점과 목표 건수를 계산합니다.</p></div></div>
+          <div class="g2">
+            <div><label class="lbl">주력 시술명</label><input id="mgName" class="inp" value="속눈썹펌"></div>
+            <div><label class="lbl">시술 판매가 (원)</label><input id="mgPrice" type="number" class="inp" value="50000"></div>
+          </div>
+          <div class="g2">
+            <div><label class="lbl">1회 재료·소모품비 (원)</label><input id="mgCost" type="number" class="inp" value="3500"></div>
+            <div><label class="lbl">시술 소요시간 (분)</label><input id="mgMin" type="number" class="inp" value="60"></div>
+          </div>
+          <div class="g2">
+            <div><label class="lbl">카드·플랫폼 수수료 (%)</label><input id="mgFee" type="number" step="0.1" class="inp" value="3.5"></div>
+            <div><label class="lbl">월 고정비 합계 (월세·관리·광고)</label><input id="mgFixed" type="number" class="inp" value="1800000"></div>
+          </div>
+          <div><label class="lbl">월 목표 순수익 (원)</label><input id="mgTarget" type="number" class="inp" value="5000000"></div>
+          <div class="btn-row">
+            <button type="button" class="btn-primary" id="btnMgAi">AI 수익 구조 개선 처방</button>
+          </div>
+        </section>
+        <section class="card">
+          <div class="card-hd"><div><h2 class="card-t">손익 시뮬레이션 · 마진 진단</h2><p class="card-sub">단가 인상·시간 단축 시 월 순수익 변화와 AI 수익성 개선 코멘트입니다.</p></div></div>
+          <div id="mgOut" class="out-box"></div>
+          <div class="btn-row"><button type="button" class="btn-ghost" id="btnCopyMg" style="width:100%;">손익 진단 복사</button></div>
         </section>
       </div>
     </section>
@@ -1400,6 +1437,63 @@
   var btnCopyArea = document.getElementById("btnCopyArea");
   if (btnCopyArea) btnCopyArea.addEventListener("click", function(){ cpTxt(areaOut.textContent); });
   if (areaOut) areaOut.textContent = "지역/역명과 업종을 선택하고 '실시간 상권 수요 분석'을 누르면 실제 검색 수요 표와 AI 상권 공략 리포트가 생성됩니다.";
+
+  // 14. 시술 손익 · 시간당 마진 계산기
+  var mgOut = document.getElementById("mgOut");
+  function calcMargin(){
+    var nm = (document.getElementById("mgName").value || "시술").trim();
+    var p = parseFloat(document.getElementById("mgPrice").value || "0") || 0;
+    var c = parseFloat(document.getElementById("mgCost").value || "0") || 0;
+    var m = Math.max(1, parseFloat(document.getElementById("mgMin").value || "60") || 60);
+    var feePct = parseFloat(document.getElementById("mgFee").value || "0") || 0;
+    var fix = parseFloat(document.getElementById("mgFixed").value || "0") || 0;
+    var tgt = parseFloat(document.getElementById("mgTarget").value || "0") || 0;
+    var fee = Math.round(p * (feePct / 100));
+    var unit = Math.max(0, p - c - fee);
+    var rate = p > 0 ? Math.round((unit / p) * 100) : 0;
+    var perHr = Math.round((unit / m) * 60);
+    var bep = unit > 0 ? Math.ceil(fix / unit) : 0;
+    var goalCnt = unit > 0 ? Math.ceil((fix + tgt) / unit) : 0;
+    var bepDay = (bep / 22).toFixed(1);
+    var goalDay = (goalCnt / 22).toFixed(1);
+    document.getElementById("kMgUnit").textContent = unit.toLocaleString() + "원";
+    document.getElementById("kMgRate").textContent = "공헌이익률 " + rate + "% (수수료 " + fee.toLocaleString() + "원)";
+    document.getElementById("kMgHour").textContent = perHr.toLocaleString() + "원/h";
+    document.getElementById("kMgTime").textContent = m + "분 시술 기준";
+    document.getElementById("kMgBep").textContent = bep + "건";
+    document.getElementById("kMgBepDay").textContent = "주 5일 기준 일 " + bepDay + "건";
+    document.getElementById("kMgGoal").textContent = goalCnt + "건";
+    document.getElementById("kMgGoalDay").textContent = "주 5일 기준 일 " + goalDay + "건 (매출 " + Math.round((goalCnt * p) / 10000).toLocaleString() + "만원)";
+    var upPrice = p + 5000;
+    var upUnit = Math.max(0, upPrice - c - Math.round(upPrice * (feePct / 100)));
+    var upMonth = (upUnit * goalCnt) - fix;
+    var fastMin = Math.max(20, m - 10);
+    var fastHr = Math.round((unit / fastMin) * 60);
+    mgOut.textContent = "[" + nm + " 손익 정밀 요약]\n"
+      + "• 판매가 " + p.toLocaleString() + "원 - 재료비 " + c.toLocaleString() + "원 - 수수료 " + fee.toLocaleString() + "원 = 순마진 " + unit.toLocaleString() + "원\n"
+      + "• 시간당 순수익: " + perHr.toLocaleString() + "원/시간\n"
+      + "• 고정비 " + Math.round(fix/10000).toLocaleString() + "만원 회수(본전): 월 " + bep + "건 (일 " + bepDay + "건)\n"
+      + "• 목표 순수익 " + Math.round(tgt/10000).toLocaleString() + "만원 달성: 월 " + goalCnt + "건 (일 " + goalDay + "건)\n\n"
+      + "[수익성 레버리지 시뮬레이션]\n"
+      + "1) 객단가 +5,000원 인상 시(" + upPrice.toLocaleString() + "원): 동일 건수(" + goalCnt + "건)로 월 순수익 " + Math.round(upMonth/10000).toLocaleString() + "만원 (+" + Math.round((upMonth - tgt)/10000).toLocaleString() + "만원 증가)\n"
+      + "2) 시술 시간 10분 단축 시(" + fastMin + "분): 시간당 순수익 " + fastHr.toLocaleString() + "원/시간 (+" + (fastHr - perHr).toLocaleString() + "원/h 향상)";
+  }
+  ["mgName","mgPrice","mgCost","mgMin","mgFee","mgFixed","mgTarget"].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.addEventListener("input", calcMargin);
+  });
+  var btnMgAi = document.getElementById("btnMgAi");
+  if (btnMgAi) btnMgAi.addEventListener("click", function(){
+    logTool("margin", "margin_ai");
+    calcMargin();
+    var summary = mgOut.textContent;
+    mgOut.textContent = "AI가 현재 손익 구조를 분석해 객단가·업셀링 처방을 작성 중입니다...";
+    var pr = "뷰티샵 경영 컨설턴트로서 아래 시술 손익 데이터를 보고 시간당 순수익과 월 순수익을 끌어올릴 구체적인 업셀링(추가 메뉴)·객단가 인상·재방문 전략 3가지를 제안해줘.\n\n" + summary;
+    callAi(pr, function(txt){ mgOut.textContent = summary + "\n\n[AI 수익 개선 처방]\n" + txt; }, function(){ mgOut.textContent = summary; });
+  });
+  var btnCopyMg = document.getElementById("btnCopyMg");
+  if (btnCopyMg) btnCopyMg.addEventListener("click", function(){ cpTxt(mgOut.textContent); });
+  calcMargin();
 })();
 </script>
 <script src="dia-sub-header.js?v=1"></script>
