@@ -2463,7 +2463,7 @@ window.창고읽기 = function(url){
             }
           }
         });
-        var santa = { x: 40, dir: 1, walk: 0, y: 58, vx: 0, vy: 0, state: 'idle', timer: 0, targetX: 40, targetMode: 'top', tapCount: 0, broomSwing: 0, wipeWait: 0, flyFromX: 40, flyFromY: 58, flyToX: 40, flyToY: 58, flyT: 0, bridgeX1: 0, bridgeX2: 0, bridgeY: 0, energy: 100, boredom: 0, headLook: 0, lastJob: '', playful: 65, laziness: 45, playStreak: 0, moodIcon: '', moodTimer: 0 };
+        var santa = { x: 40, dir: 1, walk: 0, y: 58, vx: 0, vy: 0, state: 'idle', timer: 0, targetX: 40, targetMode: 'top', tapCount: 0, broomSwing: 0, wipeWait: 0, flyFromX: 40, flyFromY: 58, flyToX: 40, flyToY: 58, flyT: 0, bridgeX1: 0, bridgeX2: 0, bridgeY: 0, energy: 100, boredom: 0, headLook: 0, lastJob: '', playful: 65, laziness: 45, playStreak: 0, moodIcon: '', moodTimer: 0, callOk: true };
         var friend = { active: false, x: 40, y: -12, dir: -1, walk: 0, state: 'drop_in', timer: 0, mode: 'work', targetX: 40, broomSwing: 0, moodIcon: '', moodTimer: 0 };
         function setMood(ic, dur){ santa.moodIcon = ic; santa.moodTimer = dur || 65; }
         var colors = ['rgba(255,255,255,0.96)','rgba(240,246,252,0.95)','rgba(225,235,245,0.92)'];
@@ -2928,7 +2928,7 @@ window.창고읽기 = function(url){
                     santa.playful = Math.min(100, santa.playful + 22);
                     santa.laziness = Math.min(100, santa.laziness + 14);
                     if ((chosen === 'top' || chosen === 'road') && !friend.active && Math.random() < 0.25 && walkMaxX > sLeft + 55) {
-                      santa.state = 'call_friend'; santa.timer = 0; friend.mode = 'work'; setMood('📞', 65);
+                      santa.state = 'call_friend'; santa.timer = 0; santa.callOk = (Math.random() < 0.72); friend.mode = 'work'; setMood('📞', 65);
                     } else if (mustWork && (chosen === 'top' || chosen === 'road')) {
                       if (Math.random() < 0.6) {
                         santa.state = 'blower'; santa.timer = 0;
@@ -2956,7 +2956,7 @@ window.창고읽기 = function(url){
                       santa.targetX = Math.max(sLeft + 18, Math.min(walkMaxX, snowmen[0].x + (snowmen[0].x > walkMaxX - 24 ? -14 : 14)));
                       setMood('💡', 65);
                     } else if (!friend.active && pick < 0.16 && walkMaxX > sLeft + 55) {
-                      santa.state = 'call_friend'; santa.timer = 0; friend.mode = (Math.random() < 0.55 ? 'work' : 'play'); setMood('📞', 65);
+                      santa.state = 'call_friend'; santa.timer = 0; santa.callOk = (Math.random() < 0.72); friend.mode = (Math.random() < 0.55 ? 'work' : 'play'); setMood('📞', 65);
                     } else if (pick < 0.30 && walkMaxX > sLeft + 70) {
                       santa.state = 'magic_car'; santa.timer = 0; setMood('💡', 65);
                     } else if (pick < 0.34) {
@@ -3120,21 +3120,25 @@ window.창고읽기 = function(url){
               }
             } else if (santa.state === 'call_friend') {
               santa.timer++;
-              // 0~18: 주머니 뒤적, 18~62: 전화 통화("여보세요~"), 62~95: 친구 산타 착지 후 손짓으로 지시/인사, 95~: 대장 산타는 자유!
+              // 0~18: 주머니 뒤적, 18~62: 핸드폰 귀에 대고 연결 대기, 62~: 받으면 친구 착지 / 안 받으면 💢 짜증내고 주머니에 넣기!
               if (santa.timer === 62) {
-                friend.active = true;
-                friend.state = 'drop_in';
-                friend.timer = 0;
-                friend.x = Math.max(sLeft + 18, Math.min(walkMaxX - 14, santa.x + (santa.x + 28 < walkMaxX ? 26 : -26)));
-                friend.y = -8;
-                friend.dir = (santa.x >= friend.x) ? 1 : -1;
-                friend.moodIcon = (friend.mode === 'work') ? '🫡' : '👋';
-                friend.moodTimer = 70;
-                santa.dir = (friend.x >= santa.x) ? 1 : -1;
-                setMood((friend.mode === 'work') ? '👉' : '🎵', 60);
+                if (santa.callOk) {
+                  friend.active = true;
+                  friend.state = 'drop_in';
+                  friend.timer = 0;
+                  friend.x = Math.max(sLeft + 18, Math.min(walkMaxX - 14, santa.x + (santa.x + 28 < walkMaxX ? 26 : -26)));
+                  friend.y = -8;
+                  friend.dir = (santa.x >= friend.x) ? 1 : -1;
+                  friend.moodIcon = (friend.mode === 'work') ? '🫡' : '👋';
+                  friend.moodTimer = 70;
+                  santa.dir = (friend.x >= santa.x) ? 1 : -1;
+                  setMood((friend.mode === 'work') ? '👉' : '🎵', 60);
+                } else {
+                  setMood('💢', 75);
+                }
               }
               if (santa.timer >= 95) {
-                santa.state = (friend.mode === 'work' && Math.random() < 0.65) ? 'sit_rest' : 'idle';
+                santa.state = (santa.callOk && friend.mode === 'work' && Math.random() < 0.65) ? 'sit_rest' : 'idle';
                 santa.timer = (santa.state === 'sit_rest') ? 24 : 0;
                 if (santa.state === 'sit_rest') setMood('☕', 80);
               }
@@ -3953,15 +3957,24 @@ window.창고읽기 = function(url){
               drawLimb(2.2, -4.2, 5.2, -3.5, 7.6, -4.0 + warm, '#d93848', '#ffffff', 1.8);
               drawLimb(-2.2, -4.2, 3.0, -3.2, 6.2, -3.5 - warm, '#c12737', '#ffffff', 1.8);
             } else if (santa.state === 'call_friend' && santa.timer > 18 && santa.timer < 62) {
-              // 귀에 전화기 대고 여보세요~ 통화!
-              drawLimb(2.2, -4.2, 4.2, -5.8, 3.2, -8.8, '#d93848', '#ffffff', 1.8);
+              // 주머니에서 핸드폰 꺼내 귀에 대고 통화! (18~30: 꺼내는 중)
+              var phP = Math.min(1, (santa.timer - 18) / 12);
+              var phX = 3.2 * phP + 3.2 * (1 - phP), phY = -8.8 * phP - 4.2 * (1 - phP);
+              drawLimb(2.2, -4.2, 4.2, -5.8, phX, phY, '#d93848', '#ffffff', 1.8);
               drawLimb(-2.2, -4.2, -3.0, -2.2, -2.0, -0.5, '#c12737', '#ffffff', 1.8);
-              ctx.fillStyle = '#1e293b'; ctx.fillRect(2.6, -10.5, 1.5, 3.0);
+              ctx.fillStyle = '#1e293b'; ctx.fillRect(phX - 0.6, phY - 1.7, 1.5, 3.0);
             } else if (santa.state === 'call_friend' && santa.timer >= 62) {
-              // 친구 산타에게 손짓으로 일 지시/인사!
-              var ptF = Math.sin(santa.timer * 0.25) * 1.2;
-              drawLimb(2.2, -4.2, 5.2, -4.8, 7.6, -5.2 + ptF, '#d93848', '#ffffff', 1.9);
-              drawLimb(-2.2, -4.2, -3.0, -2.2, -2.0, -0.5, '#c12737', '#ffffff', 1.8);
+              if (santa.callOk) {
+                // 친구 산타에게 손짓으로 일 지시/인사!
+                var ptF = Math.sin(santa.timer * 0.25) * 1.2;
+                drawLimb(2.2, -4.2, 5.2, -4.8, 7.6, -5.2 + ptF, '#d93848', '#ffffff', 1.9);
+                drawLimb(-2.2, -4.2, -3.0, -2.2, -2.0, -0.5, '#c12737', '#ffffff', 1.8);
+              } else {
+                // 전화 안 받아서 짜증! 핸드폰 주머니에 휙 넣고 씩씩거림
+                var stomp = Math.abs(Math.sin(santa.timer * 0.45)) * 1.6;
+                drawLimb(2.2, -4.2, 4.8, -5.0 + stomp, 3.8, -3.0 + stomp, '#d93848', '#ffffff', 1.9);
+                drawLimb(-2.2, -4.2, -4.5, -5.0 - stomp, -3.5, -3.0 - stomp, '#c12737', '#ffffff', 1.8);
+              }
             } else if (santa.state === 'pet_rudolph' && santa.timer > 34 && santa.timer <= 98) {
               // 루돌프 머리 토닥토닥 쓰다듬는 팔
               var pt = Math.sin(santa.timer * 0.32) * 1.4;
