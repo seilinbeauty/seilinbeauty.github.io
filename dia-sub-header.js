@@ -50,6 +50,7 @@
               '<a href="dia-qna.html">Q&amp;A</a>' +
             '</div>' +
             '<a href="dia-shop.html" class="mcd-link">샵매물</a>' +
+            '<a href="dia-tools.html" class="mcd-link">마케팅 도구</a>' +
             '<a href="dia-course.html" class="mcd-link">뷰티수강</a>' +
             '<a href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" class="mcd-link" id="moCatKakao">💬 마케팅 오픈채팅 입장하기</a>' +
             '<div class="mcd-sep"></div>' +

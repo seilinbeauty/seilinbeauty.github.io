@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script data-dia-pc="1">(function(){if(!/(?:\?|&)pc=1(?:&|$)/.test(location.search))return;var vp=document.querySelector("meta[name=viewport]");if(vp)vp.setAttribute("content","width=1280, initial-scale=0.3");document.addEventListener("click",function(e){var a=e.target&&e.target.closest&&e.target.closest("a[href]");if(!a)return;var h=a.getAttribute("href");if(!h||/^(?:#|javascript:|mailto:|tel:|http)/i.test(h))return;if(/[?&]pc=1(?:&|$)/.test(h))return;a.setAttribute("href",h+(h.indexOf("?")>=0?"&":"?")+"pc=1");},true);})();</script>
+<title>무료 마케팅 도구 — 다이아 커뮤니티</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css?family=Nanum+Gothic:400,700,800" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
+<link rel="stylesheet" href="dia-sub-header.css?v=1">
+<style>
+  :root{--pk:#d55576;--pk2:#b03b5a;--ink:#171315;--mut:#78696e;--bd:#ece2e6;--bg:#faf8f9;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#fff;color:var(--ink);font-family:'Nanum Gothic','Apple SD Gothic Neo','맑은 고딕',sans-serif;-webkit-font-smoothing:antialiased;}
+  .tl-hero{background:linear-gradient(135deg,#181215 0%,#2d1b22 55%,#3d202b 100%);color:#fff;padding:28px 18px 26px;border-bottom:1px solid rgba(255,255,255,.08);}
+  .tl-hero-in{max-width:1040px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+  .tl-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:11px;font-weight:700;letter-spacing:.06em;color:#ffd5e1;}
+  .tl-title{font-size:25px;font-weight:800;letter-spacing:-.025em;margin:8px 0 0;color:#fff;}
+  .tl-sub{font-size:13px;color:rgba(255,255,255,.74);margin-top:6px;line-height:1.55;}
+  .tl-price-tag{padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);text-align:right;}
+  .tl-price-tag s{font-size:11.5px;color:rgba(255,255,255,.5);}
+  .tl-price-tag b{display:block;font-size:15px;color:#ffd5e1;margin-top:2px;}
+  .tl-wrap{max-width:1040px;margin:0 auto;padding:20px 16px 64px;}
+  .tl-tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;margin-bottom:16px;-webkit-overflow-scrolling:touch;}
+  .tl-tab{flex:0 0 auto;padding:10px 15px;border-radius:12px;border:1px solid var(--bd);background:#fff;color:#4f3b42;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .15s ease;box-shadow:0 1px 2px rgba(20,12,15,.03);}
+  .tl-tab:hover{border-color:#dfb9c6;transform:translateY(-1px);}
+  .tl-tab.is-on{background:linear-gradient(135deg,#d55576,#b83b5c);border-color:transparent;color:#fff;box-shadow:0 6px 16px rgba(213,85,118,.24);}
+  .tl-panel{display:none;border:1px solid var(--bd);border-radius:18px;padding:22px;background:#fff;box-shadow:0 10px 30px rgba(24,18,21,.04);}
+  .tl-panel.is-on{display:block;}
+  .tl-h{font-size:17.5px;font-weight:800;margin:0 0 4px;letter-spacing:-.02em;}
+  .tl-d{font-size:12.5px;color:var(--mut);margin:0 0 16px;line-height:1.55;}
+  .tl-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:680px){.tl-grid2{grid-template-columns:1fr;}.tl-panel{padding:16px;}}
+  .tl-lbl{display:block;font-size:12px;font-weight:800;color:#4f3b42;margin:10px 0 6px;}
+  .tl-inp,.tl-sel,.tl-ta{width:100%;border:1px solid #e7d9de;border-radius:11px;padding:11px 13px;font-size:13px;font-family:inherit;color:var(--ink);background:#fcfbfc;transition:border-color .15s,background .15s;}
+  .tl-ta{min-height:160px;line-height:1.68;resize:vertical;}
+  .tl-inp:focus,.tl-sel:focus,.tl-ta:focus{outline:none;border-color:var(--pk);background:#fff;box-shadow:0 0 0 3px rgba(213,85,118,.08);}
+  .tl-btn{padding:11px 18px;border:0;border-radius:11px;background:linear-gradient(135deg,#d55576,#b83b5c);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(213,85,118,.22);}
+  .tl-btn2{padding:10px 14px;border:1px solid #e4d3d9;border-radius:11px;background:#fff;color:#4f3b42;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .tl-btn:hover{filter:brightness(1.04);} .tl-btn2:hover{background:#fdf6f8;}
+  .tl-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0;}
+  @media(max-width:640px){.tl-stats{grid-template-columns:repeat(2,1fr);}}
+  .tl-stat{background:linear-gradient(180deg,#fff,#fdf8fa);border:1px solid #efe1e6;border-radius:13px;padding:12px 14px;}
+  .tl-stat b{display:block;font-size:19px;color:var(--pk2);margin-top:3px;font-weight:800;}
+  .tl-stat span{font-size:11.5px;color:var(--mut);font-weight:700;}
+  .tl-out{margin-top:12px;padding:15px;border-radius:13px;background:#faf7f8;border:1px solid #eee0e5;font-size:13px;line-height:1.72;white-space:pre-wrap;word-break:break-word;}
+  .tl-warn{margin-top:12px;padding:12px 14px;border-radius:12px;background:#fff8eb;border:1px solid #ffe0a3;font-size:12.5px;line-height:1.65;color:#7a4e0b;white-space:pre-wrap;}
+  .tl-ok{margin-top:12px;padding:12px 14px;border-radius:12px;background:#eefaf2;border:1px solid #bce8cb;font-size:12.5px;line-height:1.65;color:#176938;}
+  .tl-chk-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+  @media(max-width:640px){.tl-chk-list{grid-template-columns:1fr;}}
+  .tl-chk{display:flex;align-items:flex-start;gap:8px;padding:11px 12px;border:1px solid #eee1e6;border-radius:11px;font-size:12.5px;cursor:pointer;background:#fcfbfc;}
+  #tlToast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);background:#1b1417;color:#fff;padding:10px 18px;border-radius:999px;font-size:12.5px;font-weight:700;opacity:0;pointer-events:none;transition:all .2s ease;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.2);}
+  #tlToast.is-on{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<header class="dia-header">
+  <a href="dia.html" class="brand">
+    <span class="brand-logo">DIA COMMUNITY</span>
+    <span class="brand-sub">뷰티 원장님들의 마케팅 커뮤니티</span>
+  </a>
+  <nav class="nav-links">
+    <a href="dia.html" class="nav-mypumasi">홈</a>
+    <a href="dia-shop.html" class="nav-mypumasi">샵매물</a>
+    <a href="dia-course.html" class="nav-mypumasi">뷰티수강</a>
+    <a href="dia-tools.html" class="nav-mypumasi">마케팅 도구</a>
+    <a href="dia-qna.html" class="nav-mypumasi">Q&amp;A</a>
+  </nav>
+  <div class="nav-mobile-links">
+    <button type="button" id="moCatBtn" aria-label="카테고리" aria-expanded="false">☰ 카테고리</button>
+  </div>
+</header>
+
+<section class="tl-hero">
+  <div class="tl-hero-in">
+    <div>
+      <span class="tl-pill">DIA MARKETING SUITE · PRO</span>
+      <h1 class="tl-title">뷰티 원장님 무료 마케팅 도구</h1>
+      <div class="tl-sub">대행사 유료 프로그램의 핵심 6종(SEO·광고법·키워드·리뷰·릴스·CRM·ROAS)을 한 화면에 담았습니다.</div>
+    </div>
+    <div class="tl-price-tag">
+      <s>시중 대행사 솔루션 월 49,000 ~ 150,000원</s>
+      <b>다이아 회원 0원 무료 이용</b>
+    </div>
+  </div>
+</section>
+<div id="tlToast">복사되었습니다</div>
+<main class="tl-wrap">
+
+  <div class="tl-tabs" id="tlTabs">
+    <button type="button" class="tl-tab is-on" data-tab="seo">1. 블로그 SEO·광고법 점검</button>
+    <button type="button" class="tl-tab" data-tab="kw">2. 키워드·해시태그 생성</button>
+    <button type="button" class="tl-tab" data-tab="rev">3. 리뷰·CS 답글 생성</button>
+    <button type="button" class="tl-tab" data-tab="copy">4. 인스타·릴스 대본/카피</button>
+    <button type="button" class="tl-tab" data-tab="crm">5. 재방문·노쇼 CRM 문자</button>
+    <button type="button" class="tl-tab" data-tab="diag">6. 매장 진단·ROAS·UTM</button>
+  </div>
+
+  <!-- 1. 블로그 SEO · 광고법 점검 -->
+  <section class="tl-panel is-on" id="tab-seo">
+    <h2 class="tl-h">블로그 원고 SEO · 광고법 금칙어 점검</h2>
+    <p class="tl-d">발행 전 글자 수, 핵심 키워드 반복 밀도, 뷰티·의료광고법 위험 표현을 실시간으로 잡아줍니다.</p>
+    <div class="tl-grid2">
+      <div><label class="tl-lbl">글 제목</label><input id="seoTitle" class="tl-inp" placeholder="예: 화곡동 속눈썹펌 유지력 오래가는 이유"></div>
+      <div><label class="tl-lbl">목표 키워드 (쉼표 구분)</label><input id="seoKw" class="tl-inp" placeholder="예: 화곡동 속눈썹펌, 까치산 속눈썹"></div>
+    </div>
+    <label class="tl-lbl">블로그 본문 붙여넣기</label>
+    <textarea id="seoBody" class="tl-ta" placeholder="작성한 블로그 본문을 붙여 넣으면 글자 수, 키워드 밀도, 금칙어를 바로 분석합니다."></textarea>
+    <div class="tl-stats">
+      <div class="tl-stat"><span>공백 포함 글자</span><b id="stAll">0자</b></div>
+      <div class="tl-stat"><span>공백 제외 글자</span><b id="stNoSp">0자</b></div>
+      <div class="tl-stat"><span>목표 키워드 반복</span><b id="stKwCnt">0회</b></div>
+      <div class="tl-stat"><span>권장 분량 (1,500~2,500)</span><b id="stScore">대기</b></div>
+    </div>
+    <div id="seoWarnBox" class="tl-ok">본문을 입력하면 뷰티·광고법 주의 표현과 키워드 과다 반복 여부를 자동 진단합니다.</div>
+  </section>
+
+  <!-- 2. 지역×업종 키워드 · 해시태그 생성 -->
+  <section class="tl-panel" id="tab-kw">
+    <h2 class="tl-h">지역 × 업종 황금키워드 · 해시태그 생성기</h2>
+    <p class="tl-d">지역명과 시술명을 넣으면 네이버 블로그·플레이스용 롱테일 키워드와 인스타 해시태그 25개를 즉시 만듭니다.</p>
+    <div class="tl-grid2">
+      <div><label class="tl-lbl">지역 / 역 이름</label><input id="kwLoc" class="tl-inp" value="까치산" placeholder="예: 화곡동, 강남역, 부평"></div>
+      <div><label class="tl-lbl">업종 / 시술명</label><input id="kwBiz" class="tl-inp" value="속눈썹펌" placeholder="예: 속눈썹펌, 네일, 반영구, 피부관리"></div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button type="button" class="tl-btn" id="btnGenKw">키워드 · 태그 생성</button>
+      <button type="button" class="tl-btn2" id="btnCopyKw">키워드 복사</button>
+      <button type="button" class="tl-btn2" id="btnCopyTag">해시태그 복사</button>
+    </div>
+    <label class="tl-lbl">네이버 블로그·플레이스용 추천 키워드</label>
+    <div id="kwOut" class="tl-out">버튼을 누르면 조합이 생성됩니다.</div>
+    <label class="tl-lbl">인스타그램 해시태그 (복사용)</label>
+    <div id="tagOut" class="tl-out"></div>
+  </section>
+
+  <!-- 3. 플레이스 리뷰 · 악성 CS 답글 생성 -->
+  <section class="tl-panel" id="tab-rev">
+    <h2 class="tl-h">네이버 플레이스 리뷰 · CS 답글 생성기</h2>
+    <p class="tl-d">고객 리뷰 유형과 시술명을 고르면 바로 복사해 쓸 수 있는 3가지 톤의 답글을 생성합니다.</p>
+    <div class="tl-grid2">
+      <div>
+        <label class="tl-lbl">리뷰 유형</label>
+        <select id="revType" class="tl-sel">
+          <option value="good">칭찬 리뷰 (5점 · 재방문 유도)</option>
+          <option value="short">짧은 리뷰 (사진/키워드만 남긴 경우)</option>
+          <option value="cs">아쉬움 · 컴플레인 리뷰 (CS 방어용)</option>
+        </select>
+      </div>
+      <div><label class="tl-lbl">시술 / 매장 특징</label><input id="revMenu" class="tl-inp" value="속눈썹펌" placeholder="예: 듀얼펌, 젤네일, 원장 1:1 시술"></div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button type="button" class="tl-btn" id="btnGenRev">답글 3종 만들기</button>
+      <button type="button" class="tl-btn2" id="btnCopyRev">답글 전체 복사</button>
+    </div>
+    <div id="revOut" class="tl-out">유형을 선택하고 버튼을 눌러 주세요.</div>
+  </section>
+
+  <!-- 4. 인스타 · 릴스 · 스레드 대본/카피 -->
+  <section class="tl-panel" id="tab-copy">
+    <h2 class="tl-h">인스타 피드 · 릴스 30초 대본 · 스레드 카피</h2>
+    <p class="tl-d">주제와 지역만 넣으면 첫 줄 후킹 문구 5개, 30초 릴스 구성안, 스레드용 짤막 글을 바로 만듭니다.</p>
+    <div class="tl-grid2">
+      <div>
+        <label class="tl-lbl">콘텐츠 목적</label>
+        <select id="cpGoal" class="tl-sel">
+          <option value="book">신규 예약 전환 (비포·애프터)</option>
+          <option value="edu">수강생 모집 (원데이·창업반)</option>
+          <option value="event">이달의 이벤트 · 첫방문 할인</option>
+        </select>
+      </div>
+      <div><label class="tl-lbl">지역 + 주력 시술</label><input id="cpTopic" class="tl-inp" value="화곡동 속눈썹펌" placeholder="예: 강남 반영구, 홍대 네일"></div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button type="button" class="tl-btn" id="btnGenCopy">대본 · 카피 생성</button>
+      <button type="button" class="tl-btn2" id="btnCopyCp">전체 복사</button>
+    </div>
+    <div id="cpOut" class="tl-out">목적과 주제를 입력하고 생성해 보세요.</div>
+  </section>
+
+  <!-- 5. 재방문 · 노쇼 방지 CRM 문자 -->
+  <section class="tl-panel" id="tab-crm">
+    <h2 class="tl-h">재방문 · 노쇼 방지 CRM 문자/카톡 생성기</h2>
+    <p class="tl-d">예약 확정, 전날 리마인드, 시술 30일 후 재방문 유도 문자를 샵 이름에 맞춰 즉시 만듭니다.</p>
+    <div class="tl-grid2">
+      <div><label class="tl-lbl">샵 이름</label><input id="crmShop" class="tl-inp" value="세이린뷰티" placeholder="매장명"></div>
+      <div>
+        <label class="tl-lbl">발송 시점</label>
+        <select id="crmWhen" class="tl-sel">
+          <option value="confirm">예약 확정 + 위치/노쇼 안내</option>
+          <option value="daybefore">방문 전날 리마인드</option>
+          <option value="after">시술 당일 관리법 안내</option>
+          <option value="revisit">시술 30일 후 재방문 유도</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button type="button" class="tl-btn" id="btnGenCrm">안내 문자 만들기</button>
+      <button type="button" class="tl-btn2" id="btnCopyCrm">문자 복사</button>
+    </div>
+    <div id="crmOut" class="tl-out">발송 시점을 고르고 버튼을 눌러 주세요.</div>
+  </section>
+
+  <!-- 6. 매장 진단서 · ROAS · UTM -->
+  <section class="tl-panel" id="tab-diag">
+    <h2 class="tl-h">내 매장 셀프 진단 · 광고 ROAS 계산 · UTM 생성</h2>
+    <p class="tl-d">대행사 상담 전 내 매장 상태를 점수로 확인하고, 광고 효율(ROAS)과 유입 추적 링크를 만드세요.</p>
+    <div class="tl-chk-list" id="diagList"></div>
+    <div id="diagScoreBox" class="tl-ok" style="margin-top:10px;">현재 매장 마케팅 세팅 점수: <b>0 / 100점</b></div>
+
+    <hr style="border:0;border-top:1px solid #f0e2e7;margin:18px 0;">
+    <h3 class="tl-h" style="font-size:14.5px;">광고 효율(ROAS) 계산기</h3>
+    <div class="tl-grid2">
+      <div><label class="tl-lbl">월 광고비 (원)</label><input id="roasCost" type="number" class="tl-inp" value="300000"></div>
+      <div><label class="tl-lbl">신규 예약 건수 × 객단가 (원)</label><div style="display:flex;gap:6px;"><input id="roasCnt" type="number" class="tl-inp" value="15"><input id="roasPrice" type="number" class="tl-inp" value="60000"></div></div>
+    </div>
+    <div id="roasOut" class="tl-out" style="margin-top:10px;"></div>
+
+    <hr style="border:0;border-top:1px solid #f0e2e7;margin:18px 0;">
+    <h3 class="tl-h" style="font-size:14.5px;">UTM 유입 추적 링크 생성기</h3>
+    <div class="tl-grid2">
+      <div><label class="tl-lbl">대상 주소 (URL)</label><input id="utmUrl" class="tl-inp" value="https://seilinbeauty.github.io/"></div>
+      <div><label class="tl-lbl">유입 매체 (source / medium)</label><input id="utmSrc" class="tl-inp" value="instagram / profile"></div>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;">
+      <button type="button" class="tl-btn" id="btnGenUtm">UTM 링크 생성</button>
+      <button type="button" class="tl-btn2" id="btnCopyUtm">링크 복사</button>
+    </div>
+    <div id="utmOut" class="tl-out"></div>
+  </section>
+</main>
+
+<script>
+(function(){
+  function cpTxt(txt){
+    if (!txt) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function(){ var tt=document.getElementById("tlToast");if(tt){tt.classList.add("is-on");setTimeout(function(){tt.classList.remove("is-on");},1500);} });
+    } else {
+      var t = document.createElement("textarea"); t.value = txt; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove(); var tt=document.getElementById("tlToast");if(tt){tt.classList.add("is-on");setTimeout(function(){tt.classList.remove("is-on");},1500);}
+    }
+  }
+
+  // 탭 전환
+  document.getElementById("tlTabs").addEventListener("click", function(e){
+    var b = e.target.closest(".tl-tab"); if (!b) return;
+    document.querySelectorAll(".tl-tab").forEach(function(x){ x.classList.remove("is-on"); });
+    document.querySelectorAll(".tl-panel").forEach(function(x){ x.classList.remove("is-on"); });
+    b.classList.add("is-on");
+    var p = document.getElementById("tab-" + b.getAttribute("data-tab"));
+    if (p) p.classList.add("is-on");
+  });
+
+  // 1. 블로그 SEO · 광고법 점검
+  var BANNED = [
+    ["최고", "만족도 높은 / 정성껏 시술하는"],
+    ["최초", "차별화된"],
+    ["100%", "꼼꼼하게 / 체계적으로"],
+    ["무조건", "맞춤형으로"],
+    ["영구", "오래 유지되는"],
+    ["완치", "개선에 도움을 주는"],
+    ["부작용 없", "자극을 줄인 / 안전한 방식의"],
+    ["무통증", "편안한 시술을 지향하는"],
+    ["유일", "특화된"],
+    ["보장", "목표로 관리"],
+    ["1위", "많은 분들이 찾는"],
+    ["기적", "자연스러운 변화"],
+    ["즉각 효과", "시술 직후 확인 가능한"],
+    ["성형 효과", "이미지 보완에 도움을 주는"]
+  ];
+  function runSeo(){
+    var txt = document.getElementById("seoBody").value || "";
+    var title = document.getElementById("seoTitle").value || "";
+    var kwRaw = document.getElementById("seoKw").value || "";
+    var allLen = txt.length;
+    var noSp = txt.replace(/\s+/g, "").length;
+    document.getElementById("stAll").textContent = allLen + "자";
+    document.getElementById("stNoSp").textContent = noSp + "자";
+
+    var kws = kwRaw.split(",").map(function(x){ return x.trim(); }).filter(Boolean);
+    var kwCnt = 0;
+    var full = title + "\n" + txt;
+    kws.forEach(function(k){
+      var m = full.split(k).length - 1;
+      kwCnt += m;
+    });
+    document.getElementById("stKwCnt").textContent = kwCnt + "회";
+    var st = noSp === 0 ? "대기" : (noSp < 1200 ? "부족 (" + noSp + ")" : (noSp <= 2600 ? "적정" : "과다"));
+    document.getElementById("stScore").textContent = st;
+
+    var warns = [];
+    BANNED.forEach(function(pair){
+      if (full.indexOf(pair[0]) >= 0) warns.push("· '" + pair[0] + "' 발견 → 추천 대체: " + pair[1]);
+    });
+    if (kwCnt > 12) warns.push("· 목표 키워드가 " + kwCnt + "회 반복됨 (7~10회 이내 권장, 과다 반복 시 검색 누락 주의)");
+    var box = document.getElementById("seoWarnBox");
+    if (warns.length){
+      box.className = "tl-warn";
+      box.textContent = "주의 표현 " + warns.length + "건 확인:\n" + warns.join("\n");
+    } else {
+      box.className = "tl-ok";
+      box.textContent = noSp ? "광고법 금칙어 및 과다 반복 이상 없음! (권장 소제목 6~8개, 실제 시술 사진 6장 이상 함께 배치)" : "본문을 입력하면 뷰티·광고법 주의 표현과 키워드 과다 반복 여부를 자동 진단합니다.";
+    }
+  }
+  ["seoTitle","seoKw","seoBody"].forEach(function(id){
+    document.getElementById(id).addEventListener("input", runSeo);
+  });
+
+  // 2. 키워드 · 해시태그 생성
+  function genKw(){
+    var loc = (document.getElementById("kwLoc").value || "까치산").trim();
+    var biz = (document.getElementById("kwBiz").value || "속눈썹펌").trim();
+    var tails = ["추천","잘하는곳","유지력","후기","가격","예약","1인샵","자연스러운","수강","원데이클래스","단골","재방문","주차","야간","주말"];
+    var kws = tails.map(function(t){ return loc + " " + biz + " " + t; });
+    kws.unshift(loc + " " + biz, loc + "역 " + biz, loc + " 근처 " + biz);
+    var tags = kws.slice(0, 15).map(function(k){ return "#" + k.replace(/\s+/g, ""); });
+    tags.push("#" + loc + "뷰티", "#" + biz + "맛집", "#" + biz + "추천", "#뷰티스타그램", "#일상뷰티");
+    document.getElementById("kwOut").textContent = kws.join(" · ");
+    document.getElementById("tagOut").textContent = tags.join(" ");
+  }
+  document.getElementById("btnGenKw").addEventListener("click", genKw);
+  document.getElementById("btnCopyKw").addEventListener("click", function(){ cpTxt(document.getElementById("kwOut").textContent); });
+  document.getElementById("btnCopyTag").addEventListener("click", function(){ cpTxt(document.getElementById("tagOut").textContent); });
+  genKw();
+
+  // 3. 리뷰 답글 생성
+  function genRev(){
+    var tp = document.getElementById("revType").value;
+    var menu = (document.getElementById("revMenu").value || "시술").trim();
+    var out = "";
+    if (tp === "good") {
+      out =
+        "[1안 · 다정한 톤]\n소중한 리뷰 남겨주셔서 진심으로 감사드려요 :) " + menu + " 시술 결과가 마음에 드셨다니 정말 뿌듯합니다! 다음 방문 때도 눈매/컨디션에 맞춰 꼼꼼히 관리해 드릴게요. 오늘도 기분 좋은 하루 보내세요!\n\n" +
+        "[2안 · 전문적인 톤]\n방문 및 정성스러운 후기 감사드립니다. " + menu + " 유지력과 손상 최소화를 위해 시술 직후 관리법도 편하게 지켜봐 주시고, 리터치/재방문 시점에 다시 뵙겠습니다.\n\n" +
+        "[3안 · 간결한 톤]\n찾아주셔서 감사합니다! " + menu + " 만족하셨다니 다행이에요. 다음 예약 때도 변함없이 정성껏 케어해 드리겠습니다.";
+    } else if (tp === "short") {
+      out =
+        "[1안 · 다정한 톤]\n바쁘신 와중에도 소중한 리뷰 남겨주셔서 감사합니다! " + menu + " 예쁘게 오래 유지되시길 바라며, 다음에 또 뵙겠습니다 :)\n\n" +
+        "[2안 · 재방문 유도 톤]\n방문 감사드립니다! 시술 관련 궁금하신 점 있으시면 언제든 톡톡이나 카톡으로 편하게 말씀해 주세요. 다음 방문 때 더 만족스러운 " + menu + "으로 보답하겠습니다.";
+    } else {
+      out =
+        "[1안 · CS 정중 방어형]\n소중한 시간 내어 방문해 주셨는데 기대에 못 미친 부분이 있었다니 죄송한 마음입니다. 남겨주신 의견은 내부적으로 꼼꼼히 점검해 바로 개선하겠습니다. 혹시 불편하셨던 부분을 톡톡/매장 연락처로 말씀해 주시면 책임감 있게 확인 후 안내드리겠습니다.\n\n" +
+        "[2안 · 재케어 제안형]\n불편함을 드려 진심으로 사과드립니다. " + menu + " 시술 후 컨디션이나 유지력에 아쉬운 점이 있으셨다면 7일 이내 편하게 연락 부탁드립니다. 상태 확인 후 최대한 만족하실 수 있도록 보완 도와드리겠습니다.";
+    }
+    document.getElementById("revOut").textContent = out;
+  }
+  document.getElementById("btnGenRev").addEventListener("click", genRev);
+  document.getElementById("btnCopyRev").addEventListener("click", function(){ cpTxt(document.getElementById("revOut").textContent); });
+  genRev();
+
+  // 4. 인스타 · 릴스 대본/카피
+  function genCopy(){
+    var g = document.getElementById("cpGoal").value;
+    var tp = (document.getElementById("cpTopic").value || "속눈썹펌").trim();
+    var hooks = "";
+    if (g === "book") {
+      hooks =
+        "[첫 줄 후킹 5선]\n1) " + tp + ", 막상 받고 나면 다 비슷해 보이지만 3주 뒤가 다릅니다.\n2) 뷰러 집다가 속눈썹 끊겨 오신 고객님, 40분 뒤 변화 보실래요?\n3) 화장 시간 10분 줄여주는 데일리 필수 관리, 바로 이거예요.\n4) 사진 보정 1도 없는 실제 시술 직후 영상입니다.\n5) " + tp + " 실패 안 하려면 예약 전 딱 이 2가지만 보세요.\n\n" +
+        "[30초 릴스 대본]\n- 0~3초(훅): 시술 전 눈매 클로즈업 + 자막 '아침마다 뷰러 싸움 끝내는 법'\n- 3~15초(과정): 롯드/디자인 1:1 맞춤 과정 2배속\n- 15~25초(결과): 시술 직후 또렷한 눈매 컷 전환\n- 25~30초(CTA): '프로필 링크에서 이달 잔여 타임 확인하세요'\n\n" +
+        "[스레드용 짤막 변환]\n요즘 " + tp + " 예약 오시는 분들 공통점: '자연스러운데 오래 갔으면 좋겠어요'. 딱 그 기준에 맞춰서 과한 컬 대신 눈매에 맞는 라인만 잡습니다.";
+    } else if (g === "edu") {
+      hooks =
+        "[수강 모집 후킹 5선]\n1) 배웠는데 막상 손님 앞에 앉으면 손이 멈추는 이유, 딱 하나입니다.\n2) 이론 20% + 실제 모델 실무 80%, 바로 실전 투입되는 커리큘럼.\n3) " + tp + " 수강, 졸업 후 질문할 곳 없어서 포기하지 않게 끝까지 봅니다.\n4) 1인샵 창업 전 꼭 알아야 할 단가·재방문 세팅까지 전부 공개.\n5) 소수정예 1:1 밀착 피드백, 이번 달 잔여 2자리 안내.\n\n" +
+        "[30초 릴스 대본]\n- 0~3초(훅): 수강생 실제 시술 장면 + '초보도 4주 만에 실전 가능할까?'\n- 3~18초(핵심): 1:1 자세 교정 · 롯드 선정 공식 장면\n- 18~30초(CTA): '커리큘럼 상세 내용은 프로필 링크 또는 DM 주세요'";
+    } else {
+      hooks =
+        "[이벤트 후킹 5선]\n1) 이번 달 첫 방문 고객님만 챙겨가실 수 있는 혜택입니다.\n2) " + tp + " 고민만 하셨다면 이번 주가 가장 가벼운 타이밍!\n3) 선착순 마감 전 1분 만에 예약 잡는 법.\n4) 동반 예약 시 추가 케어 혜택까지 함께 챙겨드려요.\n5) 재방문율 높은 이유, 직접 경험해 보시라고 준비했습니다.";
+    }
+    document.getElementById("cpOut").textContent = hooks;
+  }
+  document.getElementById("btnGenCopy").addEventListener("click", genCopy);
+  document.getElementById("btnCopyCp").addEventListener("click", function(){ cpTxt(document.getElementById("cpOut").textContent); });
+  genCopy();
+
+  // 5. CRM 문자 생성
+  function genCrm(){
+    var shop = (document.getElementById("crmShop").value || "저희 샵").trim();
+    var w = document.getElementById("crmWhen").value;
+    var msg = "";
+    if (w === "confirm") {
+      msg = "[" + shop + " 예약 확정 안내]\n안녕하세요! 요청하신 일정으로 예약 확정되었습니다.\n\n- 당일 10분 이상 지각 시 다음 예약 고객님을 위해 시술이 제한될 수 있습니다.\n- 변경/취소는 최소 하루 전 미리 연락 부탁드립니다.\n- 오시는 길: (주소 입력)\n\n편안한 발걸음으로 뵙겠습니다 :)";
+    } else if (w === "daybefore") {
+      msg = "[" + shop + " 내일 예약 안내]\n내일 예약 시간 잊지 않으셨죠? :)\n눈 화장(마스카라/뷰러)은 가급적 피하고 오시면 더욱 꼼꼼한 시술이 가능합니다. 내일 뵙겠습니다!";
+    } else if (w === "after") {
+      msg = "[" + shop + " 시술 후 관리법]\n오늘 방문 감사드립니다! 예쁜 유지력을 위해 아래 두 가지만 기억해 주세요.\n1) 시술 후 4~5시간은 물·세안·사우나를 피해 주세요.\n2) 세안 후 전용 에센스/브러시로 결 정리해 주시면 훨씬 오래 유지됩니다.";
+    } else {
+      msg = "[" + shop + " 재방문 안내]\n안녕하세요! 지난 시술 받으신 지 어느덧 한 달이 지났어요 :)\n자라난 모발·결 정리와 함께 가장 예쁜 상태를 유지하실 타이밍입니다. 이번 주 예약 시 기존 고객 케어 혜택 도와드릴게요!";
+    }
+    document.getElementById("crmOut").textContent = msg;
+  }
+  document.getElementById("btnGenCrm").addEventListener("click", genCrm);
+  document.getElementById("btnCopyCrm").addEventListener("click", function(){ cpTxt(document.getElementById("crmOut").textContent); });
+  genCrm();
+
+  // 6. 매장 진단 · ROAS · UTM
+  var CHECKS = [
+    "네이버 플레이스 대표 키워드 5개 세팅",
+    "플레이스 가격표 · 시술 사진 10장 이상 최신화",
+    "네이버 예약 & 네이버 톡톡 연동 완료",
+    "방문자 리뷰 최근 2주 이내 답글 모두 완료",
+    "당근마켓 비즈프로필 소식 주 1회 이상 업로드",
+    "인스타그램 프로필에 위치·예약 링크 바로 연결",
+    "인스타 비포/애프터 릴스 월 4편 이상 발행",
+    "블로그 지역+시술 키워드 글 월 4편 이상 발행",
+    "예약 전날 리마인드 / 노쇼 안내 문자 발송",
+    "시술 30일 후 재방문 안내 CRM 발송"
+  ];
+  var dl = document.getElementById("diagList");
+  CHECKS.forEach(function(txt, idx){
+    var lb = document.createElement("label");
+    lb.className = "tl-chk";
+    lb.innerHTML = "<input type=\"checkbox\" data-idx=\"" + idx + "\"><span>" + txt + "</span>";
+    dl.appendChild(lb);
+  });
+  dl.addEventListener("change", function(){
+    var cnt = dl.querySelectorAll("input:checked").length;
+    document.getElementById("diagScoreBox").innerHTML = "현재 매장 마케팅 세팅 점수: <b>" + (cnt * 10) + " / 100점</b> (" + cnt + " / " + CHECKS.length + " 항목 완료)";
+  });
+
+  function calcRoas(){
+    var c = Number(document.getElementById("roasCost").value) || 0;
+    var n = Number(document.getElementById("roasCnt").value) || 0;
+    var p = Number(document.getElementById("roasPrice").value) || 0;
+    var rev = n * p;
+    var roas = c > 0 ? Math.round((rev / c) * 100) : 0;
+    var net = rev - c;
+    document.getElementById("roasOut").textContent =
+      "예상 매출: " + rev.toLocaleString() + "원 · 순수익(광고비 차감): " + net.toLocaleString() + "원 · 광고수익률(ROAS): " + roas + "%";
+  }
+  ["roasCost","roasCnt","roasPrice"].forEach(function(id){ document.getElementById(id).addEventListener("input", calcRoas); });
+  calcRoas();
+
+  function genUtm(){
+    var base = (document.getElementById("utmUrl").value || "").trim();
+    var sm = (document.getElementById("utmSrc").value || "instagram / profile").split("/");
+    var src = encodeURIComponent((sm[0] || "instagram").trim());
+    var med = encodeURIComponent((sm[1] || "social").trim());
+    var sep = base.indexOf("?") >= 0 ? "&" : "?";
+    document.getElementById("utmOut").textContent = base + sep + "utm_source=" + src + "&utm_medium=" + med + "&utm_campaign=dia_promo";
+  }
+  document.getElementById("btnGenUtm").addEventListener("click", genUtm);
+  document.getElementById("btnCopyUtm").addEventListener("click", function(){ cpTxt(document.getElementById("utmOut").textContent); });
+  genUtm();
+})();
+</script>
+<script src="dia-sub-header.js?v=1"></script>
+</body>
+</html>
