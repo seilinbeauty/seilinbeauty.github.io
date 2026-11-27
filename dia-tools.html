@@ -771,9 +771,14 @@
           <div id="saOut" class="out-box" style="min-height:130px;">상대 계정 정보나 글 내용을 입력하고 'AI 타깃 분류 · 댓글 생성'을 눌러 보세요.</div>
         </div>
         <div class="card">
-          <h3>오늘의 소통 큐 · 활동 이력</h3>
-          <p class="card-sub">선별된 대상을 원문에서 바로 확인하고 댓글 복사 후 완료 체크하세요. (중복 자동 방지)</p>
-          <div class="kpi-row" style="grid-template-columns:repeat(3,minmax(0,1fr));">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div>
+              <h3 style="margin:0;">오늘의 소통 큐 · 활동 이력</h3>
+              <p class="card-sub" style="margin-bottom:0;">선별된 대상을 원문에서 바로 확인하고 댓글 복사 후 완료 체크하세요.</p>
+            </div>
+            <button type="button" class="btn-primary" id="btnSaLoadLinks" style="flex:0 0 auto;min-width:0;padding:8px 12px;font-size:12px;">오늘 참여 링크 불러오기</button>
+          </div>
+          <div class="kpi-row" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px;">
             <div class="kpi"><div class="kpi-l">대기 중</div><div class="kpi-v" id="kSaWait">0건</div></div>
             <div class="kpi"><div class="kpi-l">소통 완료</div><div class="kpi-v" id="kSaDone">0건</div></div>
             <div class="kpi"><div class="kpi-l">잠재 고객</div><div class="kpi-v" id="kSaCust">0명</div></div>
@@ -1806,6 +1811,7 @@
           + '<div><b style="font-size:13px;">' + (it.user || "미입력") + '</b> <span style="font-size:11px;padding:2px 7px;border-radius:999px;background:#f3f4f6;color:#374151;font-weight:700;">' + it.plat + ' · ' + it.cat + ' (' + it.score + '점)</span></div>'
           + '<div style="display:flex;gap:5px;">'
           + (link ? '<a href="' + link + '" target="_blank" rel="noopener" class="btn-ghost" style="padding:5px 9px;font-size:11.5px;text-decoration:none;">열기 ↗</a>' : '')
+          + '<button type="button" class="btn-ghost sa-ai" data-i="' + idx + '" style="padding:5px 9px;font-size:11.5px;">AI 댓글</button>'
           + '<button type="button" class="btn-ghost sa-cp" data-i="' + idx + '" style="padding:5px 9px;font-size:11.5px;">복사</button>'
           + '<button type="button" class="btn-ghost sa-tg" data-i="' + idx + '" style="padding:5px 9px;font-size:11.5px;' + (it.done ? '' : 'background:#111827;color:#fff;border-color:#111827;') + '">' + (it.done ? '완료됨' : '소통 완료') + '</button>'
           + '<button type="button" class="btn-ghost sa-dl" data-i="' + idx + '" style="padding:5px 9px;font-size:11.5px;">삭제</button>'
@@ -1817,11 +1823,25 @@
     renderQ();
 
     elList.addEventListener("click", function(e){
+      var aiBtn = e.target.closest(".sa-ai");
       var cp = e.target.closest(".sa-cp");
       var tg = e.target.closest(".sa-tg");
       var dl = e.target.closest(".sa-dl");
       var arr = loadQ();
-      if (cp) {
+      if (aiBtn) {
+        var idx = Number(aiBtn.getAttribute("data-i"));
+        var target = arr[idx];
+        if (!target) return;
+        aiBtn.disabled = true; aiBtn.textContent = "생성중...";
+        var pr = "인스타그램 뷰티 원장님 게시물에 남길 자연스럽고 다정한 품앗이 소통 댓글 1줄(1~2문장)만 써줘. 상대: " + (target.user || "원장님") + " / 유형: " + (target.cat || "게시물") + ".";
+        callAi(pr, function(txt){
+          arr[idx].comment = String(txt || "").replace(/\n+/g, " ").trim();
+          saveQ(arr); renderQ();
+        }, function(){
+          arr[idx].comment = "원장님 피드 분위기가 너무 예뻐요! 오늘도 시술 파이팅하시고 좋아요 누르고 갑니다 :)";
+          saveQ(arr); renderQ();
+        });
+      } else if (cp) {
         var it = arr[Number(cp.getAttribute("data-i"))];
         if (it && it.comment) cpTxt(it.comment);
       } else if (tg) {
@@ -1831,6 +1851,55 @@
         arr.splice(Number(dl.getAttribute("data-i")), 1);
         saveQ(arr); renderQ();
       }
+    });
+
+    var btnLoadLinks = document.getElementById("btnSaLoadLinks");
+    if (btnLoadLinks) btnLoadLinks.addEventListener("click", function(){
+      btnLoadLinks.disabled = true; btnLoadLinks.textContent = "불러오는 중...";
+      var today = getTodayKst();
+      var qUrl = "https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents:runQuery?key=AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY";
+      fetch(qUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          structuredQuery: {
+            from: [{ collectionId: "links" }],
+            where: { fieldFilter: { field: { fieldPath: "date" }, op: "EQUAL", value: { stringValue: today } } }
+          }
+        })
+      }).then(function(r){ return r.json(); }).then(function(rows){
+        var arr = loadQ();
+        var added = 0;
+        (rows || []).forEach(function(row){
+          var doc = row && row.document;
+          if (!doc || !doc.fields) return;
+          var f = doc.fields;
+          var url = (f.url && f.url.stringValue) || "";
+          var shop = (f.shop && f.shop.stringValue) || "참여 원장님";
+          var kind = (f.kind && f.kind.stringValue) || "일반";
+          if (!url) return;
+          var dup = arr.some(function(x){ return x.url === url; });
+          if (dup) return;
+          arr.unshift({
+            plat: "인스타그램",
+            user: shop,
+            url: url,
+            cat: kind === "릴스" ? "품앗이 · 릴스" : "품앗이 · 일반",
+            score: 90,
+            comment: "원장님 게시물 너무 잘 보고 갑니다! 오늘도 응원하고 좋아요 누르고 가요 :)",
+            done: false
+          });
+          added++;
+        });
+        saveQ(arr);
+        renderQ();
+        logTool("sns_agent", "load_today_links");
+        btnLoadLinks.disabled = false; btnLoadLinks.textContent = "오늘 참여 링크 불러오기";
+        if (added === 0) alert(today + " 기준 새로 추가할 참여 링크가 없습니다.");
+      }).catch(function(){
+        btnLoadLinks.disabled = false; btnLoadLinks.textContent = "오늘 참여 링크 불러오기";
+        alert("참여 링크를 불러오는 중 오류가 발생했습니다.");
+      });
     });
 
     document.getElementById("btnSaGen").addEventListener("click", function(){
