@@ -143,7 +143,7 @@
     <section class="mp-card" id="mpProfCard"></section>
     <section class="mp-card" id="mpActCard"></section>
     <section class="mp-card" id="mpShopCard">
-      <div class="mp-hd">내가 올린 샵매물 <a href="dia-shop-write.html" class="mp-shop-add">+ 매물 등록</a></div>
+      <div class="mp-hd">내가 올린 뷰티샵 직거래 <a href="dia-shop-write.html" class="mp-shop-add">+ 매물 등록</a></div>
       <div id="mpShopList" class="mp-shop-list"><div style="font-size:12.5px;color:#9c9194;">불러오는 중...</div></div>
     </section>
     <section class="mp-card" id="mpCourseCard">
@@ -389,7 +389,7 @@
     function drawMyShops(allArr){
       var mine = allArr.filter(isMine);
       if (!mine.length) {
-        listEl.innerHTML = '<div style="font-size:12.5px;color:#9c9194;padding:8px 0;">아직 등록한 샵매물이 없습니다.</div>';
+        listEl.innerHTML = '<div style="font-size:12.5px;color:#9c9194;padding:8px 0;">아직 등록한 뷰티샵 직거래 글이 없습니다.</div>';
         return;
       }
       listEl.innerHTML = mine.map(function(it){

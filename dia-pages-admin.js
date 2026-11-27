@@ -9,7 +9,7 @@
 
   // 공개 설정을 관리하는 페이지 목록 (여기에 추가하면 운영센터에 자동으로 칸이 생긴다)
   var PAGES = [
-    { key: 'shop',   name: '🏪 샵매물',    file: 'dia-shop.html',  desc: '샵인샵 · 샵매매 부동산 매물' },
+    { key: 'shop',   name: '🏪 뷰티샵 직거래',    file: 'dia-shop.html',  desc: '샵인샵 · 샵매매 부동산 매물' },
     { key: 'jobs',   name: '👥 구인',       file: 'dia-jobs.html',  desc: '직원 구해요 · 구직 (준비 중)' }
   ];
 
