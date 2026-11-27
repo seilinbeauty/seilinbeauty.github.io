@@ -2165,6 +2165,8 @@
         flex-wrap: wrap; gap: 10px 14px !important;
       }
       body.dia-page .dia-hero-in > *:not(.pc-hero-snow) { position: relative; z-index: 1; }
+      body.dia-page .dia-hero-in > .quick-links,
+      body.dia-page .dia-hero-in > .mc-hero-right { z-index: 3; }
       .pc-hero-snow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
       .pc-snow-flake {
         position: absolute; top: -18px; user-select: none;
@@ -2384,6 +2386,7 @@ window.창고읽기 = function(url){
         var W = 0, H = 0, dpr = 1;
         var surfaceY = null, pileY = null;
         var subSurfaceY = null, subPileY = null;
+        var btnSurfaceY = null, btnPileY = null;
         var tLeft = 0, tRight = 0, sLeft = 0, sRight = 0, dtLeft = 0, dtRight = 0, dtTop = 20;
         var titleBaseY = 20, roadY = 58;
         var flakes = [];
@@ -2440,9 +2443,32 @@ window.창고읽기 = function(url){
           pileY = new Float32Array(W);
           subSurfaceY = new Float32Array(W);
           subPileY = new Float32Array(W);
+          btnSurfaceY = new Float32Array(W);
+          btnPileY = new Float32Array(W);
           for (var x = 0; x < W; x++) {
             surfaceY[x] = -1; pileY[x] = -1;
             subSurfaceY[x] = -1; subPileY[x] = -1;
+            btnSurfaceY[x] = -1; btnPileY[x] = -1;
+          }
+
+          var btns = hero.querySelectorAll('.quick-links > *, .mc-hero-right > *');
+          for (var b = 0; b < btns.length; b++) {
+            var br = btns[b].getBoundingClientRect();
+            if (!br.width || !br.height) continue;
+            var bl = Math.max(0, Math.floor(br.left - hr.left));
+            var brg = Math.min(W - 1, Math.ceil(br.right - hr.left));
+            var btop = br.top - hr.top;
+            var pad = 6;
+            for (var bx = bl + 2; bx <= brg - 2; bx++) {
+              var curve = 0;
+              if (bx < bl + pad) curve = (bl + pad - bx) * 0.45;
+              else if (bx > brg - pad) curve = (bx - (brg - pad)) * 0.45;
+              var by = btop + curve;
+              if (btnSurfaceY[bx] < 0 || by < btnSurfaceY[bx]) {
+                btnSurfaceY[bx] = by;
+                btnPileY[bx] = by;
+              }
+            }
           }
 
           var tInfo = scanElementSurface(titleEl, hr, surfaceY, pileY, -0.5);
@@ -2501,6 +2527,7 @@ window.창고읽기 = function(url){
         function relaxPile(){
           relaxOne(surfaceY, pileY, tLeft, tRight);
           relaxOne(subSurfaceY, subPileY, sLeft, sRight);
+          relaxOne(btnSurfaceY, btnPileY, 0, W - 1);
         }
 
         function step(){
@@ -2535,6 +2562,17 @@ window.창고읽기 = function(url){
                   subPileY[ix] = Math.max(ssy - 4.5, spy - 0.8);
                   if (ix - 1 >= sLeft && subSurfaceY[ix - 1] >= 0) subPileY[ix - 1] = Math.max(subSurfaceY[ix - 1] - 4.5, subPileY[ix - 1] - 0.3);
                   if (ix + 1 <= sRight && subSurfaceY[ix + 1] >= 0) subPileY[ix + 1] = Math.max(subSurfaceY[ix + 1] - 4.5, subPileY[ix + 1] - 0.3);
+                }
+                hit = true;
+              }
+            }
+            if (!hit && ix >= 0 && ix < W && btnSurfaceY && btnSurfaceY[ix] >= 0) {
+              var bsy = btnSurfaceY[ix], bpy = btnPileY[ix];
+              if (f.y + f.r >= bpy && f.y - f.r <= bsy + 3) {
+                if (bsy - bpy < 4.5) {
+                  btnPileY[ix] = Math.max(bsy - 4.5, bpy - 0.85);
+                  if (ix - 1 >= 0 && btnSurfaceY[ix - 1] >= 0) btnPileY[ix - 1] = Math.max(btnSurfaceY[ix - 1] - 4.5, btnPileY[ix - 1] - 0.35);
+                  if (ix + 1 < W && btnSurfaceY[ix + 1] >= 0) btnPileY[ix + 1] = Math.max(btnSurfaceY[ix + 1] - 4.5, btnPileY[ix + 1] - 0.35);
                 }
                 hit = true;
               }
@@ -2579,6 +2617,15 @@ window.창고읽기 = function(url){
               ctx.fillRect(x, subPileY[x] - 0.7, 1.2, sh2 + 0.7);
               ctx.fillStyle = '#ffffff';
               ctx.fillRect(x, subPileY[x], 1.1, sh2);
+            }
+          }
+          for (var x = 0; x < W; x++) {
+            if (btnSurfaceY && btnSurfaceY[x] >= 0 && btnPileY[x] < btnSurfaceY[x] - 0.2) {
+              var bh = btnSurfaceY[x] - btnPileY[x];
+              ctx.fillStyle = '#c5d6e6';
+              ctx.fillRect(x, btnPileY[x] - 0.8, 1.3, bh + 0.8);
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(x, btnPileY[x], 1.2, bh);
             }
           }
 
