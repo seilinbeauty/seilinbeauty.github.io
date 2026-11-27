@@ -2514,7 +2514,7 @@ window.창고읽기 = function(url){
           try{ sns = JSON.parse(localStorage.getItem('dia_sns_auth') || 'null'); }catch(e){}
           var customPic = (cp && cp.photo) ? cp.photo : '';
           var snsPic = (sns && sns.photo && (sns.nick === curMem || sns.ig === ig)) ? sns.photo : '';
-          var igPic = ig ? ('avatars/' + ig + '.jpg') : '';
+          ig = String(ig || '').trim().replace(/^@+/, ''); var igPic = ig ? ('avatars/' + ig + '.jpg?v=2') : '';
           var src = customPic || igPic || snsPic;
           var fb = (!customPic && igPic && snsPic) ? snsPic : '';
           av.hidden = false;
@@ -2919,7 +2919,9 @@ window.창고읽기 = function(url){
               .mc-login-msg{margin-top:6px;font-size:11.5px;font-weight:700;color:#d55576;min-height:15px;}
               @media (max-width:600px){.mycard{padding:12px 13px 13px;}.mycard-s{font-size:9px;}.mc-k b{font-size:14px;}.mc-hero-login{padding:8px 14px;font-size:12px;}}
               @media (max-width:880px){
-                .dia-hero .mc-hero-right{position:absolute;top:11px;right:14px;gap:5px;}
+                .dia-hero .pc-hero-datetime{display:flex !important;width:100%;margin-top:2px;}
+                .dia-hero .mc-hero-right{position:absolute;top:11px;right:14px;gap:6px !important;}
+                .dia-hero #mcHeroAv{width:38px !important;height:38px !important;}
                 .dia-hero .mc-chat{padding:5px 9px;font-size:11px;gap:3px;min-height:28px;}
                 .dia-hero-in:has(#mcChatBtn:not([hidden])) .pr-card{padding-right:122px;box-sizing:border-box;width:100%;}
                 .dia-hero .pr-card .pr-meta{min-width:0;}
