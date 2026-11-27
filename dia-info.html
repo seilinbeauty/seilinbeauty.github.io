@@ -6448,10 +6448,17 @@ document.addEventListener('DOMContentLoaded', function(){
     diag: "매장 진단 · ROAS · UTM",
     ba: "비포 · 애프터 이미지",
     qr: "매장 예약 QR 생성",
-    macro: "🔒 인스타 · 블로그 매크로 (잠금)"
+    exp: "체험단 · 협찬 가이드",
+    ret: "리터치 · 재방문 D-Day",
+    ana: "블로그 상위노출 분석",
+    plc: "플레이스 경쟁샵 비교",
+    macro: "🔒 인스타 · 블로그 매크로 (잠금)",
+    plc_lock: "🔒 플레이스 저장 · 트래픽 (잠금)",
+    ig_lock: "🔒 타인 인스타 인사이트 (잠금)"
   };
   var ACT_NAMES = {
     tab_open: "탭 열람",
+    locked_click: "🔒 잠금 탭 수요 클릭",
     macro_locked_click: "🔒 매크로 잠금 탭 클릭",
     kw_live_search: "네이버 실시간 검색량 조회",
     kw_combo_gen: "지역 키워드 · 해시태그 조합",
@@ -6460,6 +6467,12 @@ document.addEventListener('DOMContentLoaded', function(){
     seo_ai_write: "AI 블로그 SEO 원고 작성",
     seo_fix_copy: "광고법 안전 표현 정리 · 복사",
     crm_ai_gen: "AI CRM 문자 생성",
+    exp_ai_gen: "AI 체험단 가이드 생성",
+    ret_add: "리터치 · 재방문 고객 등록",
+    ret_copy: "리터치 안내 문자 복사",
+    ana_run: "블로그 상위노출 정밀 분석",
+    plc_open_naver: "네이버 실제 순위 창 열기",
+    plc_ai_gen: "AI 플레이스 공략 처방전",
     ba_make: "비포 · 애프터 이미지 제작",
     ba_down: "비포 · 애프터 PNG 저장",
     qr_gen: "QR코드 생성",
@@ -6500,9 +6513,9 @@ document.addEventListener('DOMContentLoaded', function(){
 
       var tdSum = Object.keys(tdActs).reduce(function(s,k){ return s + tdActs[k]; }, 0);
       var totSum = Object.keys(totActs).reduce(function(s,k){ return s + totActs[k]; }, 0);
-      var aiTot = (totActs.rev_ai_gen||0) + (totActs.copy_ai_gen||0) + (totActs.seo_ai_write||0) + (totActs.crm_ai_gen||0);
+      var aiTot = (totActs.rev_ai_gen||0) + (totActs.copy_ai_gen||0) + (totActs.seo_ai_write||0) + (totActs.crm_ai_gen||0) + (totActs.exp_ai_gen||0) + (totActs.plc_ai_gen||0);
       var kwTot = totActs.kw_live_search || 0;
-      var macroTot = totActs.macro_locked_click || 0;
+      var macroTot = (totActs.locked_click || 0) + (totActs.macro_locked_click || 0);
 
       var html = "<div style=\"font-size:12.5px;font-weight:800;color:#5a4950;margin:4px 0 8px;\">다이아 마케팅 프로 상세 통계</div>";
       html += "<div style=\"display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:10px;\">";
