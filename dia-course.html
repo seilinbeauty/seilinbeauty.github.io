@@ -2198,6 +2198,15 @@
           <button type="button" class="crs-locchip" data-region="서울">서울</button>
           <button type="button" class="crs-locchip" data-region="경기·인천">경기·인천</button>
           <button type="button" class="crs-locchip" data-region="부산">부산</button>
+          <button type="button" class="crs-locchip" data-region="대구">대구</button>
+          <button type="button" class="crs-locchip" data-region="광주">광주</button>
+          <button type="button" class="crs-locchip" data-region="대전·세종">대전·세종</button>
+          <button type="button" class="crs-locchip" data-region="울산">울산</button>
+          <button type="button" class="crs-locchip" data-region="강원">강원</button>
+          <button type="button" class="crs-locchip" data-region="충청">충청</button>
+          <button type="button" class="crs-locchip" data-region="전라">전라</button>
+          <button type="button" class="crs-locchip" data-region="경상">경상</button>
+          <button type="button" class="crs-locchip" data-region="제주">제주</button>
         </div>
         <div class="crs-searchbar">
           <div class="crs-search" id="crsSearchWrap">
@@ -2211,6 +2220,9 @@
           <button type="button" class="crs-tab" data-cat="속눈썹연장" data-ico="✨">속눈썹연장</button>
           <button type="button" class="crs-tab" data-cat="네일" data-ico="💅">네일</button>
           <button type="button" class="crs-tab" data-cat="반영구" data-ico="🖊️">반영구</button>
+          <button type="button" class="crs-tab" data-cat="왁싱" data-ico="🍯">왁싱</button>
+          <button type="button" class="crs-tab" data-cat="피부" data-ico="🧴">피부</button>
+          <button type="button" class="crs-tab" data-cat="브로우" data-ico="🖌️">브로우</button>
           <button type="button" class="crs-tab crs-tab-oneday" id="btnOneday" data-on="0" data-ico="🌿">원데이</button>
         </div>
         <div class="crs-match" id="crsMatch">
@@ -2502,6 +2514,8 @@
     defaultOrder = Array.prototype.slice.call(grid.querySelectorAll('.crs-card'));
   });
 
+  // 전국 수강처 목록 카드가 붙은 뒤 거르기를 다시 하도록 밖에서 부를 수 있게
+  window.crsApply = function(){ apply(); };
   var state = { cat: '전체', sort: 'default', oneday: false, quiz: null, q: '', region: '전체' };
   var clickMap = null;
   var clickLoading = false;
@@ -2566,9 +2580,10 @@
     me.appendChild(sp);
   }
   function clearBadges(){
-    cards.forEach(function(c){ setBadge(c, ''); });
+    Array.prototype.forEach.call(grid.querySelectorAll('.crs-card'), function(c){ setBadge(c, ''); });
   }
   function distKm(lat1, lng1, lat2, lng2){
+    if(isNaN(lat2) || isNaN(lng2)) return Infinity; // 위치 정보 없는 카드는 맨 뒤로
     var R = 6371;
     var dLat = (lat2 - lat1) * Math.PI / 180;
     var dLng = (lng2 - lng1) * Math.PI / 180;
@@ -2605,7 +2620,7 @@
         });
         list.forEach(function(c){
           var d = distKm(baseLat, baseLng, parseFloat(c.dataset.lat), parseFloat(c.dataset.lng));
-          setBadge(c, '내 위치 약 ' + d.toFixed(1) + 'km', 'is-near');
+          if(isFinite(d)) setBadge(c, '내 위치 약 ' + d.toFixed(1) + 'km', 'is-near');
         });
       }
     } else {
@@ -2887,13 +2902,16 @@
   var QS = [
     { key: 'cat', label: '배우고 싶은 분야', opts: [
       { v: '전체', t: '전체' }, { v: '속눈썹펌', t: '속눈썹펌' }, { v: '속눈썹연장', t: '속눈썹연장' },
-      { v: '네일', t: '네일' }, { v: '반영구', t: '반영구' }
+      { v: '네일', t: '네일' }, { v: '반영구', t: '반영구' },
+      { v: '왁싱', t: '왁싱' }, { v: '피부', t: '피부' }, { v: '브로우', t: '브로우' }
     ] },
     { key: 'goal', label: '수강 목적', opts: [
       { v: '전체', t: '상관없음' }, { v: '창업', t: '창업 · 실무 마스터' }, { v: '원데이', t: '원데이 1일 체험' }
     ] },
     { key: 'region', label: '희망 지역', opts: [
-      { v: '전체', t: '전체' }, { v: '서울', t: '서울' }, { v: '경기·인천', t: '경기 · 인천' }, { v: '부산', t: '부산' }
+      { v: '전체', t: '전체' }, { v: '서울', t: '서울' }, { v: '경기·인천', t: '경기 · 인천' }, { v: '부산', t: '부산' },
+      { v: '대구', t: '대구' }, { v: '광주', t: '광주' }, { v: '대전·세종', t: '대전 · 세종' }, { v: '울산', t: '울산' },
+      { v: '강원', t: '강원' }, { v: '충청', t: '충청' }, { v: '전라', t: '전라' }, { v: '경상', t: '경상' }, { v: '제주', t: '제주' }
     ] },
     { key: 'benefit', label: '다이아 회원 혜택', opts: [
       { v: 'all', t: '전체 보기' }, { v: 'only', t: '혜택 있는 곳 우선' }
@@ -3191,13 +3209,15 @@ document.addEventListener('click', function(e){
     card.setAttribute('data-cats', cats || '기타');
     card.setAttribute('data-benefit', benefit ? '1' : '0');
     card.setAttribute('data-nick', (prevCard && prevCard.getAttribute('data-nick')) || name || insta || '');
-    if(region || (prevCard && prevCard.getAttribute('data-region'))) card.setAttribute('data-region', region || prevCard.getAttribute('data-region'));
+    if(it._rg || region || (prevCard && prevCard.getAttribute('data-region'))) card.setAttribute('data-region', it._rg || region || prevCard.getAttribute('data-region'));
     if(prevCard){
       ['data-lat','data-lng','data-oneday'].forEach(function(ak){
         var av = prevCard.getAttribute(ak);
         if(av !== null) card.setAttribute(ak, av);
       });
     }
+    if(!card.hasAttribute('data-oneday') && it.oneday !== undefined) card.setAttribute('data-oneday', String(it.oneday).trim() === '1' ? '1' : '0');
+    if(it._list) card.setAttribute('data-src', 'list');
     if(insta) card.setAttribute('data-insta', insta);
     if(benefit){
       var rib = el('div', 'crs-ribbon');
@@ -3209,7 +3229,7 @@ document.addEventListener('click', function(e){
     var prevAv = prevCard && prevCard.querySelector('.crs-av img');
     if(prevAv){
       av.appendChild(prevAv.cloneNode(true));
-    } else if(insta){
+    } else if(insta && !it._list){
       var img = document.createElement('img');
       img.src = 'avatars/' + insta + '.jpg'; img.alt = name; img.loading = 'lazy';
       img.onerror = function(){ av.textContent = (name.slice(0,1) || '수'); };
@@ -3266,9 +3286,41 @@ document.addEventListener('click', function(e){
       card.appendChild(bf);
     }
 
+    // 전국 수강처 목록 카드: 가격·원데이·과정·주소·전화 등 (빈 칸은 안 보임)
+    if(it._list){
+      var info = el('div', 'crs-info');
+      function row(lb, val, small, tel){
+        val = String(val || '').trim();
+        if(!val) return;
+        var r = el('div', 'crs-info-row');
+        var b = el('span', 'crs-info-lb'); b.textContent = lb;
+        r.appendChild(b);
+        if(tel){
+          var t = document.createElement('a'); t.href = 'tel:' + val.replace(/[^0-9+]/g, ''); t.textContent = val;
+          r.appendChild(t);
+        } else {
+          r.appendChild(document.createTextNode(val));
+        }
+        if(small){ var s = el('small', 'crs-info-note'); s.textContent = small; r.appendChild(s); }
+        info.appendChild(r);
+      }
+      row('가격', it.price, '공개 정보 기준, 실제와 다를 수 있음');
+      if(String(it.oneday || '').trim() === '1') row('원데이', it.oneday_detail || '원데이 수업 있음');
+      row('과정', it.courses);
+      row('자격증', it.cert);
+      row('모델', it.model);
+      row('참고', it.extra);
+      row('운영', it.hours);
+      row('주소', it.address);
+      row('전화', it.phone, '', true);
+      if(info.childNodes.length) card.appendChild(info);
+    }
+
     var prevPh = prevCard && prevCard.querySelector('.crs-photos');
     if(prevPh){
       card.appendChild(prevPh.cloneNode(true));
+    } else if(it._list && !igUrl){
+      // 인스타 주소가 없는 목록 카드는 빈 사진 칸을 만들지 않음
     } else {
       var ph = el('div', 'crs-photos');
       var empty = el('a', 'crs-ph crs-ph-empty');
@@ -3297,6 +3349,8 @@ document.addEventListener('click', function(e){
     return false;
   }
   function applyTab(){
+    // 지역·원데이·검색 조건까지 함께 거르도록 본 거르기 함수가 있으면 그것을 씀
+    if(window.crsApply){ window.crsApply(); return; }
     var cat = currentTab();
     var cards = grid.querySelectorAll('.crs-card');
     for(var i = 0; i < cards.length; i++){
@@ -3306,7 +3360,8 @@ document.addEventListener('click', function(e){
   function reorder(){
     var all = Array.prototype.slice.call(grid.querySelectorAll('.crs-card'));
     var b = all.filter(function(c){ return c.getAttribute('data-benefit') === '1'; });
-    var n = all.filter(function(c){ return c.getAttribute('data-benefit') !== '1'; });
+    var n = all.filter(function(c){ return c.getAttribute('data-benefit') !== '1' && c.getAttribute('data-src') !== 'list'; });
+    var ls = all.filter(function(c){ return c.getAttribute('data-benefit') !== '1' && c.getAttribute('data-src') === 'list'; });
     function sh(a){
       for(var i = a.length - 1; i > 0; i--){
         var j = Math.floor(Math.random() * (i + 1));
@@ -3327,7 +3382,9 @@ document.addEventListener('click', function(e){
       }catch(e){}
     }
     sh(n);
-    b.concat(n).forEach(function(c){ grid.appendChild(c); });
+    sh(ls);
+    // 혜택 회원 → 기존 카드 → 전국 수강처 목록 카드 순
+    b.concat(n).concat(ls).forEach(function(c){ grid.appendChild(c); });
     try{ document.dispatchEvent(new Event('crs:reordered')); }catch(e){}
   }
   var tabs = document.getElementById('crsTabs');
@@ -3420,8 +3477,104 @@ document.addEventListener('click', function(e){
       if(changed){ reorder(); applyTab(); }
     })
     .catch(function(){});
+
+  // ── 전국 뷰티수강 목록(가람 님 정리 300곳) — 2026-11-28 도현 님 지시
+  // 이미 있는 카드(같은 인스타 또는 같은 상호)는 기존 것을 그대로 두고, 없는 곳만 붙인다.
+  function regionGroup(r){
+    var h = String(r || '').trim().split(/\s+/)[0] || '';
+    var map = { '서울':'서울', '경기':'경기·인천', '인천':'경기·인천', '부산':'부산', '대구':'대구', '광주':'광주',
+      '대전':'대전·세종', '세종':'대전·세종', '울산':'울산', '강원':'강원', '충북':'충청', '충남':'충청',
+      '전북':'전라', '전남':'전라', '경북':'경상', '경남':'경상', '제주':'제주' };
+    return map[h] || '기타';
+  }
+  fetch('dia-course-data.json?v=1')
+    .then(function(r){ return r.json(); })
+    .then(function(list){
+      if(!list || !list.length) return;
+      var seen = {};
+      var exist = grid.querySelectorAll('.crs-card');
+      for(var i = 0; i < exist.length; i++){
+        var ins = exist[i].getAttribute('data-insta');
+        if(!ins){ var inner = exist[i].querySelector('[data-insta]'); if(inner) ins = inner.getAttribute('data-insta'); }
+        if(ins) seen[String(ins).trim().toLowerCase()] = 1;
+        var nm = exist[i].querySelector('.crs-nick');
+        if(nm && nm.textContent) seen[String(nm.textContent).trim().toLowerCase()] = 1;
+        var dn = exist[i].getAttribute('data-nick');
+        if(dn) seen[String(dn).trim().toLowerCase()] = 1;
+      }
+      var frag = document.createDocumentFragment(), added = 0;
+      list.forEach(function(it){
+        var ki = String(it.insta || '').trim().toLowerCase();
+        var kn = String(it.name || '').trim().toLowerCase();
+        if((ki && seen[ki]) || (kn && seen[kn])) return;
+        if(ki) seen[ki] = 1;
+        if(kn) seen[kn] = 1;
+        it._list = 1;
+        it._rg = regionGroup(it.region);
+        delete it.benefit; // 목록 카드에는 회원 혜택 표시 없음
+        frag.appendChild(makeCard(it, null));
+        added++;
+      });
+      if(!added) return;
+      grid.appendChild(frag);
+      reorder(); applyTab();
+    })
+    .catch(function(){});
+
+  // ── 카드가 많아 처음 30장만 보이고 '더 보기'로 30장씩
+  var PAGE = 30, limit = PAGE;
+  var moreBox = el('div', 'crs-more');
+  var moreBtn = document.createElement('button');
+  moreBtn.type = 'button'; moreBtn.className = 'crs-more-btn';
+  moreBox.appendChild(moreBtn);
+  grid.parentNode.insertBefore(moreBox, grid.nextSibling);
+  var pgTimer = null;
+  function paginate(){
+    pgTimer = null;
+    var cs = grid.querySelectorAll('.crs-card'), vis = 0;
+    for(var i = 0; i < cs.length; i++){
+      if(cs[i].style.display === 'none'){ cs[i].classList.remove('crs-pg-hide'); continue; }
+      vis++;
+      cs[i].classList.toggle('crs-pg-hide', vis > limit);
+    }
+    var rest = vis - limit;
+    moreBox.style.display = rest > 0 ? '' : 'none';
+    moreBtn.textContent = '더 보기 (' + Math.min(PAGE, rest) + '곳 더 · 남은 ' + rest + '곳)';
+  }
+  function schedule(){ if(!pgTimer) pgTimer = setTimeout(paginate, 0); }
+  moreBtn.addEventListener('click', function(){ limit += PAGE; paginate(); });
+  if(window.MutationObserver){
+    new MutationObserver(schedule).observe(grid, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+  }
+  function resetLimit(){ limit = PAGE; schedule(); }
+  ['crsLocChips', 'crsTabs', 'crsMatch', 'crsTools', 'crsBanner'].forEach(function(id){
+    var n = document.getElementById(id);
+    if(n) n.addEventListener('click', resetLimit, true);
+  });
+  var sIn = document.getElementById('crsSearch');
+  if(sIn) sIn.addEventListener('input', resetLimit, true);
+  schedule();
 })();
 </script>
+<style>
+/* 2026-11-28 전국 뷰티수강 목록 카드 — 가격·주소 등 작은 정보 줄, 더 보기 */
+.crs-card.crs-pg-hide{display:none!important;}
+.crs-info{margin:8px 0 0;padding:8px 10px;border-radius:9px;background:#fafbfc;border:1px solid #eef0f2;font-size:12px;line-height:1.55;color:#4e5968;word-break:keep-all;overflow-wrap:anywhere;}
+.crs-info-row{margin:1px 0;}
+.crs-info-lb{display:inline-block;min-width:42px;margin-right:6px;font-weight:800;color:#8b95a1;font-size:11px;}
+.crs-info-row a{color:#4e5968;text-decoration:underline;text-underline-offset:2px;}
+.crs-info-note{display:inline-block;margin-left:6px;font-size:10px;color:#adb5bd;font-weight:500;}
+.crs-more{text-align:center;margin:14px 0 4px;}
+.crs-more-btn{padding:11px 22px;border-radius:999px;border:1px solid #f3d3de;background:#fff;color:#b35172;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;}
+.crs-more-btn:hover{background:#fff5f7;}
+/* 2026-11-28 분야 버튼 9개(왁싱·피부·브로우 추가) — PC 한 줄, 휴대폰 5칸씩 두 줄 */
+.crs-tabs{grid-template-columns:repeat(9,minmax(0,1fr))!important;}
+@media (max-width:700px){.crs-tabs{grid-template-columns:repeat(5,minmax(0,1fr))!important;row-gap:8px!important;}}
+.crs-tab[data-cat="왁싱"]:not(.is-on)::before{background:#fff4ec;}
+.crs-tab[data-cat="피부"]:not(.is-on)::before{background:#f0f7ff;}
+.crs-tab[data-cat="브로우"]:not(.is-on)::before{background:#f7f0fa;}
+.crs-tab.crs-tab-oneday:not(.is-on)::before{background:#f2fbf5;}
+</style>
 <style>
 /* 2026-11-24 도현 님 — 카드 섹션을 오른쪽으로 한 장씩 넘기는 슬라이드로 */
 .crs-grid{display:flex!important;grid-template-columns:none!important;flex-wrap:nowrap;gap:12px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scroll-padding-left:2px;padding:2px 2px 10px;scrollbar-width:none;}
@@ -3431,7 +3584,7 @@ document.addEventListener('click', function(e){
   .crs-grid>.crs-card{flex:0 0 calc(50% - 6px);max-width:calc(50% - 6px);}
 }
 </style>
-<script src="dia-fb.js?v=15" defer></script><script src="dia-ask.js?v=3" defer></script><script src="dia-click.js?v=2" defer></script><script src="dia-chat.js?v=10" defer></script>
+<script src="dia-fb.js?v=15" defer></script><script src="dia-ask.js?v=3" defer></script><script src="dia-click.js?v=2" defer></script><script src="dia-chat.js?v=11" defer></script>
 
 <style>
 /* 카드 섹션 — 원래 스타일 복원 (2026-11-24) */

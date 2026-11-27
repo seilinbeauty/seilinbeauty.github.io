@@ -384,6 +384,7 @@
     }
     function addTo(card){
       if(card.querySelector('.crs-chat')) return;
+      if(card.getAttribute('data-src') === 'list') return; // 전국 수강처 목록 카드(회원 아님)에는 채팅 없음
       var key = ownerOf(card);
       if(!key) return;
       var nick = String(card.getAttribute('data-nick') || key).trim() || key;
