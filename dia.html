@@ -2859,7 +2859,7 @@ window.창고읽기 = function(url){
               if (santa.energy < 28) {
                 santa.state = (Math.random() < 0.5) ? 'house_rest' : 'sit_rest';
                 santa.timer = 0;
-              } else if (santa.timer > 45) {
+              } else if (santa.timer > 12) {
                 // 너무 오래 꺼내져 있는 눈사람·가로등이 있으면 직접 다가가서 주머니에 회수
                 var oldItem = null;
                 for (var oi = 0; oi < lamps.length; oi++) {
@@ -2889,7 +2889,7 @@ window.창고읽기 = function(url){
                     if (chosen === 'top') { santa.state = 'walk_to'; santa.targetMode = 'top'; santa.targetX = Math.min(walkMaxX, bestTopX); }
                     else if (chosen === 'road') { santa.state = 'walk_to'; santa.targetMode = 'road'; santa.targetX = Math.min(walkMaxX, bestSubX); }
                     else { santa.state = 'summon_sleigh'; santa.timer = 0; santa.targetX = bestBtnX; }
-                  } else if (santa.boredom > 65 || santa.timer > 75) {
+                  } else {
                     santa.boredom = 0;
                     var pick = Math.random();
                     if (pick < 0.24 && lamps.length < 2 && walkMaxX > sLeft + 50) {
