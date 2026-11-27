@@ -3706,7 +3706,7 @@ window.창고읽기 = function(url){
                 var q = 정규(s);
                 if(!q || q.length < 2) return null;
                 for(var i = 0; i < 명부.length; i++){
-                  var m = mems[i];
+                  var m = 명부[i];
                   if((m.i && 정규(m.i) === q) || 정규(m.n) === q) return m;
                   var parts = String(m.n || '').split('/');
                   for(var p = 0; p < parts.length; p++){
@@ -10456,14 +10456,17 @@ window.창고읽기 = function(url){
             }
           }
         };
-        fetch('https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/course_views/sns_members_v1?updateMask.fieldPaths=' + encodeURIComponent('views.' + sk) + '&key=AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        }).finally(function(){ location.reload(); });
-        return;
+        try {
+          fetch('https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/course_views/sns_members_v1?updateMask.fieldPaths=' + encodeURIComponent('views.' + sk) + '&key=AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            keepalive: true,
+            body: JSON.stringify(body)
+          });
+        } catch(e){}
       }
-      location.reload();
+      document.body.classList.remove('sns-need-ig');
+      setTimeout(function(){ location.replace(location.pathname + '?ig=' + Date.now()); }, 180);
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSnsIgBanner);
