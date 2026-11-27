@@ -2334,12 +2334,13 @@
       .dia-hero .quick-links { max-width: 420px; gap: 8px; }
       .dia-hero .quick-links > * { min-height: 38px; padding: 8px 14px; font-size: 13px; }
       body.dia-page .plx-section { padding: 16px 20px 64px !important; }
-      body.dia-page .plx-inner { max-width: 1200px; grid-template-columns: 220px minmax(0, 1fr); gap: 20px;
+      body.dia-page .plx-inner { max-width: 1200px; grid-template-columns: 220px minmax(0, 1fr); gap: 18px 20px;
         background: transparent; border: 0 !important; border-radius: 0 !important; overflow: visible; align-items: start; }
-      .plx-nav { position: sticky; top: 82px; border: 1px solid #ede4e7; border-right: 1px solid #ede4e7;
+      .plx-nav { grid-column: 1; grid-row: 1 / span 2; position: sticky; top: 82px; border: 1px solid #ede4e7; border-right: 1px solid #ede4e7;
         border-radius: 14px; background: #fff; padding: 16px 0; box-shadow: 0 2px 10px rgba(180, 130, 145, .05); }
-      body.dia-page .plx-main { background: #fff; border: 1px solid #ede4e7; border-radius: 14px;
+      body.dia-page .plx-main { grid-column: 2; grid-row: 1; background: #fff; border: 1px solid #ede4e7; border-radius: 14px;
         padding: 24px 28px 32px !important; box-shadow: 0 2px 10px rgba(180, 130, 145, .05); }
+      body.dia-page .plx-inner > .board-content { grid-column: 2; grid-row: 2; margin: 0 !important; padding: 0 !important; min-width: 0; width: 100%; }
       .pc-dash-row { display: grid; grid-template-columns: 1fr 1.25fr; gap: 16px; align-items: stretch; margin-bottom: 18px; }
       .pc-dash-row > .fb-card, .pc-dash-row > .rank-card { margin: 0 !important; height: 100%; box-sizing: border-box; }
       .home-panels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
@@ -7203,12 +7204,18 @@ window.창고읽기 = function(url){
   var fortune = document.querySelector('.mc-fortune-wrap');
   if(!box || !main || !fortune) return;
   var home = box.parentNode, next = box.nextSibling;
+  var inner = document.querySelector('.plx-inner');
+  var bContent = document.querySelector('.plx-section > .board-content');
+  var bParent = bContent ? bContent.parentNode : null;
+  var bNext = bContent ? bContent.nextSibling : null;
   function place(){
     var pc = !!(mq && mq.matches);
     if(pc){
       if(box.parentNode !== main){ main.insertBefore(box, fortune); box.classList.add('in-main'); }
-    } else if(box.parentNode !== home){
-      home.insertBefore(box, next); box.classList.remove('in-main');
+      if(inner && bContent && bContent.parentNode !== inner){ inner.appendChild(bContent); }
+    } else {
+      if(box.parentNode !== home){ home.insertBefore(box, next); box.classList.remove('in-main'); }
+      if(bParent && bContent && bContent.parentNode !== bParent){ bParent.insertBefore(bContent, bNext); }
     }
   }
   place();
