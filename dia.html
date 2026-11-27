@@ -3953,7 +3953,12 @@ window.창고읽기 = function(url){
                 var 미복원 = null;
                 var saved = 로그인값();
                 if(saved){
-                  var sm = 회원찾기(saved.n) || 회원찾기(saved.i || '');
+                  var linkedIg = '';
+                  try{ linkedIg = localStorage.getItem('dia_sns_linked_ig') || ''; }catch(_e){}
+                  var sm = 회원찾기(saved.n) || 회원찾기(saved.i || '') || (linkedIg ? 회원찾기(linkedIg) : null);
+                  if(!sm && linkedIg){
+                    sm = { n: linkedIg, i: linkedIg, c: '뷰티', p: 0, s: 0, l: 0, g: 0, b: 0 };
+                  }
                   if(sm){
                     로그인저장(sm);
                     로그인반영(sm);
@@ -10424,7 +10429,7 @@ window.창고읽기 = function(url){
       var v = cleanId(inp.value);
       if (!v || !isValidIg(v)){ alert('올바른 인스타그램 아이디를 입력해 주세요.'); inp.focus(); return; }
       if (checkedId !== v){ alert('먼저 프로필 확인 버튼을 눌러 본인 계정이 맞는지 확인해 주세요.'); return; }
-      var nick = localStorage.getItem('dia_login_member') || ('@' + v);
+      var nick = v;
       try {
         var u = JSON.parse(localStorage.getItem('dia_sns_user') || 'null');
         if (u && u.key){
