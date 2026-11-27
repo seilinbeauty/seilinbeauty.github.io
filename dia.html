@@ -2804,7 +2804,7 @@ window.창고읽기 = function(url){
               var lsc = Math.min(1, lp.life / 45) * Math.min(1, lp.build / 24);
               ctx.save();
               ctx.translate(lp.x, lp.y);
-              ctx.scale(lsc * 1.35, lsc * 1.35);
+              ctx.scale(lsc, lsc);
               // 따뜻한 불빛 글로우
               var glow = 0.28 + Math.sin(Date.now() / 320 + li) * 0.06;
               var grd = ctx.createRadialGradient(0, -15, 1, 0, -15, 13);
@@ -2830,7 +2830,7 @@ window.창고읽기 = function(url){
               var sc = Math.min(1, mn.life / 120) * Math.min(1, mn.build / 30);
               ctx.save();
               ctx.translate(mn.x, mn.y);
-              ctx.scale(sc * 1.35, sc * 1.35);
+              ctx.scale(sc, sc);
               ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#c5d6e6'; ctx.lineWidth = 0.8;
               ctx.beginPath(); ctx.arc(0, -3.5, 3.6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
               ctx.beginPath(); ctx.arc(0, -8.5, 2.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
@@ -3667,7 +3667,7 @@ window.창고읽기 = function(url){
             var bob = (santa.state === 'walk_to' && santa.targetMode === 'shovel') ? 0 : (isWalking ? Math.abs(Math.sin(santa.walk)) * 1.1 : (isFlying ? Math.sin(santa.flyT * Math.PI * 4) * 1.2 : ((santa.state === 'greet' || santa.state === 'busted') && santa.timer < 20 ? Math.sin((santa.timer / 20) * Math.PI) * 7.5 : 0)));
             var seatDrop = isSitting ? 2.4 : (isCrouch ? 2.2 : 0);
             ctx.translate(santa.x, santa.y - bob + seatDrop + zY);
-            ctx.scale(santa.turn * 1.4 * zScale, 1.4 * zScale);
+            ctx.scale(santa.turn * zScale, zScale);
 
             if (isHouseOut) {
               var hp = (santa.timer <= 40) ? ((santa.timer - 22) / 18) : (santa.timer > 505 ? Math.max(0, 1 - (santa.timer - 505) / 25) : 1);
@@ -4343,7 +4343,6 @@ window.창고읽기 = function(url){
               ctx.save();
               var fJump = (friend.state === 'play_fun' && friend.timer >= 62 && friend.timer <= 78) ? Math.sin(((friend.timer - 62) / 16) * Math.PI) * 7 : 0;
               ctx.translate(friend.x, friend.y - fJump);
-              ctx.scale(1.4, 1.4);
               if (friend.state === 'drop_in') {
                 // 낙하산!
                 ctx.strokeStyle = 'rgba(148,163,184,0.8)'; ctx.lineWidth = 0.8;
