@@ -201,7 +201,7 @@
   var wpBg = document.getElementById('wp_bg');
   var wpOneReset = document.getElementById('wp_one_reset');
 
-  var DEV = { pc: [920, 'PC'], tb: [890, '태블릿'], mo: [390, '모바일'] };
+  var DEV = { pc: [920, 'PC'], tb: [890, '태블릿'], mo: [412, '모바일'] };
   var curDev = 'pc';
   var selKey = '';
   var selKeys = [];

@@ -9852,6 +9852,9 @@ window.창고읽기 = function(url){
     }
   });
 
+  var stScroll = document.createElement('style');
+  stScroll.textContent = 'html,body{scrollbar-width:none !important;-ms-overflow-style:none !important;}html::-webkit-scrollbar,body::-webkit-scrollbar{width:0 !important;height:0 !important;display:none !important;}';
+  document.head.appendChild(stScroll);
   window.__diaLayoutEdit = true;
   apply();
   setEditing(true);
