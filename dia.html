@@ -2916,31 +2916,27 @@ window.창고읽기 = function(url){
                   if (topInView && (maxTop >= 3.4 || totalTop >= 110)) cands.push('top');
                   if (subInView && (maxSub >= 2.8 || totalSub >= 120) && bestSubX <= walkMaxX) cands.push('road');
                   if (btnInView && (maxBtn >= 2.4 || totalBtn >= 60)) cands.push('btn');
-                  var mustWork = (maxTop >= 4.4 || maxSub >= 3.8 || maxBtn >= 3.2);
-
-                  // 내면 욕구(playful·laziness) 기반 자율 판단
-                  var wantPlay = !mustWork && (santa.playful > 45 || Math.random() < 0.65);
+                  var mustWork = (maxTop >= 4.2 || maxSub >= 3.6 || maxBtn >= 3.2);
+                  // 놀기 좋아하는 산타: 눈이 너무 쌓이지 않으면 85% 노는 시간, 너무 쌓이면 기계(송풍기·삽) 꺼내 빠르게 해결!
+                  var wantPlay = !mustWork && (santa.playful > 30 || Math.random() < 0.85);
                   if (cands.length > 0 && !wantPlay) {
                     var filtered = cands.filter(function(c){ return c !== santa.lastJob; });
                     var chosen = (filtered.length > 0) ? filtered[Math.floor(Math.random() * filtered.length)] : cands[Math.floor(Math.random() * cands.length)];
-                    if (cands.indexOf('btn') >= 0 && santa.lastJob !== 'btn' && Math.random() < 0.55) chosen = 'btn';
+                    if (cands.indexOf('btn') >= 0 && santa.lastJob !== 'btn' && Math.random() < 0.5) chosen = 'btn';
                     santa.lastJob = chosen;
                     santa.boredom = 0;
-                    santa.playful = Math.min(100, santa.playful + 14);
-                    santa.laziness = Math.min(100, santa.laziness + 12);
-                    setMood('💦', 55);
-                    if (chosen === 'top' && Math.random() < 0.35) {
-                      santa.state = 'blower'; santa.timer = 0; setMood('💡', 65);
+                    santa.playful = Math.min(100, santa.playful + 22);
+                    santa.laziness = Math.min(100, santa.laziness + 14);
+                    setMood('💡', 65);
+                    if ((chosen === 'top' || chosen === 'road') && (mustWork ? Math.random() < 0.72 : Math.random() < 0.45)) {
+                      santa.state = 'blower'; santa.timer = 0;
                     } else if (chosen === 'top') { santa.state = 'walk_to'; santa.targetMode = 'top'; santa.targetX = Math.min(walkMaxX, bestTopX); }
-                    else if (chosen === 'road' && Math.random() < 0.35) {
-                      santa.state = 'blower'; santa.timer = 0; setMood('💡', 65);
-                    } else if (chosen === 'road') {
+                    else if (chosen === 'road') {
                       santa.state = 'walk_to';
-                      santa.targetMode = (maxSub >= 3.0 || totalSub >= 130) ? 'shovel' : 'road';
+                      santa.targetMode = (maxSub >= 2.8 || totalSub >= 110) ? 'shovel' : 'road';
                       santa.targetX = Math.min(walkMaxX, bestSubX);
-                      if (santa.targetMode === 'shovel') setMood('💡', 65);
                     }
-                    else { santa.state = 'summon_sleigh'; santa.timer = 0; santa.targetX = bestBtnX; setMood('💡', 65); }
+                    else { santa.state = 'summon_sleigh'; santa.timer = 0; santa.targetX = bestBtnX; }
                   } else {
                     santa.boredom = 0;
                     santa.playful = Math.max(25, santa.playful - 16);
@@ -3101,28 +3097,27 @@ window.창고읽기 = function(url){
             } else if (santa.state === 'blower') {
               santa.timer++;
               // 0~18: 뒤적, 18~30: 꺼내기, 30~105: 송풍기 바람 뿜어 앞쪽 눈+눈송이 날리기, 105~120: 주머니에 넣기
-              if (santa.timer > 30 && santa.timer <= 105) {
-                santa.energy = Math.max(0, santa.energy - 0.1);
-                var bwAng = (santa.timer < 68) ? -0.55 : 0.05; // 위(제목) -> 아래(길) 번갈아 쏴아악!
-                for (var bwx = 8; bwx <= 72; bwx += 3) {
+              if (santa.timer > 30 && santa.timer <= 92) {
+                santa.energy = Math.max(0, santa.energy - 0.08);
+                var bwAng = (santa.timer < 60) ? -0.55 : 0.05;
+                for (var bwx = 8; bwx <= 110; bwx += 3) {
                   var txB = Math.round(santa.x + santa.dir * bwx);
                   if (bwAng < -0.2 && txB >= tLeft && txB <= tRight && surfaceY[txB] >= 0 && pileY[txB] < surfaceY[txB] - 0.2) {
-                    pileY[txB] = Math.min(surfaceY[txB], pileY[txB] + 1.1);
-                    if (Math.random() < 0.18 && puffs.length < 75) puffs.push({ x: txB, y: pileY[txB], vx: santa.dir * (1.8 + Math.random()), vy: -0.9 - Math.random() * 0.7, r: 1.3, life: 0.85 });
+                    pileY[txB] = Math.min(surfaceY[txB], pileY[txB] + 1.8);
+                    if (Math.random() < 0.22 && puffs.length < 75) puffs.push({ x: txB, y: pileY[txB], vx: santa.dir * (2.0 + Math.random()), vy: -1.0 - Math.random() * 0.7, r: 1.3, life: 0.85 });
                   }
                   if (bwAng >= -0.2 && txB >= sLeft && txB <= sRight && subSurfaceY[txB] >= 0 && subPileY[txB] < subSurfaceY[txB] - 0.2) {
-                    subPileY[txB] = Math.min(subSurfaceY[txB], subPileY[txB] + 1.2);
-                    if (Math.random() < 0.18 && puffs.length < 75) puffs.push({ x: txB, y: subPileY[txB], vx: santa.dir * (1.8 + Math.random()), vy: -0.8 - Math.random() * 0.6, r: 1.3, life: 0.85 });
+                    subPileY[txB] = Math.min(subSurfaceY[txB], subPileY[txB] + 1.9);
+                    if (Math.random() < 0.22 && puffs.length < 75) puffs.push({ x: txB, y: subPileY[txB], vx: santa.dir * (2.0 + Math.random()), vy: -0.9 - Math.random() * 0.6, r: 1.3, life: 0.85 });
                   }
                 }
-                // 날아가는 눈송이도 바람에 휩쓸림
                 for (var fi = 0; fi < flakes.length; fi++) {
-                  if ((flakes[fi].x - santa.x) * santa.dir > 0 && Math.abs(flakes[fi].x - santa.x) < 85 && Math.abs(flakes[fi].y - (santa.y - 12)) < 36) {
-                    flakes[fi].x += santa.dir * 2.6; flakes[fi].y -= 0.4;
+                  if ((flakes[fi].x - santa.x) * santa.dir > 0 && Math.abs(flakes[fi].x - santa.x) < 120 && Math.abs(flakes[fi].y - (santa.y - 12)) < 42) {
+                    flakes[fi].x += santa.dir * 3.2; flakes[fi].y -= 0.5;
                   }
                 }
               }
-              if (santa.timer >= 120) {
+              if (santa.timer >= 105) {
                 santa.state = 'idle'; santa.timer = 0;
               }
             } else if (santa.state === 'pack_item') {
