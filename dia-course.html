@@ -3319,8 +3319,26 @@ document.addEventListener('click', function(e){
     var prevPh = prevCard && prevCard.querySelector('.crs-photos');
     if(prevPh){
       card.appendChild(prevPh.cloneNode(true));
-    } else if(it._list && !igUrl){
-      // 인스타 주소가 없는 목록 카드는 빈 사진 칸을 만들지 않음
+    } else if(it._list){
+      // 전국 수강처 목록 카드: 인스타 프로필 사진(photo) 또는 분야별 대표 그림
+      var LCATS = ['속눈썹펌','속눈썹연장','브로우','반영구','네일','왁싱','피부'];
+      var c0 = String(cats.split(',')[0] || '').trim();
+      if(LCATS.indexOf(c0) < 0) c0 = '속눈썹펌';
+      var catSrc = 'img/course/cat-' + c0 + '.svg';
+      var photo = String(it.photo || '').trim();
+      var lph = el('div', 'crs-photos');
+      var lbox = el('div', 'crs-ph crs-ph-list' + (photo ? ' has-photo' : ''));
+      lbox.setAttribute('data-c', c0);
+      var limg = document.createElement('img');
+      limg.loading = 'lazy'; limg.decoding = 'async';
+      limg.alt = name + ' 사진';
+      limg.src = photo || catSrc;
+      if(photo){
+        limg.onerror = function(){ this.onerror = null; lbox.classList.remove('has-photo'); this.src = catSrc; };
+      }
+      lbox.appendChild(limg);
+      lph.appendChild(lbox);
+      card.appendChild(lph);
     } else {
       var ph = el('div', 'crs-photos');
       var empty = el('a', 'crs-ph crs-ph-empty');
@@ -3487,7 +3505,7 @@ document.addEventListener('click', function(e){
       '전북':'전라', '전남':'전라', '경북':'경상', '경남':'경상', '제주':'제주' };
     return map[h] || '기타';
   }
-  fetch('dia-course-data.json?v=1')
+  fetch('dia-course-data.json?v=2')
     .then(function(r){ return r.json(); })
     .then(function(list){
       if(!list || !list.length) return;
@@ -3723,6 +3741,16 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
 .crs-card:not([data-benefit="1"]) .crs-ph{pointer-events:none !important;cursor:default !important;}
 .crs-card:not([data-benefit="1"]) .crs-chat{display:none !important;}
 .crs-photos .crs-ph-empty{display:flex !important;align-items:center;justify-content:center;aspect-ratio:3/4.3 !important;border-radius:0 !important;border:1px solid #eee !important;background:#faf8f9 !important;}
+.crs-photos .crs-ph-list img{width:100%;height:100%;object-fit:cover;display:block;}
+.crs-photos .crs-ph-list.has-photo{position:relative;background:#faf6f7 !important;}
+.crs-photos .crs-ph-list.has-photo img{position:absolute;left:50%;top:50%;width:68%;height:auto;aspect-ratio:1/1;transform:translate(-50%,-50%);border-radius:50%;object-fit:cover;box-shadow:0 4px 14px rgba(30,26,27,.10);background:#fff;}
+.crs-photos .crs-ph-list.has-photo[data-c="속눈썹펌"]{background:#eef4ff !important;}
+.crs-photos .crs-ph-list.has-photo[data-c="속눈썹연장"]{background:#fff2f6 !important;}
+.crs-photos .crs-ph-list.has-photo[data-c="브로우"]{background:#f7f0fa !important;}
+.crs-photos .crs-ph-list.has-photo[data-c="반영구"]{background:#eefaf2 !important;}
+.crs-photos .crs-ph-list.has-photo[data-c="네일"]{background:#fff6e9 !important;}
+.crs-photos .crs-ph-list.has-photo[data-c="왁싱"]{background:#fff4ec !important;}
+.crs-photos .crs-ph-list.has-photo[data-c="피부"]{background:#f0f7ff !important;}
 .crs-aloha-bar{order:-2;display:flex;justify-content:flex-end;gap:3px;margin:0 0 5px;}
 .crs-aloha-bar i{display:block;width:11px;height:3px;border-radius:0;}
 .crs-head{order:0;display:flex !important;justify-content:space-between !important;gap:6px !important;margin-bottom:3px !important;align-items:center !important;}
