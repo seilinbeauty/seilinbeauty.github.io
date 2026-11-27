@@ -2165,7 +2165,7 @@
         flex-wrap: wrap; gap: 10px 14px !important;
       }
       body.dia-page .dia-hero-in > *:not(.pc-hero-snow) { position: relative; z-index: 1; }
-      .pc-hero-snow { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+      .pc-hero-snow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
       .pc-snow-flake {
         position: absolute; top: -18px; user-select: none;
         color: #efb8c9; opacity: 0; line-height: 1;
@@ -2206,20 +2206,7 @@
       .plx-title-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 6px 0 5px; }
       .plx-title-row .plx-title {
         margin: 0; position: relative; display: inline-block; z-index: 1;
-        background-image: linear-gradient(180deg, #ffffff 0%, #f1f6fb 22%, #c9d9e8 28%, #212529 33%, #212529 100%);
-        background-size: 100% 220%;
-        background-position: 0% 100%;
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        filter: drop-shadow(0 -1px 0 rgba(168, 186, 206, .55)) drop-shadow(0 1px 0 rgba(255, 255, 255, .9));
-        animation: plxTextSnowPile 14s ease-out forwards;
-      }
-      @keyframes plxTextSnowPile {
-        0% { background-position: 0% 100%; }
-        35% { background-position: 0% 42%; }
-        70% { background-position: 0% 14%; }
-        100% { background-position: 0% 0%; }
+        color: #212529;
       }
       .pc-hero-datetime {
         display: inline-flex !important; flex-direction: row; align-items: baseline; justify-content: flex-start; gap: 6px;
@@ -2339,34 +2326,7 @@ window.창고읽기 = function(url){
   </header>
   <section class="dia-hero">
     <div class="dia-hero-in">
-      <div class="pc-hero-snow only-pc" id="pcHeroSnow" aria-hidden="true"></div>
-      <script>
-      (function(){
-        var wrap = document.getElementById('pcHeroSnow');
-        if (!wrap) return;
-        var glyphs = ['❄','•','❅','•','✻','•','❆'];
-        var colors = ['#efb8c9','#e8d8df','#f2cad7','#dbe5ee','#f4d4df'];
-        for (var i = 0; i < 38; i++) {
-          var el = document.createElement('span');
-          el.className = 'pc-snow-flake';
-          el.textContent = glyphs[i % glyphs.length];
-          var left = (i * 2.65 + (i % 4) * 0.9) % 98;
-          var size = (i % 3 === 0) ? (10 + (i % 4) * 2) : (8 + (i % 3) * 2);
-          var dur = 4.6 + (i % 6) * 1.1;
-          var delay = -((i * 0.85) % dur);
-          var dx = ((i % 2 === 0 ? 1 : -1) * (10 + (i % 5) * 4)) + 'px';
-          var op = (0.45 + (i % 4) * 0.14).toFixed(2);
-          el.style.left = left.toFixed(1) + '%';
-          el.style.fontSize = size + 'px';
-          el.style.color = colors[i % colors.length];
-          el.style.animationDuration = dur + 's';
-          el.style.animationDelay = delay + 's';
-          el.style.setProperty('--dx', dx);
-          el.style.setProperty('--op', op);
-          wrap.appendChild(el);
-        }
-      })();
-      </script>
+      <canvas class="pc-hero-snow only-pc" id="pcSnowCanvas" aria-hidden="true"></canvas>
       <div class="dia-hero-l">
         <div class="pr-card only-mo">
           <img class="pr-av" src="images/ig-profile.png?v=2" alt="">
@@ -2379,7 +2339,7 @@ window.창고읽기 = function(url){
         <div class="only-pc">
           <span class="plx-tag">DIA COMMUNITY</span>
           <div class="plx-title-row">
-            <div class="plx-title">다이아 커뮤니티</div>
+            <div class="plx-title" id="plxTitleText">다이아 커뮤니티</div>
             <div class="pc-hero-datetime only-pc" id="pcHeroDatetime" aria-live="off">
               <div class="pc-hero-date" id="pcHeroDate"></div>
               <div class="pc-hero-time" id="pcHeroTime"></div>
@@ -2410,6 +2370,172 @@ window.창고읽기 = function(url){
         }
         tick();
         setInterval(tick, 1000);
+      })();
+      </script>
+      <script>
+      (function(){
+        var cv = document.getElementById('pcSnowCanvas');
+        var hero = cv && cv.parentElement;
+        var titleEl = document.getElementById('plxTitleText');
+        if (!cv || !hero || !titleEl) return;
+        var ctx = cv.getContext('2d');
+        var W = 0, H = 0, dpr = 1;
+        var surfaceY = null, pileY = null;
+        var tLeft = 0, tRight = 0;
+        var flakes = [];
+        var colors = ['rgba(239,184,201,0.85)','rgba(224,234,244,0.92)','rgba(244,212,223,0.88)','rgba(255,255,255,0.95)'];
+
+        function buildSurface(){
+          if (window.innerWidth <= 880) { W = 0; return; }
+          var hr = hero.getBoundingClientRect();
+          var tr = titleEl.getBoundingClientRect();
+          if (!hr.width || !hr.height || !tr.width) return;
+          dpr = Math.min(window.devicePixelRatio || 1, 2);
+          W = Math.round(hr.width);
+          H = Math.round(hr.height);
+          cv.width = W * dpr;
+          cv.height = H * dpr;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+          tLeft = Math.max(0, Math.floor(tr.left - hr.left));
+          tRight = Math.min(W - 1, Math.ceil(tr.right - hr.left));
+          var tw = Math.max(1, Math.ceil(tr.width));
+          var th = Math.max(1, Math.ceil(tr.height));
+
+          var off = document.createElement('canvas');
+          off.width = tw;
+          off.height = th;
+          var octx = off.getContext('2d');
+          var cs = getComputedStyle(titleEl);
+          octx.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+          octx.textBaseline = 'top';
+          octx.fillStyle = '#000';
+          var topOff = (th - parseFloat(cs.fontSize)) * 0.45;
+          octx.fillText(titleEl.textContent, 0, Math.max(0, topOff));
+
+          var img = octx.getImageData(0, 0, tw, th).data;
+          surfaceY = new Float32Array(W);
+          pileY = new Float32Array(W);
+          var baseTop = tr.top - hr.top;
+          for (var x = 0; x < W; x++) {
+            surfaceY[x] = -1;
+            pileY[x] = -1;
+            if (x >= tLeft && x <= tRight) {
+              var lx = x - tLeft;
+              if (lx >= 0 && lx < tw) {
+                for (var y = 0; y < th; y++) {
+                  if (img[(y * tw + lx) * 4 + 3] > 55) {
+                    surfaceY[x] = baseTop + y + 1;
+                    pileY[x] = surfaceY[x];
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        function spawn(randY){
+          return {
+            x: Math.random() * (W || 900),
+            y: randY ? Math.random() * (H || 120) : -4 - Math.random() * 14,
+            vy: 0.45 + Math.random() * 0.75,
+            vx: (Math.random() - 0.5) * 0.35,
+            r: 1.4 + Math.random() * 2.1,
+            wob: Math.random() * Math.PI * 2,
+            c: colors[Math.floor(Math.random() * colors.length)],
+            star: Math.random() < 0.25
+          };
+        }
+
+        function initFlakes(){
+          flakes = [];
+          for (var i = 0; i < 65; i++) flakes.push(spawn(true));
+        }
+
+        function relaxPile(){
+          if (!pileY || !surfaceY) return;
+          for (var k = 0; k < 2; k++) {
+            for (var x = tLeft + 1; x < tRight; x++) {
+              if (surfaceY[x] < 0) continue;
+              var cur = pileY[x];
+              if (surfaceY[x - 1] >= 0 && pileY[x - 1] - cur > 1.3) {
+                var d1 = (pileY[x - 1] - cur - 1.3) * 0.35;
+                pileY[x] += d1;
+                pileY[x - 1] -= d1;
+              }
+              if (surfaceY[x + 1] >= 0 && pileY[x + 1] - cur > 1.3) {
+                var d2 = (pileY[x + 1] - cur - 1.3) * 0.35;
+                pileY[x] += d2;
+                pileY[x + 1] -= d2;
+              }
+            }
+          }
+        }
+
+        function step(){
+          requestAnimationFrame(step);
+          if (window.innerWidth <= 880) return;
+          if (!W || !surfaceY) { buildSurface(); if (!W) return; }
+          ctx.clearRect(0, 0, W, H);
+
+          for (var i = 0; i < flakes.length; i++) {
+            var f = flakes[i];
+            f.wob += 0.03;
+            f.x += f.vx + Math.sin(f.wob) * 0.22;
+            f.y += f.vy;
+
+            var ix = Math.round(f.x);
+            if (ix >= tLeft && ix <= tRight && surfaceY[ix] >= 0) {
+              var sy = surfaceY[ix];
+              var py = pileY[ix];
+              if (f.y + f.r >= py && f.y - f.r <= sy + 3) {
+                if (sy - py < 5.5) {
+                  pileY[ix] = Math.max(sy - 5.5, py - 0.85);
+                  if (ix - 1 >= tLeft && surfaceY[ix - 1] >= 0) pileY[ix - 1] = Math.max(surfaceY[ix - 1] - 5.5, pileY[ix - 1] - 0.35);
+                  if (ix + 1 <= tRight && surfaceY[ix + 1] >= 0) pileY[ix + 1] = Math.max(surfaceY[ix + 1] - 5.5, pileY[ix + 1] - 0.35);
+                }
+                flakes[i] = spawn(false);
+                continue;
+              }
+            }
+
+            if (f.y > H + 8 || f.x < -10 || f.x > W + 10) {
+              flakes[i] = spawn(false);
+              continue;
+            }
+
+            ctx.fillStyle = f.c;
+            if (f.star) {
+              ctx.font = Math.round(f.r * 3.4) + 'px sans-serif';
+              ctx.fillText('❄', f.x - f.r, f.y + f.r);
+            } else {
+              ctx.beginPath();
+              ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+
+          relaxPile();
+
+          // 글자 획 위에 쌓인 눈 그리기
+          for (var x = tLeft; x <= tRight; x++) {
+            if (surfaceY[x] >= 0 && pileY[x] < surfaceY[x] - 0.2) {
+              var h = surfaceY[x] - pileY[x];
+              ctx.fillStyle = '#c5d6e6';
+              ctx.fillRect(x, pileY[x] - 0.8, 1.3, h + 1);
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(x, pileY[x], 1.2, h);
+            }
+          }
+        }
+
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(function(){ buildSurface(); initFlakes(); requestAnimationFrame(step); });
+        } else {
+          setTimeout(function(){ buildSurface(); initFlakes(); requestAnimationFrame(step); }, 150);
+        }
+        window.addEventListener('resize', function(){ buildSurface(); });
       })();
       </script>
       <div class="quick-links">
