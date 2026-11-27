@@ -6,6 +6,8 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="googlebot" content="noindex, nofollow">
 <title>회원가입 · 미리보기</title>
+<link href="https://fonts.googleapis.com/css?family=Nanum+Gothic:400,700,800" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
 <style>
   :root{
     --cream:#fbf8f6; --paper:#fff; --blush:#f5e5e2; --blush-deep:#eccfc9;
@@ -14,7 +16,7 @@
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{background:var(--cream);color:var(--ink);
-    font-family:Roboto,"Apple SD Gothic Neo","맑은 고딕","Nanum Gothic",-apple-system,sans-serif;
+    font-family:'Roboto',"맑은 고딕",'Nanum Gothic',sans-serif;
     -webkit-font-smoothing:antialiased;letter-spacing:-.1px;}
   a{color:inherit;text-decoration:none;}
 
@@ -24,15 +26,15 @@
   .ac-topbar ul{list-style:none;margin:0;padding:0;display:flex;align-items:center;height:45px;}
   .ac-topbar a,.ac-topbar button{color:#3a3234;font-size:11.2px;letter-spacing:.9px;
     text-transform:uppercase;display:flex;align-items:center;height:45px;background:none;border:0;
-    padding:0;cursor:pointer;font-family:inherit;}
+    padding:0;cursor:pointer;font-family:'Roboto',"맑은 고딕",'Nanum Gothic',sans-serif;}
   .ac-menu li{margin-right:26px;}
   .ac-util li{margin-left:24px;}
   .ac-util li.ico{margin-left:12px;}
 
   .join{max-width:400px;margin:0 auto;padding:66px 22px 90px;}
   .join .eyebrow{font-size:10.5px;letter-spacing:2.6px;text-transform:uppercase;color:var(--ink-mute);text-align:center;}
-  .join h1{margin:14px 0 0;text-align:center;font-weight:200;font-size:27px;letter-spacing:-.8px;line-height:1.4;}
-  .join .sub{margin:12px 0 0;text-align:center;font-size:12px;line-height:1.9;color:var(--ink-soft);font-weight:300;}
+  .join h1{margin:14px 0 0;text-align:center;font-weight:400;font-size:27px;letter-spacing:-.8px;line-height:1.4;}
+  .join .sub{margin:12px 0 0;text-align:center;font-size:12px;line-height:1.9;color:var(--ink-soft);font-weight:400;}
   .rule{height:1px;background:var(--line);margin:34px 0 30px;}
 
   .field{margin-bottom:16px;}
@@ -41,16 +43,16 @@
   .field label{display:block;font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;
     color:var(--ink-mute);margin-bottom:7px;}
   .field input,.field select{width:100%;padding:13px 14px;border:1px solid var(--line);
-    background:var(--paper);border-radius:2px;font-size:13px;font-family:inherit;
+    background:var(--paper);border-radius:2px;font-size:13px;font-family:'Roboto',"맑은 고딕",'Nanum Gothic',sans-serif;
     color:var(--ink);outline:none;transition:border-color .16s;}
   .field input:focus,.field select:focus{border-color:var(--blush-deep);}
-  .field input::placeholder{color:#c9bfc2;font-weight:300;}
+  .field input::placeholder{color:#c9bfc2;font-weight:400;}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .hint{margin:6px 0 0;font-size:10.5px;color:var(--ink-mute);font-weight:300;letter-spacing:.1px;}
+  .hint{margin:6px 0 0;font-size:10.5px;color:var(--ink-mute);font-weight:400;letter-spacing:.1px;}
 
   .agree{margin:26px 0 0;padding:16px 0 0;border-top:1px solid var(--line);}
   .chk{display:flex;align-items:flex-start;gap:9px;margin-bottom:11px;font-size:11.5px;
-    color:var(--ink-soft);font-weight:300;line-height:1.7;cursor:pointer;}
+    color:var(--ink-soft);font-weight:400;line-height:1.7;cursor:pointer;}
   .chk input{margin:2px 0 0;width:14px;height:14px;accent-color:var(--accent);flex:0 0 auto;}
   .chk.all{color:var(--ink);font-weight:500;font-size:12px;padding-bottom:11px;
     border-bottom:1px solid var(--line);margin-bottom:12px;}
@@ -69,7 +71,7 @@
   .btn-social.kakao{background:#fee500;border-color:#fee500;color:#3c1e1e;}
   .btn-social.naver{background:#03c75a;border-color:#03c75a;color:#fff;}
 
-  .foot-link{text-align:center;margin-top:30px;font-size:11.5px;color:var(--ink-mute);font-weight:300;}
+  .foot-link{text-align:center;margin-top:30px;font-size:11.5px;color:var(--ink-mute);font-weight:400;}
   .foot-link a{color:var(--accent);margin-left:5px;}
 
   .pv-tag{position:fixed;right:14px;bottom:14px;font-size:10px;letter-spacing:1.2px;
@@ -87,7 +89,7 @@
     justify-content:center;padding:24px;z-index:99;}
   #pv-door .card{width:100%;max-width:300px;text-align:center;}
   #pv-door h1{margin:0 0 8px;font-size:15px;font-weight:400;letter-spacing:2.4px;text-transform:uppercase;}
-  #pv-door p{margin:0 0 18px;font-size:12px;color:var(--ink-mute);line-height:1.8;font-weight:300;}
+  #pv-door p{margin:0 0 18px;font-size:12px;color:var(--ink-mute);line-height:1.8;font-weight:400;}
   #pv-door input{width:100%;padding:12px 13px;border:1px solid var(--blush-deep);background:#fff;
     border-radius:2px;font-size:14px;outline:none;font-family:inherit;text-align:center;letter-spacing:3px;}
   #pv-door button{width:100%;margin-top:9px;padding:12px;border:0;border-radius:2px;cursor:pointer;
