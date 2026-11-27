@@ -46,7 +46,10 @@
       var real = document.getElementById('dev-real');
       var pubNow = !!(hereKey && pub[hereKey] && pub[hereKey].public);
       if (soon && real) {
-        if (staffNow || pubNow) { soon.style.display = 'none'; real.style.display = ''; }
+        // 공개 여부는 서버 확인이 끝난 뒤에만 열린다 (캐시만으로는 절대 열지 않음)
+        var confirmed = (window.__diaPagesConfirmed === true);
+        var open = staffNow || (pubNow && confirmed);
+        if (open) { soon.style.display = 'none'; real.style.display = ''; }
         else { soon.style.display = ''; real.style.display = 'none'; }
       }
     }
@@ -60,6 +63,7 @@
     }).then(function(d){
       if (d && d.missing) {  // 서버에 설정이 없으면 '전부 비공개'가 맞다 (찌꺼기 캐시 삭제)
         try { localStorage.removeItem(LS_PAGES); } catch(e){}
+        window.__diaPagesConfirmed = true;
         apply({});
         return;
       }
@@ -67,6 +71,7 @@
         var o = JSON.parse(d.fields.json.stringValue);
         if (o && typeof o === 'object') {
           try { localStorage.setItem(LS_PAGES, JSON.stringify(o)); } catch(e){}
+          window.__diaPagesConfirmed = true;
           apply(o);
         }
       }
