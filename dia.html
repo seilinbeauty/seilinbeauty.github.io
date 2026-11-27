@@ -2466,13 +2466,16 @@ window.창고읽기 = function(url){
             wrap.appendChild(b);
           }
           for (var i = 0; i < nBulb; i++) {
-            var xB = (wT * (i + 0.5)) / nBulb - 2.5;
-            addBulb(xB, -6, i);
-            addBulb(xB, hT + 1, i + 3);
+            var tB = nBulb > 1 ? i / (nBulb - 1) : 0.5;
+            var xB = wT * tB - 2.5;
+            var yB = hT * 0.5 + Math.sin(tB * Math.PI * 5) * (hT * 0.55);
+            addBulb(xB, yB, i);
           }
-          for (var g = 0; g < nBulb; g++) {
-            var xG = (wT * (g + 0.5)) / nBulb - 2.5;
-            addBulb(xG, hT * 0.5 + (g % 2 ? -1 : 1) * hT * 0.22, g + 5);
+          for (var g = 0; g < nBulb; g += 2) {
+            var tG = (nBulb > 1) ? g / (nBulb - 1) : 0.5;
+            var xG = wT * tG - 2.5;
+            var yG = hT * 0.5 + Math.sin(tG * Math.PI * 5) * (hT * 0.55) + 4.5;
+            addBulb(xG, yG, g + 5);
           }
           var star = document.createElement('span');
           star.className = 'mc-tree-star'; star.textContent = '⭐';
