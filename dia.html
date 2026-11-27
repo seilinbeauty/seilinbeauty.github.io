@@ -2400,6 +2400,7 @@ window.창고읽기 = function(url){
         var bots = [];
         var fworks = [];
         var angels = [];
+        var boilerTimer = 0;
         var mouse = { x: -999, y: -999, px: -999, py: -999, vx: 0, vy: 0, inside: false };
         hero.addEventListener('mousemove', function(e){
           if (window.innerWidth <= 880) return;
@@ -3039,9 +3040,9 @@ window.창고읽기 = function(url){
                       santa.state = 'walk_to'; santa.targetMode = 'backstage';
                       santa.bsDoorX = Math.max(sLeft + 45, Math.min(walkMaxX - 24, (tRight + dtLeft) / 2 || (sLeft + 140)));
                       santa.targetX = santa.bsDoorX - 8;
-                      var bsModes = ['clock', 'panel', 'title'];
+                      var bsModes = ['clock', 'panel', 'title', 'switch_clock', 'boiler'];
                       santa.bsMode = bsModes[Math.floor(Math.random() * bsModes.length)];
-                      setMood('🔧', 75);
+                      setMood(santa.bsMode === 'boiler' ? '🔥' : '🔧', 75);
                     } else if (!friend.active && pick < 0.24 && walkMaxX > sLeft + 55) {
                       santa.state = 'call_friend'; santa.timer = 0; santa.callOk = (Math.random() < 0.72); friend.mode = (Math.random() < 0.55 ? 'work' : 'play'); setMood('📞', 65);
                     } else if (pick < 0.30 && walkMaxX > sLeft + 70) {
@@ -3098,10 +3099,22 @@ window.창고읽기 = function(url){
                 } else if (santa.bsMode === 'clock' && dtEl) {
                   dtEl.style.transition = 'transform 0.15s ease';
                   dtEl.style.transform = 'rotate(1.8deg)';
+                } else if (santa.bsMode === 'switch_clock' && dtEl) {
+                  dtEl.style.transition = 'opacity 0.08s ease';
+                  dtEl.style.opacity = '0.08';
+                } else if (santa.bsMode === 'boiler') {
+                  boilerTimer = 150;
+                  setMood('🔥', 120);
                 }
               }
               if (santa.timer === 120 && santa.bsMode === 'clock' && dtEl) {
                 dtEl.style.transform = 'rotate(-1.8deg)';
+              }
+              if (santa.timer === 128 && santa.bsMode === 'switch_clock' && dtEl) {
+                dtEl.style.opacity = '1';
+              }
+              if (santa.timer === 136 && santa.bsMode === 'switch_clock' && dtEl) {
+                dtEl.style.opacity = '0.15';
               }
               if (santa.timer === 145) {
                 if (titleEl) titleEl.style.transform = '';
@@ -3785,6 +3798,16 @@ window.창고읽기 = function(url){
               santa.x = bLeft - 16;
               if (santa.dir > 0) santa.dir = -1;
             }
+            // 보일러 스위치 가동 중이면 제목·길·버튼 위 모든 눈이 서서히 다 녹음!
+            if (boilerTimer > 0) {
+              boilerTimer--;
+              for (var mx = 0; mx < W; mx++) {
+                if (surfaceY[mx] >= 0 && pileY[mx] < surfaceY[mx]) pileY[mx] = Math.min(surfaceY[mx], pileY[mx] + 0.14);
+                if (subSurfaceY[mx] >= 0 && subPileY[mx] < subSurfaceY[mx]) subPileY[mx] = Math.min(subSurfaceY[mx], subPileY[mx] + 0.14);
+                if (btnSurfaceY[mx] >= 0 && btnPileY[mx] < btnSurfaceY[mx]) btnPileY[mx] = Math.min(btnSurfaceY[mx], btnPileY[mx] + 0.14);
+              }
+            }
+
             // ── 보이지 않는 백스테이지 문 & 계단 & 실루엣 그림자 (열릴 때만 보임!) ──
             if (santa.state === 'backstage_fix') {
               var bt = santa.timer;
@@ -3814,9 +3837,13 @@ window.창고읽기 = function(url){
                   ctx.beginPath(); ctx.arc(0, -10, 3.0, 0, Math.PI * 2); ctx.fill();
                   ctx.beginPath(); ctx.moveTo(-3.2, -11.5); ctx.lineTo(1.5, -16.5); ctx.lineTo(3.0, -11.5); ctx.closePath(); ctx.fill();
                   ctx.beginPath(); ctx.ellipse(0, -4.5, 3.8, 3.8, 0, 0, Math.PI * 2); ctx.fill();
-                  // 스패너 들고 톡톡 수리하는 그림자 팔
+                  // 스패너 또는 스위치 레버 조작하는 그림자 팔
                   ctx.strokeStyle = 'rgba(15, 23, 42, 0.78)'; ctx.lineWidth = 1.8;
                   ctx.beginPath(); ctx.moveTo(2, -5); ctx.lineTo(6.5, -7 + tapW); ctx.stroke();
+                  if (santa.bsMode === 'switch_clock' || santa.bsMode === 'boiler') {
+                    ctx.fillStyle = (santa.bsMode === 'boiler') ? (bt >= 90 ? '#ef4444' : '#64748b') : (bt >= 90 && bt < 145 ? '#475569' : '#22c55e');
+                    ctx.fillRect(6.5, -9, 2.2, 3.2);
+                  }
                   ctx.restore();
                 }
                 // 열려 있는 투명한 문짝 테두리 + 금색 손잡이
