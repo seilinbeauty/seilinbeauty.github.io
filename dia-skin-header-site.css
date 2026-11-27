@@ -119,3 +119,9 @@
 @media (min-width:881px){
   #mcCourseBtn{ display:none !important; }
 }
+
+/* PC 헤더: 로그인·회원가입 두 글자 메뉴 */
+@media (min-width:881px){
+  header.dia-header .nav-links a.nav-mypumasi{ padding:0 18px !important; }
+  header.dia-header .nav-links a.nav-join{ padding:0 0 0 0 !important; }
+}
