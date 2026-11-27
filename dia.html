@@ -1741,20 +1741,31 @@
   body.sns-need-ig #snsIgBanner { display: block; }
   body:not(.sns-need-ig) .dia-hero-in:has(#diaLinkBox:not([hidden])) {
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) 420px !important;
+    grid-template-columns: minmax(0, 1fr) 410px !important;
     column-gap: 24px !important;
     align-items: center !important;
+    position: relative !important;
   }
   body:not(.sns-need-ig) .dia-hero-in:has(#diaLinkBox:not([hidden])) > .dia-hero-l {
     grid-column: 1 !important;
     grid-row: 1 !important;
     min-width: 0 !important;
   }
+  body:not(.sns-need-ig) .dia-hero-in:has(#diaLinkBox:not([hidden])) > .mc-hero-right {
+    position: absolute !important;
+    top: 12px !important;
+    right: 16px !important;
+    margin: 0 !important;
+    z-index: 3 !important;
+  }
   body:not(.sns-need-ig) .dia-hero-in > #diaLinkBox:not([hidden]) {
     grid-column: 2 !important;
     grid-row: 1 !important;
-    width: 100% !important;
-    margin: 38px 0 0 0 !important;
+    width: 410px !important;
+    max-width: 410px !important;
+    min-width: 410px !important;
+    margin: 36px 0 0 0 !important;
+    justify-self: end !important;
   }
   #snsIgBanner .ig-b-title { font-size: 16px; font-weight: 800; color: #2b1d22; margin: 0 0 6px; }
   #snsIgBanner .ig-b-sub { font-size: 12.5px; color: #7a5c65; margin: 0 0 14px; }
