@@ -10188,7 +10188,7 @@ window.창고읽기 = function(url){
     if (nav && !document.getElementById('pcShortcutBtn')) {
       var b = document.createElement('button');
       b.type = 'button'; b.id = 'pcShortcutBtn';
-      b.innerHTML = '⭐ 북마크 · 바로가기';
+      b.innerHTML = '⭐ 즐겨찾기';
       b.style.cssText = 'display:block;width:calc(100% - 24px);margin:10px 12px 0;padding:8px 10px;border-radius:9px;border:1px solid #f0d7e0;background:#fff8fa;color:#b35172;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;text-align:center;';
       b.addEventListener('click', openShortcutGuide);
       nav.appendChild(b);
@@ -10198,7 +10198,7 @@ window.창고읽기 = function(url){
     if (hero && !document.getElementById('moShortcutBtn')) {
       var mb = document.createElement('button');
       mb.type = 'button'; mb.id = 'moShortcutBtn';
-      mb.innerHTML = '⭐ 홈 화면 추가 · 북마크';
+      mb.innerHTML = '⭐ 즐겨찾기';
       mb.style.cssText = 'width:100%;margin-top:6px;padding:7px 10px;border-radius:999px;border:1px solid #f0d7e0;background:#fff9fb;color:#b35172;font-size:11.5px;font-weight:800;cursor:pointer;font-family:inherit;text-align:center;';
       mb.addEventListener('click', openShortcutGuide);
       var ql = hero.querySelector('.quick-links');
