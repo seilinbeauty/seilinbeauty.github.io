@@ -53,7 +53,7 @@
   }
 
   function run(){
-    apply(cachedPublic());
+    apply({});  // 서버 답을 받기 전에는 비공개가 기본값
     fetch(PAGES_DOC + '?t=' + Date.now(), { cache: 'no-store' }).then(function(r){
       if (r.status === 404) return { missing: true };
       return r.ok ? r.json() : null;
