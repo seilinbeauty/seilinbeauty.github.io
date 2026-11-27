@@ -140,18 +140,6 @@
     </div>
   </div>
 
-  <div id="igStep">
-    <div class="card">
-      <h2>인스타그램 아이디 입력</h2>
-      <p>간편 로그인을 하셨어도 커뮤니티는 인스타그램 아이디로 연결됩니다. 아이디를 입력하지 않으면 이용할 수 없습니다.</p>
-      <input id="igId" type="text" placeholder="인스타그램 아이디 (@ 없이)" autocomplete="off" autocapitalize="off" spellcheck="false">
-      <div class="err" id="igErr"></div>
-      <div class="row">
-        <button type="button" id="igCancel">취소</button>
-        <button type="button" id="igGo" disabled>확인</button>
-      </div>
-    </div>
-  </div>
   <div class="links">
     <a href="#">아이디 찾기</a><span>|</span>
     <a href="#">비밀번호 찾기</a><span>|</span>
@@ -174,33 +162,6 @@ document.addEventListener('DOMContentLoaded', function(){
   var pin = document.getElementById('pin');
   if (pin) { pin.addEventListener('input', function(){ pin.value = pin.value.replace(/[^0-9]/g,'').slice(0,4); }); }
 
-
-  /* 간편 로그인 → 인스타그램 아이디 필수 */
-  var igStep = document.getElementById('igStep'), igId = document.getElementById('igId'),
-      igGo = document.getElementById('igGo'), igErr = document.getElementById('igErr');
-  document.querySelectorAll('[data-sns]').forEach(function(a){
-    a.addEventListener('click', function(e){
-      e.preventDefault();
-      var done = sessionStorage.getItem('dia_sns_login');
-      igErr.textContent = '';
-      igStep.classList.add('on');
-      igId.value = '';
-      igGo.disabled = true;
-      setTimeout(function(){ igId.focus(); }, 60);
-    });
-  });
-  igId.addEventListener('input', function(){
-    var v = igId.value.replace(/[^A-Za-z0-9._]/g,'').replace(/^@+/,'');
-    igId.value = v;
-    igGo.disabled = v.length < 2;
-  });
-  igId.addEventListener('keydown', function(e){ if(e.key==='Enter' && !igGo.disabled) igGo.click(); });
-  igGo.addEventListener('click', function(){
-    try{ sessionStorage.setItem('dia_ig_id', igId.value); }catch(e){}
-    igStep.classList.remove('on');
-    location.href = 'dia-preview.html?staff=1';
-  });
-  igCancel.addEventListener('click', function(){ igStep.classList.remove('on'); });
 
   var pw = document.getElementById('pw'), go = document.getElementById('go'), err = document.getElementById('err');
   function tryOpen(){
