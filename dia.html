@@ -4234,12 +4234,19 @@ window.창고읽기 = function(url){
               if (friend.timer === 85 && bossSlacking) {
                 friend.dir = (santa.x >= friend.x) ? 1 : -1;
                 friend.moodIcon = '💢'; friend.moodTimer = 75;
-                santa.state = 'busted'; santa.timer = 0; setMood('❗', 65);
-                if (Math.random() < 0.45) {
+                var fightRoll = Math.random();
+                if (fightRoll < 0.35) {
+                  // 서로 씩씩거리며 눈덩이 던지고 맞는 진짜 눈싸움!
+                  friend.state = 'snow_fight'; friend.timer = 0;
+                  santa.state = 'snowball'; santa.timer = 20; santa.dir = (friend.x >= santa.x) ? 1 : -1; setMood('💢', 75);
+                } else if (fightRoll < 0.68) {
                   // 친구 산타가 오히려 그 자리로 가서 앉아 쉬고, 대장 산타가 혼자 일함!
+                  santa.state = 'busted'; santa.timer = 0; setMood('❗', 65);
                   friend.state = 'walk_sit';
                   friend.targetX = santa.x;
                   friend.timer = 0;
+                } else {
+                  santa.state = 'busted'; santa.timer = 0; setMood('❗', 65);
                 }
               }
               // 친구 산타가 대장 대신 빗자루로 바닥·제목 위 눈 열심히 청소!
@@ -4266,6 +4273,19 @@ window.창고읽기 = function(url){
                 } else {
                   friend.state = 'bye'; friend.byeMode = (Math.random() < 0.5 ? 'walk' : 'ride'); friend.timer = 0; friend.moodIcon = '👋'; friend.moodTimer = 50;
                 }
+              }
+            } else if (friend.state === 'snow_fight') {
+              // 대장 산타랑 투닥투닥 눈싸움!
+              friend.dir = (santa.x >= friend.x) ? 1 : -1;
+              if ((friend.timer === 18 || friend.timer === 55 || friend.timer === 92) && snowballs.length === 0) {
+                snowballs.push({ x: friend.x + friend.dir * 6, y: friend.y - 10, vx: (santa.x - friend.x) * 0.045, vy: -2.2 });
+                friend.moodIcon = '💢'; friend.moodTimer = 45;
+              }
+              if (friend.timer === 36 || friend.timer === 75) {
+                if (santa.state === 'idle') { santa.state = 'snowball'; santa.timer = 24; santa.dir = (friend.x >= santa.x) ? 1 : -1; setMood('💢', 45); }
+              }
+              if (friend.timer >= 115) {
+                friend.state = 'bye'; friend.byeMode = (Math.random() < 0.5 ? 'walk' : 'ride'); friend.timer = 0; friend.moodIcon = '👋'; friend.moodTimer = 50;
               }
             } else if (friend.state === 'walk_sit') {
               // 화난 친구 산타가 대장 산타가 쉬던 자리로 걸어가서 대신 앉아 버림!
