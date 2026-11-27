@@ -3269,6 +3269,7 @@ window.창고읽기 = function(url){
               if (t >= 1) {
                 santa.state = 'sweep_btn';
                 santa.timer = 0;
+                santa.targetX = (santa.x < (bLeft + bRight) / 2) ? Math.min(bRight - 10, santa.x + 68) : Math.max(bLeft + 10, santa.x - 68);
               }
             } else if (santa.state === 'sweep_btn') {
               santa.timer++;
