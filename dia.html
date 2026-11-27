@@ -2467,7 +2467,7 @@ window.창고읽기 = function(url){
             }
           }
         });
-        var santa = { x: 40, dir: 1, walk: 0, y: 58, vx: 0, vy: 0, state: 'idle', timer: 0, targetX: 40, targetMode: 'top', tapCount: 0, broomSwing: 0, wipeWait: 0, flyFromX: 40, flyFromY: 58, flyToX: 40, flyToY: 58, flyT: 0, bridgeX1: 0, bridgeX2: 0, bridgeY: 0, energy: 100, boredom: 0, headLook: 0, lastJob: '', playful: 65, laziness: 45, moodIcon: '', moodTimer: 0 };
+        var santa = { x: 40, dir: 1, walk: 0, y: 58, vx: 0, vy: 0, state: 'idle', timer: 0, targetX: 40, targetMode: 'top', tapCount: 0, broomSwing: 0, wipeWait: 0, flyFromX: 40, flyFromY: 58, flyToX: 40, flyToY: 58, flyT: 0, bridgeX1: 0, bridgeX2: 0, bridgeY: 0, energy: 100, boredom: 0, headLook: 0, lastJob: '', playful: 65, laziness: 45, playStreak: 0, moodIcon: '', moodTimer: 0 };
         function setMood(ic, dur){ santa.moodIcon = ic; santa.moodTimer = dur || 65; }
         var colors = ['rgba(255,255,255,0.96)','rgba(240,246,252,0.95)','rgba(225,235,245,0.92)'];
 
@@ -2916,8 +2916,8 @@ window.창고읽기 = function(url){
                   if (topInView && (maxTop >= 3.4 || totalTop >= 110)) cands.push('top');
                   if (subInView && (maxSub >= 2.8 || totalSub >= 120) && bestSubX <= walkMaxX) cands.push('road');
                   if (btnInView && (maxBtn >= 2.4 || totalBtn >= 60)) cands.push('btn');
-                  var mustWork = (maxTop >= 4.2 || maxSub >= 3.6 || maxBtn >= 3.2);
-                  // 놀기 좋아하는 산타: 눈이 너무 쌓이지 않으면 85% 노는 시간, 너무 쌓이면 기계(송풍기·삽) 꺼내 빠르게 해결!
+                  var mustWork = (maxTop >= 4.2 || maxSub >= 3.6 || maxBtn >= 3.2 || santa.playStreak >= 3);
+                  // 놀기 좋아하는 산타: 눈이 너무 쌓이지 않으면 85% 노는 시간, 너무 오래 놀았거나(3연속) 눈이 쌓이면 깜짝 놀라며 기계 꺼내 빠르게 청소!
                   var wantPlay = !mustWork && (santa.playful > 30 || Math.random() < 0.85);
                   if (cands.length > 0 && !wantPlay) {
                     var filtered = cands.filter(function(c){ return c !== santa.lastJob; });
@@ -2925,9 +2925,11 @@ window.창고읽기 = function(url){
                     if (cands.indexOf('btn') >= 0 && santa.lastJob !== 'btn' && Math.random() < 0.5) chosen = 'btn';
                     santa.lastJob = chosen;
                     santa.boredom = 0;
+                    if (santa.playStreak >= 3) setMood('❗', 65);
+                    else setMood('💡', 65);
+                    santa.playStreak = 0;
                     santa.playful = Math.min(100, santa.playful + 22);
                     santa.laziness = Math.min(100, santa.laziness + 14);
-                    setMood('💡', 65);
                     if ((chosen === 'top' || chosen === 'road') && (mustWork ? Math.random() < 0.72 : Math.random() < 0.45)) {
                       santa.state = 'blower'; santa.timer = 0;
                     } else if (chosen === 'top') { santa.state = 'walk_to'; santa.targetMode = 'top'; santa.targetX = Math.min(walkMaxX, bestTopX); }
@@ -2939,6 +2941,7 @@ window.창고읽기 = function(url){
                     else { santa.state = 'summon_sleigh'; santa.timer = 0; santa.targetX = bestBtnX; }
                   } else {
                     santa.boredom = 0;
+                    santa.playStreak++;
                     santa.playful = Math.max(25, santa.playful - 16);
                     var pick = Math.random();
                     // 사물 연계: 눈사람이 있는데 가로등이 없으면 눈사람 옆에 가로등 놓아주기!
