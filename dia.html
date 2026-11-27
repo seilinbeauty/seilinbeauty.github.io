@@ -2449,8 +2449,8 @@ window.창고읽기 = function(url){
           var wT = trT.width, hT = trT.height;
           var wrap = document.createElement('div');
           wrap.className = 'mc-tree-deco';
-          wrap.style.position = 'absolute';
-          wrap.style.zIndex = '26';
+          wrap.style.setProperty('position', 'absolute', 'important');
+          wrap.style.setProperty('z-index', '26', 'important');
           wrap.style.pointerEvents = 'none';
           wrap.style.left = leftT + 'px'; wrap.style.top = topT + 'px';
           wrap.style.width = wT + 'px'; wrap.style.height = hT + 'px';
