@@ -2445,6 +2445,10 @@ window.창고읽기 = function(url){
           clearTreeDeco();
           var hrT = hero.getBoundingClientRect();
           var trT = titleEl.getBoundingClientRect();
+          var rng = document.createRange();
+          rng.selectNodeContents(titleEl);
+          var rrT = rng.getBoundingClientRect();
+          if (rrT && rrT.width > 4) { trT = rrT; }
           var leftT = trT.left - hrT.left, topT = trT.top - hrT.top;
           var wT = trT.width, hT = trT.height;
           var wrap = document.createElement('div');
