@@ -49,7 +49,6 @@
               '<a href="dia-board-notice.html">NOTICE</a>' +
               '<a href="dia-qna.html">Q&amp;A</a>' +
             '</div>' +
-            '<a href="dia-workspace.html" class="mcd-link">다이아 워크스페이스</a>' +
             '<a href="dia-tools.html" class="mcd-link">다이아 마케팅 프로</a>' +
             '<div class="mcd-sep"></div>' +
             '<a href="dia-shop.html" class="mcd-link">뷰티샵 직거래</a>' +
