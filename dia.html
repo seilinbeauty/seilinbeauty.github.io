@@ -10260,14 +10260,6 @@ window.창고읽기 = function(url){
 })();
 </script>
 
-<script>
-(function(){
-  var staff = false;
-  try { staff = localStorage.getItem('dia_no_track') === '1' || localStorage.getItem('dia_shop_admin') === '1'; } catch(e){}
-  if (staff) return;
-  var links = document.querySelectorAll('a[href="dia-shop.html"]');
-  for (var i = 0; i < links.length; i++) links[i].parentNode.removeChild(links[i]);
-})();
-</script>
+<script src="dia-staff.js?v=1" defer></script>
 </body>
 </html>
