@@ -51,7 +51,7 @@
             '</div>' +
             '<a href="dia-shop.html" class="mcd-link">샵매물</a>' +
             '<a href="dia-tools.html" class="mcd-link">다이아 마케팅 프로</a>' +
-            '<a href="dia-course.html" class="mcd-link">뷰티수강</a>' +
+            '<a href="dia-course.html" class="mcd-link">전국 뷰티수강 비교</a>' +
             '<a href="https://open.kakao.com/o/gQOf8yAf" target="_blank" rel="noopener" class="mcd-link" id="moCatKakao">💬 마케팅 오픈채팅 입장하기</a>' +
             '<div class="mcd-sep"></div>' +
             '<a href="dia-info.html" class="mcd-link">⚙️ 운영 센터</a>' +
