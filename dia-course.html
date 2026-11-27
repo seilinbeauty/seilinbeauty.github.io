@@ -3601,6 +3601,13 @@ header{background:#f5e5e2 !important;border-bottom:1px solid #eccfc9 !important;
   ];
   function addBars(){
     var allCards = document.querySelectorAll('.crs-grid > .crs-card');
+    for (var m = 0; m < allCards.length; m++) {
+      var hd = allCards[m].querySelector('.crs-head');
+      var lnk = allCards[m].querySelector('.crs-head .crs-links');
+      if (hd && lnk) {
+        hd.parentNode.insertBefore(lnk, hd.nextSibling);
+      }
+    }
     for (var k = 0; k < allCards.length; k++) {
       var card = allCards[k];
       if (!card.querySelector('.crs-badge-row')) {
