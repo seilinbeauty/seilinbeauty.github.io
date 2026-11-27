@@ -2378,16 +2378,18 @@ window.창고읽기 = function(url){
         var hero = cv && cv.parentElement;
         var titleEl = document.getElementById('plxTitleText');
         var subEl = document.getElementById('plxSubText');
+        var dtEl = document.getElementById('pcHeroDatetime');
         if (!cv || !hero || !titleEl || !subEl) return;
         var ctx = cv.getContext('2d');
         var W = 0, H = 0, dpr = 1;
         var surfaceY = null, pileY = null;
         var subSurfaceY = null, subPileY = null;
-        var tLeft = 0, tRight = 0, sLeft = 0, sRight = 0;
+        var tLeft = 0, tRight = 0, sLeft = 0, sRight = 0, dtLeft = 0, dtRight = 0, dtTop = 20;
         var titleBaseY = 20, roadY = 58;
         var flakes = [];
         var puffs = [];
-        var santa = { x: 40, dir: 1, walk: 0, y: 58, state: 'idle', timer: 0, targetX: 40, targetMode: 'top', tapCount: 0, broomSwing: 0 };
+        var sparkles = [];
+        var santa = { x: 40, dir: 1, walk: 0, y: 58, state: 'idle', timer: 0, targetX: 40, targetMode: 'top', tapCount: 0, broomSwing: 0, wipeWait: 0 };
         var colors = ['rgba(239,184,201,0.85)','rgba(224,234,244,0.92)','rgba(244,212,223,0.88)','rgba(255,255,255,0.95)'];
 
         function scanElementSurface(el, hr, outSurf, outPile, yOffset){
@@ -2449,7 +2451,14 @@ window.창고읽기 = function(url){
           var sInfo = scanElementSurface(subEl, hr, subSurfaceY, subPileY, -0.5);
           sLeft = sInfo.left; sRight = sInfo.right; roadY = sInfo.topY + 1;
 
-          if (santa.x < sLeft || santa.x > sRight) santa.x = sLeft + 14;
+          if (dtEl) {
+            var dr = dtEl.getBoundingClientRect();
+            dtLeft = Math.round(dr.left - hr.left);
+            dtRight = Math.round(dr.right - hr.left);
+            dtTop = Math.round(dr.top - hr.top);
+          }
+
+          if (santa.x < sLeft || santa.x > Math.max(sRight, dtRight)) santa.x = sLeft + 14;
           santa.y = roadY;
         }
 
@@ -2601,6 +2610,7 @@ window.창고읽기 = function(url){
               santa.dir = 1;
               santa.broomSwing *= 0.85;
               santa.timer++;
+              santa.wipeWait++;
               if ((maxTop >= 3.4 || totalTop >= 110) && bestTopX >= 0) {
                 santa.state = 'walk_to';
                 santa.targetMode = 'top';
@@ -2609,6 +2619,11 @@ window.창고읽기 = function(url){
                 santa.state = 'walk_to';
                 santa.targetMode = 'road';
                 santa.targetX = bestSubX;
+              } else if (dtRight > dtLeft + 10 && santa.wipeWait > 240) {
+                santa.wipeWait = 0;
+                santa.state = 'walk_to';
+                santa.targetMode = 'wipe';
+                santa.targetX = dtLeft + 14 + Math.random() * Math.max(10, (dtRight - dtLeft - 28));
               }
             } else if (santa.state === 'walk_to') {
               var dxMove = santa.targetX - santa.x;
@@ -2634,9 +2649,22 @@ window.창고읽기 = function(url){
                     santa.targetX = bestSubX;
                   } else if (maxTop >= 2.2 && bestTopX >= 0) {
                     santa.targetMode = 'top'; santa.targetX = bestTopX;
+                  } else if (dtRight > dtLeft + 10 && santa.wipeWait > 180) {
+                    santa.wipeWait = 0;
+                    santa.targetMode = 'wipe';
+                    santa.targetX = dtLeft + 14 + Math.random() * Math.max(10, (dtRight - dtLeft - 28));
                   } else {
                     santa.state = 'return';
                   }
+                }
+              } else if (santa.targetMode === 'wipe') {
+                if (Math.abs(dxMove) > 3) {
+                  santa.dir = dxMove > 0 ? 1 : -1;
+                  santa.x += santa.dir * 0.85;
+                  santa.walk += 0.22;
+                } else {
+                  santa.state = 'wipe';
+                  santa.timer = 0;
                 }
               } else {
                 if (Math.abs(dxMove) > 3) {
@@ -2648,6 +2676,19 @@ window.창고읽기 = function(url){
                   santa.timer = 0;
                   santa.tapCount = 0;
                 }
+              }
+            } else if (santa.state === 'wipe') {
+              santa.timer++;
+              santa.broomSwing = Math.sin(santa.timer * 0.26);
+              if (santa.timer % 24 === 12 && sparkles.length < 12) {
+                sparkles.push({
+                  x: santa.x + (Math.random() - 0.5) * 20,
+                  y: Math.max(10, dtTop + 2 + Math.random() * 14),
+                  life: 1
+                });
+              }
+              if (santa.timer >= 95) {
+                santa.state = 'return';
               }
             } else if (santa.state === 'tap') {
               santa.timer++;
@@ -2687,6 +2728,10 @@ window.창고읽기 = function(url){
                   santa.state = 'walk_to'; santa.targetMode = 'top'; santa.targetX = bestTopX;
                 } else if (maxSub >= 2.0 && bestSubX >= 0) {
                   santa.state = 'walk_to'; santa.targetMode = 'road'; santa.targetX = bestSubX;
+                } else if (dtRight > dtLeft + 10) {
+                  santa.wipeWait = 0;
+                  santa.state = 'walk_to'; santa.targetMode = 'wipe';
+                  santa.targetX = dtLeft + 14 + Math.random() * Math.max(10, (dtRight - dtLeft - 28));
                 } else {
                   santa.state = 'return';
                 }
@@ -2713,6 +2758,15 @@ window.창고읽기 = function(url){
               ctx.beginPath(); ctx.arc(pf.x, pf.y, pf.r || 1.6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
             }
 
+            for (var s = sparkles.length - 1; s >= 0; s--) {
+              var sp = sparkles[s];
+              sp.life -= 0.03;
+              if (sp.life <= 0) { sparkles.splice(s, 1); continue; }
+              ctx.fillStyle = 'rgba(243,196,77,' + sp.life.toFixed(2) + ')';
+              ctx.font = '10px sans-serif';
+              ctx.fillText('✦', sp.x - 4, sp.y + 4);
+            }
+
             // 귀여운 미니 산타 그리기 (발 위치 = santa.y)
             ctx.save();
             var isWalking = (santa.state === 'walk_to' || santa.state === 'return');
@@ -2720,19 +2774,33 @@ window.창고읽기 = function(url){
             ctx.translate(santa.x, santa.y - bob);
             ctx.scale(santa.dir, 1);
 
-            ctx.save();
-            ctx.translate(3, -8);
-            var isTopTap = (santa.state === 'tap' && santa.targetMode === 'top');
-            var isRoadSweep = (santa.state === 'walk_to' && santa.targetMode === 'road');
-            var baseAng = isTopTap ? (-0.25 - santa.broomSwing * 0.65) : (isRoadSweep ? (2.15 + santa.broomSwing * 0.35) : 0.35);
-            var liftY = isTopTap ? (-santa.broomSwing * 14) : (isRoadSweep ? 4 : 0);
-            ctx.translate(0, liftY);
-            ctx.rotate(baseAng);
-            ctx.strokeStyle = '#9c6b3b'; ctx.lineWidth = 1.5;
-            ctx.beginPath(); ctx.moveTo(0, 6); ctx.lineTo(2, -16); ctx.stroke();
-            ctx.fillStyle = '#e7c16b';
-            ctx.beginPath(); ctx.moveTo(0, -15); ctx.lineTo(4.8, -15); ctx.lineTo(5.8, -20.5); ctx.lineTo(-1, -20.5); ctx.closePath(); ctx.fill();
-            ctx.restore();
+            if (santa.state === 'wipe') {
+              // 날짜·시계를 작은 하얀 천으로 쓱쓱 닦는 모션
+              var wx = Math.sin(santa.timer * 0.28) * 4.5;
+              var wy = Math.cos(santa.timer * 0.28) * 2.2 - 14;
+              ctx.strokeStyle = '#d93848'; ctx.lineWidth = 2.1; ctx.lineCap = 'round';
+              ctx.beginPath(); ctx.moveTo(2, -8); ctx.lineTo(3 + wx * 0.7, wy + 2); ctx.stroke();
+              ctx.fillStyle = '#ffffff';
+              ctx.strokeStyle = '#d0dce8';
+              ctx.lineWidth = 0.8;
+              ctx.beginPath();
+              ctx.roundRect ? ctx.roundRect(wx, wy - 2, 6, 4.5, 1.5) : ctx.fillRect(wx, wy - 2, 6, 4.5);
+              ctx.fill(); ctx.stroke();
+            } else {
+              ctx.save();
+              ctx.translate(3, -8);
+              var isTopTap = (santa.state === 'tap' && santa.targetMode === 'top');
+              var isRoadSweep = (santa.state === 'walk_to' && santa.targetMode === 'road');
+              var baseAng = isTopTap ? (-0.25 - santa.broomSwing * 0.65) : (isRoadSweep ? (2.15 + santa.broomSwing * 0.35) : 0.35);
+              var liftY = isTopTap ? (-santa.broomSwing * 14) : (isRoadSweep ? 4 : 0);
+              ctx.translate(0, liftY);
+              ctx.rotate(baseAng);
+              ctx.strokeStyle = '#9c6b3b'; ctx.lineWidth = 1.5;
+              ctx.beginPath(); ctx.moveTo(0, 6); ctx.lineTo(2, -16); ctx.stroke();
+              ctx.fillStyle = '#e7c16b';
+              ctx.beginPath(); ctx.moveTo(0, -15); ctx.lineTo(4.8, -15); ctx.lineTo(5.8, -20.5); ctx.lineTo(-1, -20.5); ctx.closePath(); ctx.fill();
+              ctx.restore();
+            }
 
             var leg = isWalking ? Math.sin(santa.walk) * 1.7 : 0;
             ctx.strokeStyle = '#2d2226'; ctx.lineWidth = 2; ctx.lineCap = 'round';
