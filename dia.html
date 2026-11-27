@@ -2206,11 +2206,12 @@
       .dia-hero .quick-links > * { width: auto !important; min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; }
       .dia-hero .quick-links > .mc-hero-login { padding: 7px 11px !important; font-size: 12px !important; }
       body.dia-page .dia-hero-in > #mcLoginBox {
-        flex: 1 0 100%; max-width: none !important; margin: 10px 0 0 auto !important;
-        display: flex; flex-direction: column; align-items: flex-end;
+        position: absolute !important; top: calc(100% + 6px); right: 16px;
+        width: 340px; max-width: calc(100vw - 32px) !important; margin: 0 !important;
+        padding: 12px; background: #fff; border: 1px solid #f0d6df; border-radius: 14px;
+        box-shadow: 0 10px 26px rgba(179, 81, 114, 0.14); z-index: 40; text-align: center;
       }
       body.dia-page .dia-hero-in > #mcLoginBox[hidden] { display: none !important; }
-      body.dia-page .dia-hero-in > #mcLoginBox > div { width: 100%; max-width: 340px; }
       .dia-hero .mc-chat { min-height: 34px; padding: 7px 11px; font-size: 12px; white-space: nowrap; box-sizing: border-box; }
       .plx-title-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 6px 0 5px; }
       .plx-title-row .plx-title {
@@ -2468,7 +2469,7 @@ window.창고읽기 = function(url){
             if (santa.state === 'sweep_btn' || santa.state === 'btn_bridge' || santa.state === 'btn_jump' || santa.state === 'fly_to_btn' || santa.state === 'fly_back' || santa.y < roadY - 6) {
               return;
             }
-            santa.state = 'busted'; santa.timer = 0; setMood('❗', 65);
+            santa.state = 'dance_egg'; santa.timer = 0; santa.targetZ = 0.55; setMood('🕶️', 190);
           } else if (cy > 18 && cy < H - 4) {
             santa.boredom = 0;
             var maxWalkX = (bLeft > sLeft + 40) ? Math.min(sRight - 15, bLeft - 14) : (sRight - 15);
@@ -3206,6 +3207,19 @@ window.창고읽기 = function(url){
               santa.timer++;
               santa.headLook = -0.65;
               if (santa.timer >= 75) { santa.state = 'idle'; santa.timer = 0; santa.headLook = 0; }
+            } else if (santa.state === 'dance_egg') {
+              santa.timer++;
+              santa.targetZ = 0.55;
+              if (santa.timer > 22 && santa.timer <= 130) {
+                santa.x -= santa.dir * 0.72;
+                if (santa.x <= sLeft + 16) santa.dir = -1;
+                if (santa.x >= walkMaxX - 10) santa.dir = 1;
+                santa.walk += 0.36;
+              }
+              if (santa.timer === 132) setMood('🕺', 80);
+              if (santa.timer >= 210) {
+                santa.state = 'idle'; santa.timer = 0; santa.targetZ = 0;
+              }
             } else if (santa.state === 'busted') {
               santa.timer++;
               if (santa.timer >= 22) {
@@ -3962,7 +3976,7 @@ window.창고읽기 = function(url){
             } else {
             // 인체 관절 기반 3D 미니 산타 그리기 (발 위치 = santa.y)
             ctx.save();
-            var isWalking = (santa.state === 'walk_to' || santa.state === 'return' || santa.state === 'sweep_btn' || (santa.state === 'btn_bridge' && santa.timer > 80 && santa.timer <= 108) || (santa.state === 'blower' && santa.timer > 30 && santa.timer <= 240) || (santa.state === 'pocket_toy' && santa.toyType === 'umbrella' && santa.timer > 22 && santa.timer <= 326));
+            var isWalking = (santa.state === 'walk_to' || santa.state === 'return' || santa.state === 'sweep_btn' || (santa.state === 'btn_bridge' && santa.timer > 80 && santa.timer <= 108) || (santa.state === 'blower' && santa.timer > 30 && santa.timer <= 240) || (santa.state === 'pocket_toy' && santa.toyType === 'umbrella' && santa.timer > 22 && santa.timer <= 326) || (santa.state === 'dance_egg' && santa.timer > 22 && santa.timer <= 130));
             var isFlying = (santa.state === 'fly_to_btn' || santa.state === 'fly_back');
             var isPullChair = (santa.state === 'sit_rest' && santa.timer <= 42);
             var isPutChair = (santa.state === 'sit_rest' && santa.timer > 150);
@@ -3977,7 +3991,7 @@ window.창고읽기 = function(url){
             var isCrouch = (santa.state === 'hurt' || (santa.state === 'snowball' && santa.timer < 28) || (santa.state === 'snowman' && santa.timer < 65));
             var isSnowAngel = (santa.state === 'snow_angel' && santa.timer > 10 && santa.timer < 230);
             var trampJump = (santa.state === 'pocket_toy' && santa.toyType === 'trampoline' && santa.timer > 24 && santa.timer <= 326) ? Math.abs(Math.sin((santa.timer - 24) * 0.22)) * 13 : 0;
-            var bob = (santa.state === 'walk_to' && santa.targetMode === 'shovel') ? 0 : (trampJump > 0 ? trampJump : (isWalking ? Math.abs(Math.sin(santa.walk)) * 1.1 : (isFlying ? Math.sin(santa.flyT * Math.PI * 4) * 1.2 : ((santa.state === 'greet' || santa.state === 'busted') && santa.timer < 20 ? Math.sin((santa.timer / 20) * Math.PI) * 7.5 : 0))));
+            var bob = (santa.state === 'walk_to' && santa.targetMode === 'shovel') ? 0 : (trampJump > 0 ? trampJump : (isWalking ? Math.abs(Math.sin(santa.walk)) * 1.1 : (isFlying ? Math.sin(santa.flyT * Math.PI * 4) * 1.2 : ((santa.state === 'dance_egg' && santa.timer > 180 && santa.timer < 200) ? Math.sin(((santa.timer - 180) / 20) * Math.PI) * 8.5 : ((santa.state === 'greet' || santa.state === 'busted') && santa.timer < 20 ? Math.sin((santa.timer / 20) * Math.PI) * 7.5 : 0)))));
             var seatDrop = isSitting ? 2.4 : (isCrouch ? 2.2 : 0);
             ctx.translate(santa.x, santa.y - bob + seatDrop + zY);
             ctx.scale(santa.turn * zScale, zScale);
@@ -4271,11 +4285,24 @@ window.창고읽기 = function(url){
               brdGrd.addColorStop(0, '#ffffff'); brdGrd.addColorStop(1, '#e2e8f0');
               ctx.fillStyle = brdGrd;
               ctx.beginPath(); ctx.arc(0, -0.7, 2.7, 0, Math.PI); ctx.fill();
-              ctx.fillStyle = '#2d2226';
-              if (isFrontView) {
-                ctx.beginPath(); ctx.arc(-1.05, -2.6, 0.52, 0, Math.PI * 2); ctx.arc(1.05, -2.6, 0.52, 0, Math.PI * 2); ctx.fill();
+              if (santa.state === 'dance_egg' && santa.timer > 18) {
+                ctx.fillStyle = '#0f172a';
+                if (isFrontView) {
+                  ctx.fillRect(-2.5, -3.3, 2.2, 1.5); ctx.fillRect(0.3, -3.3, 2.2, 1.5);
+                  ctx.fillRect(-0.4, -2.9, 0.8, 0.5);
+                  ctx.fillStyle = 'rgba(255,255,255,0.65)';
+                  ctx.fillRect(-2.1, -3.1, 0.6, 0.5); ctx.fillRect(0.7, -3.1, 0.6, 0.5);
+                } else {
+                  ctx.fillRect(-0.2, -3.3, 2.5, 1.5);
+                  ctx.fillStyle = 'rgba(255,255,255,0.65)'; ctx.fillRect(0.4, -3.1, 0.7, 0.5);
+                }
               } else {
-                ctx.beginPath(); ctx.arc(1.1, -2.6, 0.55, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#2d2226';
+                if (isFrontView) {
+                  ctx.beginPath(); ctx.arc(-1.05, -2.6, 0.52, 0, Math.PI * 2); ctx.arc(1.05, -2.6, 0.52, 0, Math.PI * 2); ctx.fill();
+                } else {
+                  ctx.beginPath(); ctx.arc(1.1, -2.6, 0.55, 0, Math.PI * 2); ctx.fill();
+                }
               }
               var hatGrd = ctx.createLinearGradient(-3, -9, 3, -4);
               hatGrd.addColorStop(0, '#ff6b7a'); hatGrd.addColorStop(0.6, '#d93848'); hatGrd.addColorStop(1, '#8f1622');
@@ -4422,6 +4449,11 @@ window.창고읽기 = function(url){
               var pullArm = (santa.timer < 26) ? Math.sin((santa.timer / 26) * Math.PI) * 3.5 : Math.sin(((220 - santa.timer) / 26) * Math.PI) * 3.5;
               drawLimb(2.2, -4.2, 5.2, -6.2, 7.8 + pullArm, -8.5, '#d93848', '#ffffff', 1.9);
               drawLimb(-2.2, -4.2, -3.2, -2.2, -2.2, -0.4, '#c12737', '#ffffff', 1.8);
+            } else if (santa.state === 'dance_egg') {
+              var wvD = Math.sin(santa.timer * 0.38) * 3.8;
+              var wvD2 = Math.cos(santa.timer * 0.38) * 3.8;
+              drawLimb(2.2, -4.2, 4.8, -5.5 + wvD * 0.5, 6.2, -8.5 + wvD, '#d93848', '#ffffff', 1.9);
+              drawLimb(-2.2, -4.2, -4.8, -5.5 + wvD2 * 0.5, -6.2, -8.5 + wvD2, '#c12737', '#ffffff', 1.9);
             } else if (santa.state === 'wake_user') {
               var wvU = Math.sin(santa.timer * 0.35) * 2.4;
               drawLimb(2.2, -4.2, 4.4, -6.5, 4.8 + wvU, -9.8, '#d93848', '#ffffff', 1.9);
