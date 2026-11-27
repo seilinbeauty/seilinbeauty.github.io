@@ -602,10 +602,14 @@
         st.textContent = "조회 완료 · 총 " + d.list.length + "개 연관 키워드 (월간 검색수 기준)";
         tbody.innerHTML = "";
         d.list.forEach(function(row){
-          var pc = Number(row.pc || 0), mo = Number(row.mo || 0), tot = pc + mo;
+          var pcRaw = row.pc, moRaw = row.mo;
+          var pcNum = Number(pcRaw), moNum = Number(moRaw);
+          var pcStr = isNaN(pcNum) ? (pcRaw || "<10") : pcNum.toLocaleString();
+          var moStr = isNaN(moNum) ? (moRaw || "<10") : moNum.toLocaleString();
+          var totStr = (isNaN(pcNum) && isNaN(moNum)) ? "<20" : ((isNaN(pcNum) ? 0 : pcNum) + (isNaN(moNum) ? 0 : moNum)).toLocaleString();
           var cls = row.comp === "높음" ? "hi" : (row.comp === "중간" ? "md" : "lo");
           var tr = document.createElement("tr");
-          tr.innerHTML = "<td><b>" + row.k + "</b></td><td>" + pc.toLocaleString() + "</td><td>" + mo.toLocaleString() + "</td><td><b>" + tot.toLocaleString() + "</b></td><td><span class=\"kw-comp " + cls + "\">" + (row.comp || "-") + "</span></td>";
+          tr.innerHTML = "<td><b>" + row.k + "</b></td><td>" + pcStr + "</td><td>" + moStr + "</td><td><b>" + totStr + "</b></td><td><span class=\"kw-comp " + cls + "\">" + (row.comp || "-") + "</span></td>";
           tbody.appendChild(tr);
         });
         wrap.style.display = "block";
