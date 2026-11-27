@@ -63,12 +63,23 @@
       return;
     }
 
-    // 아직 명부 회원과 연결 전이면: 인스타 아이디 입력란 포커스 + 안내
+    // 회원가입 페이지가 아니면 구글 계정으로 즉시 로그인 완료 -> dia.html 이동
+    var isJoin = location.pathname.indexOf('join') >= 0;
+    if (!isJoin) {
+      var nick = (u.displayName || email.split('@')[0] || '구글회원').trim();
+      saveMap(email, nick);
+      try {
+        localStorage.setItem('dia_login_member', nick);
+        localStorage.setItem('dia_login_member_bak', nick);
+      } catch(e){}
+      location.href = 'dia.html';
+      return;
+    }
     window.__diaPendingGoogleEmail = email;
     var ig = document.getElementById('igId') || document.querySelector('input[placeholder*="인스타"]');
     var em = document.querySelector('input[type="email"], input[placeholder*="이메일"]');
     if (em && !em.value) em.value = email;
-    showMsg('구글 인증 완료 (' + email + '). 연결할 인스타그램 아이디를 선택/입력한 뒤 로그인(또는 가입)해 주세요.', true);
+    showMsg('구글 인증 완료 (' + email + '). 인스타그램 아이디를 입력하고 가입하기를 눌러 주세요.', true);
     if (ig) ig.focus();
   }
 
