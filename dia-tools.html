@@ -193,6 +193,7 @@
       <button type="button" class="s-btn" data-tab="ret"><span>리터치 · 재방문 D-Day</span><span class="s-tag">CRM</span></button>
       <button type="button" class="s-btn" data-tab="ana"><span>블로그 상위노출 분석</span><span class="s-tag">정밀진단</span></button>
       <button type="button" class="s-btn" data-tab="plc"><span>플레이스 경쟁샵 비교</span><span class="s-tag">AI처방</span></button>
+      <button type="button" class="s-btn" data-tab="area"><span>상권 · 입지 수요 분석</span><span class="s-tag">실제API·AI</span></button>
       <button type="button" class="s-btn is-locked" data-tab="macro"><span>🔒 인스타·블로그 매크로</span><span class="s-tag">잠금</span></button>
       <button type="button" class="s-btn is-locked" data-tab="plc_lock"><span>🔒 플레이스 저장·트래픽</span><span class="s-tag">잠금</span></button>
       <button type="button" class="s-btn is-locked" data-tab="ig_lock"><span>🔒 타인 인스타 인사이트</span><span class="s-tag">잠금</span></button>
@@ -566,7 +567,59 @@
       </div>
     </section>
 
-    <!-- 13. 인스타·블로그 자동좋어요·댓글·서이추 매크로 (잠금 탭) -->
+    <!-- 13. 상권 · 입지 수요 분석 -->
+    <section class="tl-panel" id="tab-area">
+      <div class="kpi-row">
+        <div class="kpi"><div class="kpi-l">메인 키워드 월간 검색</div><div class="kpi-v" id="kAreaMain">-</div><div class="kpi-d" id="kAreaMainSub">조회 대기</div></div>
+        <div class="kpi"><div class="kpi-l">연관 키워드 총 수요</div><div class="kpi-v" id="kAreaSum">-</div><div class="kpi-d" id="kAreaSumSub">상위 12개 합계</div></div>
+        <div class="kpi"><div class="kpi-l">모바일 검색 비중</div><div class="kpi-v" id="kAreaMob">-</div><div class="kpi-d">2030 여성 유입 지표</div></div>
+        <div class="kpi"><div class="kpi-l">키워드 경쟁 강도</div><div class="kpi-v" id="kAreaComp">-</div><div class="kpi-d">네이버 검색광고 기준</div></div>
+      </div>
+      <div class="bench">
+        <section class="card">
+          <div class="card-hd"><div><h2 class="card-t">지역 · 상권 실제 검색 수요 조회</h2><p class="card-sub">네이버 검색광고 API로 해당 지역의 실시간 시술 검색량과 경쟁 강도를 분석합니다.</p></div></div>
+          <div class="g2">
+            <div><label class="lbl">지역 / 역명</label><input id="areaLoc" class="inp" value="화곡동" placeholder="예: 화곡동, 까치산역, 강남"></div>
+            <div><label class="lbl">주력 업종</label>
+              <select id="areaBiz" class="sel">
+                <option value="속눈썹펌" selected>속눈썹펌</option>
+                <option value="속눈썹연장">속눈썹연장</option>
+                <option value="반영구">반영구</option>
+                <option value="네일아트">네일아트</option>
+                <option value="피부관리">피부관리</option>
+                <option value="왁싱">왁싱</option>
+              </select>
+            </div>
+          </div>
+          <div><label class="lbl">상권 특성</label>
+            <select id="areaType" class="sel">
+              <option value="주거·동네 상권" selected>주거·동네 상권 (단골·재방문 중심)</option>
+              <option value="역세권·오피스">역세권·오피스 (퇴근길·평일 저녁 수요)</option>
+              <option value="대학가·번화가">대학가·번화가 (가성비·첫 방문 이벤트)</option>
+              <option value="샵인샵·1인샵">샵인샵·1인샵 (틈새·프라이빗 타깃)</option>
+            </select>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn-primary" id="btnAreaRun">실시간 상권 수요 분석</button>
+            <button type="button" class="btn-ghost" id="btnAreaMap">네이버 지도 경쟁샵 보기 ↗</button>
+          </div>
+          <div id="areaStat" class="status-line">지역과 업종을 입력한 뒤 '실시간 상권 수요 분석'을 눌러 주세요.</div>
+          <div class="kw-table-wrap" id="areaTableWrap" style="display:none;max-height:280px;">
+            <table class="kw-table">
+              <thead><tr><th>연관 상권 키워드</th><th>PC</th><th>모바일</th><th>월 합계</th><th>경쟁</th></tr></thead>
+              <tbody id="areaKwBody"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="card">
+          <div class="card-hd"><div><h2 class="card-t">AI 상권 · 입지 공략 리포트</h2><p class="card-sub">실시간 검색 수요 데이터를 반영한 타깃 고객, 적정 객단가, 추천 키워드 전략입니다.</p></div></div>
+          <div id="areaOut" class="out-box"></div>
+          <div class="btn-row"><button type="button" class="btn-ghost" id="btnCopyArea" style="width:100%;">상권 리포트 복사</button></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- 14. 인스타·블로그 자동좋어요·댓글·서이추 매크로 (잠금 탭) -->
     <section class="tl-panel" id="tab-macro">
       <div class="lock-card">
         <div class="lock-ico">🔒</div>
@@ -1231,6 +1284,94 @@
   var btnCopyPlc = document.getElementById("btnCopyPlc");
   if (btnCopyPlc) btnCopyPlc.addEventListener("click", function(){ cpTxt(plcOut.textContent); });
   if (plcOut) plcOut.textContent = "'네이버 실제 순위 바로 보기'로 현재 순위를 확인한 뒤, 리뷰 수치를 넣고 'AI 순위 공략 처방전'을 눌러 주세요.";
+
+  // 13. 상권 · 입지 수요 분석 (네이버 검색광고 API + AI 리포트)
+  var areaOut = document.getElementById("areaOut");
+  var btnAreaMap = document.getElementById("btnAreaMap");
+  if (btnAreaMap) btnAreaMap.addEventListener("click", function(){
+    var loc = (document.getElementById("areaLoc").value || "화곡동").trim();
+    var biz = (document.getElementById("areaBiz").value || "속눈썹펌").trim();
+    logTool("area", "area_open_map", loc + " " + biz);
+    window.open("https://map.naver.com/p/search/" + encodeURIComponent(loc + " " + biz), "_blank");
+  });
+  function runAreaAnalysis(){
+    var loc = (document.getElementById("areaLoc").value || "화곡동").trim();
+    var biz = (document.getElementById("areaBiz").value || "속눈썹펌").trim();
+    var tp = (document.getElementById("areaType").value || "주거·동네 상권").trim();
+    var q = (loc + biz).replace(/\s+/g, "");
+    var btn = document.getElementById("btnAreaRun");
+    var st = document.getElementById("areaStat");
+    var wrap = document.getElementById("areaTableWrap");
+    var tbody = document.getElementById("areaKwBody");
+    btn.disabled = true; btn.textContent = "분석 중...";
+    st.textContent = "'" + loc + " " + biz + "' 실시간 상권 수요를 조회하는 중...";
+    areaOut.textContent = "네이버 검색광고 실시간 수요 데이터를 수집한 뒤 AI 상권 공략 리포트를 작성합니다...";
+    logTool("area", "area_run", loc + " " + biz);
+    fetch(GAS + "?mode=kw&q=" + encodeURIComponent(q))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        btn.disabled = false; btn.textContent = "실시간 상권 수요 분석";
+        if (!d || !d.ok || !d.list || !d.list.length) {
+          st.textContent = "해당 지역 키워드 검색량이 적거나 조회되지 않았습니다. 인근 구/동/역명으로 다시 시도해 주세요.";
+          wrap.style.display = "none";
+          areaOut.textContent = "검색 데이터가 부족해 AI 분석으로 넘어가지 못했습니다. 예: '강서구', '까치산역', '화곡동'처럼 대표 지역명을 입력해 보세요.";
+          return;
+        }
+        var top12 = d.list.slice(0, 12);
+        var mainRow = top12[0];
+        var mPc = Number(mainRow.pc) || 0, mMo = Number(mainRow.mo) || 0;
+        var mTot = (isNaN(Number(mainRow.pc)) && isNaN(Number(mainRow.mo))) ? "<20" : (mPc + mMo).toLocaleString() + "회";
+        var sumPc = 0, sumMo = 0;
+        tbody.innerHTML = "";
+        top12.forEach(function(row){
+          var pcNum = Number(row.pc), moNum = Number(row.mo);
+          if (!isNaN(pcNum)) sumPc += pcNum;
+          if (!isNaN(moNum)) sumMo += moNum;
+          var pcStr = isNaN(pcNum) ? (row.pc || "<10") : pcNum.toLocaleString();
+          var moStr = isNaN(moNum) ? (row.mo || "<10") : moNum.toLocaleString();
+          var totStr = (isNaN(pcNum) && isNaN(moNum)) ? "<20" : ((isNaN(pcNum) ? 0 : pcNum) + (isNaN(moNum) ? 0 : moNum)).toLocaleString();
+          var cls = row.comp === "높음" ? "hi" : (row.comp === "중간" ? "md" : "lo");
+          var tr = document.createElement("tr");
+          tr.innerHTML = "<td><b>" + row.k + "</b></td><td>" + pcStr + "</td><td>" + moStr + "</td><td><b>" + totStr + "</b></td><td><span class=\"kw-comp " + cls + "\">" + (row.comp || "-") + "</span></td>";
+          tbody.appendChild(tr);
+        });
+        var sumAll = sumPc + sumMo;
+        var mobPct = sumAll > 0 ? Math.round((sumMo / sumAll) * 100) : 0;
+        document.getElementById("kAreaMain").textContent = mTot;
+        document.getElementById("kAreaMainSub").textContent = mainRow.k;
+        document.getElementById("kAreaSum").textContent = sumAll.toLocaleString() + "회";
+        document.getElementById("kAreaSumSub").textContent = "연관 " + top12.length + "개 합계";
+        document.getElementById("kAreaMob").textContent = mobPct + "%";
+        document.getElementById("kAreaComp").textContent = mainRow.comp || "-";
+        st.textContent = "상권 조회 완료 · 상위 " + top12.length + "개 연관 키워드 기준";
+        wrap.style.display = "block";
+        var kwSummary = top12.slice(0, 6).map(function(x){
+          var t = (Number(x.pc)||0) + (Number(x.mo)||0);
+          return x.k + "(" + (t > 0 ? t : "<20") + ", 경쟁:" + (x.comp||"-") + ")";
+        }).join(", ");
+        var fb = "[" + loc + " " + biz + " 상권 분석 요약]\n"
+          + "• 메인 키워드 '" + mainRow.k + "' 월 검색량: " + mTot + " (모바일 비중 " + mobPct + "%, 경쟁강도 " + (mainRow.comp||"-") + ")\n"
+          + "• 상위 연관 키워드 총 수요: 월 " + sumAll.toLocaleString() + "회\n\n"
+          + "[상권 맞춤 운영 전략 (" + tp + ")]\n"
+          + "1. 모바일 검색 비중(" + mobPct + "%)이 높으므로 네이버 플레이스 대표사진·가격표·예약 버튼을 첫 화면에 명확히 배치하세요.\n"
+          + "2. 경쟁강도가 낮은 세부 키워드부터 블로그·플레이스 소식에 우선 노출시켜 신규 유입을 확보하세요.\n"
+          + "3. 첫 방문 후 4~5주 리터치 주기 안내로 동네 재방문율을 높이는 것이 핵심입니다.";
+        var pr = "뷰티샵 상권 분석 전문가로서 아래 실제 네이버 검색량 데이터를 바탕으로 '" + loc + "' 지역 '" + biz + "' 매장(" + tp + ")의 상권 공략 리포트를 작성해줘.\n"
+          + "- 실제 검색량 데이터: " + kwSummary + "\n"
+          + "- 모바일 비중: " + mobPct + "%\n"
+          + "1) 이 상권의 고객 특성 및 수요 평가\n2) 추천 첫 방문 이벤트 및 적정 객단가 전략\n3) 바로 쓸 수 있는 플레이스·블로그 공략 키워드 3개 추천";
+        callAi(pr, function(txt){ areaOut.textContent = txt; }, function(){ areaOut.textContent = fb; });
+      })
+      .catch(function(){
+        btn.disabled = false; btn.textContent = "실시간 상권 수요 분석";
+        st.textContent = "네트워크 오류입니다. 잠시 후 다시 시도해 주세요.";
+      });
+  }
+  var btnAreaRun = document.getElementById("btnAreaRun");
+  if (btnAreaRun) btnAreaRun.addEventListener("click", runAreaAnalysis);
+  var btnCopyArea = document.getElementById("btnCopyArea");
+  if (btnCopyArea) btnCopyArea.addEventListener("click", function(){ cpTxt(areaOut.textContent); });
+  if (areaOut) areaOut.textContent = "지역/역명과 업종을 선택하고 '실시간 상권 수요 분석'을 누르면 실제 검색 수요 표와 AI 상권 공략 리포트가 생성됩니다.";
 })();
 </script>
 <script src="dia-sub-header.js?v=1"></script>
