@@ -2395,6 +2395,59 @@ window.창고읽기 = function(url){
         var sparkles = [];
         var snowballs = [];
         var snowmen = [];
+        var mouse = { x: -999, y: -999, px: -999, py: -999, vx: 0, vy: 0, inside: false };
+        hero.addEventListener('mousemove', function(e){
+          if (window.innerWidth <= 880) return;
+          var hr = hero.getBoundingClientRect();
+          mouse.px = mouse.x; mouse.py = mouse.y;
+          mouse.x = e.clientX - hr.left; mouse.y = e.clientY - hr.top;
+          if (mouse.inside && mouse.px >= 0) {
+            mouse.vx = mouse.x - mouse.px; mouse.vy = mouse.y - mouse.py;
+            var spd = Math.hypot(mouse.vx, mouse.vy);
+            if (spd > 8) {
+              var mx = Math.round(mouse.x);
+              for (var dxm = -10; dxm <= 10; dxm++) {
+                var cxm = mx + dxm;
+                if (cxm >= tLeft && cxm <= tRight && surfaceY && surfaceY[cxm] >= 0 && Math.abs(mouse.y - pileY[cxm]) < 14 && pileY[cxm] < surfaceY[cxm] - 0.2) {
+                  pileY[cxm] = Math.min(surfaceY[cxm], pileY[cxm] + 1.2);
+                  if (Math.random() < 0.35 && puffs.length < 75) puffs.push({ x: cxm, y: pileY[cxm], vx: mouse.vx * 0.12, vy: -0.7 - Math.random() * 0.6, r: 1.2, life: 0.75 });
+                }
+                if (cxm >= sLeft && cxm <= sRight && subSurfaceY && subSurfaceY[cxm] >= 0 && Math.abs(mouse.y - subPileY[cxm]) < 14 && subPileY[cxm] < subSurfaceY[cxm] - 0.2) {
+                  subPileY[cxm] = Math.min(subSurfaceY[cxm], subPileY[cxm] + 1.2);
+                  if (Math.random() < 0.35 && puffs.length < 75) puffs.push({ x: cxm, y: subPileY[cxm], vx: mouse.vx * 0.12, vy: -0.7 - Math.random() * 0.6, r: 1.2, life: 0.75 });
+                }
+              }
+            }
+          }
+          mouse.inside = true;
+        });
+        hero.addEventListener('mouseleave', function(){ mouse.inside = false; mouse.vx = 0; mouse.vy = 0; });
+        hero.addEventListener('click', function(e){
+          if (window.innerWidth <= 880) return;
+          if (e.target && e.target.closest('a, button, input')) return;
+          var hr = hero.getBoundingClientRect();
+          var cx = e.clientX - hr.left, cy = e.clientY - hr.top;
+          if (Math.hypot(cx - santa.x, cy - (santa.y - 10)) < 26) {
+            santa.dir = (cx >= santa.x) ? 1 : -1;
+            for (var spk = 0; spk < 5; spk++) {
+              if (sparkles.length < 22) sparkles.push({ x: santa.x + (Math.random() - 0.5) * 14, y: santa.y - 14 - Math.random() * 8, life: 0.95 });
+            }
+            if (Math.random() < 0.45) {
+              santa.state = 'snowball'; santa.timer = 30;
+            } else {
+              santa.state = 'greet'; santa.timer = 0;
+            }
+          } else if (cy > 18 && cy < H - 4) {
+            santa.boredom = 0;
+            if (Math.random() < 0.5) {
+              santa.dir = (cx >= santa.x) ? 1 : -1;
+              snowballs.push({ x: santa.x + santa.dir * 6, y: santa.y - 12, vx: (cx - santa.x) * 0.038, vy: -2.4 });
+            } else if (santa.state === 'idle') {
+              santa.state = 'walk_to'; santa.targetMode = 'roam';
+              santa.targetX = Math.max(sLeft + 15, Math.min(sRight - 15, cx));
+            }
+          }
+        });
         var santa = { x: 40, dir: 1, walk: 0, y: 58, state: 'idle', timer: 0, targetX: 40, targetMode: 'top', tapCount: 0, broomSwing: 0, wipeWait: 0, flyFromX: 40, flyFromY: 58, flyToX: 40, flyToY: 58, flyT: 0, bridgeX1: 0, bridgeX2: 0, bridgeY: 0, energy: 100, boredom: 0, headLook: 0, lastJob: '' };
         var colors = ['rgba(255,255,255,0.96)','rgba(240,246,252,0.95)','rgba(225,235,245,0.92)'];
 
@@ -2626,6 +2679,14 @@ window.창고읽기 = function(url){
               flakes[i] = spawn(false);
               continue;
             }
+            if (mouse.inside) {
+              var mdx = f.x - mouse.x, mdy = f.y - mouse.y;
+              var mdist = Math.hypot(mdx, mdy);
+              if (mdist < 28 && mdist > 0.5) {
+                f.x += (mdx / mdist) * 1.4 + mouse.vx * 0.08;
+                f.y += (mdy / mdist) * 1.1 + mouse.vy * 0.06;
+              }
+            }
 
             ctx.fillStyle = f.c;
             if (f.star) {
@@ -2746,7 +2807,19 @@ window.창고읽기 = function(url){
               santa.boredom++;
               santa.energy = Math.min(100, santa.energy + 0.08);
               santa.headLook = Math.sin(santa.timer * 0.045) * 0.28;
-              if (santa.timer % 110 === 55) santa.dir = (Math.random() < 0.6) ? 1 : -1;
+              if (mouse.inside) {
+                var dm = Math.hypot(mouse.x - santa.x, mouse.y - (santa.y - 10));
+                if (dm < 95) {
+                  santa.dir = (mouse.x >= santa.x) ? 1 : -1;
+                  santa.headLook = Math.max(-0.45, Math.min(0.45, (mouse.y - (santa.y - 12)) * 0.015));
+                  if (dm < 22 && santa.timer > 12) {
+                    santa.state = 'greet'; santa.timer = 0;
+                    santa.x = Math.max(sLeft + 15, Math.min(sRight - 15, santa.x - santa.dir * 8));
+                  }
+                }
+              } else if (santa.timer % 110 === 55) {
+                santa.dir = (Math.random() < 0.6) ? 1 : -1;
+              }
 
               if (santa.energy < 28) {
                 santa.state = 'sit_rest';
@@ -2784,6 +2857,11 @@ window.창고읽기 = function(url){
                     santa.targetX = sLeft + 20 + Math.random() * Math.max(20, (sRight - sLeft - 40));
                   }
                 }
+              }
+            } else if (santa.state === 'greet') {
+              santa.timer++;
+              if (santa.timer >= 54) {
+                santa.state = 'idle'; santa.timer = 0;
               }
             } else if (santa.state === 'sit_rest') {
               santa.timer++;
@@ -3120,7 +3198,7 @@ window.창고읽기 = function(url){
             var isRummage = ((santa.state === 'summon_sleigh' && santa.timer <= 26) || (santa.state === 'sit_rest' && santa.timer <= 24) || (santa.state === 'btn_bridge' && santa.timer <= 18));
             var isBagAction = (santa.state === 'summon_sleigh' || isPullChair || isPutChair || isPullBridge);
             var isCrouch = ((santa.state === 'snowball' && santa.timer < 28) || (santa.state === 'snowman' && santa.timer < 65));
-            var bob = isWalking ? Math.abs(Math.sin(santa.walk)) * 1.1 : (isFlying ? Math.sin(santa.flyT * Math.PI * 4) * 1.2 : 0);
+            var bob = isWalking ? Math.abs(Math.sin(santa.walk)) * 1.1 : (isFlying ? Math.sin(santa.flyT * Math.PI * 4) * 1.2 : (santa.state === 'greet' && santa.timer < 20 ? Math.sin((santa.timer / 20) * Math.PI) * 7 : 0));
             var seatDrop = isSitting ? 2.4 : (isCrouch ? 2.2 : 0);
             ctx.translate(santa.x, santa.y - bob + seatDrop);
             ctx.scale(santa.dir, 1);
@@ -3278,6 +3356,10 @@ window.창고읽기 = function(url){
                 drawLimb(2.2, -4.2, (2.2 + hxB) / 2 + 1, -3.5, hxB, hyB, '#d93848', '#ffffff', 1.9);
                 drawLimb(-2.2, -4.2, -3.2, -2.2, -2.0, -0.5, '#c12737', '#ffffff', 1.8);
               }
+            } else if (santa.state === 'greet') {
+              var wv = Math.sin(santa.timer * 0.45) * 2.4;
+              drawLimb(2.2, -4.2, 4.8, -6.5, 5.8 + wv, -9.8, '#d93848', '#ffffff', 1.9);
+              drawLimb(-2.2, -4.2, -3.2, -2.2, -2.2, -0.4, '#c12737', '#ffffff', 1.8);
             } else if (isSitting) {
               var wipeF = Math.sin(santa.timer * 0.14) * 1.2;
               drawLimb(2.2, -4.2, 4.5, -6.2, 2.2 + wipeF, -8.5, '#d93848', '#ffffff', 1.8);
