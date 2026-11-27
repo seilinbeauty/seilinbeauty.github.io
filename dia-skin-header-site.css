@@ -72,7 +72,12 @@
     color:#000 !important;
   }
   .dia-header.is-scrolled .brand-logo{ color:#000 !important; }
+  /* 별(즐겨찾기)은 스크롤해도 같은 자리 — 움직이지 않게 고정 */
+  .dia-header #pcShortcutBtn{
+    position:fixed !important; top:22.5px !important; right:20px !important;
+    transform:none !important; transition:none !important; z-index:120 !important;
+  }
   .dia-header.is-scrolled #pcShortcutBtn{
-    right:max(50px, calc((100vw - 1350px) / 2 + 50px)) !important;
+    right:20px !important; top:27.5px !important;
   }
 }
