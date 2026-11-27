@@ -2994,12 +2994,12 @@ window.창고읽기 = function(url){
                   santa.state = 'walk_to'; santa.targetMode = 'pack_' + oldItem.type; santa.targetX = oldItem.x;
                 } else {
                   var cands = [];
-                  if (topInView && (maxTop >= 3.4 || totalTop >= 110)) cands.push('top');
-                  if (subInView && (maxSub >= 2.8 || totalSub >= 120) && bestSubX <= walkMaxX) cands.push('road');
-                  if (btnInView && (maxBtn >= 2.4 || totalBtn >= 60)) cands.push('btn');
-                  var mustWork = (maxTop >= 3.8 || maxSub >= 3.2 || maxBtn >= 2.8 || santa.playStreak >= 3);
-                  // 일할 땐 확실히 일하고, 눈 적당할 땐 신나게 놀고, 일하러 가다 가끔 몰래 농땡이!
-                  var wantPlay = !mustWork && (santa.playful > 35 || Math.random() < 0.72);
+                  if (topInView && (maxTop >= 1.6 || totalTop >= 45)) cands.push('top');
+                  if (subInView && (maxSub >= 1.4 || totalSub >= 50) && bestSubX <= walkMaxX) cands.push('road');
+                  if (btnInView && (maxBtn >= 1.4 || totalBtn >= 30)) cands.push('btn');
+                  var mustWork = (maxTop >= 3.8 || maxSub >= 3.2 || maxBtn >= 2.8 || santa.playStreak >= 2);
+                  // 일과 휴식·놀이 비율 7:3 (일 70% : 놀이·휴식 30%)
+                  var wantPlay = !mustWork && (Math.random() < 0.30);
                   if (cands.length > 0 && !wantPlay) {
                     var filtered = cands.filter(function(c){ return c !== santa.lastJob; });
                     var chosen = (filtered.length > 0) ? filtered[Math.floor(Math.random() * filtered.length)] : cands[Math.floor(Math.random() * cands.length)];
