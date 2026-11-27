@@ -6555,40 +6555,20 @@ window.창고읽기 = function(url){
                     picked = null; lgIn.value = ''; lgPick.innerHTML = '';
                     lgMsg.textContent = '회원목록에서 본인 이름을 검색해 누르고 암호 4자리를 넣으면 열립니다.';
                     lgMsg.style.color = '#8a7b81';
-                    lgBox.style.left = ''; lgBox.style.right = ''; lgBox.style.top = ''; lgBox.style.transform = '';
-                    if (window.innerWidth >= 881 && lgBox.parentElement) {
-                      /* 카드 안에서 제목·버튼과 겹치지 않는 빈 띠를 찾아 그 가운데에 놓는다 (카드 크기는 그대로) */
+                    lgBox.style.removeProperty('top');
+                    lgBox.style.left = ''; lgBox.style.right = ''; lgBox.style.transform = '';
+                    if (window.innerWidth >= 881) {
+                      /* 제목(다이아 커뮤니티)·버튼·시계와 같은 줄 높이에 딱 맞춘다 */
                       var heroEl = lgBox.parentElement;
-                      var hr = heroEl.getBoundingClientRect();
-                      var bh = lgBox.offsetHeight || 62;
-                      var bands = [];
-                      for (var ci = 0; ci < heroEl.children.length; ci++) {
-                        var ch = heroEl.children[ci];
-                        if (ch === lgBox || ch.hidden) continue;
-                        if (ch.classList && (ch.classList.contains('pc-hero-snow') || ch.classList.contains('pc-hero-snow-bg'))) continue;
-                        var cs = window.getComputedStyle(ch);
-                        if (cs.display === 'none' || cs.visibility === 'hidden') continue;
-                        var cb = ch.getBoundingClientRect();
-                        if (cb.height <= 0 || cb.width <= 0) continue;
-                        bands.push([cb.top - hr.top, cb.bottom - hr.top]);
-                      }
-                      bands.sort(function(a, b){ return a[0] - b[0]; });
-                      var gaps = [];
-                      var cursor = 8;
-                      for (var bi = 0; bi < bands.length; bi++) {
-                        if (bands[bi][0] - cursor > 0) gaps.push([cursor, bands[bi][0]]);
-                        if (bands[bi][1] > cursor) cursor = bands[bi][1];
-                      }
-                      if (hr.height - 8 - cursor > 0) gaps.push([cursor, hr.height - 8]);
-                      var best = null, bestH = -1;
-                      for (var gi = 0; gi < gaps.length; gi++) {
-                        var gh = gaps[gi][1] - gaps[gi][0];
-                        if (gh > bestH) { bestH = gh; best = gaps[gi]; }
-                      }
-                      if (best && bestH >= bh) {
-                        var topVal = best[0] + (bestH - bh) / 2;
-                        lgBox.style.top = Math.round(topVal) + 'px';
-                        lgBox.style.transform = 'translateX(-50%)';
+                      var tEl = document.getElementById('plxTitleText');
+                      if (heroEl && tEl) {
+                        var hr = heroEl.getBoundingClientRect();
+                        var tr = tEl.getBoundingClientRect();
+                        var bh = lgBox.offsetHeight || 62;
+                        if (tr.height > 0) {
+                          var alignTop = (tr.top - hr.top) + (tr.height - bh) / 2;
+                          lgBox.style.setProperty('top', Math.round(alignTop) + 'px', 'important');
+                        }
                       }
                     }
                     lgIn.focus();
