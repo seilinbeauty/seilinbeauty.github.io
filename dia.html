@@ -9809,6 +9809,56 @@ window.창고읽기 = function(url){
     notifySelect();
   });
 
+  /* 빈 공간 드래그 사각형으로 여러 요소 한꺼번에 선택 (미리캔버스/아임웹 방식) */
+  var marquee = document.createElement('div');
+  marquee.style.cssText = 'position:fixed;border:1.5px solid #2563eb;background:rgba(37,99,235,0.12);pointer-events:none;z-index:2600;display:none;';
+  document.body.appendChild(marquee);
+  document.addEventListener('pointerdown', function(e){
+    if (!editing || e.button !== 0) return;
+    var hitItem = ITEMS.some(function(it){
+      var el = document.querySelector(it[2]);
+      return el && el.contains(e.target);
+    });
+    if (hitItem) return;
+    var sx = e.clientX, sy = e.clientY, dragged = false;
+    marquee.style.left = sx + 'px'; marquee.style.top = sy + 'px';
+    marquee.style.width = '0px'; marquee.style.height = '0px';
+    marquee.style.display = 'block';
+    function onM(ev){
+      var x1 = Math.min(sx, ev.clientX), y1 = Math.min(sy, ev.clientY);
+      var w = Math.abs(ev.clientX - sx), h = Math.abs(ev.clientY - sy);
+      if (w + h > 4) dragged = true;
+      marquee.style.left = x1 + 'px'; marquee.style.top = y1 + 'px';
+      marquee.style.width = w + 'px'; marquee.style.height = h + 'px';
+    }
+    function onU(ev){
+      document.removeEventListener('pointermove', onM);
+      document.removeEventListener('pointerup', onU);
+      marquee.style.display = 'none';
+      if (!dragged) {
+        if (!ev.shiftKey) { selectedKeys = []; refreshOutlines(); }
+        return;
+      }
+      var r = {
+        left: Math.min(sx, ev.clientX), top: Math.min(sy, ev.clientY),
+        right: Math.max(sx, ev.clientX), bottom: Math.max(sy, ev.clientY)
+      };
+      var picked = ev.shiftKey ? selectedKeys.slice() : [];
+      ITEMS.forEach(function(it){
+        var el = document.querySelector(it[2]); if (!el) return;
+        var br = el.getBoundingClientRect();
+        if (!br.width || !br.height) return;
+        var overlap = !(br.right < r.left || br.left > r.right || br.bottom < r.top || br.top > r.bottom);
+        if (overlap && picked.indexOf(it[0]) === -1) picked.push(it[0]);
+      });
+      selectedKeys = picked;
+      if (selectedKeys.length) notifySelect();
+      else refreshOutlines();
+    }
+    document.addEventListener('pointermove', onM);
+    document.addEventListener('pointerup', onU);
+  });
+
   var gridOn = false;
   var gridEl = document.createElement('div');
   gridEl.id = 'diaEditGrid';
