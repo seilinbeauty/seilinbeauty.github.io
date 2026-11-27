@@ -10397,6 +10397,28 @@ window.창고읽기 = function(url){
         else if (window.DIA_MEMBERS && !window.DIA_MEMBERS.some(function(m){ return m.n === curMem; })) need = true;
       }
     } catch(e){}
+    if (need) {
+      try {
+        var su = JSON.parse(localStorage.getItem('dia_sns_user') || 'null');
+        if (su && su.key && !window.__diaSnsCheckedRemote) {
+          window.__diaSnsCheckedRemote = true;
+          var sk2 = String(su.key).replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 60);
+          fetch('https://firestore.googleapis.com/v1/projects/seilindia/databases/(default)/documents/course_views/sns_members_v1?key=AIzaSyDQ1PusFvVlbgWyh0pU-2MoW7PzJZHNDKY', { cache: 'no-store' })
+            .then(function(r){ return r.ok ? r.json() : null; })
+            .then(function(doc){
+              var f = doc && doc.fields && doc.fields.views && doc.fields.views.mapValue && doc.fields.views.mapValue.fields;
+              var it = f && f[sk2] && f[sk2].mapValue && f[sk2].mapValue.fields;
+              if (it && it.linked && it.linked.booleanValue && it.ig && it.ig.stringValue) {
+                var igVal = it.ig.stringValue;
+                localStorage.setItem('dia_sns_linked_ig', igVal);
+                localStorage.removeItem('dia_sns_need_ig');
+                document.body.classList.remove('sns-need-ig');
+                location.replace(location.pathname + '?ig=' + Date.now());
+              }
+            }).catch(function(){});
+        }
+      } catch(_e){}
+    }
     if (need) document.body.classList.add('sns-need-ig');
     else { document.body.classList.remove('sns-need-ig'); return; }
 
