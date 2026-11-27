@@ -1713,6 +1713,46 @@
         85% { opacity: var(--op, .65); }
         100% { transform: translate3d(var(--dx, 14px), 175px, 0) rotate(180deg); opacity: 0; }
       }
+
+@media (min-width: 881px) {
+  body.sns-need-ig .dia-hero > *:not(#snsIgBanner) { display: none !important; }
+  body.sns-need-ig .dia-hero {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+    padding: 24px 28px !important;
+  }
+  #snsIgBanner {
+    display: none;
+    width: 100%;
+    max-width: 560px;
+    position: relative;
+  }
+  body.sns-need-ig #snsIgBanner { display: block; }
+  #snsIgBanner .ig-b-title { font-size: 16px; font-weight: 800; color: #2b1d22; margin: 0 0 6px; }
+  #snsIgBanner .ig-b-sub { font-size: 12.5px; color: #7a5c65; margin: 0 0 14px; }
+  #snsIgBanner .ig-b-row { display: flex; gap: 8px; align-items: center; }
+  #snsIgBanner input {
+    flex: 1; height: 42px; padding: 0 14px; border: 1px solid #e6cfd6; border-radius: 10px;
+    background: #fff; font-size: 13.5px; color: #222; outline: none;
+  }
+  #snsIgBanner input:focus { border-color: #c9707f; }
+  #snsIgBanner button.ig-b-btn {
+    height: 42px; padding: 0 20px; border: 0; border-radius: 10px;
+    background: #1b1b1b; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  }
+  #snsIgBanner .ig-b-sug {
+    display: none; position: absolute; left: 0; right: 130px; top: calc(100% + 6px);
+    background: #fff; border: 1px solid #e8d5dc; border-radius: 10px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.08); max-height: 220px; overflow-y: auto; z-index: 90;
+  }
+  #snsIgBanner .ig-b-sug button {
+    width: 100%; text-align: left; padding: 9px 12px; border: 0; border-bottom: 1px solid #f7eff2;
+    background: #fff; font-size: 12.5px; cursor: pointer; display: flex; justify-content: space-between;
+  }
+  #snsIgBanner .ig-b-sug button:hover { background: #fdf4f7; }
+}
 </style>
   <style>
     .nav-links a.nav-dia { display: inline-flex; align-items: center; line-height: 1; color: var(--pink-deep);
@@ -2345,6 +2385,15 @@ window.창고읽기 = function(url){
 
   </header>
   <section class="dia-hero">
+      <div id="snsIgBanner" aria-label="인스타그램 연동">
+        <p class="ig-b-title">인스타그램 아이디 연동</p>
+        <p class="ig-b-sub">간편 로그인으로 입장하셨습니다. 품앗이·현황 확인을 위해 인스타그램 아이디를 연결해 주세요.</p>
+        <div class="ig-b-row">
+          <input type="text" id="snsIgInput" placeholder="@인스타그램 아이디 또는 샵 이름(초성) 검색" autocomplete="off">
+          <button type="button" class="ig-b-btn" id="snsIgSave">인스타그램 연동</button>
+        </div>
+        <div class="ig-b-sug" id="snsIgSug"></div>
+      </div>
     <div class="dia-hero-in">
       <canvas class="pc-hero-snow-bg" id="pcSnowBgCanvas" aria-hidden="true"></canvas>
       <canvas class="pc-hero-snow" id="pcSnowCanvas" aria-hidden="true"></canvas>
@@ -10287,6 +10336,7 @@ window.창고읽기 = function(url){
             localStorage.removeItem('dia_login_member');
             localStorage.removeItem('dia_login_member_bak');
             localStorage.removeItem('dia_no_track');
+            localStorage.removeItem('dia_sns_need_ig');
           } catch(err){}
           location.reload();
         });
@@ -10301,6 +10351,80 @@ window.창고읽기 = function(url){
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncHdrAuth);
   else syncHdrAuth();
   setTimeout(syncHdrAuth, 500);
+  function initSnsIgBanner(){
+    var need = false;
+    try {
+      need = !!(localStorage.getItem('dia_login_member') && localStorage.getItem('dia_sns_need_ig') === '1');
+    } catch(e){}
+    if (need) document.body.classList.add('sns-need-ig');
+    else { document.body.classList.remove('sns-need-ig'); return; }
+
+    var inp = document.getElementById('snsIgInput');
+    var btn = document.getElementById('snsIgSave');
+    var sug = document.getElementById('snsIgSug');
+    if (!inp || !btn || !sug) return;
+
+    function norm(v){ return String(v || '').trim().replace(/^@+/, '').toLowerCase(); }
+    inp.addEventListener('input', function(){
+      var raw = inp.value.trim();
+      if (!raw || typeof 명부 === 'undefined'){ sug.style.display = 'none'; return; }
+      var q = norm(raw);
+      var hits = [];
+      for (var i = 0; i < 명부.length; i++){
+        var m = 명부[i];
+        var t = (m.n || '') + ' ' + (m.i || '');
+        var matched = t.toLowerCase().indexOf(q) >= 0;
+        if (!matched && window.DIA_SEARCH && DIA_SEARCH.match){
+          matched = DIA_SEARCH.match(m.n || '', raw) || DIA_SEARCH.match(m.i || '', raw);
+        }
+        if (matched) hits.push(m);
+        if (hits.length >= 15) break;
+      }
+      if (!hits.length){ sug.style.display = 'none'; return; }
+      sug.innerHTML = '';
+      hits.forEach(function(m){
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.innerHTML = '<span></span><span style="color:#999;"></span>';
+        b.children[0].textContent = m.n;
+        b.children[1].textContent = m.i ? ('@' + m.i) : '';
+        b.addEventListener('click', function(){
+          inp.value = m.i || m.n;
+          inp.dataset.nick = m.n;
+          sug.style.display = 'none';
+        });
+        sug.appendChild(b);
+      });
+      sug.style.display = 'block';
+    });
+
+    btn.addEventListener('click', function(){
+      var v = inp.value.trim().replace(/^@+/, '');
+      if (!v){ inp.focus(); return; }
+      var nick = inp.dataset.nick || '';
+      if (!nick && typeof 명부 !== 'undefined'){
+        var q = norm(v);
+        for (var i = 0; i < 명부.length; i++){
+          if (norm(명부[i].i) === q || norm(명부[i].n) === q){ nick = 명부[i].n; break; }
+        }
+      }
+      if (!nick) nick = '@' + v;
+      try {
+        var u = JSON.parse(localStorage.getItem('dia_sns_user') || 'null');
+        if (u && u.key){
+          var mp = JSON.parse(localStorage.getItem('dia_sns_ig_map') || '{}') || {};
+          mp[String(u.key).toLowerCase()] = nick;
+          localStorage.setItem('dia_sns_ig_map', JSON.stringify(mp));
+        }
+        localStorage.setItem('dia_login_member', nick);
+        localStorage.setItem('dia_login_member_bak', nick);
+        localStorage.removeItem('dia_sns_need_ig');
+      } catch(e){}
+      location.reload();
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSnsIgBanner);
+  else initSnsIgBanner();
 })();
 </script>
 <script src="dia-staff.js?v=5" defer></script>

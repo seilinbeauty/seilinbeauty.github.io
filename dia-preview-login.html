@@ -216,6 +216,7 @@ document.addEventListener('DOMContentLoaded', function(){
     try {
       localStorage.setItem('dia_login_member', nick);
       localStorage.setItem('dia_login_member_bak', nick);
+      localStorage.removeItem('dia_sns_need_ig');
       if (nick === 'STAFF' || nick === '세이린뷰티 본점') {
         localStorage.setItem('dia_no_track', '1');
       }

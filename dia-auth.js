@@ -49,13 +49,15 @@
     } catch(e){}
 
     var m = getMap();
-    var nick = (uidKey && m[String(uidKey).toLowerCase()]) || displayName || (email ? email.split('@')[0] : '') || (provider + '회원');
+    var mapped = uidKey ? m[String(uidKey).toLowerCase()] : '';
+    var nick = mapped || displayName || (email ? email.split('@')[0] : '') || (provider + '회원');
     nick = String(nick).trim();
-    if (uidKey) saveMap(uidKey, nick);
 
     try {
       localStorage.setItem('dia_login_member', nick);
       localStorage.setItem('dia_login_member_bak', nick);
+      if (!mapped) localStorage.setItem('dia_sns_need_ig', '1');
+      else localStorage.removeItem('dia_sns_need_ig');
     } catch(e){}
     location.href = 'dia.html';
   }
