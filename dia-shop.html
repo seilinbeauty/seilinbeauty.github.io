@@ -5,192 +5,344 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>샵매물 — 다이아 커뮤니티</title>
 <meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css?family=Nanum+Gothic:400,700,800" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
+<link rel="stylesheet" href="dia-skin-header.css?v=5">
 <style>
-  :root{ --pink:#d55576; --pink-deep:#c6506f; --pink-soft:#fdf3f7; --line:#f0e2e7; --txt:#333; --mute:#9a9a9a; }
+  :root{
+    --cream:#fbf8f6; --paper:#fff; --blush:#f5e5e2; --blush-deep:#eccfc9;
+    --ink:#2f2a2b; --ink-soft:#6f6668; --ink-mute:#a79b9e; --line:#eee6e3; --accent:#c9707f;
+  }
   *{box-sizing:border-box;}
-  body{margin:0;background:#fafafa;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--txt);}
-  header{background:#fff;border-bottom:1px solid var(--line);}
-  header .inner{max-width:1080px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;}
-  header .brand{font-size:16px;font-weight:900;color:var(--pink);letter-spacing:-.02em;text-decoration:none;}
-  header .back{font-size:12.5px;font-weight:700;color:#8a7b81;text-decoration:none;}
-  main{max-width:1080px;margin:0 auto;padding:28px 20px 70px;}
-  .hero-tag{font-size:11px;font-weight:900;letter-spacing:.14em;color:var(--pink);}
-  h1{margin:6px 0 4px;font-size:24px;font-weight:900;letter-spacing:-.03em;}
-  .sub{margin:0 0 22px;font-size:13px;color:var(--mute);}
+  body{margin:0;background:var(--cream);color:var(--ink);
+    font-family:'Roboto',"맑은 고딕",'Nanum Gothic',sans-serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;}
 
-  #dev-soon{border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 10px 30px rgba(198,69,106,.07);
-    padding:64px 24px;text-align:center;}
-  #dev-soon .ico{font-size:40px;line-height:1;margin-bottom:16px;}
-  #dev-soon .t{font-size:20px;font-weight:900;letter-spacing:-.03em;margin-bottom:10px;}
-  #dev-soon .bar{width:60px;height:3px;border-radius:99px;background:linear-gradient(90deg,#ef9ab4,#d55576);margin:0 auto 20px;}
-  #dev-soon .d{font-size:13.5px;color:var(--mute);line-height:1.7;margin-bottom:22px;}
-  .soon-foot{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
-  .soon-foot a,.soon-foot button{display:inline-block;padding:10px 18px;border-radius:10px;border:1px solid var(--line);
-    background:#fff;color:#8a7b81;font-size:12.5px;font-weight:800;text-decoration:none;cursor:pointer;font-family:inherit;}
-  .soon-foot .on{border:0;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;}
+  .headline{padding:44px 0 26px;border-bottom:1px solid var(--line);background:var(--cream);}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px;}
+  .eyebrow{font-size:9.5px;letter-spacing:.34em;text-transform:uppercase;color:var(--ink-mute);}
+  .headline h1{margin:10px 0 8px;font-size:26px;font-weight:400;letter-spacing:-.02em;}
+  .headline p{margin:0;font-size:12.5px;line-height:1.9;color:var(--ink-soft);}
+  .headline .count{font-size:11px;color:var(--ink-mute);letter-spacing:.04em;margin-top:6px;}
 
-  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px;}
-  .toolbar input[type=text]{flex:1;min-width:180px;padding:10px 13px;border:1px solid var(--line);border-radius:9px;font-size:13px;outline:none;font-family:inherit;}
-  .toolbar select{padding:10px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px;outline:none;font-family:inherit;background:#fff;color:#555;}
-  .toolbar button{padding:10px 16px;border:0;border-radius:9px;cursor:pointer;background:linear-gradient(90deg,#ef9ab4,#d55576);color:#fff;font-size:13px;font-weight:800;font-family:inherit;}
-  .seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;}
-  .seg button{border:0;background:#fff;color:#8a7b81;font-size:12.5px;font-weight:800;padding:9px 14px;cursor:pointer;font-family:inherit;}
-  .seg button[data-on="1"]{background:var(--pink-soft);color:var(--pink-deep);}
-  .cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
-  .cats button{border:1px solid var(--line);background:#fff;color:#7a6b71;font-size:12.5px;font-weight:700;padding:7px 13px;border-radius:99px;cursor:pointer;font-family:inherit;}
-  .cats button[data-on="1"]{border-color:#f0b9c9;background:var(--pink-soft);color:var(--pink-deep);}
-  .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}
-  .item{border:1px solid var(--line);border-radius:14px;background:#fff;padding:16px 17px;box-shadow:0 2px 10px rgba(198,69,106,.05);}
-  .item .top{display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap;}
-  .badge{font-size:11px;font-weight:900;padding:3px 8px;border-radius:99px;}
-  .badge.want{background:#eef4ff;color:#2563eb;}
-  .badge.give{background:#fdeef2;color:var(--pink-deep);}
-  .badge.area{background:#f5f5f5;color:#777;}
-  .badge.job{background:#f3fbf5;color:#15803d;}
-  .badge.kind{background:#f4f0ff;color:#6d28d9;}
-  .item h3{margin:0 0 6px;font-size:14.5px;font-weight:800;line-height:1.45;letter-spacing:-.02em;}
-  .item .meta{font-size:12px;color:var(--mute);line-height:1.6;}
-  .empty{border:1px dashed #f3c7d6;background:var(--pink-soft);border-radius:14px;padding:34px 20px;text-align:center;font-size:13px;color:#a3566d;line-height:1.7;}
+  /* 필터 바 */
+  .filters{background:var(--paper);border:1px solid var(--line);border-radius:3px;margin:22px 0 18px;}
+  .frow{display:flex;align-items:flex-start;gap:14px;padding:13px 16px;border-bottom:1px solid var(--line);}
+  .frow:last-child{border-bottom:0;}
+  .frow .lab{flex:0 0 62px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mute);padding-top:6px;}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{border:1px solid var(--line);background:#fff;color:var(--ink-soft);font-size:11.5px;
+    padding:6px 12px;border-radius:999px;cursor:pointer;letter-spacing:.01em;}
+  .chip:hover{border-color:var(--blush-deep);}
+  .chip[data-on="1"]{background:var(--blush);border-color:#dcb9b4;color:#5c3f44;font-weight:700;}
+  .fsearch{flex:1;min-width:160px;height:34px;padding:0 12px;border:1px solid var(--line);border-radius:2px;
+    font-size:12.5px;outline:none;font-family:inherit;background:#fff;}
+  .fsearch:focus{border-color:var(--blush-deep);}
+  .sort{margin-left:auto;display:flex;gap:4px;}
+  .sort button{border:0;background:none;font-size:11px;color:var(--ink-mute);cursor:pointer;padding:6px 4px;letter-spacing:.02em;}
+  .sort button[data-on="1"]{color:var(--accent);font-weight:700;}
+
+  .bar2{display:flex;align-items:center;gap:10px;margin:0 0 14px;}
+  .bar2 .n{font-size:11.5px;color:var(--ink-mute);}
+  .bar2 .add{margin-left:auto;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 18px;
+    background:var(--ink);color:#fff;border:0;border-radius:2px;font-size:10.5px;letter-spacing:.18em;
+    text-transform:uppercase;cursor:pointer;}
+  .bar2 .add:hover{background:#4a4244;}
+
+  /* 목록 */
+  .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px;padding-bottom:70px;}
+  .item{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:18px 18px 15px;
+    display:flex;flex-direction:column;gap:9px;transition:border-color .15s;}
+  .item:hover{border-color:var(--blush-deep);}
+  .item .top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .tag{font-size:10px;letter-spacing:.06em;padding:3px 8px;border-radius:2px;font-weight:700;}
+  .tag.give{background:var(--blush);color:#9c4f5f;}
+  .tag.want{background:#eef2f7;color:#4a6785;}
+  .tag.kind{background:#f4f2ee;color:#7a6f65;}
+  .tag.job{background:#f7f4f9;color:#6d5b7a;}
+  .item h3{margin:2px 0 0;font-size:14.5px;font-weight:700;line-height:1.5;letter-spacing:-.01em;}
+  .item .addr{font-size:11.5px;color:var(--ink-mute);}
+  .money{display:flex;gap:14px;padding:11px 0 3px;border-top:1px solid #f6f1ef;margin-top:2px;}
+  .money div{font-size:11px;color:var(--ink-mute);}
+  .money b{display:block;font-size:13.5px;color:var(--ink);font-weight:700;letter-spacing:-.01em;margin-top:3px;}
+  .item .foot{display:flex;align-items:center;gap:8px;font-size:10.5px;color:#b3a7aa;letter-spacing:.02em;margin-top:auto;}
+  .item .foot a{color:var(--accent);font-weight:700;}
+  .item .spec{font-size:11px;color:var(--ink-soft);}
+
+  .empty{border:1px dashed var(--blush-deep);background:#fff;border-radius:3px;padding:44px 20px;text-align:center;
+    font-size:12.5px;color:var(--ink-soft);line-height:1.9;margin-bottom:70px;}
+
+  /* 게이트 */
+  #dev-soon{border:1px solid var(--line);border-radius:3px;background:#fff;padding:64px 24px;text-align:center;margin-bottom:70px;}
+  #dev-soon .ico{font-size:34px;margin-bottom:14px;}
+  #dev-soon .t{font-size:19px;font-weight:700;margin-bottom:10px;letter-spacing:-.02em;}
+  #dev-soon .d{font-size:12.5px;color:var(--ink-soft);line-height:1.9;margin-bottom:20px;}
+  #dev-soon a{display:inline-block;padding:10px 18px;border:1px solid var(--blush-deep);border-radius:2px;
+    font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;margin:0 3px;}
+
+  /* 로그인 요청 모달 */
+  .gate{position:fixed;inset:0;background:rgba(47,42,43,.42);display:none;align-items:center;justify-content:center;padding:20px;z-index:300;}
+  .gate[data-open="1"]{display:flex;}
+  .gate .box{width:100%;max-width:330px;background:#fff;border-radius:3px;padding:30px 24px 24px;text-align:center;}
+  .gate .box .ic{font-size:24px;margin-bottom:10px;}
+  .gate .box h4{margin:0 0 8px;font-size:14.5px;font-weight:700;letter-spacing:-.01em;}
+  .gate .box p{margin:0 0 20px;font-size:11.5px;line-height:1.9;color:var(--ink-soft);}
+  .gate .box .btns{display:grid;gap:7px;}
+  .gate .box a,.gate .box button{height:40px;display:flex;align-items:center;justify-content:center;
+    font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;border-radius:2px;cursor:pointer;}
+  .gate .box a.primary{background:var(--ink);color:#fff;border:0;}
+  .gate .box a.ghost{background:#fff;color:var(--ink);border:1px solid var(--blush-deep);}
+  .gate .box button.close{background:none;border:0;color:var(--ink-mute);font-size:10px;letter-spacing:.16em;height:30px;}
+
+  @media (max-width:760px){
+    .headline{padding:30px 0 20px;}
+    .headline h1{font-size:21px;}
+    .frow{flex-direction:column;gap:8px;}
+    .frow .lab{flex:none;padding-top:0;}
+    .list{grid-template-columns:1fr;}
+  }
 </style>
 </head>
 <body data-dev="1">
-<header>
-  <div class="inner">
-    <a class="brand" href="dia.html">다이아 커뮤니티</a>
-    <a class="back" href="dia.html">← 다이아로 돌아가기</a>
+
+<header class="dia-header">
+  <div class="pv-left">
+    <a href="dia.html" class="brand"><span class="brand-logo">DIA COMMUNITY</span></a>
+  </div>
+  <div class="pv-util">
+    <a href="dia-preview-login.html?staff=1">login</a>
+    <a href="dia-preview-join.html?staff=1&amp;mode=join">join</a>
+    <a href="dia-link.html">my page</a>
   </div>
 </header>
 
-<main>
-  <div class="hero-tag">SHOP MARKET</div>
-  <h1>🏪 샵매물</h1>
-  <p class="sub">샵인샵 · 샵매매 — 전국 지역별 부동산 매물만 모읍니다.</p>
+<div class="headline">
+  <div class="wrap">
+    <div class="eyebrow">Shop Market</div>
+    <h1>샵매물</h1>
+    <p>샵인샵 · 샵매매 · 임대 자리 — 보증금과 월세로 골라 보세요.</p>
+    <div class="count" id="shop-count"></div>
+  </div>
+</div>
+
+<main class="wrap">
 
   <section id="dev-soon" style="display:none;">
     <div class="ico">🛠️</div>
     <div class="t">더 좋은 서비스를 위해 개발 중입니다</div>
-    <div class="bar"></div>
-    <div class="d">곧 새로운 모습으로 찾아뵙겠습니다.<br>전국 샵매물 정보를 한곳에서 보실 수 있도록 준비하고 있습니다.</div>
-    <div class="soon-foot">
-      <a class="on" href="dia.html">다이아 커뮤니티</a>
-      <a href="dia-course.html">뷰티수강</a>
-    </div>
+    <div class="d">전국 샵매물 정보를 한곳에서 보실 수 있도록 준비하고 있습니다.</div>
+    <a href="dia.html">다이아 커뮤니티</a>
+    <a href="dia-course.html">뷰티수강</a>
   </section>
 
   <section id="dev-real" style="display:none;">
-    <div class="toolbar">
-      <div class="seg" id="shop-kind">
-        <button type="button" data-v="" data-on="1">전체</button>
-        <button type="button" data-v="샵인샵">샵인샵</button>
-        <button type="button" data-v="샵매매">샵매매</button>
+
+    <div class="filters">
+      <div class="frow">
+        <div class="lab">지역</div>
+        <div class="chips" id="f-area"></div>
       </div>
-      <div class="seg" id="shop-type">
-        <button type="button" data-v="" data-on="1">구해요·내놔요 전체</button>
-        <button type="button" data-v="want">구해요</button>
-        <button type="button" data-v="give">내놔요</button>
+      <div class="frow">
+        <div class="lab">종류</div>
+        <div class="chips" id="f-kind"></div>
+        <div class="chips" id="f-type" style="margin-left:10px;"></div>
       </div>
-      <input id="shop-q" type="text" placeholder="제목·지역·업종 검색">
-      <select id="shop-job">
-        <option value="">업종 전체</option>
-        <option>속눈썹펌</option><option>속눈썹연장</option><option>네일</option>
-        <option>반영구</option><option>왁싱</option><option>피부</option><option>토탈뷰티</option><option>두피·탈모</option>
-      </select>
-      <button type="button" id="shop-add">+ 글 등록</button>
+      <div class="frow">
+        <div class="lab">업종</div>
+        <div class="chips" id="f-job"></div>
+      </div>
+      <div class="frow">
+        <div class="lab">보증금</div>
+        <div class="chips" id="f-dep"></div>
+      </div>
+      <div class="frow">
+        <div class="lab">월세</div>
+        <div class="chips" id="f-rent"></div>
+      </div>
+      <div class="frow">
+        <div class="lab">권리금</div>
+        <div class="chips" id="f-key"></div>
+      </div>
+      <div class="frow">
+        <div class="lab">검색</div>
+        <input class="fsearch" id="f-q" type="text" placeholder="지역·업종·매물 이름으로 찾기">
+        <div class="sort" id="f-sort">
+          <button type="button" data-v="new" data-on="1">최신순</button>
+          <button type="button" data-v="dep">보증금 낮은순</button>
+          <button type="button" data-v="rent">월세 낮은순</button>
+        </div>
+      </div>
     </div>
-    <div class="cats" id="shop-areas"></div>
+
+    <div class="bar2">
+      <div class="n" id="shop-n"></div>
+      <button type="button" class="add" id="shop-add">+ 매물 등록</button>
+    </div>
+
     <div class="list" id="shop-items"></div>
-    <div class="empty" id="shop-empty">아직 등록된 샵매물 글이 없습니다.<br><b>+ 글 등록</b>으로 하나씩 쌓으면 이곳에 지역별로 정리됩니다.</div>
+    <div class="empty" id="shop-empty" style="display:none;">
+      조건에 맞는 매물이 없습니다.<br>지역이나 가격 조건을 넓혀 보세요.
+    </div>
   </section>
 </main>
+
+<div class="gate" id="gate">
+  <div class="box">
+    <div class="ic">🔐</div>
+    <h4>로그인이 필요합니다</h4>
+    <p>매물을 등록하려면 인스타그램 아이디로 로그인해 주세요.<br>아직 아이디가 없으면 회원가입부터 하시면 됩니다.</p>
+    <div class="btns">
+      <a class="primary" href="dia-preview-login.html?staff=1">로그인</a>
+      <a class="ghost" href="dia-preview-join.html?staff=1&amp;mode=join">회원가입</a>
+      <button type="button" class="close" data-close="1">닫기</button>
+    </div>
+  </div>
+</div>
 
 <script src="dia-staff.js?v=3" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   var AREAS = ['전체','서울','경기·인천','부산·울산','대구·경북','대전·충청','광주·전라','강원','제주','온라인'];
-  var LS = 'dia_shop_items_v1';
-  var state = { area: '전체', type: '', kind: '', q: '', job: '' };
+  var KINDS = [['','전체'],['샵매매','샵매매'],['샵인샵','샵인샵'],['임대','자리 임대']];
+  var TYPES = [['','전체'],['give','내놔요'],['want','구해요']];
+  var JOBS  = ['전체','속눈썹펌','속눈썹연장','네일','반영구','왁싱','피부','토탈뷰티','두피·탈모'];
+  var DEP   = [['','전체'],['0-500','500만 이하'],['500-1000','500~1,000만'],['1000-3000','1,000~3,000만'],['3000-','3,000만 이상']];
+  var RENT  = [['','전체'],['0-30','30만 이하'],['30-50','30~50만'],['50-100','50~100만'],['100-','100만 이상']];
+  var KEY   = [['','전체'],['0','없음'],['0-1000','1,000만 이하'],['1000-3000','1,000~3,000만'],['3000-','3,000만 이상']];
 
-  function load(){ try { var a = JSON.parse(localStorage.getItem(LS) || '[]'); return Array.isArray(a) ? a : []; } catch(e){ return []; } }
+  var LS = 'dia_shop_items_v1';
+  var state = { area:'전체', kind:'', type:'', job:'전체', dep:'', rent:'', key:'', q:'', sort:'new' };
+
+  function load(){ try { var a = JSON.parse(localStorage.getItem(LS) || '[]'); return Array.isArray(a)?a:[]; } catch(e){ return []; } }
   function save(a){ try { localStorage.setItem(LS, JSON.stringify(a)); } catch(e){} }
   function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function man(v){ v = Number(v)||0; return v >= 10000 ? (v/10000).toFixed(v%10000?1:0).replace(/\.0$/,'') + '억' : v.toLocaleString('ko-KR') + '만'; }
+  function inRange(v, r){
+    if (!r) return true;
+    var p = r.split('-'), lo = Number(p[0])||0, hi = p[1] === '' ? Infinity : Number(p[1]);
+    return v >= lo && v < hi;
+  }
 
-  function buildAreas(){
-    var box = document.getElementById('shop-areas');
-    box.innerHTML = AREAS.map(function(a){
-      return '<button type="button" data-a="'+a+'" data-on="'+(a===state.area?1:0)+'">'+a+'</button>';
+  function chips(box, list, attr, cur, cb){
+    box.innerHTML = list.map(function(o){
+      var v = Array.isArray(o)?o[0]:o, t = Array.isArray(o)?o[1]:o;
+      return '<button type="button" class="chip" data-v="'+esc(v)+'" data-on="'+(String(v)===String(cur)?1:0)+'">'+esc(t)+'</button>';
     }).join('');
-    box.querySelectorAll('button').forEach(function(b){
-      b.addEventListener('click', function(){ state.area = b.getAttribute('data-a'); buildAreas(); render(); });
+    box.querySelectorAll('.chip').forEach(function(b){
+      b.addEventListener('click', function(){ cb(b.getAttribute('data-v')); });
     });
   }
-  document.getElementById('shop-kind').querySelectorAll('button').forEach(function(b){
-    b.addEventListener('click', function(){
-      state.kind = b.getAttribute('data-v');
-      document.getElementById('shop-kind').querySelectorAll('button').forEach(function(x){ x.setAttribute('data-on', x===b?1:0); });
-      render();
-    });
-  });
-  document.getElementById('shop-type').querySelectorAll('button').forEach(function(b){
-    b.addEventListener('click', function(){
-      state.type = b.getAttribute('data-v');
-      document.getElementById('shop-type').querySelectorAll('button').forEach(function(x){ x.setAttribute('data-on', x===b?1:0); });
-      render();
-    });
-  });
-  document.getElementById('shop-q').addEventListener('input', function(e){ state.q = e.target.value.trim(); render(); });
-  document.getElementById('shop-job').addEventListener('change', function(e){ state.job = e.target.value; render(); });
 
+  function build(){
+    chips(document.getElementById('f-area'), AREAS, 'area', state.area, function(v){ state.area=v; build(); render(); });
+    chips(document.getElementById('f-kind'), KINDS, 'kind', state.kind, function(v){ state.kind=v; build(); render(); });
+    chips(document.getElementById('f-type'), TYPES, 'type', state.type, function(v){ state.type=v; build(); render(); });
+    chips(document.getElementById('f-job'), JOBS, 'job', state.job, function(v){ state.job=v; build(); render(); });
+    chips(document.getElementById('f-dep'), DEP, 'dep', state.dep, function(v){ state.dep=v; build(); render(); });
+    chips(document.getElementById('f-rent'), RENT, 'rent', state.rent, function(v){ state.rent=v; build(); render(); });
+    chips(document.getElementById('f-key'), KEY, 'key', state.key, function(v){ state.key=v; build(); render(); });
+    document.querySelectorAll('#f-sort button').forEach(function(b){
+      b.setAttribute('data-on', b.getAttribute('data-v')===state.sort?1:0);
+      b.onclick = function(){ state.sort = b.getAttribute('data-v'); build(); render(); };
+    });
+  }
+
+  document.getElementById('f-q').addEventListener('input', function(e){ state.q = e.target.value.trim(); render(); });
+
+  // 로그인 확인
+  function loggedIn(){
+    try{
+      if (window.DIA_STAFF) return true;
+      if (localStorage.getItem('dia_member') === '1') return true;
+    }catch(e){}
+    return false;
+  }
+  var gate = document.getElementById('gate');
+  gate.addEventListener('click', function(e){
+    if (e.target === gate || e.target.getAttribute('data-close')) gate.setAttribute('data-open','0');
+  });
   document.getElementById('shop-add').addEventListener('click', function(){
-    var title = prompt('제목 (예: 홍대 속눈썹펌 샵인샵 자리 구합니다)');
+    if (!loggedIn()) { gate.setAttribute('data-open','1'); return; }
+    var title = prompt('매물 이름 (예: 홍대 속눈썹펌 샵인샵 자리)');
     if (!title) return;
-    var kind = prompt('종류 (샵인샵 · 샵매매)', '샵인샵');
-    if (!kind) return;
-    var type = prompt('구해요 / 내놔요 중 하나', '구해요');
-    if (!type) return;
-    var area = prompt('지역 (서울·경기·인천·부산·대구·대전·광주·강원·제주·온라인)', '서울');
-    if (!area) return;
-    var job = prompt('업종 (속눈썹펌·속눈썹연장·네일·반영구·왁싱·피부·토탈뷰티·두피)', '속눈썹펌');
-    if (!job) return;
-    var link = prompt('원문 주소 (없으면 비워 두세요)', '') || '';
+    var kind = prompt('종류 (샵매매 · 샵인샵 · 임대)', '샵인샵') || '샵인샵';
+    var type = prompt('내놔요 / 구해요', '내놔요') || '내놔요';
+    var area = prompt('지역 (서울 · 경기·인천 · 부산·울산 · 대구·경북 · 대전·충청 · 광주·전라 · 강원 · 제주 · 온라인)', '서울') || '서울';
+    var job = prompt('업종 (속눈썹펌 · 네일 · 반영구 · 왁싱 · 피부 · 토탈뷰티 · 두피·탈모)', '속눈썹펌') || '속눈썹펌';
+    var dep = Number(prompt('보증금 (만원, 숫자만)', '1000') || 0);
+    var rent = Number(prompt('월세 (만원, 숫자만)', '80') || 0);
+    var key = Number(prompt('권리금 (만원, 없으면 0)', '0') || 0);
     var a = load();
-    a.unshift({ id: 's'+Date.now(), title: title, kind: kind,
-      type: type.indexOf('내놔') >= 0 ? 'give' : 'want',
-      area: area, job: job, link: link, at: new Date().toISOString().slice(0,10) });
+    a.unshift({ id:'s'+Date.now(), title:title, kind:kind, type:(type.indexOf('구해')>=0?'want':'give'),
+      area:area, job:job, dep:dep, rent:rent, key:key, at:new Date().toISOString().slice(0,10) });
     save(a); render();
   });
 
+  // 예시 매물(처음 한 번만) — 화면 확인용, 실제 등록글이 쌓이면 그대로 대체됩니다
+  (function seed(){
+    try{
+      if (localStorage.getItem('dia_shop_seeded') === '1') return;
+      if (load().length) { localStorage.setItem('dia_shop_seeded','1'); return; }
+      var d = new Date().toISOString().slice(0,10);
+      save([
+        {id:'ex1',title:'홍대입구 속눈썹펌 2인 샵인샵 (기존 고객 300명)',kind:'샵인샵',type:'give',area:'서울',job:'속눈썹펌',dep:1000,rent:80,key:500,at:d},
+        {id:'ex2',title:'까치산 네일샵 매매 — 기자재 포함',kind:'샵매매',type:'give',area:'서울',job:'네일',dep:2000,rent:110,key:1500,at:d},
+        {id:'ex3',title:'수원 반영구 자리 임대 (1인실, 주차 가능)',kind:'임대',type:'give',area:'경기·인천',job:'반영구',dep:500,rent:45,key:0,at:d},
+        {id:'ex4',title:'부산 서면 왁싱샵 인수 희망합니다',kind:'샵매매',type:'want',area:'부산·울산',job:'왁싱',dep:3000,rent:100,key:1000,at:d},
+        {id:'ex5',title:'대전 피부관리실 샵인샵 자리 구합니다',kind:'샵인샵',type:'want',area:'대전·충청',job:'피부',dep:500,rent:50,key:0,at:d},
+        {id:'ex6',title:'강남 토탈뷰티 3층 매장 매매 (권리금 협의)',kind:'샵매매',type:'give',area:'서울',job:'토탈뷰티',dep:5000,rent:220,key:3000,at:d}
+      ]);
+      localStorage.setItem('dia_shop_seeded','1');
+    }catch(e){}
+  })();
+
   function render(){
-    var a = load().filter(function(it){
+    var all = load();
+    var a = all.filter(function(it){
       if (state.area !== '전체' && it.area !== state.area) return false;
       if (state.kind && it.kind !== state.kind) return false;
       if (state.type && it.type !== state.type) return false;
-      if (state.job && it.job !== state.job) return false;
+      if (state.job !== '전체' && it.job !== state.job) return false;
+      if (!inRange(Number(it.dep)||0, state.dep)) return false;
+      if (!inRange(Number(it.rent)||0, state.rent)) return false;
+      if (!inRange(Number(it.key)||0, state.key)) return false;
       if (state.q) {
-        var s = (it.title + ' ' + it.area + ' ' + it.job).toLowerCase();
+        var s = (it.title+' '+it.area+' '+it.job+' '+it.kind).toLowerCase();
         if (s.indexOf(state.q.toLowerCase()) < 0) return false;
       }
       return true;
     });
-    var box = document.getElementById('shop-items');
-    var empty = document.getElementById('shop-empty');
-    if (!a.length) { box.innerHTML = ''; empty.style.display = ''; return; }
+    if (state.sort === 'dep') a.sort(function(x,y){ return (x.dep||0)-(y.dep||0); });
+    else if (state.sort === 'rent') a.sort(function(x,y){ return (x.rent||0)-(y.rent||0); });
+    else a.sort(function(x,y){ return String(y.at||'').localeCompare(String(x.at||'')); });
+
+    document.getElementById('shop-count').textContent = '전체 매물 ' + all.length + '건';
+    document.getElementById('shop-n').textContent = '조건에 맞는 매물 ' + a.length + '건';
+
+    var box = document.getElementById('shop-items'), empty = document.getElementById('shop-empty');
+    if (!a.length) { box.innerHTML=''; empty.style.display=''; return; }
     empty.style.display = 'none';
     box.innerHTML = a.map(function(it){
-      return '<div class="item">' +
-        '<div class="top">' +
-          '<span class="badge '+(it.type==='give'?'give':'want')+'">'+(it.type==='give'?'내놔요':'구해요')+'</span>' +
-          '<span class="badge kind">'+esc(it.kind||'샵인샵')+'</span>' +
-          '<span class="badge area">'+esc(it.area)+'</span>' +
-          '<span class="badge job">'+esc(it.job)+'</span>' +
-        '</div>' +
-        '<h3>'+esc(it.title)+'</h3>' +
-        '<div class="meta">'+esc(it.at||'')+(it.link?' · <a href="'+esc(it.link)+'" target="_blank" rel="noopener" style="color:#c6506f;font-weight:700;text-decoration:none;">원문 보기</a>':'')+'</div>' +
-      '</div>';
+      return '<article class="item">'+
+        '<div class="top">'+
+          '<span class="tag '+(it.type==='give'?'give':'want')+'">'+(it.type==='give'?'내놔요':'구해요')+'</span>'+
+          '<span class="tag kind">'+esc(it.kind||'샵인샵')+'</span>'+
+          '<span class="tag job">'+esc(it.job)+'</span>'+
+        '</div>'+
+        '<h3>'+esc(it.title)+'</h3>'+
+        '<div class="addr">'+esc(it.area)+(it.area==='온라인'?'':' · ')+'</div>'+
+        '<div class="money">'+
+          '<div>보증금<b>'+man(it.dep)+'</b></div>'+
+          '<div>월세<b>'+man(it.rent)+'</b></div>'+
+          '<div>권리금<b>'+(Number(it.key)>0?man(it.key):'없음')+'</b></div>'+
+        '</div>'+
+        '<div class="foot"><span>'+esc(it.at||'')+'</span></div>'+
+      '</article>';
     }).join('');
   }
 
-  buildAreas();
-  render();
+  build(); render();
 });
 </script>
 </body>
