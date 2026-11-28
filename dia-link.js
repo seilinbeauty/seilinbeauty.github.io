@@ -203,6 +203,13 @@
           '<button type="button" class="dl-kind" data-k="릴스">릴스</button>' +
         '</div>' +
         '<form class="dl-f" id="dlForm" autocomplete="off"><input id="dlUrl" inputmode="url" placeholder="게시물 주소 붙여 넣기"><button type="submit">남기기</button></form>' +
+        '<div class="dl-pin" id="dlPinBox" hidden style="margin-top:8px;padding:9px 10px;border:1px solid #f0c8d5;border-radius:9px;background:#fff8fa;">' +
+          '<div style="font-size:12px;font-weight:700;color:#b3476a;margin-bottom:6px;">링크 등록용 4자리 숫자 암호를 입력해 주세요. (신규 회원은 새 4자리 설정)</div>' +
+          '<div style="display:flex;gap:6px;">' +
+            '<input id="dlPinIn" type="password" inputmode="numeric" maxlength="4" placeholder="숫자 4자리" style="flex:1 1 auto;min-width:0;height:34px;padding:0 10px;border:1px solid #e6a6bb;border-radius:8px;font-size:14px;background:#fff;outline:none;">' +
+            '<button type="button" id="dlPinBtn" style="flex:0 0 auto;height:34px;padding:0 12px;border:0;border-radius:8px;background:#ff5d8f;color:#fff;font-size:13px;font-weight:800;cursor:pointer;">확인 후 등록</button>' +
+          '</div>' +
+        '</div>' +
         '<div class="dl-msg" id="dlMsg"></div>' +
         '<div class="dl-mine" id="dlMine"></div>' +
         '<div class="dl-foot"><a class="dl-list" href="dia-link.html">오늘 참여 링크 보기</a>' + '</div>' +
@@ -227,9 +234,15 @@
       if(!url){ msg.textContent = '인스타그램 게시물 주소를 붙여 넣어 주세요.'; return; }
       if(!isOpen()){ msg.textContent = '지금은 남기는 시간이 아니에요. (낮 09:00 ~ 21:00)'; return; }
       if(load().some(function(it){ return it.url === url; })){ msg.textContent = '이미 올라온 주소예요.'; return; }
-      // 암호는 “내 품앗이”에 들어올 때 이미 확인했다 (이 기기에 기억된 암호로 한 번 더 확인)
       var nick = me(), pin = pinOf(nick);
-      if(!window.DiaPin || !window.DiaPin.okPin(pin)){ msg.textContent = '암호 확인이 필요해요. 위의 로그아웃을 누르고 “내 품앗이”에서 다시 들어와 주세요.'; return; }
+      if(!window.DiaPin || !window.DiaPin.okPin(pin)){
+        var pb = document.getElementById('dlPinBox'), pi = document.getElementById('dlPinIn');
+        if(pb){ pb.hidden = false; if(pi) pi.focus(); }
+        msg.textContent = '아래에 4자리 숫자 암호를 입력하고 [확인 후 등록]을 눌러 주세요.';
+        return;
+      }
+      var pbHide = document.getElementById('dlPinBox');
+      if(pbHide) pbHide.hidden = true;
       busy = true; msg.className = 'dl-msg'; msg.textContent = '확인 중…';
       btn.disabled = true;
       sendAdd(nick, pin, kind, url).then(function(d){
@@ -243,9 +256,13 @@
         msg.className = 'dl-msg err';
         if(d && d.error === 'bad_pin'){
           if(window.DiaPin) window.DiaPin.forget(nick);
-          msg.textContent = '암호가 바뀌었어요. 로그아웃 후 “내 품앗이”에서 다시 들어와 주세요.';
+          var pb2 = document.getElementById('dlPinBox');
+          if(pb2) pb2.hidden = false;
+          msg.textContent = '암호가 달라요. 아래에 4자리 숫자 암호를 다시 입력해 주세요.';
         } else if(d && d.error === 'unauthorized'){
-          msg.textContent = '암호 확인이 필요해요. 로그아웃 후 “내 품앗이”에서 다시 들어와 주세요.';
+          var pb3 = document.getElementById('dlPinBox');
+          if(pb3) pb3.hidden = false;
+          msg.textContent = '암호 확인이 필요해요. 아래에 4자리 숫자 암호를 입력해 주세요.';
         } else if(d && (d.error === 'nourl')){
           msg.textContent = '인스타그램 게시물 주소를 붙여 넣어 주세요.';
         } else if(d && (d.error === 'closed')){
@@ -257,6 +274,33 @@
         }
       }).catch(function(){
         busy = false; btn.disabled = false;
+        msg.className = 'dl-msg err'; msg.textContent = '연결이 잠깐 안 돼요. 다시 눌러 주세요.';
+      });
+    });
+    document.getElementById('dlPinBtn').addEventListener('click', function(){
+      var pi = document.getElementById('dlPinIn'), pb = document.getElementById('dlPinBox'), msg = document.getElementById('dlMsg');
+      var nick = me(), pval = String(pi ? pi.value : '').trim();
+      if(!window.DiaPin || !window.DiaPin.okPin(pval)){
+        msg.className = 'dl-msg err'; msg.textContent = '숫자 4자리를 입력해 주세요.';
+        if(pi) pi.focus();
+        return;
+      }
+      var pbtn = this; pbtn.disabled = true;
+      msg.className = 'dl-msg'; msg.textContent = '암호 확인 중…';
+      window.DiaPin.check(nick, pval).then(function(res){
+        pbtn.disabled = false;
+        if(res && res.ok){
+          window.DiaPin.remember(nick, pval);
+          if(pb) pb.hidden = true;
+          if(pi) pi.value = '';
+          var f = document.getElementById('dlForm');
+          if(f) f.dispatchEvent(new Event('submit', { cancelable: true }));
+          return;
+        }
+        msg.className = 'dl-msg err';
+        msg.textContent = (res && res.reason === '틀림') ? '암호가 달라요. 다시 확인해 주세요.' : '연결이 잠깐 안 돼요. 다시 눌러 주세요.';
+      }).catch(function(){
+        pbtn.disabled = false;
         msg.className = 'dl-msg err'; msg.textContent = '연결이 잠깐 안 돼요. 다시 눌러 주세요.';
       });
     });
@@ -321,7 +365,12 @@
     var nick = me(), pin = pinOf(nick), msg = document.getElementById('dlMsg');
     function say(t, ok){ if(!msg) return; msg.className = 'dl-msg ' + (ok ? 'ok' : 'err'); msg.innerHTML = t; }
     if(e.target.closest('.dl-del-ok')){
-      if(!window.DiaPin || !window.DiaPin.okPin(pin)){ say('암호 확인이 필요해요. 로그아웃 후 다시 들어와 주세요.'); return; }
+      if(!window.DiaPin || !window.DiaPin.okPin(pin)){
+        var pb4 = document.getElementById('dlPinBox');
+        if(pb4) pb4.hidden = false;
+        say('암호 확인이 필요해요. 위 입력칸에 4자리 숫자 암호를 입력해 주세요.');
+        return;
+      }
       sendDel(nick, pin, it).then(function(d){
         if(d && d.ok){ delKey = null; say('<b>지웠어요.</b>', true); return fetchMine().then(function(){ paintMine(true); }); }
         rowBusy(row, false);
@@ -335,7 +384,12 @@
       var url = clean(row.querySelector('.dl-mu').value), err = row.querySelector('.dl-me-err');
       if(!url){ err.textContent = '인스타그램 게시물 주소를 넣어 주세요.'; return; }
       if(load().some(function(x){ return String(x.row) !== key && x.url === url; })){ err.textContent = '이미 올라온 주소예요.'; return; }
-      if(!window.DiaPin || !window.DiaPin.okPin(pin)){ err.textContent = '암호 확인이 필요해요. 로그아웃 후 다시 들어와 주세요.'; return; }
+      if(!window.DiaPin || !window.DiaPin.okPin(pin)){
+        var pb5 = document.getElementById('dlPinBox');
+        if(pb5) pb5.hidden = false;
+        err.textContent = '암호 확인이 필요해요. 위 입력칸에 4자리 숫자 암호를 입력해 주세요.';
+        return;
+      }
       err.textContent = '저장 중…';
       rowBusy(row, true);
       sendEdit(nick, pin, it, editKind || it.kind, url).then(function(d){
