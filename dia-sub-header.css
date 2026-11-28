@@ -1,4 +1,7 @@
 /* 다이아 서브페이지 공통 최신 상단 헤더 (dia.html과 동일) */
+body, body.dia-page {
+  padding-top: 0 !important;
+}
 header.dia-header {
   position: sticky;
   top: 0;
